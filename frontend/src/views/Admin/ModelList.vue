@@ -43,7 +43,8 @@ const { t } = useI18n();
 const models = ref<Model[]>([]);
 const loading = ref(true);
 
-function formatDate(date: string) {
+function formatDate(date?: string) {
+  if (!date) return '-';
   return new Date(date).toLocaleString();
 }
 
@@ -57,14 +58,22 @@ onMounted(async () => {
         id: '1',
         name: '测试模型1',
         description: '这是一个测试模型',
+        url: '/models/test1.glb',
         status: 'ready',
+        tags: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         createTime: new Date().toISOString()
       },
       {
         id: '2',
         name: '测试模型2',
         description: '这是另一个测试模型',
+        url: '/models/test2.glb',
         status: 'draft',
+        tags: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         createTime: new Date().toISOString()
       }
     ];

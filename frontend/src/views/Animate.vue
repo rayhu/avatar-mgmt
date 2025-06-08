@@ -14,7 +14,7 @@
                 :placeholder="$t('animate.textPlaceholder')"
                 :disabled="isProcessing"
                 required
-                @input="handleTextChange($event.target.value)"
+                @input="handleTextChange"
               ></textarea>
               <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
                 {{ charCount }}/180
@@ -27,7 +27,7 @@
                 id="emotion"
                 :value="emotion"
                 :disabled="isProcessing"
-                @change="handleEmotionChange($event.target.value)"
+                @change="handleEmotionChange"
               >
                 <option v-for="e in emotions" :key="e" :value="e">
                   {{ $t(`animate.emotions.${e.toLowerCase()}`) }}
@@ -41,7 +41,7 @@
                 id="action"
                 :value="action"
                 :disabled="isProcessing"
-                @change="handleActionChange($event.target.value)"
+                @change="handleActionChange"
               >
                 <option v-for="a in actions" :key="a" :value="a">
                   {{ $t(`animate.actions.${a.charAt(0).toLowerCase() + a.slice(1)}`) }}
@@ -107,7 +107,9 @@ const emotions = ['Angry', 'Surprised', 'Sad'] as const;
 const charCount = computed(() => text.value.length);
 
 // 处理文本变化
-function handleTextChange(newText: string) {
+function handleTextChange(event: Event) {
+  const target = event.target as HTMLTextAreaElement;
+  const newText = target.value;
   if (newText.length > 180) {
     text.value = newText.slice(0, 180);
   } else {
@@ -116,7 +118,10 @@ function handleTextChange(newText: string) {
 }
 
 // 处理表情变化
-function handleEmotionChange(newEmotion: string) {
+function handleEmotionChange(eventOrEmotion: Event | string) {
+  const newEmotion = typeof eventOrEmotion === 'string' 
+    ? eventOrEmotion 
+    : (eventOrEmotion.target as HTMLSelectElement).value;
   emotion.value = newEmotion;
   if (modelViewer.value) {
     modelViewer.value.updateEmotion(newEmotion);
@@ -124,7 +129,10 @@ function handleEmotionChange(newEmotion: string) {
 }
 
 // 处理动作变化
-function handleActionChange(newAction: string) {
+function handleActionChange(eventOrAction: Event | string) {
+  const newAction = typeof eventOrAction === 'string'
+    ? eventOrAction
+    : (eventOrAction.target as HTMLSelectElement).value;
   action.value = newAction;
   if (modelViewer.value) {
     modelViewer.value.playAnimation(newAction);

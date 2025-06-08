@@ -59,7 +59,8 @@ async function onLogin() {
   
   try {
     // 模拟登录验证
-    const testAccounts = {
+    type UserRole = 'admin' | 'user';
+    const testAccounts: Record<string, { password: string; role: UserRole }> = {
       'admin': { password: 'admin123', role: 'admin' },
       'user': { password: 'user123', role: 'user' }
     };

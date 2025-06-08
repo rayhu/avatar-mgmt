@@ -73,7 +73,7 @@
                 @click.stop="selectKeyframe(keyframe)"
                 @mousedown="startDrag(keyframe, $event)"
               >
-                {{ t(`animate.actions.${keyframe.action?.charAt(0).toLowerCase() + keyframe.action?.slice(1)}`) }}
+                {{ t(`animate.actions.${keyframe.action ? keyframe.action.charAt(0).toLowerCase() + keyframe.action.slice(1) : ''}`) }}
               </div>
             </div>
           </div>
@@ -95,10 +95,10 @@
         </div>
       </div>
       <div class="timeline-controls">
-        <button class="control-btn" @click="addActionKeyframe">
+        <button class="control-btn" @click="() => addActionKeyframe()">
           {{ t('animate.timeline.addAction') }}
         </button>
-        <button class="control-btn" @click="addEmotionKeyframe">
+        <button class="control-btn" @click="() => addEmotionKeyframe()">
           {{ t('animate.timeline.addEmotion') }}
         </button>
         <button class="control-btn danger" @click="clearTimeline">
