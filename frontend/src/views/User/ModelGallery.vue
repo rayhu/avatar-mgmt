@@ -1,35 +1,39 @@
 <template>
   <div class="user-model-gallery">
-    <div class="gallery-header">
-      <h2>{{ t('modelManagement.modelGallery') }}</h2>
-      <div class="gallery-tip">
-        <i class="tip-icon">ℹ️</i>
-        <span>{{ t('modelManagement.galleryTip') }}</span>
-      </div>
-    </div>
-    <div class="model-grid">
-      <div v-for="model in readyModels" :key="model.id" class="model-card">
-        <div class="model-preview">
-          <img :src="model.previewUrl" :alt="model.name" />
+    <ModelGallerySkeleton v-if="loading" />
+    <template v-else>
+      <div class="gallery-header">
+        <h2>{{ t('modelManagement.modelGallery') }}</h2>
+        <div class="gallery-tip">
+          <i class="tip-icon">ℹ️</i>
+          <span>{{ t('modelManagement.galleryTip') }}</span>
         </div>
-        <div class="model-info">
-          <h3>{{ model.name }}</h3>
-          <p>{{ model.description }}</p>
-          <div class="model-meta">
-            <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+      </div>
+      <div class="model-grid">
+        <div v-for="model in readyModels" :key="model.id" class="model-card">
+          <div class="model-preview">
+            <img :src="model.previewUrl" :alt="model.name" />
           </div>
-          <button class="view-btn" @click="viewModel(model)">
-            {{ t('modelManagement.viewModel') }}
-          </button>
+          <div class="model-info">
+            <h3>{{ model.name }}</h3>
+            <p>{{ model.description }}</p>
+            <div class="model-meta">
+              <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+            </div>
+            <button class="view-btn" @click="viewModel(model)">
+              {{ t('modelManagement.viewModel') }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ModelGallerySkeleton from '@/components/ModelGallerySkeleton.vue';
 
 const { t } = useI18n();
 
@@ -42,6 +46,7 @@ interface Model {
 }
 
 const readyModels = ref<Model[]>([]);
+const loading = ref(true);
 
 function formatDate(date: string) {
   return new Date(date).toLocaleString();
@@ -52,7 +57,31 @@ function viewModel(model: Model) {
   console.log('View model:', model);
 }
 
-// TODO: 拉取"就绪"模型列表
+onMounted(async () => {
+  try {
+    // 模拟API调用延迟
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // TODO: 实际API调用
+    readyModels.value = [
+      {
+        id: '1',
+        name: '测试模型1',
+        description: '这是一个测试模型',
+        previewUrl: 'https://via.placeholder.com/300x200',
+        createTime: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: '测试模型2',
+        description: '这是另一个测试模型',
+        previewUrl: 'https://via.placeholder.com/300x200',
+        createTime: new Date().toISOString()
+      }
+    ];
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <style lang="scss" scoped>

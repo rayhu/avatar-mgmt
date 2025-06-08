@@ -10,6 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     CommentList: typeof import('./components/CommentList.vue')['default']
     LikeButton: typeof import('./components/LikeButton.vue')['default']
+    ModelGallerySkeleton: typeof import('./components/ModelGallerySkeleton.vue')['default']
+    ModelListSkeleton: typeof import('./components/ModelListSkeleton.vue')['default']
     ModelVersionList: typeof import('./components/ModelVersionList.vue')['default']
     ModelViewer: typeof import('./components/ModelViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

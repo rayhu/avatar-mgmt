@@ -1,37 +1,41 @@
 <template>
   <div class="admin-model-list">
-    <div class="list-header">
-      <h2>{{ t('modelManagement.title') }}</h2>
-      <div class="list-tip">
-        <i class="tip-icon">ℹ️</i>
-        <span>{{ t('modelManagement.listTip') }}</span>
+    <ModelListSkeleton v-if="loading" />
+    <template v-else>
+      <div class="list-header">
+        <h2>{{ t('modelManagement.title') }}</h2>
+        <div class="list-tip">
+          <i class="tip-icon">ℹ️</i>
+          <span>{{ t('modelManagement.listTip') }}</span>
+        </div>
       </div>
-    </div>
-    <div class="model-actions">
-      <button class="action-btn">{{ t('modelManagement.uploadModel') }}</button>
-    </div>
-    <div class="model-list">
-      <div class="model-item" v-for="model in models" :key="model.id">
-        <div class="model-info">
-          <h3>{{ model.name }}</h3>
-          <p>{{ model.description }}</p>
-          <div class="model-meta">
-            <span>{{ t('modelManagement.modelInfo.status') }}: {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span>
-            <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+      <div class="model-actions">
+        <button class="action-btn">{{ t('modelManagement.uploadModel') }}</button>
+      </div>
+      <div class="model-list">
+        <div class="model-item" v-for="model in models" :key="model.id">
+          <div class="model-info">
+            <h3>{{ model.name }}</h3>
+            <p>{{ model.description }}</p>
+            <div class="model-meta">
+              <span>{{ t('modelManagement.modelInfo.status') }}: {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span>
+              <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+            </div>
+          </div>
+          <div class="model-actions">
+            <button class="action-btn">{{ t('modelManagement.editModel') }}</button>
+            <button class="action-btn danger">{{ t('modelManagement.deleteModel') }}</button>
           </div>
         </div>
-        <div class="model-actions">
-          <button class="action-btn">{{ t('modelManagement.editModel') }}</button>
-          <button class="action-btn danger">{{ t('modelManagement.deleteModel') }}</button>
-        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ModelListSkeleton from '@/components/ModelListSkeleton.vue';
 
 const { t } = useI18n();
 
@@ -44,12 +48,37 @@ interface Model {
 }
 
 const models = ref<Model[]>([]);
+const loading = ref(true);
 
 function formatDate(date: string) {
   return new Date(date).toLocaleString();
 }
 
-// TODO: 拉取模型列表，支持管理操作
+onMounted(async () => {
+  try {
+    // 模拟API调用延迟
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // TODO: 实际API调用
+    models.value = [
+      {
+        id: '1',
+        name: '测试模型1',
+        description: '这是一个测试模型',
+        status: 'ready',
+        createTime: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: '测试模型2',
+        description: '这是另一个测试模型',
+        status: 'draft',
+        createTime: new Date().toISOString()
+      }
+    ];
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <style lang="scss" scoped>
