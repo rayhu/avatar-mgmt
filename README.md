@@ -34,10 +34,21 @@ API 支持：自动生成完整的 REST API 和 GraphQL API，方便前后端集
 
 成熟度与社区：核心代码活跃维护，v9/v10/v11 版本已广泛用于生产环境。社区规模中等偏上（GitHub Star 约 2 万）。强调无代码和直观 UI，学习成本低，适合企业级应用，注重与 SQL 数据的直接交互，可靠性高。
 
+## 部署信息
 
+项目已部署在 Vercel 上：
+- 主域名：https://amis-avatar-mgmt.vercel.app
+- 预览域名：https://amis-avatar-mgmt-d4s2fjsmm-rays-projects-83e166d9.vercel.app
+
+部署命令：
+```bash
+npx vercel --prod
+```
+
+## 本地开发
 
 启动服务
-```
+```bash
 docker-compose up -d
 ```
 
@@ -51,13 +62,14 @@ docker-compose up -d
 
 停止/重启/清理
 
+```bash
 docker-compose stop      # 停止
 docker-compose start     # 启动
 docker-compose down      # 停止并清理容器
-
+```
 
 本地数据/扩展说明
-	•	所有文件、数据库都映射在本地目录（db_data、uploads、db_json、schemas），方便数据迁移和备份。
-	•	可以随时重启、升级或复制环境。
+- 所有文件、数据库都映射在本地目录（db_data、uploads、db_json、schemas），方便数据迁移和备份。
+- 可以随时重启、升级或复制环境。
 
 

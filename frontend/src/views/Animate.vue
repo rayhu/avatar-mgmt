@@ -179,7 +179,7 @@ interface Keyframe {
 const { t } = useI18n();
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
-const text = ref('你好，我是机器人，这是一个小小的演示，大约持续20秒钟。');
+const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
 const emotion = ref('Neutral');
 const action = ref('Idle');
 const isProcessing = ref(false);

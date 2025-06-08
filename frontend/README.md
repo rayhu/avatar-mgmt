@@ -265,6 +265,9 @@ yarn test
 
 # 运行类型检查
 yarn type-check
+
+# 部署到vercel
+npx vercel --prod
 ```
 
 ### 8.4 其他命令
