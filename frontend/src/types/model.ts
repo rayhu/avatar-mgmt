@@ -1,11 +1,10 @@
 export interface Model {
   id: string;
   name: string;
+  description: string;
   url: string;
-  description?: string;
-  tags?: string[];
-  status: 'ready' | 'draft' | 'offline';
-  owner?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  status: 'pending' | 'processing' | 'ready' | 'error';
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
 } 

@@ -2,6 +2,53 @@
   <div class="animate-page">
     <h1>{{ t('animate.title') }}</h1>
     
+
+    <!-- 模型选择 -->
+    <div class="model-selector">
+      <h3>{{ t('modelManagement.modelSelection') }}</h3>
+      <div class="model-list" v-if="!selectedModel">
+        <div v-for="model in readyModels" :key="model.id" class="model-card" @click="selectModel(model)">
+          <div class="model-preview">
+            <ModelViewer
+              :model-url="model.url"
+              :auto-rotate="true"
+              :show-controls="false"
+            />
+          </div>
+          <div class="model-info">
+            <h4>{{ model.name }}</h4>
+            <p>{{ model.description }}</p>
+          </div>
+        </div>
+      </div>
+      <div v-else class="selected-model">
+        <div class="model-preview">
+          <ModelViewer
+            :model-url="selectedModel.url"
+            :auto-rotate="true"
+            :show-controls="false"
+          />
+        </div>
+        <div class="model-info">
+          <h4>{{ selectedModel.name }}</h4>
+          <p>{{ selectedModel.description }}</p>
+          <button class="control-btn" @click="selectedModel = null">
+            {{ t('modelManagement.changeModel') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="viewer-container">
+      <ModelViewer
+        ref="modelViewer"
+        :model-url="selectedModel?.url || '/models/default.glb'"
+        :auto-rotate="true"
+        :show-controls="true"
+      />
+    </div> -->
+
+
     <!-- 时间轴编辑器 -->
     <div class="timeline-editor">
       <h3>{{ t('animate.timeline.title') }}</h3>
@@ -167,6 +214,7 @@ import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
 import { synthesizeSpeech } from '../api/azureTTS';
 import type { Model } from '../types/model';
+import { getModels } from '../api/model'
 
 interface Keyframe {
   id: string;
@@ -178,8 +226,59 @@ interface Keyframe {
 
 const { t } = useI18n();
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
+const readyModels = ref<Model[]>([])
+const selectedModel = ref<Model | null>(null)
+const currentAnimation = ref('')
+const currentEmotion = ref('')
+const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。')
+const currentAction = ref('Idle')
+
+const animations = [
+  'Idle',
+  'Walking',
+  'Running',
+  'Jump',
+  'Wave',
+  'Dance',
+  'Death',
+  'No',
+  'Punch',
+  'Sitting',
+  'Standing',
+  'ThumbsUp',
+  'WalkJump',
+  'Yes'
+]
+
+const emotions = [
+  'Neutral',
+  'Angry',
+  'Surprised',
+  'Sad'
+]
+
+onMounted(() => {
+  fetchReadyModels();
+})
+
+// 获取就绪状态的模型列表
+async function fetchReadyModels() {
+  try {
+    const models = await getModels();
+    readyModels.value = models.filter(model => model.status === 'ready');
+  } catch (error) {
+    console.error('Failed to fetch models:', error);
+  }
+}
+
+// 选择模型
+function selectModel(model: Model) {
+  selectedModel.value = model;
+  currentAnimation.value = '';
+  currentEmotion.value = '';
+}
+
 const audioPlayer = ref<HTMLAudioElement | null>(null);
-const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
 const emotion = ref('Neutral');
 const action = ref('Idle');
 const isProcessing = ref(false);
@@ -202,12 +301,6 @@ const recordedVideoUrl = ref<string>('');
 
 // 模型状态
 const currentModel = ref<Model | null>(null);
-const currentEmotion = ref('Neutral');
-const currentAction = ref('Idle');
-
-// 可用的动作和表情
-const actions = ['Idle', 'Walking', 'Running', 'Jump', 'Wave', 'Dance', 'Death', 'No', 'Punch', 'Sitting', 'Standing', 'Thumbs Up', 'Walk Jump', 'Yes'];
-const emotions = ['Neutral', 'Angry', 'Surprised', 'Sad'];
 
 // 监听文本变化，更新字符计数
 watch(text, (newText) => {
@@ -424,6 +517,53 @@ function downloadVideo() {
   link.click();
   document.body.removeChild(link);
 }
+
+function playAnimation(animation: string) {
+  if (modelViewer.value) {
+    console.log('Playing animation:', animation);
+    modelViewer.value.playAnimation(animation);
+    currentAnimation.value = animation;
+  }
+}
+
+function updateEmotion(emotion: string) {
+  if (modelViewer.value) {
+    modelViewer.value.updateEmotion(emotion)
+    currentEmotion.value = emotion
+  }
+}
+
+// 监听文本变化，更新字符计数
+function updateCharCount(newText: string) {
+  const count = newText.length;
+  if (count > 500) {
+    text.value = newText.slice(0, 500);
+  }
+}
+
+// 处理键盘事件
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    speak();
+  }
+}
+
+// 处理表情变化
+function handleEmotionChange(k: string) {
+  currentEmotion.value = k;
+}
+
+// 处理动作变化
+function handleActionChange(k: string) {
+  currentAction.value = k;
+}
+
+// 语音合成
+async function speak() {
+  if (!text.value.trim()) return;
+  // 实现语音合成逻辑
+}
 </script>
 
 <style lang="scss" scoped>
@@ -458,6 +598,86 @@ $background-color: #f5f5f5;
   }
 }
 
+.model-selector {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 16px;
+    color: #2c3e50;
+    font-size: 1.4em;
+  }
+}
+
+.model-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.model-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  .model-preview {
+    width: 100%;
+    height: 200px;
+    background: #fff;
+  }
+
+  .model-info {
+    padding: 16px;
+
+    h4 {
+      margin: 0 0 8px;
+      color: #2c3e50;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9em;
+    }
+  }
+}
+
+.selected-model {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  .model-preview {
+    width: 200px;
+    height: 200px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .model-info {
+    flex: 1;
+
+    h4 {
+      margin: 0 0 8px;
+      color: #2c3e50;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: #666;
+    }
+  }
+}
 .timeline-editor {
   background: white;
   border-radius: 8px;

@@ -5,13 +5,15 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const props = defineProps<{
   modelUrl?: string;
   emotion?: string;
   action?: string;
+  autoRotate?: boolean;
+  showControls?: boolean;
 }>();
 
 const container = ref<HTMLElement | null>(null);
@@ -83,65 +85,67 @@ async function loadModel(url: string) {
     }
     
     model = gltf.scene;
-    scene.add(model);
-    console.log('Model added to scene');
+    if (model) {
+      scene.add(model);
+      console.log('Model added to scene');
 
-    // 检查表情系统
-    model.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        const mesh = object as THREE.Mesh;
-        if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
-          console.log('Found mesh with morph targets:', mesh.name);
-          console.log('Available morph targets:', Object.keys(mesh.morphTargetDictionary));
+      // 检查表情系统
+      model.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+          const mesh = object as THREE.Mesh;
+          if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
+            console.log('Found mesh with morph targets:', mesh.name);
+            console.log('Available morph targets:', Object.keys(mesh.morphTargetDictionary));
+          }
         }
-      }
-    });
+      });
 
-    // 存储可用的动画
-    availableAnimations = gltf.animations;
-    console.log('Available animations:', availableAnimations.map(a => a.name));
+      // 存储可用的动画
+      availableAnimations = gltf.animations;
+      console.log('Available animations:', availableAnimations.map(a => a.name));
 
-    // 设置动画混合器
-    if (availableAnimations.length > 0) {
-      mixer = new THREE.AnimationMixer(model);
-      
-      // 默认播放 Idle 动画
-      const idleAnim = availableAnimations.find(a => a.name === 'Idle');
-      if (idleAnim) {
-        const action = mixer.clipAction(idleAnim);
-        action.play();
-        console.log('Playing Idle animation');
+      // 设置动画混合器
+      if (availableAnimations.length > 0) {
+        mixer = new THREE.AnimationMixer(model);
+        
+        // 默认播放 Idle 动画
+        const idleAnim = availableAnimations.find(a => a.name === 'Idle');
+        if (idleAnim) {
+          const action = mixer.clipAction(idleAnim);
+          action.play();
+          console.log('Playing Idle animation');
+        } else {
+          console.warn('Idle animation not found');
+        }
       } else {
-        console.warn('Idle animation not found');
+        console.warn('No animations found in model');
       }
-    } else {
-      console.warn('No animations found in model');
-    }
 
-    // 调整相机位置
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    
-    console.log('Model dimensions:', {
-      center: center.toArray(),
-      size: size.toArray()
-    });
-    
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const fov = camera.fov * (Math.PI / 180);
-    let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
-    
-    camera.position.set(0, size.y * 0.5, cameraZ * 1.5);
-    camera.lookAt(center);
-    
-    controls.target.copy(center);
-    controls.update();
-    
-    console.log('Camera adjusted:', {
-      position: camera.position.toArray(),
-      target: controls.target.toArray()
-    });
+      // 调整相机位置
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      
+      console.log('Model dimensions:', {
+        center: center.toArray(),
+        size: size.toArray()
+      });
+      
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
+      
+      camera.position.set(0, size.y * 0.5, cameraZ * 1.5);
+      camera.lookAt(center);
+      
+      controls.target.copy(center);
+      controls.update();
+      
+      console.log('Camera adjusted:', {
+        position: camera.position.toArray(),
+        target: controls.target.toArray()
+      });
+    }
   } catch (error) {
     console.error('Error loading model:', error);
   }
@@ -149,8 +153,8 @@ async function loadModel(url: string) {
 
 // 播放动画
 function playAnimation(animationName: string) {
-  if (!mixer) {
-    console.warn('Animation mixer not initialized');
+  if (!mixer || !model) {
+    console.warn('Animation mixer or model not initialized');
     return;
   }
   
@@ -198,32 +202,21 @@ function updateEmotion(emotion: string) {
   console.log('Updating emotion to:', emotion);
   
   try {
-    // 遍历模型中的所有网格
     model.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         const mesh = object as THREE.Mesh;
         if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
           console.log('Found mesh with morph targets:', mesh.name);
           console.log('Available morph targets:', Object.keys(mesh.morphTargetDictionary));
-          
-          // 重置所有表情权重
-          if (mesh.morphTargetInfluences) {
+          const morphTargetIndex = mesh.morphTargetDictionary[emotion];
+          if (morphTargetIndex !== undefined) {
+            // 重置所有表情权重
             mesh.morphTargetInfluences.fill(0);
-          }
-          
-          // 如果是 Neutral，直接返回（所有权重都是 0）
-          if (emotion === 'Neutral') {
-            console.log('Reset to neutral expression');
-            return;
-          }
-          
-          // 设置目标表情的权重
-          const emotionIndex = mesh.morphTargetDictionary[emotion];
-          if (emotionIndex !== undefined) {
-            mesh.morphTargetInfluences[emotionIndex] = 1;
-            console.log(`Set ${emotion} emotion weight to 1`);
+            // 设置目标表情权重
+            mesh.morphTargetInfluences[morphTargetIndex] = 1;
+            console.log(`Updated emotion "${emotion}" for mesh "${mesh.name}"`);
           } else {
-            console.warn(`Emotion "${emotion}" not found in morph targets`);
+            console.warn(`Emotion "${emotion}" not found in morph targets for mesh "${mesh.name}"`);
           }
         }
       }
@@ -233,12 +226,6 @@ function updateEmotion(emotion: string) {
   }
 }
 
-// 暴露方法给父组件
-defineExpose({
-  playAnimation,
-  updateEmotion
-});
-
 // 动画循环
 function animate() {
   requestAnimationFrame(animate);
@@ -247,8 +234,13 @@ function animate() {
     mixer.update(clock.getDelta());
   }
   
-  controls.update();
-  renderer.render(scene, camera);
+  if (controls) {
+    controls.update();
+  }
+  
+  if (renderer && scene && camera) {
+    renderer.render(scene, camera);
+  }
 }
 
 // 处理窗口大小变化
@@ -261,6 +253,12 @@ function handleResize() {
 }
 
 // 监听属性变化
+watch(() => props.modelUrl, (newUrl) => {
+  if (newUrl) {
+    loadModel(newUrl);
+  }
+});
+
 watch(() => props.emotion, (newEmotion) => {
   if (newEmotion) {
     updateEmotion(newEmotion);
@@ -273,19 +271,28 @@ watch(() => props.action, (newAction) => {
   }
 });
 
-// 生命周期钩子
+// 组件挂载时初始化
 onMounted(() => {
   initScene();
   animate();
   window.addEventListener('resize', handleResize);
 });
 
+// 组件卸载时清理
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
-  if (container.value && renderer) {
-    container.value.removeChild(renderer.domElement);
+  if (renderer) {
+    renderer.dispose();
   }
-  renderer?.dispose();
+  if (controls) {
+    controls.dispose();
+  }
+});
+
+// 导出组件
+defineExpose({
+  playAnimation,
+  updateEmotion
 });
 </script>
 

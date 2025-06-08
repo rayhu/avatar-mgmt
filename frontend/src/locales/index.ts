@@ -20,9 +20,9 @@ const messages = {
     offline: '下线',
     modelManagement: {
       title: '模型管理',
-      modelLibrary: '模型库',
       modelList: '模型列表',
       modelGallery: '模型展示',
+      modelSelection: '模型选择',
       galleryTip: '这里将展示所有"就绪"状态的模型，用户可浏览和查看详情。',
       listTip: '这里将展示所有模型，支持编辑、删除、设置状态等操作。',
       uploadModel: '上传模型',
@@ -43,15 +43,15 @@ const messages = {
       }
     },
     test: {
-      title: '测试页面',
+      title: '动作和表情测试',
       viewer: {
-        title: '模型查看器测试页面',
-        animationControl: '动画控制',
+        title: '动作和表情测试页面',
+        animationControl: '动作控制',
         emotionControl: '表情控制'
       }
     },
     animate: {
-      title: '动画和语音设置',
+      title: '动画和语音导出',
       text: '文本内容',
       textPlaceholder: '请输入要合成的文字（最多180个字符，约30秒）',
       textTooLong: '文本太长，请控制在180个字符以内',
@@ -119,9 +119,9 @@ const messages = {
     offline: 'Offline',
     modelManagement: {
       title: 'Model Management',
-      modelLibrary: 'Model Library',
       modelList: 'Model List',
       modelGallery: 'Model Gallery',
+      modelSelection: 'Model Selection',
       galleryTip: 'Here you can browse and view details of all "Ready" status models.',
       listTip: 'Here you can manage all models, including editing, deleting, and changing their status.',
       uploadModel: 'Upload Model',
@@ -142,15 +142,15 @@ const messages = {
       }
     },
     test: {
-      title: 'Test Page',
+      title: 'Action and Emotion Test',
       viewer: {
-        title: 'Model Viewer Test Page',
-        animationControl: 'Animation Control',
+        title: 'Action and Emotion Test Page',
+        animationControl: 'Action Control',
         emotionControl: 'Emotion Control'
       }
     },
     animate: {
-      title: 'Animation and Voice Settings',
+      title: 'Animation and Voice Export',
       text: 'Text Content',
       textPlaceholder: 'Please enter the text to synthesize (max 180 characters, about 30 seconds)',
       textTooLong: 'Text is too long, please keep it under 180 characters',

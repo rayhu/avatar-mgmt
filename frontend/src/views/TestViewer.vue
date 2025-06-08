@@ -1,11 +1,47 @@
 <template>
   <div class="test-viewer">
-    <h1>{{ t('test.viewer.title') }}</h1>
+    <h1>{{ t('test.title') }}</h1>
     
+    <!-- 模型选择 -->
+    <div class="model-selector">
+      <h3>{{ t('modelManagement.modelSelection') }}</h3>
+      <div class="model-list" v-if="!selectedModel">
+        <div v-for="model in readyModels" :key="model.id" class="model-card" @click="selectModel(model)">
+          <div class="model-preview">
+            <ModelViewer
+              :model-url="model.url"
+              :auto-rotate="true"
+              :show-controls="false"
+            />
+          </div>
+          <div class="model-info">
+            <h4>{{ model.name }}</h4>
+            <p>{{ model.description }}</p>
+          </div>
+        </div>
+      </div>
+      <div v-else class="selected-model">
+        <div class="model-preview">
+          <ModelViewer
+            :model-url="selectedModel.url"
+            :auto-rotate="true"
+            :show-controls="false"
+          />
+        </div>
+        <div class="model-info">
+          <h4>{{ selectedModel.name }}</h4>
+          <p>{{ selectedModel.description }}</p>
+          <button class="control-btn" @click="selectedModel = null">
+            {{ t('modelManagement.changeModel') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="viewer-container">
       <ModelViewer
         ref="modelViewer"
-        :model-url="modelUrl"
+        :model-url="selectedModel?.url || '/models/default.glb'"
         :auto-rotate="true"
         :show-controls="true"
       />
@@ -44,17 +80,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ModelViewer from '@/components/ModelViewer.vue'
+import ModelViewer from '../components/ModelViewer.vue'
+import { getModels } from '../api/model'
+import type { Model } from '../types/model'
 
 const { t } = useI18n()
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null)
-const modelUrl = '/models/default.glb'
-const currentAnimation = ref('')
-const currentEmotion = ref('')
+const readyModels = ref<Model[]>([])
+const selectedModel = ref<Model | null>(null)
+const currentAnimation = ref<string>('')
+const currentEmotion = ref<string>('')
 
-const animations = [
+const animations: string[] = [
   'Idle',
   'Walking',
   'Running',
@@ -71,14 +110,31 @@ const animations = [
   'Yes'
 ]
 
-const emotions = [
+const emotions: string[] = [
   'Neutral',
   'Angry',
   'Surprised',
   'Sad'
 ]
 
-function playAnimation(animation: string) {
+// 获取就绪状态的模型列表
+async function fetchReadyModels(): Promise<void> {
+  try {
+    const models = await getModels();
+    readyModels.value = models.filter(model => model.status === 'ready');
+  } catch (error) {
+    console.error('Failed to fetch models:', error);
+  }
+}
+
+// 选择模型
+function selectModel(model: Model): void {
+  selectedModel.value = model;
+  currentAnimation.value = '';
+  currentEmotion.value = '';
+}
+
+function playAnimation(animation: string): void {
   if (modelViewer.value) {
     console.log('Playing animation:', animation);
     modelViewer.value.playAnimation(animation);
@@ -86,12 +142,16 @@ function playAnimation(animation: string) {
   }
 }
 
-function updateEmotion(emotion: string) {
+function updateEmotion(emotion: string): void {
   if (modelViewer.value) {
     modelViewer.value.updateEmotion(emotion)
     currentEmotion.value = emotion
   }
 }
+
+onMounted(() => {
+  fetchReadyModels();
+})
 </script>
 
 <style lang="scss" scoped>
@@ -110,6 +170,87 @@ function updateEmotion(emotion: string) {
     margin: 0 0 16px;
     color: #2c3e50;
     font-size: 1.4em;
+  }
+}
+
+.model-selector {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 16px;
+    color: #2c3e50;
+    font-size: 1.4em;
+  }
+}
+
+.model-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.model-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  .model-preview {
+    width: 100%;
+    height: 200px;
+    background: #fff;
+  }
+
+  .model-info {
+    padding: 16px;
+
+    h4 {
+      margin: 0 0 8px;
+      color: #2c3e50;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9em;
+    }
+  }
+}
+
+.selected-model {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  .model-preview {
+    width: 200px;
+    height: 200px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .model-info {
+    flex: 1;
+
+    h4 {
+      margin: 0 0 8px;
+      color: #2c3e50;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: #666;
+    }
   }
 }
 

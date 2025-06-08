@@ -36,16 +36,9 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelListSkeleton from '@/components/ModelListSkeleton.vue';
+import type { Model } from '@/types/model';
 
 const { t } = useI18n();
-
-interface Model {
-  id: string;
-  name: string;
-  description: string;
-  status: string;
-  createTime: string;
-}
 
 const models = ref<Model[]>([]);
 const loading = ref(true);
