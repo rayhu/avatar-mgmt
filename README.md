@@ -1,7 +1,9 @@
 # 数字人形象库管理网站 (Digital Human Avatar Management System)
 
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://amis-avatar-mgmt.vercel.app)
-[![Vercel Status](https://vercel.com/rayhu/avatar-mgmt/badge.svg)](https://vercel.com/rayhu/avatar-mgmt)
+[![Vercel Status](https://vercel.com/rayhu/amis-avatar-mgmt/badge.svg)](https://vercel.com/rayhu/amis-avatar-mgmt)
+[![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ## 📝 项目简介 (Project Introduction)
 
