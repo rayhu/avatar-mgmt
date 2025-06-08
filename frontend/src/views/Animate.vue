@@ -6,45 +6,57 @@
     <div class="timeline-editor">
       <h3>{{ t('animate.timeline.title') }}</h3>
       <div class="timeline-container">
-        <div class="timeline-ruler">
-          <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
-            {{ i-1 }}s
+        <div class="timeline-header">
+          <div class="track-label">{{ t('animate.timeline.time') }}</div>
+          <div class="timeline-ruler">
+            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
+              {{ i-1 }}s
+            </div>
           </div>
         </div>
         <div class="timeline-tracks">
           <div class="track">
             <div class="track-label">{{ t('animate.timeline.action') }}</div>
-            <div class="track-content">
+            <div class="track-content" @click="onTrackClick('action', $event)">
               <div
                 v-for="keyframe in actionKeyframes"
                 :key="keyframe.id"
                 class="keyframe action-keyframe"
                 :style="{ left: `${keyframe.time * 3.33}%` }"
-                @click="selectKeyframe(keyframe)"
+                @click.stop="selectKeyframe(keyframe)"
+                @mousedown="startDrag(keyframe, $event)"
               >
-                {{ keyframe.action }}
+                {{ t(`animate.actions.${keyframe.action?.toLowerCase()}`) }}
               </div>
             </div>
           </div>
           <div class="track">
             <div class="track-label">{{ t('animate.timeline.emotion') }}</div>
-            <div class="track-content">
+            <div class="track-content" @click="onTrackClick('emotion', $event)">
               <div
                 v-for="keyframe in emotionKeyframes"
                 :key="keyframe.id"
                 class="keyframe emotion-keyframe"
                 :style="{ left: `${keyframe.time * 3.33}%` }"
-                @click="selectKeyframe(keyframe)"
+                @click.stop="selectKeyframe(keyframe)"
+                @mousedown="startDrag(keyframe, $event)"
               >
-                {{ keyframe.emotion }}
+                {{ t(`animate.emotions.${keyframe.emotion?.toLowerCase()}`) }}
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="timeline-controls">
-        <button @click="addActionKeyframe">{{ t('animate.timeline.addAction') }}</button>
-        <button @click="addEmotionKeyframe">{{ t('animate.timeline.addEmotion') }}</button>
+        <button @click="addActionKeyframe" class="control-btn">
+          {{ t('animate.timeline.addAction') }}
+        </button>
+        <button @click="addEmotionKeyframe" class="control-btn">
+          {{ t('animate.timeline.addEmotion') }}
+        </button>
+        <button @click="clearTimeline" class="control-btn danger">
+          {{ t('animate.timeline.clear') }}
+        </button>
       </div>
     </div>
 
@@ -60,6 +72,7 @@
             min="0"
             max="30"
             step="0.1"
+            @input="validateKeyframeTime"
           />
         </div>
         <div v-if="selectedKeyframe.type === 'action'" class="form-group">
@@ -92,13 +105,19 @@
             v-model="text"
             :placeholder="t('animate.textPlaceholder')"
             maxlength="180"
+            :disabled="isProcessing"
           ></textarea>
           <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
             {{ charCount }}/180
           </div>
         </div>
-        <button @click="onAnimate" class="generate-btn" :disabled="isProcessing">
-          {{ t('animate.submit') }}
+        <button 
+          @click="onAnimate" 
+          class="generate-btn" 
+          :disabled="isProcessing || !text.trim()"
+        >
+          <span v-if="isProcessing" class="loading-spinner"></span>
+          <span v-else>{{ t('animate.submit') }}</span>
         </button>
       </div>
 
@@ -109,36 +128,46 @@
           :emotion="currentEmotion"
           :action="currentAction"
         />
-        <audio ref="audioPlayer" controls></audio>
+        <audio ref="audioPlayer" controls :src="audioUrl"></audio>
+        <div class="preview-controls">
+          <button 
+            v-if="!isRecording" 
+            @click="startRecording" 
+            class="control-btn"
+            :disabled="isProcessing || !audioUrl"
+          >
+            {{ t('animate.record') }}
+          </button>
+          <button 
+            v-else 
+            @click="stopRecording" 
+            class="control-btn danger"
+          >
+            {{ t('animate.stopRecording') }}
+          </button>
+          <button 
+            v-if="recordedVideoUrl" 
+            @click="downloadVideo" 
+            class="control-btn"
+          >
+            {{ t('animate.download') }}
+          </button>
+          <div v-if="!audioUrl" class="recording-tip">
+            {{ t('animate.recordingTip') }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
-import { synthesizeSpeech } from '../api/azureTTS';
+import { synthesizeSpeech } from '../utils/azureTTS';
+import type { Model } from '../types/model';
 
-const { t } = useI18n();
-
-const text = ref('你好，我是机器人，这是一个小小的演示，大约持续20秒钟。');
-const emotion = ref('Neutral');
-const action = ref('Idle');
-const isProcessing = ref(false);
-const audioUrl = ref('');
-const audioPlayer = ref<HTMLAudioElement | null>(null);
-const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
-const currentModel = ref({ url: '/models/default.glb' });
-const currentEmotion = ref('Neutral');
-const currentAction = ref('Idle');
-
-// 添加字符限制
-const MAX_CHARS = 180; // 约30秒的文本长度
-const charCount = ref(0);
-
-// 时间轴相关
 interface Keyframe {
   id: string;
   time: number;
@@ -147,22 +176,102 @@ interface Keyframe {
   emotion?: string;
 }
 
+const { t } = useI18n();
+const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+const text = ref('你好，我是机器人，这是一个小小的演示，大约持续20秒钟。');
+const emotion = ref('Neutral');
+const action = ref('Idle');
+const isProcessing = ref(false);
+const audioUrl = ref<string>('');
+const charCount = ref(0);
+
+// 时间轴相关
 const actionKeyframes = ref<Keyframe[]>([]);
 const emotionKeyframes = ref<Keyframe[]>([]);
 const selectedKeyframe = ref<Keyframe | null>(null);
+const isDragging = ref(false);
+const dragStartX = ref(0);
+const dragStartTime = ref(0);
 
-const actions = [
-  'Idle', 'Walking', 'Running', 'Jump', 'Wave', 'Dance',
-  'Death', 'No', 'Punch', 'Sitting', 'Standing',
-  'ThumbsUp', 'WalkJump', 'Yes'
-];
+// 视频录制相关
+const isRecording = ref(false);
+const mediaRecorder = ref<MediaRecorder | null>(null);
+const recordedChunks = ref<Blob[]>([]);
+const recordedVideoUrl = ref<string>('');
 
+// 模型状态
+const currentModel = ref<Model | null>(null);
+const currentEmotion = ref('Neutral');
+const currentAction = ref('Idle');
+
+// 可用的动作和表情
+const actions = ['Idle', 'Walking', 'Running', 'Jump', 'Wave', 'Dance', 'Death', 'No', 'Punch', 'Sitting', 'Standing', 'Thumbs Up', 'Walk Jump', 'Yes'];
 const emotions = ['Neutral', 'Angry', 'Surprised', 'Sad'];
 
-function addActionKeyframe() {
+// 监听文本变化，更新字符计数
+watch(text, (newText) => {
+  charCount.value = newText.length;
+});
+
+// 清理函数
+onUnmounted(() => {
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
+  }
+  if (recordedVideoUrl.value) {
+    URL.revokeObjectURL(recordedVideoUrl.value);
+  }
+});
+
+function startDrag(keyframe: Keyframe, event: MouseEvent) {
+  if (!keyframe) return;
+  
+  isDragging.value = true;
+  dragStartX.value = event.clientX;
+  dragStartTime.value = keyframe.time;
+  
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+}
+
+function onDrag(event: MouseEvent) {
+  if (!isDragging.value || !selectedKeyframe.value) return;
+  
+  const deltaX = event.clientX - dragStartX.value;
+  const track = document.querySelector('.track-content') as HTMLElement;
+  const rect = track?.getBoundingClientRect();
+  if (!rect) return;
+  
+  const deltaTime = (deltaX / (rect.width - 4)) * 30;
+  const newTime = Math.max(0, Math.min(30, dragStartTime.value + deltaTime));
+  
+  selectedKeyframe.value.time = Number(newTime.toFixed(1));
+}
+
+function stopDrag() {
+  isDragging.value = false;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+}
+
+function onTrackClick(type: 'action' | 'emotion', event: MouseEvent) {
+  const track = event.currentTarget as HTMLElement;
+  const rect = track.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const time = ((clickX - 2) / (rect.width - 4)) * 30;
+  
+  if (type === 'action') {
+    addActionKeyframe(time);
+  } else {
+    addEmotionKeyframe(time);
+  }
+}
+
+function addActionKeyframe(time = 0) {
   const keyframe: Keyframe = {
     id: Date.now().toString(),
-    time: 0,
+    time,
     type: 'action',
     action: 'Idle'
   };
@@ -170,10 +279,10 @@ function addActionKeyframe() {
   selectedKeyframe.value = keyframe;
 }
 
-function addEmotionKeyframe() {
+function addEmotionKeyframe(time = 0) {
   const keyframe: Keyframe = {
     id: Date.now().toString(),
-    time: 0,
+    time,
     type: 'emotion',
     emotion: 'Neutral'
   };
@@ -181,92 +290,139 @@ function addEmotionKeyframe() {
   selectedKeyframe.value = keyframe;
 }
 
+function validateKeyframeTime() {
+  if (!selectedKeyframe.value) return;
+  selectedKeyframe.value.time = Math.max(0, Math.min(30, selectedKeyframe.value.time));
+}
+
+function clearTimeline() {
+  if (confirm(t('animate.timeline.confirmClear'))) {
+    actionKeyframes.value = [];
+    emotionKeyframes.value = [];
+    selectedKeyframe.value = null;
+  }
+}
+
 function selectKeyframe(keyframe: Keyframe) {
   selectedKeyframe.value = keyframe;
 }
 
-function deleteKeyframe(keyframe: Keyframe | null) {
-  if (!keyframe) return;
-  
+function deleteKeyframe(keyframe: Keyframe) {
   if (keyframe.type === 'action') {
-    actionKeyframes.value = actionKeyframes.value.filter(
-      k => k.id !== keyframe.id
-    );
+    actionKeyframes.value = actionKeyframes.value.filter(k => k.id !== keyframe.id);
   } else {
-    emotionKeyframes.value = emotionKeyframes.value.filter(
-      k => k.id !== keyframe.id
-    );
+    emotionKeyframes.value = emotionKeyframes.value.filter(k => k.id !== keyframe.id);
   }
-  
-  selectedKeyframe.value = null;
+  if (selectedKeyframe.value?.id === keyframe.id) {
+    selectedKeyframe.value = null;
+  }
 }
-
-function updateCharCount() {
-  charCount.value = text.value.length;
-}
-
-// 监听文本变化
-watch(text, updateCharCount);
 
 async function onAnimate() {
-  if (isProcessing.value || !text.value) return;
-  
-  if (text.value.length > MAX_CHARS) {
+  if (!text.value.trim()) {
+    alert(t('animate.textRequired'));
+    return;
+  }
+
+  if (text.value.length > 180) {
     alert(t('animate.textTooLong'));
     return;
   }
-  
-  isProcessing.value = true;
-  audioUrl.value = '';
-  
+
   try {
-    // 1. 合成语音
+    isProcessing.value = true;
     const audioBlob = await synthesizeSpeech(text.value);
     audioUrl.value = URL.createObjectURL(audioBlob);
-    
-    // 2. 播放动画和表情
-    if (audioPlayer.value) {
-      const audio = audioPlayer.value;
-      audio.src = audioUrl.value;
-      
-      // 监听音频播放进度
-      audio.addEventListener('timeupdate', () => {
-        const currentTime = audio.currentTime;
-        
-        // 更新动作
-        const currentAction = actionKeyframes.value
-          .filter(k => k.time <= currentTime)
-          .sort((a, b) => b.time - a.time)[0];
-        
-        if (currentAction && modelViewer.value) {
-          modelViewer.value.playAnimation(currentAction.action!);
-        }
-        
-        // 更新表情
-        const currentEmotion = emotionKeyframes.value
-          .filter(k => k.time <= currentTime)
-          .sort((a, b) => b.time - a.time)[0];
-        
-        if (currentEmotion && modelViewer.value) {
-          modelViewer.value.updateEmotion(currentEmotion.emotion!);
-        }
-      });
 
-      // 监听音频播放结束
-      audio.addEventListener('ended', () => {
-        if (modelViewer.value) {
-          modelViewer.value.playAnimation('Idle');
-          modelViewer.value.updateEmotion('Neutral');
-        }
+    if (audioPlayer.value) {
+      audioPlayer.value.src = audioUrl.value;
+      audioPlayer.value.onended = () => {
         isProcessing.value = false;
-      });
-      
-      audio.play();
+        currentEmotion.value = 'Neutral';
+        currentAction.value = 'Idle';
+      };
+      await audioPlayer.value.play();
     }
   } catch (error) {
-    console.error('Error generating animation:', error);
+    console.error('Failed to synthesize speech:', error);
+    alert(t('animate.synthesisError'));
     isProcessing.value = false;
   }
+}
+
+async function startRecording() {
+  try {
+    if (!audioUrl.value) {
+      alert(t('animate.recordingTip'));
+      return;
+    }
+
+    const modelViewer = document.querySelector('model-viewer') as any;
+    if (!modelViewer) {
+      throw new Error('Model viewer not found');
+    }
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Failed to get canvas context');
+    }
+
+    canvas.width = modelViewer.clientWidth;
+    canvas.height = modelViewer.clientHeight;
+
+    const stream = canvas.captureStream(30);
+    mediaRecorder.value = new MediaRecorder(stream, {
+      mimeType: 'video/webm;codecs=vp9',
+      videoBitsPerSecond: 2500000
+    });
+
+    mediaRecorder.value.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunks.value.push(event.data);
+      }
+    };
+
+    mediaRecorder.value.onstop = () => {
+      const blob = new Blob(recordedChunks.value, {
+        type: 'video/webm'
+      });
+      recordedVideoUrl.value = URL.createObjectURL(blob);
+    };
+
+    recordedChunks.value = [];
+    mediaRecorder.value.start();
+
+    const captureFrame = () => {
+      if (!isRecording.value) return;
+      context.drawImage(modelViewer, 0, 0, canvas.width, canvas.height);
+      requestAnimationFrame(captureFrame);
+    };
+
+    isRecording.value = true;
+    captureFrame();
+  } catch (error) {
+    console.error('Failed to start recording:', error);
+    alert(t('animate.recordError'));
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
+    isRecording.value = false;
+  }
+}
+
+function downloadVideo() {
+  if (!recordedVideoUrl.value) return;
+
+  const link = document.createElement('a');
+  link.href = recordedVideoUrl.value;
+  link.download = `avatar-animation-${new Date().toISOString()}.webm`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 </script>
 
@@ -292,12 +448,52 @@ async function onAnimate() {
   overflow: hidden;
 }
 
+.timeline-header {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 15px;
+}
+
 .timeline-ruler {
+  flex: 1;
   position: relative;
   height: 30px;
   background: #f0f0f0;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 15px;
+  margin-left: 10px;
+}
+
+.track-label {
+  width: 60px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #666;
+  text-align: right;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 30px;
+}
+
+.track {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 10px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.track-content {
+  flex: 1;
+  position: relative;
+  background: #fff;
+  padding: 5px 0;
+  cursor: pointer;
+  min-height: 40px;
+  margin-left: 10px;
 }
 
 .time-marker {
@@ -323,41 +519,18 @@ async function onAnimate() {
   gap: 15px;
 }
 
-.track {
-  display: flex;
-  height: 40px;
-  border-bottom: 1px solid #eee;
-  padding: 5px 0;
-}
-
-.track-label {
-  width: 80px;
-  padding: 10px;
-  background: #f8f8f8;
-  border-right: 1px solid #ddd;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.track-content {
-  flex: 1;
-  position: relative;
-  background: #fff;
-  padding: 5px 0;
-}
-
 .keyframe {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
   white-space: nowrap;
   min-width: 60px;
-  text-align: center;
+  text-align: left;
+  user-select: none;
 }
 
 .action-keyframe {
@@ -463,17 +636,107 @@ button:hover {
   background: #45a049;
 }
 
-.generate-btn {
+.control-btn {
+  padding: 8px 16px;
   background: #4CAF50;
   color: white;
   border: none;
-  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-right: 10px;
+  
+  &:hover {
+    background: #45a049;
+  }
+  
+  &.danger {
+    background: #f44336;
+    
+    &:hover {
+      background: #d32f2f;
+    }
+  }
 }
 
-.generate-btn:hover {
-  background: #45a049;
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover:not(:disabled) {
+    background: #45a049;
+  }
+  
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+}
+
+.preview-controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.control-btn {
+  padding: 8px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover:not(:disabled) {
+    background: #45a049;
+  }
+  
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  &.danger {
+    background: #f44336;
+    
+    &:hover {
+      background: #d32f2f;
+    }
+  }
+}
+
+.recording-tip {
+  color: #666;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
 }
 </style> 
