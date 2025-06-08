@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "yarn install && yarn build",
+  "outputDirectory": "dist",
+  "installCommand": "yarn install",
+  "framework": "vite",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://amis-avatar-mgmt.vercel.app/api"
+  }
+} 
