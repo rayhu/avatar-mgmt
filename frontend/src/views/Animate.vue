@@ -38,82 +38,6 @@
       </div>
     </div>
 
-    <!-- 时间轴编辑器 -->
-    <div class="timeline-editor">
-      <h3>{{ t('animate.timeline.title') }}</h3>
-      <div class="timeline-container">
-        <div class="timeline-header">
-          <div class="track-label">{{ t('animate.timeline.time') }}</div>
-          <div class="timeline-ruler">
-            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
-              {{ i-1 }}s
-            </div>
-          </div>
-        </div>
-        <div class="timeline-tracks">
-          <div class="track">
-            <div class="track-label">{{ t('animate.timeline.action') }}</div>
-            <div class="track-content">
-              <!-- 动作关键帧将在这里显示 -->
-            </div>
-          </div>
-          <div class="track">
-            <div class="track-label">{{ t('animate.timeline.emotion') }}</div>
-            <div class="track-content">
-              <!-- 表情关键帧将在这里显示 -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-controls">
-        <button class="control-btn">
-          {{ t('animate.timeline.addAction') }}
-        </button>
-        <button class="control-btn">
-          {{ t('animate.timeline.addEmotion') }}
-        </button>
-        <button class="control-btn danger">
-          {{ t('animate.timeline.clear') }}
-        </button>
-      </div>
-    </div>
-
-    <!-- 关键帧编辑器 -->
-    <div class="keyframe-editor">
-      <h4>{{ t('animate.timeline.editKeyframe') }}</h4>
-      <div class="editor-content">
-        <div class="form-group">
-          <label>{{ t('animate.timeline.time') }}</label>
-          <input
-            type="number"
-            min="0"
-            max="30"
-            step="0.1"
-            class="form-control"
-          />
-        </div>
-        <div class="form-group">
-          <label>{{ t('animate.timeline.action') }}</label>
-          <select class="form-control">
-            <option v-for="action in actions" :key="action" :value="action">
-              {{ t(`animate.actions.${action.charAt(0).toLowerCase() + action.slice(1)}`) }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>{{ t('animate.timeline.emotion') }}</label>
-          <select class="form-control">
-            <option v-for="emotion in emotions" :key="emotion" :value="emotion">
-              {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
-            </option>
-          </select>
-        </div>
-        <button class="delete-btn">
-          {{ t('animate.timeline.delete') }}
-        </button>
-      </div>
-    </div>
-
     <div class="animate-content">
       <div class="form-section">
         <div class="form-group">
@@ -172,6 +96,82 @@
         </div>
       </div>
     </div>
+
+    <!-- 时间轴编辑器 -->
+    <div class="timeline-editor">
+      <h3>{{ t('animate.timeline.title') }}</h3>
+      <div class="timeline-container">
+        <div class="timeline-header">
+          <div class="track-label">{{ t('animate.timeline.time') }}</div>
+          <div class="timeline-ruler">
+            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
+              {{ i-1 }}s
+            </div>
+          </div>
+        </div>
+        <div class="timeline-tracks">
+          <div class="track">
+            <div class="track-label">{{ t('animate.timeline.action') }}</div>
+            <div class="track-content">
+              <!-- 动作关键帧将在这里显示 -->
+            </div>
+          </div>
+          <div class="track">
+            <div class="track-label">{{ t('animate.timeline.emotion') }}</div>
+            <div class="track-content">
+              <!-- 表情关键帧将在这里显示 -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-controls">
+        <button class="control-btn">
+          {{ t('animate.timeline.addAction') }}
+        </button>
+        <button class="control-btn">
+          {{ t('animate.timeline.addEmotion') }}
+        </button>
+        <button class="control-btn danger">
+          {{ t('animate.timeline.clear') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- 关键帧编辑器 -->
+    <div class="keyframe-editor">
+      <h4>{{ t('animate.timeline.editKeyframe') }}</h4>
+      <div class="editor-content">
+        <div class="form-group">
+          <label>{{ t('animate.timeline.time') }}</label>
+          <input
+            type="number"
+            min="0"
+            max="30"
+            step="0.1"
+            class="form-control"
+          />
+        </div>
+        <div class="form-group">
+          <label>{{ t('animate.timeline.action') }}</label>
+          <select class="form-control" @change="handleActionChange">
+            <option v-for="action in actions" :key="action" :value="action">
+              {{ t(`animate.actions.${action.charAt(0).toLowerCase() + action.slice(1)}`) }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{ t('animate.timeline.emotion') }}</label>
+          <select class="form-control">
+            <option v-for="emotion in emotions" :key="emotion" :value="emotion">
+              {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
+            </option>
+          </select>
+        </div>
+        <button class="delete-btn">
+          {{ t('animate.timeline.delete') }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -189,7 +189,7 @@ const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
 const readyModels = ref<Model[]>([]);
 const selectedModel = ref<Model | null>(null);
 const currentEmotion = ref('');
-const currentAction = ref('Idle');
+const currentAction = ref('');
 const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
 
 const actions = [
@@ -228,8 +228,16 @@ const charCount = computed({
 const isRecording = ref(false);
 const recordedVideoUrl = ref<string>('');
 
+// 自动跳跃相关
+let jumpInterval: number | null = null;
+
 onMounted(() => {
   fetchReadyModels();
+  setTimeout(() => {
+    if (modelViewer.value && !currentAction.value) {
+      startAutoJump();
+    }
+  }, 1000);
 });
 
 // 获取就绪状态的模型列表
@@ -252,6 +260,11 @@ async function fetchReadyModels() {
 function selectModel(model: Model) {
   selectedModel.value = model;
   currentEmotion.value = '';
+  currentAction.value = '';
+  if (modelViewer.value) {
+    modelViewer.value.playAnimation('Idle');
+  }
+  startAutoJump();
 }
 
 const isProcessing = ref(false);
@@ -285,6 +298,52 @@ async function onAnimate() {
     alert(t('animate.synthesisError'));
   } finally {
     isProcessing.value = false;
+  }
+}
+
+// 自动跳跃相关
+function startAutoJump() {
+  if (jumpInterval) {
+    clearInterval(jumpInterval);
+  }
+  
+  jumpInterval = window.setInterval(() => {
+    if (modelViewer.value && !currentAction.value) {
+      console.log('Auto jumping...');
+      modelViewer.value.playAnimation('Jump');
+      setTimeout(() => {
+        if (modelViewer.value && !currentAction.value) {
+          modelViewer.value.playAnimation('Idle');
+        }
+      }, 1000);
+    }
+  }, 2000);
+}
+
+onUnmounted(() => {
+  if (jumpInterval) {
+    clearInterval(jumpInterval);
+    jumpInterval = null;
+  }
+});
+
+// 修改动作变化处理函数
+function handleActionChange(eventOrAction: Event | string) {
+  const newAction = typeof eventOrAction === 'string'
+    ? eventOrAction
+    : (eventOrAction.target as HTMLSelectElement).value;
+  
+  console.log('Action changed:', newAction);
+  
+  currentAction.value = newAction;
+  if (modelViewer.value) {
+    modelViewer.value.playAnimation(newAction);
+  }
+  
+  // 当选择了动作时，停止自动跳跃
+  if (jumpInterval) {
+    clearInterval(jumpInterval);
+    jumpInterval = null;
   }
 }
 </script>
