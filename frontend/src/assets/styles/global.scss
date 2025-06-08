@@ -1,0 +1,40 @@
+@import './variables.scss';
+
+// Reset and base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+}
+
+body {
+  font-family: $font-family-base;
+  background-color: $background-color;
+  color: $text-color;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Common utility classes
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-medium;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: $spacing-small; }
+.mt-2 { margin-top: $spacing-medium; }
+.mt-3 { margin-top: $spacing-large; }
+
+.mb-1 { margin-bottom: $spacing-small; }
+.mb-2 { margin-bottom: $spacing-medium; }
+.mb-3 { margin-bottom: $spacing-large; } 
