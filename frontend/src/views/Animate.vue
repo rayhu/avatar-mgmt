@@ -1,206 +1,76 @@
 <template>
   <div class="animate-page">
-    <h1>{{ t('animate.title') }}</h1>
-    
+    <div class="container">
+      <h2>{{ $t('animate.title') }}</h2>
+      
+      <div class="content">
+        <div class="controls">
+          <form @submit.prevent="onAnimate" class="control-form">
+            <div class="form-group">
+              <label for="text">{{ $t('animate.text') }}</label>
+              <textarea
+                id="text"
+                :value="text"
+                @input="handleTextChange($event.target.value)"
+                :placeholder="$t('animate.textPlaceholder')"
+                :disabled="isProcessing"
+                required
+              ></textarea>
+              <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
+                {{ charCount }}/180
+              </div>
+            </div>
 
-    <!-- 模型选择 -->
-    <div class="model-selector">
-      <h3>{{ t('modelManagement.modelSelection') }}</h3>
-      <div class="model-list" v-if="!selectedModel">
-        <div v-for="model in readyModels" :key="model.id" class="model-card" @click="selectModel(model)">
-          <div class="model-preview">
-            <ModelViewer
-              :model-url="model.url"
-              :auto-rotate="true"
-              :show-controls="false"
-            />
-          </div>
-          <div class="model-info">
-            <h4>{{ model.name }}</h4>
-            <p>{{ model.description }}</p>
-          </div>
+            <div class="form-group">
+              <label for="emotion">{{ $t('animate.emotion') }}</label>
+              <select
+                id="emotion"
+                :value="emotion"
+                @change="handleEmotionChange($event.target.value)"
+                :disabled="isProcessing"
+              >
+                <option v-for="e in emotions" :key="e" :value="e">
+                  {{ $t(`animate.emotions.${e.toLowerCase()}`) }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="action">{{ $t('animate.action') }}</label>
+              <select
+                id="action"
+                :value="action"
+                @change="handleActionChange($event.target.value)"
+                :disabled="isProcessing"
+              >
+                <option v-for="a in actions" :key="a" :value="a">
+                  {{ $t(`animate.actions.${a.charAt(0).toLowerCase() + a.slice(1)}`) }}
+                </option>
+              </select>
+            </div>
+
+            <button type="submit" :disabled="isProcessing" class="submit-button">
+              <span v-if="isProcessing" class="loading-spinner"></span>
+              <span v-else>{{ $t('animate.submit') }}</span>
+            </button>
+          </form>
         </div>
-      </div>
-      <div v-else class="selected-model">
-        <div class="model-preview">
+
+        <div class="preview">
           <ModelViewer
-            :model-url="selectedModel.url"
-            :auto-rotate="true"
-            :show-controls="false"
+            ref="modelViewer"
+            :emotion="emotion"
+            :action="action"
+            class="model-viewer"
           />
-        </div>
-        <div class="model-info">
-          <h4>{{ selectedModel.name }}</h4>
-          <p>{{ selectedModel.description }}</p>
-          <button class="control-btn" @click="selectedModel = null">
-            {{ t('modelManagement.changeModel') }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- <div class="viewer-container">
-      <ModelViewer
-        ref="modelViewer"
-        :model-url="selectedModel?.url || '/models/default.glb'"
-        :auto-rotate="true"
-        :show-controls="true"
-      />
-    </div> -->
-
-
-    <!-- 时间轴编辑器 -->
-    <div class="timeline-editor">
-      <h3>{{ t('animate.timeline.title') }}</h3>
-      <div class="timeline-container">
-        <div class="timeline-header">
-          <div class="track-label">{{ t('animate.timeline.time') }}</div>
-          <div class="timeline-ruler">
-            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
-              {{ i-1 }}s
-            </div>
-          </div>
-        </div>
-        <div class="timeline-tracks">
-          <div class="track">
-            <div class="track-label">{{ t('animate.timeline.action') }}</div>
-            <div class="track-content" @click="onTrackClick('action', $event)">
-              <div
-                v-for="keyframe in actionKeyframes"
-                :key="keyframe.id"
-                class="keyframe action-keyframe"
-                :style="{ left: `${keyframe.time * 3.33}%` }"
-                @click.stop="selectKeyframe(keyframe)"
-                @mousedown="startDrag(keyframe, $event)"
-              >
-                {{ t(`animate.actions.${keyframe.action?.toLowerCase()}`) }}
-              </div>
-            </div>
-          </div>
-          <div class="track">
-            <div class="track-label">{{ t('animate.timeline.emotion') }}</div>
-            <div class="track-content" @click="onTrackClick('emotion', $event)">
-              <div
-                v-for="keyframe in emotionKeyframes"
-                :key="keyframe.id"
-                class="keyframe emotion-keyframe"
-                :style="{ left: `${keyframe.time * 3.33}%` }"
-                @click.stop="selectKeyframe(keyframe)"
-                @mousedown="startDrag(keyframe, $event)"
-              >
-                {{ t(`animate.emotions.${keyframe.emotion?.toLowerCase()}`) }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-controls">
-        <button @click="addActionKeyframe" class="control-btn">
-          {{ t('animate.timeline.addAction') }}
-        </button>
-        <button @click="addEmotionKeyframe" class="control-btn">
-          {{ t('animate.timeline.addEmotion') }}
-        </button>
-        <button @click="clearTimeline" class="control-btn danger">
-          {{ t('animate.timeline.clear') }}
-        </button>
-      </div>
-    </div>
-
-    <!-- 关键帧编辑器 -->
-    <div v-if="selectedKeyframe" class="keyframe-editor">
-      <h4>{{ t('animate.timeline.editKeyframe') }}</h4>
-      <div class="editor-content">
-        <div class="form-group">
-          <label>{{ t('animate.timeline.time') }}</label>
-          <input
-            type="number"
-            v-model="selectedKeyframe.time"
-            min="0"
-            max="30"
-            step="0.1"
-            @input="validateKeyframeTime"
-          />
-        </div>
-        <div v-if="selectedKeyframe.type === 'action'" class="form-group">
-          <label>{{ t('animate.timeline.action') }}</label>
-          <select v-model="selectedKeyframe.action">
-            <option v-for="action in actions" :key="action" :value="action">
-              {{ t(`animate.actions.${action.toLowerCase()}`) }}
-            </option>
-          </select>
-        </div>
-        <div v-if="selectedKeyframe.type === 'emotion'" class="form-group">
-          <label>{{ t('animate.timeline.emotion') }}</label>
-          <select v-model="selectedKeyframe.emotion">
-            <option v-for="emotion in emotions" :key="emotion" :value="emotion">
-              {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
-            </option>
-          </select>
-        </div>
-        <button @click="deleteKeyframe(selectedKeyframe)" class="delete-btn">
-          {{ t('animate.timeline.delete') }}
-        </button>
-      </div>
-    </div>
-
-    <div class="animate-content">
-      <div class="form-section">
-        <div class="form-group">
-          <label>{{ t('animate.text') }}</label>
-          <textarea
-            v-model="text"
-            :placeholder="t('animate.textPlaceholder')"
-            maxlength="180"
-            :disabled="isProcessing"
-          ></textarea>
-          <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
-            {{ charCount }}/180
-          </div>
-        </div>
-        <button 
-          @click="onAnimate" 
-          class="generate-btn" 
-          :disabled="isProcessing || !text.trim()"
-        >
-          <span v-if="isProcessing" class="loading-spinner"></span>
-          <span v-else>{{ t('animate.submit') }}</span>
-        </button>
-      </div>
-
-      <div class="preview-section">
-        <ModelViewer
-          ref="modelViewer"
-          :model-url="currentModel?.url"
-          :emotion="currentEmotion"
-          :action="currentAction"
-        />
-        <audio ref="audioPlayer" controls :src="audioUrl"></audio>
-        <div class="preview-controls">
-          <button 
-            v-if="!isRecording" 
-            @click="startRecording" 
-            class="control-btn"
-            :disabled="isProcessing || !audioUrl"
-          >
-            {{ t('animate.record') }}
-          </button>
-          <button 
-            v-else 
-            @click="stopRecording" 
-            class="control-btn danger"
-          >
-            {{ t('animate.stopRecording') }}
-          </button>
-          <button 
-            v-if="recordedVideoUrl" 
-            @click="downloadVideo" 
-            class="control-btn"
-          >
-            {{ t('animate.download') }}
-          </button>
-          <div v-if="!audioUrl" class="recording-tip">
-            {{ t('animate.recordingTip') }}
+          
+          <div class="audio-player" v-if="audioUrl">
+            <audio
+              ref="audioPlayer"
+              :src="audioUrl"
+              controls
+              class="audio-controls"
+            ></audio>
           </div>
         </div>
       </div>
@@ -209,360 +79,121 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ModelViewer from '../components/ModelViewer.vue';
-import { synthesizeSpeech } from '../api/azureTTS';
-import type { Model } from '../types/model';
-import { getModels } from '../api/model'
-
-interface Keyframe {
-  id: string;
-  time: number;
-  type: 'action' | 'emotion';
-  action?: string;
-  emotion?: string;
-}
+import ModelViewer from '@/components/ModelViewer.vue';
+import { synthesizeSpeech } from '@/api/azureTTS';
 
 const { t } = useI18n();
-const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
-const readyModels = ref<Model[]>([])
-const selectedModel = ref<Model | null>(null)
-const currentAnimation = ref('')
-const currentEmotion = ref('')
-const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。')
-const currentAction = ref('Idle')
 
-const animations = [
-  'Idle',
-  'Walking',
-  'Running',
-  'Jump',
-  'Wave',
-  'Dance',
-  'Death',
-  'No',
-  'Punch',
-  'Sitting',
-  'Standing',
-  'ThumbsUp',
-  'WalkJump',
-  'Yes'
-]
-
-const emotions = [
-  'Neutral',
-  'Angry',
-  'Surprised',
-  'Sad'
-]
-
-onMounted(() => {
-  fetchReadyModels();
-})
-
-// 获取就绪状态的模型列表
-async function fetchReadyModels() {
-  try {
-    const models = await getModels();
-    readyModels.value = models.filter(model => model.status === 'ready');
-  } catch (error) {
-    console.error('Failed to fetch models:', error);
-  }
-}
-
-// 选择模型
-function selectModel(model: Model) {
-  selectedModel.value = model;
-  currentAnimation.value = '';
-  currentEmotion.value = '';
-}
-
-const audioPlayer = ref<HTMLAudioElement | null>(null);
-const emotion = ref('Neutral');
+const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
+const emotion = ref('Sad');
 const action = ref('Idle');
 const isProcessing = ref(false);
-const audioUrl = ref<string>('');
-const charCount = ref(0);
+const audioUrl = ref('');
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
 
-// 时间轴相关
-const actionKeyframes = ref<Keyframe[]>([]);
-const emotionKeyframes = ref<Keyframe[]>([]);
-const selectedKeyframe = ref<Keyframe | null>(null);
-const isDragging = ref(false);
-const dragStartX = ref(0);
-const dragStartTime = ref(0);
+// 可用的动作和表情
+const actions = [
+  'Idle', 'Walking', 'Running', 'Jump', 'Wave', 'Dance',
+  'Death', 'No', 'Punch', 'Sitting', 'Standing',
+  'ThumbsUp', 'WalkJump', 'Yes'
+] as const;
 
-// 视频录制相关
-const isRecording = ref(false);
-const mediaRecorder = ref<MediaRecorder | null>(null);
-const recordedChunks = ref<Blob[]>([]);
-const recordedVideoUrl = ref<string>('');
+const emotions = ['Angry', 'Surprised', 'Sad'] as const;
 
-// 模型状态
-const currentModel = ref<Model | null>(null);
+// 字符计数
+const charCount = computed(() => text.value.length);
 
-// 监听文本变化，更新字符计数
-watch(text, (newText) => {
-  charCount.value = newText.length;
-});
-
-// 清理函数
-onUnmounted(() => {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-  }
-  if (recordedVideoUrl.value) {
-    URL.revokeObjectURL(recordedVideoUrl.value);
-  }
-});
-
-function startDrag(keyframe: Keyframe, event: MouseEvent) {
-  if (!keyframe) return;
-  
-  isDragging.value = true;
-  dragStartX.value = event.clientX;
-  dragStartTime.value = keyframe.time;
-  
-  document.addEventListener('mousemove', onDrag);
-  document.addEventListener('mouseup', stopDrag);
-}
-
-function onDrag(event: MouseEvent) {
-  if (!isDragging.value || !selectedKeyframe.value) return;
-  
-  const deltaX = event.clientX - dragStartX.value;
-  const track = document.querySelector('.track-content') as HTMLElement;
-  const rect = track?.getBoundingClientRect();
-  if (!rect) return;
-  
-  const deltaTime = (deltaX / (rect.width - 4)) * 30;
-  const newTime = Math.max(0, Math.min(30, dragStartTime.value + deltaTime));
-  
-  selectedKeyframe.value.time = Number(newTime.toFixed(1));
-}
-
-function stopDrag() {
-  isDragging.value = false;
-  document.removeEventListener('mousemove', onDrag);
-  document.removeEventListener('mouseup', stopDrag);
-}
-
-function onTrackClick(type: 'action' | 'emotion', event: MouseEvent) {
-  const track = event.currentTarget as HTMLElement;
-  const rect = track.getBoundingClientRect();
-  const clickX = event.clientX - rect.left;
-  const time = ((clickX - 2) / (rect.width - 4)) * 30;
-  
-  if (type === 'action') {
-    addActionKeyframe(time);
+// 处理文本变化
+function handleTextChange(newText: string) {
+  if (newText.length > 180) {
+    text.value = newText.slice(0, 180);
   } else {
-    addEmotionKeyframe(time);
-  }
-}
-
-function addActionKeyframe(time = 0) {
-  const keyframe: Keyframe = {
-    id: Date.now().toString(),
-    time,
-    type: 'action',
-    action: 'Idle'
-  };
-  actionKeyframes.value.push(keyframe);
-  selectedKeyframe.value = keyframe;
-}
-
-function addEmotionKeyframe(time = 0) {
-  const keyframe: Keyframe = {
-    id: Date.now().toString(),
-    time,
-    type: 'emotion',
-    emotion: 'Neutral'
-  };
-  emotionKeyframes.value.push(keyframe);
-  selectedKeyframe.value = keyframe;
-}
-
-function validateKeyframeTime() {
-  if (!selectedKeyframe.value) return;
-  selectedKeyframe.value.time = Math.max(0, Math.min(30, selectedKeyframe.value.time));
-}
-
-function clearTimeline() {
-  if (confirm(t('animate.timeline.confirmClear'))) {
-    actionKeyframes.value = [];
-    emotionKeyframes.value = [];
-    selectedKeyframe.value = null;
-  }
-}
-
-function selectKeyframe(keyframe: Keyframe) {
-  selectedKeyframe.value = keyframe;
-}
-
-function deleteKeyframe(keyframe: Keyframe) {
-  if (keyframe.type === 'action') {
-    actionKeyframes.value = actionKeyframes.value.filter(k => k.id !== keyframe.id);
-  } else {
-    emotionKeyframes.value = emotionKeyframes.value.filter(k => k.id !== keyframe.id);
-  }
-  if (selectedKeyframe.value?.id === keyframe.id) {
-    selectedKeyframe.value = null;
-  }
-}
-
-async function onAnimate() {
-  if (!text.value.trim()) {
-    alert(t('animate.textRequired'));
-    return;
-  }
-
-  if (text.value.length > 180) {
-    alert(t('animate.textTooLong'));
-    return;
-  }
-
-  try {
-    isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value);
-    audioUrl.value = URL.createObjectURL(audioBlob);
-
-    if (audioPlayer.value) {
-      audioPlayer.value.src = audioUrl.value;
-      audioPlayer.value.onended = () => {
-        isProcessing.value = false;
-        currentEmotion.value = 'Neutral';
-        currentAction.value = 'Idle';
-      };
-      await audioPlayer.value.play();
-    }
-  } catch (error) {
-    console.error('Failed to synthesize speech:', error);
-    alert(t('animate.synthesisError'));
-    isProcessing.value = false;
-  }
-}
-
-async function startRecording() {
-  try {
-    if (!audioUrl.value) {
-      alert(t('animate.recordingTip'));
-      return;
-    }
-
-    const modelViewer = document.querySelector('model-viewer') as any;
-    if (!modelViewer) {
-      throw new Error('Model viewer not found');
-    }
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) {
-      throw new Error('Failed to get canvas context');
-    }
-
-    canvas.width = modelViewer.clientWidth;
-    canvas.height = modelViewer.clientHeight;
-
-    const stream = canvas.captureStream(30);
-    mediaRecorder.value = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp9',
-      videoBitsPerSecond: 2500000
-    });
-
-    mediaRecorder.value.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        recordedChunks.value.push(event.data);
-      }
-    };
-
-    mediaRecorder.value.onstop = () => {
-      const blob = new Blob(recordedChunks.value, {
-        type: 'video/webm'
-      });
-      recordedVideoUrl.value = URL.createObjectURL(blob);
-    };
-
-    recordedChunks.value = [];
-    mediaRecorder.value.start();
-
-    const captureFrame = () => {
-      if (!isRecording.value) return;
-      context.drawImage(modelViewer, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(captureFrame);
-    };
-
-    isRecording.value = true;
-    captureFrame();
-  } catch (error) {
-    console.error('Failed to start recording:', error);
-    alert(t('animate.recordError'));
-  }
-}
-
-function stopRecording() {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-    isRecording.value = false;
-  }
-}
-
-function downloadVideo() {
-  if (!recordedVideoUrl.value) return;
-
-  const link = document.createElement('a');
-  link.href = recordedVideoUrl.value;
-  link.download = `avatar-animation-${new Date().toISOString()}.webm`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-function playAnimation(animation: string) {
-  if (modelViewer.value) {
-    console.log('Playing animation:', animation);
-    modelViewer.value.playAnimation(animation);
-    currentAnimation.value = animation;
-  }
-}
-
-function updateEmotion(emotion: string) {
-  if (modelViewer.value) {
-    modelViewer.value.updateEmotion(emotion)
-    currentEmotion.value = emotion
-  }
-}
-
-// 监听文本变化，更新字符计数
-function updateCharCount(newText: string) {
-  const count = newText.length;
-  if (count > 500) {
-    text.value = newText.slice(0, 500);
-  }
-}
-
-// 处理键盘事件
-function handleKeyDown(event: KeyboardEvent) {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    speak();
+    text.value = newText;
   }
 }
 
 // 处理表情变化
-function handleEmotionChange(k: string) {
-  currentEmotion.value = k;
+function handleEmotionChange(newEmotion: string) {
+  emotion.value = newEmotion;
+  if (modelViewer.value) {
+    modelViewer.value.updateEmotion(newEmotion);
+  }
 }
 
 // 处理动作变化
-function handleActionChange(k: string) {
-  currentAction.value = k;
+function handleActionChange(newAction: string) {
+  action.value = newAction;
+  if (modelViewer.value) {
+    modelViewer.value.playAnimation(newAction);
+  }
 }
 
-// 语音合成
-async function speak() {
-  if (!text.value.trim()) return;
-  // 实现语音合成逻辑
+// 动画生成
+async function onAnimate() {
+  if (isProcessing.value || !text.value) return;
+  
+  if (text.value.length > 180) {
+    alert(t('animate.textTooLong'));
+    return;
+  }
+  
+  isProcessing.value = true;
+  audioUrl.value = '';
+  
+  try {
+    // 1. 合成语音
+    const audioBlob = await synthesizeSpeech(text.value);
+    audioUrl.value = URL.createObjectURL(audioBlob);
+    
+    // 2. 播放动画和表情
+    if (audioPlayer.value) {
+      const audio = audioPlayer.value;
+      
+      // 移除之前的事件监听器
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleAudioEnded);
+      
+      // 添加新的事件监听器
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('ended', handleAudioEnded);
+      
+      audio.src = audioUrl.value;
+      audio.play();
+    }
+  } catch (error) {
+    console.error('Error generating animation:', error);
+    isProcessing.value = false;
+  }
+}
+
+// 处理音频时间更新
+function handleTimeUpdate(event: Event) {
+  const audio = event.target as HTMLAudioElement;
+  const currentTime = audio.currentTime;
+  
+  // 根据时间更新动作和表情
+  if (currentTime < 2) {
+    handleActionChange('Idle');
+    handleEmotionChange('Sad');
+  } else if (currentTime < 4) {
+    handleActionChange('Wave');
+    handleEmotionChange('Surprised');
+  } else {
+    handleActionChange('Idle');
+    handleEmotionChange('Sad');
+  }
+}
+
+// 处理音频播放结束
+function handleAudioEnded() {
+  if (modelViewer.value) {
+    modelViewer.value.playAnimation('Idle');
+    modelViewer.value.updateEmotion('Sad');
+  }
+  isProcessing.value = false;
 }
 </script>
 
@@ -574,361 +205,100 @@ $text-color: #666;
 $border-color: #ddd;
 $background-color: #f5f5f5;
 
+// 定义间距变量
+$spacing-small: 8px;
+$spacing-medium: 16px;
+$spacing-large: 24px;
+
+// 定义边框圆角
+$border-radius: 4px;
+
+// 定义过渡动画
+$transition-duration: 0.3s;
+$transition-timing: ease;
+
+// 定义断点
+$breakpoint-md: 768px;
+
 .animate-page {
-  padding: 32px;
+  padding: $spacing-large;
+  min-height: 100vh;
+  background: $background-color;
+}
+
+.container {
   max-width: 1200px;
   margin: 0 auto;
-
-  h1 {
-    margin: 0 0 32px;
-    color: #2c3e50;
-    font-size: 2em;
-  }
-
-  h3 {
-    margin: 0 0 16px;
-    color: #2c3e50;
-    font-size: 1.4em;
-  }
-
-  h4 {
-    margin: 0 0 12px;
-    color: #2c3e50;
-    font-size: 1.2em;
-  }
 }
 
-.model-selector {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-
-  h3 {
-    margin: 0 0 16px;
-    color: #2c3e50;
-    font-size: 1.4em;
-  }
-}
-
-.model-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.model-card {
-  background: #f8f9fa;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  .model-preview {
-    width: 100%;
-    height: 200px;
-    background: #fff;
-  }
-
-  .model-info {
-    padding: 16px;
-
-    h4 {
-      margin: 0 0 8px;
-      color: #2c3e50;
-    }
-
-    p {
-      margin: 0;
-      color: #666;
-      font-size: 0.9em;
-    }
-  }
-}
-
-.selected-model {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-
-  .model-preview {
-    width: 200px;
-    height: 200px;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .model-info {
-    flex: 1;
-
-    h4 {
-      margin: 0 0 8px;
-      color: #2c3e50;
-    }
-
-    p {
-      margin: 0 0 16px;
-      color: #666;
-    }
-  }
-}
-.timeline-editor {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-
-  .timeline-container {
-    margin-bottom: 16px;
-  }
-
-  .timeline-controls {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-  }
-}
-
-.timeline-container {
-  width: 100%;
-  margin: 20px 0;
-  background: white;
-  border: 1px solid $border-color;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.timeline-header {
-  display: flex;
-  align-items: stretch;
-  margin-bottom: 15px;
-}
-
-.timeline-ruler {
-  flex: 1;
-  position: relative;
-  height: 30px;
-  background: $background-color;
-  border-bottom: 1px solid $border-color;
-  margin-left: 10px;
-}
-
-.track-label {
-  width: 60px;
-  padding: 0 10px;
-  font-size: 14px;
+h2 {
+  text-align: center;
   color: $text-color;
-  text-align: right;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 30px;
+  margin-bottom: $spacing-large;
 }
 
-.track {
-  display: flex;
-  align-items: stretch;
-  margin-bottom: 10px;
-  
-  &:last-child {
-    margin-bottom: 0;
+.content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: $spacing-large;
+  background: white;
+  padding: $spacing-large;
+  border-radius: $border-radius * 2;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.controls {
+  .control-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-medium;
   }
 }
 
-.track-content {
-  flex: 1;
-  position: relative;
-  background: #fff;
-  padding: 5px 0;
-  cursor: pointer;
-  min-height: 40px;
-  margin-left: 10px;
-}
-
-.time-marker {
-  position: absolute;
-  width: 1px;
-  height: 10px;
-  background: #999;
-  bottom: 0;
-}
-
-.time-marker::after {
-  content: attr(data-time);
-  position: absolute;
-  bottom: 12px;
-  left: -10px;
-  font-size: 12px;
-  color: #666;
-}
-
-.timeline-tracks {
+.form-group {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.keyframe {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  white-space: nowrap;
-  min-width: 60px;
-  text-align: left;
-  user-select: none;
-}
-
-.action-keyframe {
-  background: $primary-color;
-  color: white;
-}
-
-.emotion-keyframe {
-  background: #2196F3;
-  color: white;
-}
-
-.keyframe-editor {
-  background: #f8f8f8;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.editor-content {
-  display: flex;
-  gap: 15px;
-  align-items: flex-end;
-}
-
-.form-group {
-  flex: 1;
-}
-
-.delete-btn {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.animate-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-top: 32px;
-
-  .form-section {
-    background: white;
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .preview-section {
-    background: white;
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: vertical;
-}
-
-.char-count {
-  text-align: right;
-  color: #666;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.char-count.near-limit {
-  color: #f44336;
-}
-
-select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-button {
-  padding: 8px 16px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #45a049;
-}
-
-.control-btn {
-  padding: 8px 16px;
-  background: $primary-color;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
+  gap: $spacing-small;
   
-  &:hover:not(:disabled) {
-    background: darken($primary-color, 10%);
+  label {
+    color: $text-color;
+    font-size: 0.9rem;
   }
   
-  &:disabled {
-    background: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  &.danger {
-    background: $danger-color;
+  textarea, select {
+    padding: $spacing-medium;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    transition: border-color $transition-duration $transition-timing;
     
-    &:hover {
-      background: darken($danger-color, 10%);
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+    
+    &:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
     }
   }
+  
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
 }
 
-.generate-btn {
-  width: 100%;
-  padding: 12px;
+.submit-button {
+  margin-top: $spacing-medium;
+  padding: $spacing-medium;
   background: $primary-color;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: $border-radius;
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 20px;
-  transition: all 0.3s;
+  transition: background-color $transition-duration $transition-timing;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -938,27 +308,33 @@ button:hover {
   }
   
   &:disabled {
-    background: #cccccc;
+    opacity: 0.7;
     cursor: not-allowed;
   }
 }
 
-.preview-controls {
-  margin-top: 20px;
+.preview {
   display: flex;
-  gap: 10px;
-  justify-content: center;
+  flex-direction: column;
+  gap: $spacing-medium;
 }
 
-.recording-tip {
-  color: $text-color;
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
+.model-viewer {
+  flex: 1;
+  min-height: 400px;
+}
+
+.audio-player {
+  padding: $spacing-medium;
+  background: #f8f9fa;
+  border-radius: $border-radius;
+  
+  .audio-controls {
+    width: 100%;
+  }
 }
 
 .loading-spinner {
-  display: inline-block;
   width: 20px;
   height: 20px;
   border: 2px solid #ffffff;
@@ -970,6 +346,23 @@ button:hover {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.char-count {
+  text-align: right;
+  color: $text-color;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  
+  &.near-limit {
+    color: $danger-color;
   }
 }
 </style> 

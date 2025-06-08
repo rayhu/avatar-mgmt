@@ -5,7 +5,7 @@
     <!-- 模型选择 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
-      <div class="model-list" v-if="!selectedModel">
+      <div v-if="!selectedModel" class="model-list">
         <div v-for="model in readyModels" :key="model.id" class="model-card" @click="selectModel(model)">
           <div class="model-preview">
             <ModelViewer
@@ -54,8 +54,8 @@
           <button 
             v-for="anim in animations" 
             :key="anim"
-            @click="playAnimation(anim)"
             :class="{ active: currentAnimation === anim }"
+            @click="playAnimation(anim)"
           >
             {{ t(`animate.actions.${anim.charAt(0).toLowerCase() + anim.slice(1)}`) }}
           </button>
@@ -68,8 +68,8 @@
           <button 
             v-for="emotion in emotions" 
             :key="emotion"
-            @click="updateEmotion(emotion)"
             :class="{ active: currentEmotion === emotion }"
+            @click="updateEmotion(emotion)"
           >
             {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
           </button>

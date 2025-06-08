@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-box">
       <h2>{{ $t('login.title') }}</h2>
-      <form @submit.prevent="onLogin" class="login-form">
+      <form class="login-form" @submit.prevent="onLogin">
         <div class="form-group">
           <label for="username">{{ $t('login.username') }}</label>
           <input

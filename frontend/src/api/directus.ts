@@ -1,15 +1,19 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_DIRECTUS_API_URL || 'http://localhost:8055';
+const _API_URL = import.meta.env.VITE_API_URL;
 
-export async function login(username: string, password: string) {
+export async function login(_email: string, _password: string) {
   // TODO: 调用 Directus Auth API
-  // return axios.post(`${API_URL}/auth/login`, { email: username, password });
-  return { user: { id: '1', role: 'admin', name: username }, token: 'mock-token' };
+  // return axios.post(`${_API_URL}/auth/login`, { email: username, password });
+  return { user: { id: '1', role: 'admin', name: _email }, token: 'mock-token' };
+}
+
+export async function logout(_token: string) {
+  // Implementation
 }
 
 export async function fetchModels(token: string) {
   // TODO: 拉取模型列表
-  // return axios.get(`${API_URL}/items/models`, { headers: { Authorization: `Bearer ${token}` } });
+  // return axios.get(`${_API_URL}/items/models`, { headers: { Authorization: `Bearer ${token}` } });
   return [];
 } 

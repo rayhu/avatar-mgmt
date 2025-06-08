@@ -13,7 +13,7 @@
         <button class="action-btn">{{ t('modelManagement.uploadModel') }}</button>
       </div>
       <div class="model-list">
-        <div class="model-item" v-for="model in models" :key="model.id">
+        <div v-for="model in models" :key="model.id" class="model-item">
           <div class="model-info">
             <h3>{{ model.name }}</h3>
             <p>{{ model.description }}</p>

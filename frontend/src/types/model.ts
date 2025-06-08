@@ -3,8 +3,10 @@ export interface Model {
   name: string;
   description: string;
   url: string;
-  status: 'pending' | 'processing' | 'ready' | 'error';
+  previewUrl?: string;
+  status: 'draft' | 'pending' | 'processing' | 'ready' | 'error';
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  createTime?: string; // 兼容旧代码
 } 

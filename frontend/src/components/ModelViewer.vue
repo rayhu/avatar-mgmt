@@ -1,5 +1,5 @@
 <template>
-  <div class="model-viewer" ref="container"></div>
+  <div ref="container" class="model-viewer"></div>
 </template>
 
 <script setup lang="ts">
@@ -25,6 +25,8 @@ let mixer: THREE.AnimationMixer | null = null;
 let model: THREE.Group | null = null;
 let clock = new THREE.Clock();
 let availableAnimations: THREE.AnimationClip[] = [];
+let animationLoop: number | null = null;
+let currentAnimationAction: THREE.AnimationAction | null = null;
 
 // 初始化场景
 function initScene() {
@@ -64,6 +66,20 @@ function initScene() {
 
   // 加载默认模型
   loadModel('/models/default.glb');
+
+  // 开始动画循环
+  function animate() {
+    const delta = clock.getDelta();
+    if (mixer) {
+      mixer.update(delta);
+    }
+    if (controls) {
+      controls.update();
+    }
+    renderer.render(scene, camera);
+    animationLoop = requestAnimationFrame(animate);
+  }
+  animate();
 }
 
 // 加载模型
@@ -79,9 +95,13 @@ async function loadModel(url: string) {
     const gltf = await loader.loadAsync(url);
     console.log('Model loaded successfully:', gltf);
     
-    // 清除旧模型
+    // 清除旧模型和动画
     if (model) {
       scene.remove(model);
+    }
+    if (mixer) {
+      mixer.stopAllAction();
+      mixer.uncacheRoot(model!);
     }
     
     model = gltf.scene;
@@ -111,8 +131,9 @@ async function loadModel(url: string) {
         // 默认播放 Idle 动画
         const idleAnim = availableAnimations.find(a => a.name === 'Idle');
         if (idleAnim) {
-          const action = mixer.clipAction(idleAnim);
-          action.play();
+          currentAnimationAction = mixer.clipAction(idleAnim);
+          currentAnimationAction.setLoop(THREE.LoopRepeat, Infinity);
+          currentAnimationAction.play();
           console.log('Playing Idle animation');
         } else {
           console.warn('Idle animation not found');
@@ -162,31 +183,30 @@ function playAnimation(animationName: string) {
   console.log('Available animations:', availableAnimations.map(a => a.name));
   
   try {
-    // 停止所有动画
-    mixer.stopAllAction();
-    
     // 查找匹配的动画
     const targetAnim = availableAnimations.find(a => a.name === animationName);
     if (!targetAnim) {
       console.warn(`Animation "${animationName}" not found in available animations`);
-      // 如果找不到指定动画，尝试播放 Idle 动画
-      const idleAnim = availableAnimations.find(a => a.name === 'Idle');
-      if (idleAnim) {
-        const action = mixer.clipAction(idleAnim);
-        action.reset().play();
-        console.log('Falling back to Idle animation');
-      }
       return;
     }
     
-    // 播放新动画
-    const action = mixer.clipAction(targetAnim);
-    if (action) {
-      action.reset().play();
-      console.log(`Animation "${animationName}" started`);
+    // 创建新的动画动作
+    const newAction = mixer.clipAction(targetAnim);
+    newAction.setLoop(THREE.LoopRepeat, Infinity);
+    newAction.clampWhenFinished = false;
+    
+    // 如果有当前正在播放的动画，创建平滑过渡
+    if (currentAnimationAction && currentAnimationAction.isRunning()) {
+      newAction.reset();
+      newAction.play();
+      newAction.crossFadeFrom(currentAnimationAction, 0.5, true);
     } else {
-      console.warn(`Failed to create action for animation "${animationName}"`);
+      newAction.reset().play();
     }
+    
+    // 更新当前动画动作
+    currentAnimationAction = newAction;
+    console.log(`Animation "${animationName}" started`);
   } catch (error) {
     console.error('Error playing animation:', error);
   }
@@ -226,23 +246,6 @@ function updateEmotion(emotion: string) {
   }
 }
 
-// 动画循环
-function animate() {
-  requestAnimationFrame(animate);
-  
-  if (mixer) {
-    mixer.update(clock.getDelta());
-  }
-  
-  if (controls) {
-    controls.update();
-  }
-  
-  if (renderer && scene && camera) {
-    renderer.render(scene, camera);
-  }
-}
-
 // 处理窗口大小变化
 function handleResize() {
   if (!container.value || !camera || !renderer) return;
@@ -261,12 +264,14 @@ watch(() => props.modelUrl, (newUrl) => {
 
 watch(() => props.emotion, (newEmotion) => {
   if (newEmotion) {
+    console.log('Emotion prop changed:', newEmotion);
     updateEmotion(newEmotion);
   }
 });
 
 watch(() => props.action, (newAction) => {
   if (newAction) {
+    console.log('Action prop changed:', newAction);
     playAnimation(newAction);
   }
 });
@@ -274,19 +279,27 @@ watch(() => props.action, (newAction) => {
 // 组件挂载时初始化
 onMounted(() => {
   initScene();
-  animate();
   window.addEventListener('resize', handleResize);
 });
 
 // 组件卸载时清理
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
+  if (animationLoop !== null) {
+    cancelAnimationFrame(animationLoop);
+  }
+  if (mixer) {
+    mixer.stopAllAction();
+    if (model) {
+      mixer.uncacheRoot(model);
+    }
+  }
   if (renderer) {
     renderer.dispose();
   }
   if (controls) {
     controls.dispose();
   }
+  window.removeEventListener('resize', handleResize);
 });
 
 // 导出组件
