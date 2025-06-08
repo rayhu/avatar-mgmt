@@ -1,39 +1,160 @@
 <template>
   <div class="user-model-gallery">
-    <h2>模型画廊 (User)</h2>
-    <!-- TODO: 展示就绪模型卡片，支持点击查看详情 -->
-    <p>这里将展示所有"就绪"状态的模型，用户可浏览和查看详情。</p>
+    <div class="gallery-header">
+      <h2>{{ t('modelManagement.modelGallery') }}</h2>
+      <div class="gallery-tip">
+        <i class="tip-icon">ℹ️</i>
+        <span>{{ t('modelManagement.galleryTip') }}</span>
+      </div>
+    </div>
+    <div class="model-grid">
+      <div v-for="model in readyModels" :key="model.id" class="model-card">
+        <div class="model-preview">
+          <img :src="model.previewUrl" :alt="model.name" />
+        </div>
+        <div class="model-info">
+          <h3>{{ model.name }}</h3>
+          <p>{{ model.description }}</p>
+          <div class="model-meta">
+            <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+          </div>
+          <button class="view-btn" @click="viewModel(model)">
+            {{ t('modelManagement.viewModel') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const baseUrl = window.location.origin;
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+interface Model {
+  id: string;
+  name: string;
+  description: string;
+  previewUrl: string;
+  createTime: string;
+}
+
+const readyModels = ref<Model[]>([]);
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleString();
+}
+
+function viewModel(model: Model) {
+  // TODO: 实现查看模型详情的逻辑
+  console.log('View model:', model);
+}
+
 // TODO: 拉取"就绪"模型列表
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/styles/variables.scss';
+
 .user-model-gallery {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 40px auto;
   background: #fff;
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-.deployment-section {
-  margin-bottom: 20px;
+
+.gallery-header {
+  margin-bottom: 24px;
 }
-.deployment-link {
-  display: inline-block;
-  padding: 8px 16px;
+
+.gallery-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 16px;
   background: #f8f9fa;
-  border: 1px solid #e9ecef;
   border-radius: 6px;
-  color: #2c3e50;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+
+  .tip-icon {
+    font-style: normal;
+  }
 }
-.deployment-link:hover {
-  background: #e9ecef;
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.model-card {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+}
+
+.model-preview {
+  width: 100%;
+  height: 200px;
+  background: #f8f9fa;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.model-info {
+  padding: 16px;
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0 0 12px 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+}
+
+.model-meta {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 16px;
+}
+
+.view-btn {
+  width: 100%;
+  padding: 8px 16px;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: darken($primary-color, 10%);
+  }
 }
 </style> 

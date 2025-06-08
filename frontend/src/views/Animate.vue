@@ -165,7 +165,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
-import { synthesizeSpeech } from '../utils/azureTTS';
+import { synthesizeSpeech } from '../api/azureTTS';
 import type { Model } from '../types/model';
 
 interface Keyframe {
@@ -427,9 +427,17 @@ function downloadVideo() {
 </script>
 
 <style lang="scss" scoped>
+// 定义颜色变量
+$primary-color: #4CAF50;
+$danger-color: #f44336;
+$text-color: #666;
+$border-color: #ddd;
+$background-color: #f5f5f5;
+
 .animate-page {
   padding: 20px;
-  max-width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .timeline-editor {
@@ -443,7 +451,7 @@ function downloadVideo() {
   width: 100%;
   margin: 20px 0;
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid $border-color;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -458,8 +466,8 @@ function downloadVideo() {
   flex: 1;
   position: relative;
   height: 30px;
-  background: #f0f0f0;
-  border-bottom: 1px solid #ddd;
+  background: $background-color;
+  border-bottom: 1px solid $border-color;
   margin-left: 10px;
 }
 
@@ -467,7 +475,7 @@ function downloadVideo() {
   width: 60px;
   padding: 0 10px;
   font-size: 14px;
-  color: #666;
+  color: $text-color;
   text-align: right;
   flex-shrink: 0;
   display: flex;
@@ -534,7 +542,7 @@ function downloadVideo() {
 }
 
 .action-keyframe {
-  background: #4CAF50;
+  background: $primary-color;
   color: white;
 }
 
@@ -638,24 +646,68 @@ button:hover {
 
 .control-btn {
   padding: 8px 16px;
-  background: #4CAF50;
+  background: $primary-color;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 10px;
+  transition: all 0.3s;
   
-  &:hover {
-    background: #45a049;
+  &:hover:not(:disabled) {
+    background: darken($primary-color, 10%);
+  }
+  
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
   }
   
   &.danger {
-    background: #f44336;
+    background: $danger-color;
     
     &:hover {
-      background: #d32f2f;
+      background: darken($danger-color, 10%);
     }
   }
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 12px;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover:not(:disabled) {
+    background: darken($primary-color, 10%);
+  }
+  
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+}
+
+.preview-controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.recording-tip {
+  color: $text-color;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
 }
 
 .loading-spinner {
@@ -672,71 +724,5 @@ button:hover {
   to {
     transform: rotate(360deg);
   }
-}
-
-.generate-btn {
-  width: 100%;
-  padding: 12px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  margin-top: 20px;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover:not(:disabled) {
-    background: #45a049;
-  }
-  
-  &:disabled {
-    background: #cccccc;
-    cursor: not-allowed;
-  }
-}
-
-.preview-controls {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.control-btn {
-  padding: 8px 16px;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-  
-  &:hover:not(:disabled) {
-    background: #45a049;
-  }
-  
-  &:disabled {
-    background: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  &.danger {
-    background: #f44336;
-    
-    &:hover {
-      background: #d32f2f;
-    }
-  }
-}
-
-.recording-tip {
-  color: #666;
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
 }
 </style> 

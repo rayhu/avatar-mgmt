@@ -18,6 +18,38 @@ const messages = {
     ready: '就绪',
     draft: '草稿',
     offline: '下线',
+    modelManagement: {
+      title: '模型管理',
+      modelLibrary: '模型库',
+      modelList: '模型列表',
+      modelGallery: '模型展示',
+      galleryTip: '这里将展示所有"就绪"状态的模型，用户可浏览和查看详情。',
+      listTip: '这里将展示所有模型，支持编辑、删除、设置状态等操作。',
+      uploadModel: '上传模型',
+      deleteModel: '删除模型',
+      editModel: '编辑模型',
+      viewModel: '查看模型',
+      modelStatus: {
+        ready: '已就绪',
+        draft: '草稿中',
+        offline: '已下线'
+      },
+      modelInfo: {
+        name: '模型名称',
+        description: '模型描述',
+        status: '状态',
+        createTime: '创建时间',
+        updateTime: '更新时间'
+      }
+    },
+    test: {
+      title: '测试页面',
+      viewer: {
+        title: '模型查看器测试页面',
+        animationControl: '动画控制',
+        emotionControl: '表情控制'
+      }
+    },
     animate: {
       title: '动画和语音设置',
       text: '文本内容',
@@ -53,6 +85,8 @@ const messages = {
       download: '下载视频',
       recordError: '录制失败，请重试',
       recordingTip: '请先生成动画和语音后再开始录制',
+      processing: '处理中...',
+      loading: '加载中...',
       timeline: {
         title: '时间轴编辑器',
         time: '时间',
@@ -62,6 +96,7 @@ const messages = {
         addAction: '添加动作',
         addEmotion: '添加表情',
         delete: '删除',
+        clear: '清空',
       },
     },
   },
@@ -82,6 +117,38 @@ const messages = {
     ready: 'Ready',
     draft: 'Draft',
     offline: 'Offline',
+    modelManagement: {
+      title: 'Model Management',
+      modelLibrary: 'Model Library',
+      modelList: 'Model List',
+      modelGallery: 'Model Gallery',
+      galleryTip: 'Here you can browse and view details of all "Ready" status models.',
+      listTip: 'Here you can manage all models, including editing, deleting, and changing their status.',
+      uploadModel: 'Upload Model',
+      deleteModel: 'Delete Model',
+      editModel: 'Edit Model',
+      viewModel: 'View Model',
+      modelStatus: {
+        ready: 'Ready',
+        draft: 'Draft',
+        offline: 'Offline'
+      },
+      modelInfo: {
+        name: 'Model Name',
+        description: 'Description',
+        status: 'Status',
+        createTime: 'Created At',
+        updateTime: 'Updated At'
+      }
+    },
+    test: {
+      title: 'Test Page',
+      viewer: {
+        title: 'Model Viewer Test Page',
+        animationControl: 'Animation Control',
+        emotionControl: 'Emotion Control'
+      }
+    },
     animate: {
       title: 'Animation and Voice Settings',
       text: 'Text Content',
@@ -117,6 +184,8 @@ const messages = {
       download: 'Download Video',
       recordError: 'Recording failed, please try again',
       recordingTip: 'Please generate animation and voice first before recording',
+      processing: 'Processing...',
+      loading: 'Loading...',
       timeline: {
         title: 'Timeline Editor',
         time: 'Time',
@@ -126,6 +195,7 @@ const messages = {
         addAction: 'Add Action',
         addEmotion: 'Add Emotion',
         delete: 'Delete',
+        clear: 'Clear',
       },
     },
   },

@@ -1,13 +1,13 @@
 <template>
   <div>
     <nav class="main-nav">
-      <router-link v-if="auth.isAdmin" to="/admin">模型管理</router-link>
-      <router-link to="/user">模型库</router-link>
-      <router-link to="/animate">动画与语音</router-link>
-      <router-link to="/test">测试页面</router-link>
+      <router-link v-if="auth.isAdmin" to="/admin">{{ t('modelManagement.title') }}</router-link>
+      <router-link to="/user">{{ t('modelManagement.modelGallery') }}</router-link>
+      <router-link to="/animate">{{ t('animate.title') }}</router-link>
+      <router-link to="/test">{{ t('test.title') }}</router-link>
       <span v-if="auth.isAuthenticated" class="user-info">
-        {{ auth.user?.name }}（{{ auth.user?.role }}）
-        <a href="#" @click.prevent="logout">退出</a>
+        {{ auth.user?.name }}（{{ t(auth.user?.role === 'admin' ? 'admin' : 'user') }}）
+        <a href="#" @click.prevent="logout">{{ t('logout') }}</a>
       </span>
     </nav>
     <router-view />
@@ -17,8 +17,11 @@
 <script setup lang="ts">
 import { useAuthStore } from './store';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
 const auth = useAuthStore();
 const router = useRouter();
+const { t } = useI18n();
 
 function logout() {
   auth.clearUser();

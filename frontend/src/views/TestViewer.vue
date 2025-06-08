@@ -1,6 +1,6 @@
 <template>
   <div class="test-viewer">
-    <h1>模型查看器测试页面</h1>
+    <h1>{{ t('test.viewer.title') }}</h1>
     
     <div class="viewer-container">
       <ModelViewer
@@ -13,7 +13,7 @@
 
     <div class="controls">
       <div class="control-section">
-        <h3>动画控制</h3>
+        <h3>{{ t('test.viewer.animationControl') }}</h3>
         <div class="button-group">
           <button 
             v-for="anim in animations" 
@@ -21,13 +21,13 @@
             @click="playAnimation(anim)"
             :class="{ active: currentAnimation === anim }"
           >
-            {{ anim }}
+            {{ t(`animate.actions.${anim.charAt(0).toLowerCase() + anim.slice(1)}`) }}
           </button>
         </div>
       </div>
 
       <div class="control-section">
-        <h3>表情控制</h3>
+        <h3>{{ t('test.viewer.emotionControl') }}</h3>
         <div class="button-group">
           <button 
             v-for="emotion in emotions" 
@@ -35,7 +35,7 @@
             @click="updateEmotion(emotion)"
             :class="{ active: currentEmotion === emotion }"
           >
-            {{ emotion }}
+            {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
           </button>
         </div>
       </div>
@@ -45,8 +45,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ModelViewer from '@/components/ModelViewer.vue'
 
+const { t } = useI18n()
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null)
 const modelUrl = '/models/default.glb'
 const currentAnimation = ref('')

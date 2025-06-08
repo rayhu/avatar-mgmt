@@ -1,39 +1,155 @@
 <template>
   <div class="admin-model-list">
-    <h2>模型管理 (Admin)</h2>
-    <!-- TODO: 列表、编辑、删除、状态切换等功能 -->
-    <p>这里将展示所有模型，支持编辑、删除、设置状态等操作。</p>
+    <div class="list-header">
+      <h2>{{ t('modelManagement.title') }}</h2>
+      <div class="list-tip">
+        <i class="tip-icon">ℹ️</i>
+        <span>{{ t('modelManagement.listTip') }}</span>
+      </div>
+    </div>
+    <div class="model-actions">
+      <button class="action-btn">{{ t('modelManagement.uploadModel') }}</button>
+    </div>
+    <div class="model-list">
+      <div class="model-item" v-for="model in models" :key="model.id">
+        <div class="model-info">
+          <h3>{{ model.name }}</h3>
+          <p>{{ model.description }}</p>
+          <div class="model-meta">
+            <span>{{ t('modelManagement.modelInfo.status') }}: {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span>
+            <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+          </div>
+        </div>
+        <div class="model-actions">
+          <button class="action-btn">{{ t('modelManagement.editModel') }}</button>
+          <button class="action-btn danger">{{ t('modelManagement.deleteModel') }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const baseUrl = window.location.origin;
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+interface Model {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  createTime: string;
+}
+
+const models = ref<Model[]>([]);
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleString();
+}
+
 // TODO: 拉取模型列表，支持管理操作
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '@/assets/styles/variables.scss';
+
 .admin-model-list {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 40px auto;
   background: #fff;
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-.deployment-section {
-  margin-bottom: 20px;
+
+.list-header {
+  margin-bottom: 24px;
 }
-.deployment-link {
-  display: inline-block;
-  padding: 8px 16px;
+
+.list-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 16px;
   background: #f8f9fa;
-  border: 1px solid #e9ecef;
   border-radius: 6px;
-  color: #2c3e50;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+
+  .tip-icon {
+    font-style: normal;
+  }
 }
-.deployment-link:hover {
-  background: #e9ecef;
+
+.model-actions {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: $primary-color;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: darken($primary-color, 10%);
+  }
+
+  &.danger {
+    background: #dc3545;
+    &:hover {
+      background: darken(#dc3545, 10%);
+    }
+  }
+}
+
+.model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.model-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+}
+
+.model-info {
+  flex: 1;
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+  }
+
+  p {
+    margin: 0 0 12px 0;
+    color: #6c757d;
+  }
+}
+
+.model-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 </style> 

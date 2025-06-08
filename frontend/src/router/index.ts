@@ -6,28 +6,43 @@ import { useAuthStore } from '../store';
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
-    name: 'Login',
+    name: 'login',
     component: Login,
+    meta: {
+      title: 'login.title'
+    }
   },
   {
     path: '/admin',
-    name: 'Admin',
+    name: 'modelManagement',
     component: () => import('../views/Admin/ModelList.vue'),
+    meta: {
+      title: 'modelManagement.title'
+    }
   },
   {
     path: '/user',
-    name: 'User',
+    name: 'modelGallery',
     component: () => import('../views/User/ModelGallery.vue'),
+    meta: {
+      title: 'modelManagement.modelGallery'
+    }
   },
   {
     path: '/animate',
     name: 'animate',
     component: () => import('../views/Animate.vue'),
+    meta: {
+      title: 'animate.title'
+    }
   },
   {
     path: '/test',
     name: 'test',
     component: TestViewer,
+    meta: {
+      title: 'test.title'
+    }
   },
   {
     path: '/',
