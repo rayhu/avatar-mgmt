@@ -9,7 +9,8 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: Login,
     meta: {
-      title: 'login.title'
+      title: 'login.title',
+      public: true // 公开路由，不需要登录
     }
   },
   {
@@ -17,7 +18,8 @@ const routes: RouteRecordRaw[] = [
     name: 'modelManagement',
     component: () => import('../views/Admin/ModelList.vue'),
     meta: {
-      title: 'modelManagement.title'
+      title: 'modelManagement.title',
+      roles: ['admin'] // 仅管理员可访问
     }
   },
   {
@@ -25,7 +27,8 @@ const routes: RouteRecordRaw[] = [
     name: 'modelGallery',
     component: () => import('../views/User/ModelGallery.vue'),
     meta: {
-      title: 'modelManagement.modelGallery'
+      title: 'modelManagement.modelGallery',
+      roles: ['user', 'admin'] // 用户和管理员都可访问
     }
   },
   {
@@ -33,7 +36,8 @@ const routes: RouteRecordRaw[] = [
     name: 'animate',
     component: () => import('../views/Animate.vue'),
     meta: {
-      title: 'animate.title'
+      title: 'animate.title',
+      roles: ['user', 'admin'] // 用户和管理员都可访问
     }
   },
   {
@@ -41,7 +45,8 @@ const routes: RouteRecordRaw[] = [
     name: 'test',
     component: TestViewer,
     meta: {
-      title: 'test.title'
+      title: 'test.title',
+      roles: ['admin'] // 仅管理员可访问
     }
   },
   {
@@ -61,11 +66,33 @@ const router = createRouter({
 
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const auth = useAuthStore();
-  if (!auth.isAuthenticated && to.path !== '/login') {
-    next('/login');
-  } else {
-    next();
+  
+  // 检查是否是公开路由
+  if (to.meta.public) {
+    // 如果已登录且访问登录页，重定向到对应角色首页
+    if (auth.isAuthenticated) {
+      next(auth.user?.role === 'admin' ? '/admin' : '/user');
+    } else {
+      next();
+    }
+    return;
   }
+
+  // 检查是否已登录
+  if (!auth.isAuthenticated) {
+    next('/login');
+    return;
+  }
+
+  // 检查角色权限
+  const requiredRoles = to.meta.roles as string[] | undefined;
+  if (requiredRoles && !requiredRoles.includes(auth.user?.role || '')) {
+    // 如果没有权限，重定向到对应角色首页
+    next(auth.user?.role === 'admin' ? '/admin' : '/user');
+    return;
+  }
+
+  next();
 });
 
 export default router; 

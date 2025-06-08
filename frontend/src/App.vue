@@ -1,14 +1,19 @@
 <template>
   <div>
     <nav class="main-nav">
-      <router-link v-if="auth.isAdmin" to="/admin">{{ t('modelManagement.title') }}</router-link>
-      <router-link to="/user">{{ t('modelManagement.modelGallery') }}</router-link>
-      <router-link to="/animate">{{ t('animate.title') }}</router-link>
-      <router-link to="/test">{{ t('test.title') }}</router-link>
-      <span v-if="auth.isAuthenticated" class="user-info">
-        {{ auth.user?.name }}（{{ t(auth.user?.role === 'admin' ? 'admin' : 'user') }}）
-        <a href="#" @click.prevent="logout">{{ t('logout') }}</a>
-      </span>
+      <template v-if="auth.isAuthenticated">
+        <router-link v-if="auth.isAdmin" to="/admin">{{ t('modelManagement.title') }}</router-link>
+        <router-link to="/user">{{ t('modelManagement.modelGallery') }}</router-link>
+        <router-link to="/animate">{{ t('animate.title') }}</router-link>
+        <router-link v-if="auth.isAdmin" to="/test">{{ t('test.title') }}</router-link>
+        <span class="user-info">
+          {{ auth.user?.name }}（{{ t(auth.user?.role === 'admin' ? 'admin' : 'user') }}）
+          <a href="#" @click.prevent="logout">{{ t('logout') }}</a>
+        </span>
+      </template>
+      <template v-else>
+        <router-link to="/login">{{ t('login.title') }}</router-link>
+      </template>
     </nav>
     <router-view />
   </div>
