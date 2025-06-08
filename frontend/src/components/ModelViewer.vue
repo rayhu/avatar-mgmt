@@ -22,6 +22,7 @@ let controls: OrbitControls;
 let mixer: THREE.AnimationMixer | null = null;
 let model: THREE.Group | null = null;
 let clock = new THREE.Clock();
+let availableAnimations: THREE.AnimationClip[] = [];
 
 // 初始化场景
 function initScene() {
@@ -85,20 +86,29 @@ async function loadModel(url: string) {
     scene.add(model);
     console.log('Model added to scene');
 
+    // 检查表情系统
+    model.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        const mesh = object as THREE.Mesh;
+        if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
+          console.log('Found mesh with morph targets:', mesh.name);
+          console.log('Available morph targets:', Object.keys(mesh.morphTargetDictionary));
+        }
+      }
+    });
+
+    // 存储可用的动画
+    availableAnimations = gltf.animations;
+    console.log('Available animations:', availableAnimations.map(a => a.name));
+
     // 设置动画混合器
-    if (gltf.animations.length > 0) {
-      console.log('Animations found:', gltf.animations.map(a => a.name));
+    if (availableAnimations.length > 0) {
       mixer = new THREE.AnimationMixer(model);
       
-      // 存储所有动画
-      const animations = gltf.animations.reduce((acc, clip) => {
-        acc[clip.name] = clip;
-        return acc;
-      }, {} as Record<string, THREE.AnimationClip>);
-      
       // 默认播放 Idle 动画
-      if (animations['Idle']) {
-        const action = mixer.clipAction(animations['Idle']);
+      const idleAnim = availableAnimations.find(a => a.name === 'Idle');
+      if (idleAnim) {
+        const action = mixer.clipAction(idleAnim);
         action.play();
         console.log('Playing Idle animation');
       } else {
@@ -144,40 +154,34 @@ function playAnimation(animationName: string) {
     return;
   }
   
-  // 动画映射
-  const animationMap: Record<string, string> = {
-    'wave': 'Wave',
-    'jump': 'Jump',
-    'nod': 'Nod',
-    'idle': 'Idle',
-    'walking': 'Walking',
-    'dance': 'Dance',
-    'death': 'Death',
-    'falling': 'Falling',
-    'hit': 'Hit',
-    'no': 'No',
-    'punch': 'Punch',
-    'running': 'Running',
-    'sitting': 'Sitting',
-    'standing': 'Standing',
-    'thumbsup': 'ThumbsUp',
-    'yes': 'Yes'
-  };
-
-  const targetAnimation = animationMap[animationName.toLowerCase()] || 'Idle';
-  console.log('Playing animation:', targetAnimation);
+  console.log('Playing animation:', animationName);
+  console.log('Available animations:', availableAnimations.map(a => a.name));
   
   try {
     // 停止所有动画
     mixer.stopAllAction();
     
-    // 直接尝试播放动画
-    const action = mixer.clipAction(targetAnimation);
+    // 查找匹配的动画
+    const targetAnim = availableAnimations.find(a => a.name === animationName);
+    if (!targetAnim) {
+      console.warn(`Animation "${animationName}" not found in available animations`);
+      // 如果找不到指定动画，尝试播放 Idle 动画
+      const idleAnim = availableAnimations.find(a => a.name === 'Idle');
+      if (idleAnim) {
+        const action = mixer.clipAction(idleAnim);
+        action.reset().play();
+        console.log('Falling back to Idle animation');
+      }
+      return;
+    }
+    
+    // 播放新动画
+    const action = mixer.clipAction(targetAnim);
     if (action) {
       action.reset().play();
-      console.log(`Animation "${targetAnimation}" started`);
+      console.log(`Animation "${animationName}" started`);
     } else {
-      console.warn(`Failed to create action for animation "${targetAnimation}"`);
+      console.warn(`Failed to create action for animation "${animationName}"`);
     }
   } catch (error) {
     console.error('Error playing animation:', error);
@@ -186,21 +190,47 @@ function playAnimation(animationName: string) {
 
 // 更新表情
 function updateEmotion(emotion: string) {
-  if (!model) return;
+  if (!model) {
+    console.warn('Model not loaded');
+    return;
+  }
   
-  // 表情映射
-  const emotionMap: Record<string, string> = {
-    'happy': 'Happy',
-    'sad': 'Sad',
-    'angry': 'Angry',
-    'neutral': 'Neutral'
-  };
-
-  const targetEmotion = emotionMap[emotion.toLowerCase()] || 'Neutral';
+  console.log('Updating emotion to:', emotion);
   
-  // 这里需要根据实际的表情系统来更新
-  // 目前只是示例
-  console.log('Updating emotion to:', targetEmotion);
+  try {
+    // 遍历模型中的所有网格
+    model.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        const mesh = object as THREE.Mesh;
+        if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
+          console.log('Found mesh with morph targets:', mesh.name);
+          console.log('Available morph targets:', Object.keys(mesh.morphTargetDictionary));
+          
+          // 重置所有表情权重
+          if (mesh.morphTargetInfluences) {
+            mesh.morphTargetInfluences.fill(0);
+          }
+          
+          // 如果是 Neutral，直接返回（所有权重都是 0）
+          if (emotion === 'Neutral') {
+            console.log('Reset to neutral expression');
+            return;
+          }
+          
+          // 设置目标表情的权重
+          const emotionIndex = mesh.morphTargetDictionary[emotion];
+          if (emotionIndex !== undefined) {
+            mesh.morphTargetInfluences[emotionIndex] = 1;
+            console.log(`Set ${emotion} emotion weight to 1`);
+          } else {
+            console.warn(`Emotion "${emotion}" not found in morph targets`);
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error updating emotion:', error);
+  }
 }
 
 // 暴露方法给父组件

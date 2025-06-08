@@ -54,27 +54,26 @@ const currentEmotion = ref('')
 
 const animations = [
   'Idle',
-  'Wave',
-  'Jump',
   'Walking',
+  'Running',
+  'Jump',
+  'Wave',
   'Dance',
   'Death',
-  'Falling',
-  'Hit',
   'No',
   'Punch',
-  'Running',
   'Sitting',
   'Standing',
   'ThumbsUp',
+  'WalkJump',
   'Yes'
 ]
 
 const emotions = [
-  'Happy',
-  'Sad',
+  'Neutral',
   'Angry',
-  'Neutral'
+  'Surprised',
+  'Sad'
 ]
 
 function playAnimation(animation: string) {
