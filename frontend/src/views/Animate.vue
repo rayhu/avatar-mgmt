@@ -5,16 +5,16 @@
       
       <div class="content">
         <div class="controls">
-          <form @submit.prevent="onAnimate" class="control-form">
+          <form class="control-form" @submit.prevent="onAnimate">
             <div class="form-group">
               <label for="text">{{ $t('animate.text') }}</label>
               <textarea
                 id="text"
                 :value="text"
-                @input="handleTextChange($event.target.value)"
                 :placeholder="$t('animate.textPlaceholder')"
                 :disabled="isProcessing"
                 required
+                @input="handleTextChange($event.target.value)"
               ></textarea>
               <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
                 {{ charCount }}/180
@@ -26,8 +26,8 @@
               <select
                 id="emotion"
                 :value="emotion"
-                @change="handleEmotionChange($event.target.value)"
                 :disabled="isProcessing"
+                @change="handleEmotionChange($event.target.value)"
               >
                 <option v-for="e in emotions" :key="e" :value="e">
                   {{ $t(`animate.emotions.${e.toLowerCase()}`) }}
@@ -40,8 +40,8 @@
               <select
                 id="action"
                 :value="action"
-                @change="handleActionChange($event.target.value)"
                 :disabled="isProcessing"
+                @change="handleActionChange($event.target.value)"
               >
                 <option v-for="a in actions" :key="a" :value="a">
                   {{ $t(`animate.actions.${a.charAt(0).toLowerCase() + a.slice(1)}`) }}
@@ -64,7 +64,7 @@
             class="model-viewer"
           />
           
-          <div class="audio-player" v-if="audioUrl">
+          <div v-if="audioUrl" class="audio-player">
             <audio
               ref="audioPlayer"
               :src="audioUrl"
