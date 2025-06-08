@@ -12,7 +12,7 @@ export async function logout(_token: string) {
   // Implementation
 }
 
-export async function fetchModels(token: string) {
+export async function fetchModels(_token: string) {
   // TODO: 拉取模型列表
   // return axios.get(`${_API_URL}/items/models`, { headers: { Authorization: `Bearer ${token}` } });
   return [];

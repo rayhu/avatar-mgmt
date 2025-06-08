@@ -114,21 +114,21 @@
         <div class="form-group">
           <label>{{ t('animate.timeline.time') }}</label>
           <input
-            type="number"
-            :value="selectedKeyframe.time"
-            @input="handleTimeInput"
             min="0"
             max="30"
             step="0.1"
             class="w-20 px-2 py-1 border rounded"
+            type="number"
+            :value="selectedKeyframe.time"
+            @input="handleTimeInput"
           />
         </div>
         <div v-if="selectedKeyframe.type === 'action'" class="form-group">
           <label>{{ t('animate.timeline.action') }}</label>
           <select 
+            class="form-control"
             :value="selectedKeyframe.action"
             @change="handleActionSelect"
-            class="form-control"
           >
             <option v-for="action in actions" :key="action" :value="action">
               {{ t(`animate.actions.${action.charAt(0).toLowerCase() + action.slice(1)}`) }}
@@ -138,9 +138,9 @@
         <div v-if="selectedKeyframe.type === 'emotion'" class="form-group">
           <label>{{ t('animate.timeline.emotion') }}</label>
           <select 
+            class="form-control"
             :value="selectedKeyframe.emotion"
             @change="handleEmotionSelect"
-            class="form-control"
           >
             <option v-for="emotion in emotions" :key="emotion" :value="emotion">
               {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
@@ -402,7 +402,7 @@ function addEmotionKeyframe(time: number = 0) {
   selectedKeyframe.value = keyframe;
 }
 
-function validateKeyframeTime(event: Event) {
+function _validateKeyframeTime(event: Event) {
   if (!selectedKeyframe.value) return;
   const input = event.target as HTMLInputElement;
   const value = parseFloat(input.value);
@@ -482,7 +482,7 @@ async function startRecording() {
       return;
     }
 
-    const modelViewer = document.querySelector('model-viewer') as any;
+    const modelViewer = document.querySelector('model-viewer') as HTMLElement;
     if (!modelViewer) {
       throw new Error('Model viewer not found');
     }
@@ -502,7 +502,7 @@ async function startRecording() {
       videoBitsPerSecond: 2500000
     });
 
-    mediaRecorder.value.ondataavailable = (event) => {
+    mediaRecorder.value.ondataavailable = (event: BlobEvent) => {
       if (event.data.size > 0) {
         recordedChunks.value.push(event.data);
       }
@@ -520,7 +520,8 @@ async function startRecording() {
 
     const captureFrame = () => {
       if (!isRecording.value) return;
-      context.drawImage(modelViewer, 0, 0, canvas.width, canvas.height);
+      // FIXME: 这里假设 modelViewer 实际上是 canvas 元素，后续如有自定义渲染需调整
+      context.drawImage(modelViewer as unknown as HTMLCanvasElement, 0, 0, canvas.width, canvas.height);
       requestAnimationFrame(captureFrame);
     };
 
@@ -550,7 +551,7 @@ function downloadVideo() {
   document.body.removeChild(link);
 }
 
-function playAnimation(animation: string) {
+function _playAnimation(animation: string) {
   if (modelViewer.value) {
     console.log('Playing animation:', {
       animation,
@@ -565,7 +566,7 @@ function playAnimation(animation: string) {
   }
 }
 
-function updateEmotion(emotion: string) {
+function _updateEmotion(emotion: string) {
   if (modelViewer.value) {
     modelViewer.value.updateEmotion(emotion)
     currentEmotion.value = emotion
@@ -573,18 +574,18 @@ function updateEmotion(emotion: string) {
 }
 
 // 处理文本变化
-function handleTextChange(newText: string) {
+function _handleTextChange(newText: string) {
   text.value = newText;
 }
 
 // 处理关键帧选择
-function handleKeyframeSelect(keyframe: Keyframe) {
+function _handleKeyframeSelect(keyframe: Keyframe) {
   selectedKeyframe.value = { ...keyframe };
 }
 
 
 // 处理键盘事件
-function handleKeyDown(event: KeyboardEvent) {
+function _handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     speak();
@@ -592,7 +593,7 @@ function handleKeyDown(event: KeyboardEvent) {
 }
 
 // 处理表情变化
-function handleEmotionChange(key: string) {
+function _handleEmotionChange(key: string) {
   // 先更新状态
   currentEmotion.value = key;
   
@@ -603,7 +604,7 @@ function handleEmotionChange(key: string) {
 }
 
 // 处理动作变化
-function handleActionChange(key: string) {
+function _handleActionChange(key: string) {
   console.log('Action changed:', {
     from: currentAction.value,
     to: key
