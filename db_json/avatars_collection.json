@@ -1,0 +1,109 @@
+{
+  "version": "1.0.0",
+  "collections": [
+    {
+      "collection": "avatars",
+      "meta": {
+        "icon": "person",
+        "note": "数字人形象库",
+        "display_template": "{{name}}"
+      },
+      "schema": {
+        "name": "avatars",
+        "comment": "数字人形象库"
+      }
+    }
+  ],
+  "fields": [
+    {
+      "collection": "avatars",
+      "field": "id",
+      "type": "integer",
+      "meta": {
+        "primary_key": true,
+        "auto_increment": true
+      },
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": true
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "name",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "required": true,
+        "note": "形象名称"
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "purpose",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            { "text": "客服", "value": "客服" },
+            { "text": "品牌", "value": "品牌" },
+            { "text": "主持人", "value": "主持人" },
+            { "text": "AI助手", "value": "AI助手" }
+          ]
+        }
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "style",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            { "text": "卡通", "value": "卡通" },
+            { "text": "写实", "value": "写实" },
+            { "text": "未来感", "value": "未来感" },
+            { "text": "国风", "value": "国风" }
+          ]
+        }
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "description",
+      "type": "text",
+      "meta": {
+        "interface": "textarea"
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "main_file",
+      "type": "uuid",
+      "meta": {
+        "interface": "file",
+        "note": "3D、2D、视频等主文件"
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "preview_image",
+      "type": "uuid",
+      "meta": {
+        "interface": "file",
+        "note": "形象封面图片"
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "tags",
+      "type": "json",
+      "meta": {
+        "interface": "tags"
+      }
+    }
+  ],
+  "relations": []
+}
