@@ -139,3 +139,4 @@ dist
 public/models/*.glb
 public/models/*.gltf
 public/models/*.bin
+.vercel
