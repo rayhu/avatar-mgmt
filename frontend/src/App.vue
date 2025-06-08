@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Analytics />
     <nav class="main-nav">
       <template v-if="auth.isAuthenticated">
         <router-link v-if="auth.isAdmin" to="/admin">{{ t('modelManagement.title') }}</router-link>
@@ -23,7 +24,7 @@
 import { useAuthStore } from './store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-
+import { inject } from "@vercel/analytics"
 const auth = useAuthStore();
 const router = useRouter();
 const { t } = useI18n();

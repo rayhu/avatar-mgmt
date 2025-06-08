@@ -2291,6 +2291,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vercel/analytics@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@vercel/analytics@npm:1.5.0"
+  peerDependencies:
+    "@remix-run/react": ^2
+    "@sveltejs/kit": ^1 || ^2
+    next: ">= 13"
+    react: ^18 || ^19 || ^19.0.0-rc
+    svelte: ">= 4"
+    vue: ^3
+    vue-router: ^4
+  peerDependenciesMeta:
+    "@remix-run/react":
+      optional: true
+    "@sveltejs/kit":
+      optional: true
+    next:
+      optional: true
+    react:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+    vue-router:
+      optional: true
+  checksum: eb3cccf4128fb78dfab8b91d2479cf5a9921bbb5c7805941a3029b45d9f153f1e230e22390dcc35c8366d2627b78c708523b87034ac93a42de9ed67313810c4a
+  languageName: node
+  linkType: hard
+
 "@vercel/build-utils@npm:10.6.0":
   version: 10.6.0
   resolution: "@vercel/build-utils@npm:10.6.0"
@@ -3636,6 +3666,7 @@ __metadata:
     "@types/vue-i18n": "npm:^7.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.0.0"
     "@typescript-eslint/parser": "npm:^7.0.0"
+    "@vercel/analytics": "npm:^1.5.0"
     "@vitejs/plugin-vue": "npm:^5.2.4"
     "@vue/runtime-core": "npm:^3.5.16"
     "@vueuse/core": "npm:^13.3.0"
