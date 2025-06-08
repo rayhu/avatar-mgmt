@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "vercel-build": "yarn install --production=false && yarn build",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.ts,.vue",
     "format": "prettier --write .",
