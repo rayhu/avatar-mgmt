@@ -96,63 +96,71 @@ function updateEmotion(emotion: string) {
 
 <style lang="scss" scoped>
 .test-viewer {
-  padding: 20px;
+  padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
 
   h1 {
-    text-align: center;
-    margin-bottom: 20px;
+    margin: 0 0 32px;
+    color: #2c3e50;
+    font-size: 2em;
+  }
+
+  h3 {
+    margin: 0 0 16px;
+    color: #2c3e50;
+    font-size: 1.4em;
   }
 }
 
 .viewer-container {
   width: 100%;
   height: 500px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
+  margin-bottom: 32px;
+  background: white;
   border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  background: #f5f5f5;
-  border-radius: 8px;
+  gap: 32px;
 
   .control-section {
-    h3 {
-      margin-bottom: 10px;
-      color: #333;
-    }
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
 .button-group {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
 
   button {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 10px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
     background: white;
+    color: #2c3e50;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: #e6f7ff;
-      border-color: #1890ff;
+      background: #f8f9fa;
+      border-color: #42b883;
+      color: #42b883;
     }
 
     &.active {
-      background: #1890ff;
+      background: #42b883;
       color: white;
-      border-color: #1890ff;
+      border-color: #42b883;
     }
   }
 }

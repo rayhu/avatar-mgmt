@@ -435,16 +435,45 @@ $border-color: #ddd;
 $background-color: #f5f5f5;
 
 .animate-page {
-  padding: 20px;
+  padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
+
+  h1 {
+    margin: 0 0 32px;
+    color: #2c3e50;
+    font-size: 2em;
+  }
+
+  h3 {
+    margin: 0 0 16px;
+    color: #2c3e50;
+    font-size: 1.4em;
+  }
+
+  h4 {
+    margin: 0 0 12px;
+    color: #2c3e50;
+    font-size: 1.2em;
+  }
 }
 
 .timeline-editor {
-  margin-bottom: 20px;
-  background: #f5f5f5;
-  padding: 20px;
+  background: white;
   border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  .timeline-container {
+    margin-bottom: 16px;
+  }
+
+  .timeline-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
 }
 
 .timeline-container {
@@ -551,12 +580,6 @@ $background-color: #f5f5f5;
   color: white;
 }
 
-.timeline-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
 .keyframe-editor {
   background: #f8f8f8;
   padding: 15px;
@@ -584,20 +607,24 @@ $background-color: #f5f5f5;
 }
 
 .animate-content {
-  display: flex;
-  gap: 20px;
-  margin-top: 20px;
-}
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 32px;
 
-.form-section {
-  flex: 1;
-}
+  .form-section {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
 
-.preview-section {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  .preview-section {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .form-group {
