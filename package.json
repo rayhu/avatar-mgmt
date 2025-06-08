@@ -1,0 +1,20 @@
+{
+  "name": "avatar-mgmt",
+  "private": true,
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,ts,vue}": [
+      "cd frontend && yarn lint",
+      "cd frontend && yarn format"
+    ],
+    "frontend/**/*.{json,md}": [
+      "cd frontend && yarn format"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0"
+  }
+}
