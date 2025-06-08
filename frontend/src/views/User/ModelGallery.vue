@@ -7,6 +7,7 @@
 </template>
 
 <script setup lang="ts">
+const baseUrl = window.location.origin;
 // TODO: 拉取"就绪"模型列表
 </script>
 
@@ -18,5 +19,21 @@
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.deployment-section {
+  margin-bottom: 20px;
+}
+.deployment-link {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  color: #2c3e50;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.deployment-link:hover {
+  background: #e9ecef;
 }
 </style> 

@@ -27,20 +27,32 @@ export const useAuthStore = defineStore('auth', {
       this.user = user;
       this.token = token;
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
     },
     
     clearUser() {
       this.user = null;
       this.token = null;
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
     
     initAuth() {
       const token = localStorage.getItem('token');
-      if (token) {
-        // TODO: 验证 token 并获取用户信息
-        this.token = token;
+      const userStr = localStorage.getItem('user');
+      
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr) as User;
+          this.token = token;
+          this.user = user;
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          this.clearUser();
+        }
+      } else {
+        this.clearUser();
       }
-    },
-  },
+    }
+  }
 }); 

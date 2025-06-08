@@ -4,7 +4,8 @@ import { createPinia } from 'pinia';
 import router from './router';
 import { createI18n } from 'vue-i18n';
 import messages from './locales';
-import '@/assets/styles/global.scss';
+import './assets/styles/global.scss';
+import { useAuthStore } from './store';
 
 const i18n = createI18n({
   legacy: false,
@@ -14,7 +15,12 @@ const i18n = createI18n({
 });
 
 const app = createApp(App);
-app.use(createPinia());
+const pinia = createPinia();
+app.use(pinia);
 app.use(router);
 app.use(i18n);
+
+const auth = useAuthStore();
+auth.initAuth();
+
 app.mount('#app'); 

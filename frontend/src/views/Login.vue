@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/store';
+import { useAuthStore } from '../store';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
