@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && yarn install && yarn build",
-  "outputDirectory": "frontend/dist",
+  "buildCommand": "yarn install && yarn build",
+  "outputDirectory": "dist",
   "installCommand": "yarn install",
   "framework": "vite",
   "routes": [
