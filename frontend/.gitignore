@@ -134,3 +134,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# model files
+public/models/*.glb
+public/models/*.gltf
+public/models/*.bin
