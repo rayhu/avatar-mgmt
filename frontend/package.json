@@ -45,9 +45,9 @@
     "vercel": "^42.3.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.0.0",
+    "vue-tsc": "^2.2.10",
     "workbox-build": "^7.3.0",
-    "workbox-window": "^7.3.0",
-    "vue-tsc": "^2.2.10"
+    "workbox-window": "^7.3.0"
   },
   "engines": {
     "node": ">=18.0.0",
