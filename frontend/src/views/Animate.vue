@@ -218,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
+import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
@@ -314,6 +314,86 @@ const isRecording = ref(false);
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const recordedChunks = ref<Blob[]>([]);
 const recordedVideoUrl = ref<string>('');
+
+// 动画定时器
+const animationTimer = ref<number | null>(null);
+
+async function onAnimate() {
+  if (!text.value.trim()) {
+    alert(t('animate.textRequired'));
+    return;
+  }
+
+  if (text.value.length > 180) {
+    alert(t('animate.textTooLong'));
+    return;
+  }
+
+  try {
+    isProcessing.value = true;
+    const audioBlob = await synthesizeSpeech(text.value);
+    audioUrl.value = URL.createObjectURL(audioBlob);
+
+    // 播放音频并驱动动画
+    nextTick(() => {
+      const audio = (document.querySelector('audio') as HTMLAudioElement);
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play();
+        startTimelineAnimation(audio);
+      }
+    });
+  } catch (error) {
+    console.error('Failed to synthesize speech:', error);
+    alert(t('animate.synthesisError'));
+  } finally {
+    isProcessing.value = false;
+  }
+}
+
+// 启动时间轴动画
+function startTimelineAnimation(audio: HTMLAudioElement) {
+  // 合并所有关键帧，按时间排序
+  const allKeyframes = [
+    ...actionKeyframes.value.map(k => ({ ...k })),
+    ...emotionKeyframes.value.map(k => ({ ...k }))
+  ].sort((a, b) => a.time - b.time);
+
+  let lastAction = currentAction.value;
+  let lastEmotion = currentEmotion.value;
+
+  // 清理旧定时器
+  if (animationTimer.value) {
+    clearInterval(animationTimer.value);
+    animationTimer.value = null;
+  }
+
+  animationTimer.value = window.setInterval(() => {
+    const t = audio.currentTime;
+    // 找到 <= 当前时间的最新动作/表情关键帧
+    const actionFrame = [...actionKeyframes.value].filter(k => k.time <= t).sort((a, b) => b.time - a.time)[0];
+    const emotionFrame = [...emotionKeyframes.value].filter(k => k.time <= t).sort((a, b) => b.time - a.time)[0];
+
+    // 切换动作
+    if (actionFrame && actionFrame.action && actionFrame.action !== lastAction) {
+      currentAction.value = actionFrame.action;
+      if (modelViewer.value) modelViewer.value.playAnimation(actionFrame.action);
+      lastAction = actionFrame.action;
+    }
+    // 切换表情
+    if (emotionFrame && emotionFrame.emotion && emotionFrame.emotion !== lastEmotion) {
+      currentEmotion.value = emotionFrame.emotion;
+      if (modelViewer.value) modelViewer.value.updateEmotion(emotionFrame.emotion);
+      lastEmotion = emotionFrame.emotion;
+    }
+
+    // 音频播放结束，清理定时器
+    if (audio.ended) {
+      clearInterval(animationTimer.value!);
+      animationTimer.value = null;
+    }
+  }, 100); // 每 100ms 检查一次
+}
 
 // 监听文本变化，更新字符计数
 watch(text, (newText: string) => {
@@ -421,6 +501,14 @@ function clearTimeline() {
 
 function selectKeyframe(keyframe: Keyframe) {
   selectedKeyframe.value = keyframe;
+  // 新增：同步当前动作/表情
+  if (keyframe.type === 'action' && keyframe.action) {
+    currentAction.value = keyframe.action;
+    if (modelViewer.value) modelViewer.value.playAnimation(keyframe.action);
+  } else if (keyframe.type === 'emotion' && keyframe.emotion) {
+    currentEmotion.value = keyframe.emotion;
+    if (modelViewer.value) modelViewer.value.updateEmotion(keyframe.emotion);
+  }
 }
 
 // 删除关键帧
@@ -435,145 +523,6 @@ function deleteKeyframe(keyframe: Keyframe) {
   }
 }
 
-async function onAnimate() {
-  if (!text.value.trim()) {
-    alert(t('animate.textRequired'));
-    return;
-  }
-
-  if (text.value.length > 180) {
-    alert(t('animate.textTooLong'));
-    return;
-  }
-
-  try {
-    isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value);
-    audioUrl.value = URL.createObjectURL(audioBlob);
-
-    if (modelViewer.value) {
-      console.log('Updating model state:', {
-        emotion: 'Sad',
-        action: 'Idle'
-      });
-      
-      // 直接更新状态，不触发事件
-      currentEmotion.value = 'Sad';
-      currentAction.value = 'Idle';
-      
-      // 然后更新模型
-      modelViewer.value.updateEmotion('Sad');
-      modelViewer.value.playAnimation('Idle');
-    } else {
-      console.warn('ModelViewer not initialized');
-    }
-  } catch (error) {
-    console.error('Failed to synthesize speech:', error);
-    alert(t('animate.synthesisError'));
-  } finally {
-    isProcessing.value = false;
-  }
-}
-
-async function startRecording() {
-  try {
-    if (!audioUrl.value) {
-      alert(t('animate.recordingTip'));
-      return;
-    }
-
-    const modelViewer = document.querySelector('model-viewer') as HTMLElement;
-    if (!modelViewer) {
-      throw new Error('Model viewer not found');
-    }
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) {
-      throw new Error('Failed to get canvas context');
-    }
-
-    canvas.width = modelViewer.clientWidth;
-    canvas.height = modelViewer.clientHeight;
-
-    const stream = canvas.captureStream(30);
-    mediaRecorder.value = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp9',
-      videoBitsPerSecond: 2500000
-    });
-
-    mediaRecorder.value.ondataavailable = (event: BlobEvent) => {
-      if (event.data.size > 0) {
-        recordedChunks.value.push(event.data);
-      }
-    };
-
-    mediaRecorder.value.onstop = () => {
-      const blob = new Blob(recordedChunks.value, {
-        type: 'video/webm'
-      });
-      recordedVideoUrl.value = URL.createObjectURL(blob);
-    };
-
-    recordedChunks.value = [];
-    mediaRecorder.value.start();
-
-    const captureFrame = () => {
-      if (!isRecording.value) return;
-      // FIXME: 这里假设 modelViewer 实际上是 canvas 元素，后续如有自定义渲染需调整
-      context.drawImage(modelViewer as unknown as HTMLCanvasElement, 0, 0, canvas.width, canvas.height);
-      requestAnimationFrame(captureFrame);
-    };
-
-    isRecording.value = true;
-    captureFrame();
-  } catch (error) {
-    console.error('Failed to start recording:', error);
-    alert(t('animate.recordError'));
-  }
-}
-
-function stopRecording() {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-    isRecording.value = false;
-  }
-}
-
-function downloadVideo() {
-  if (!recordedVideoUrl.value) return;
-
-  const link = document.createElement('a');
-  link.href = recordedVideoUrl.value;
-  link.download = `avatar-animation-${new Date().toISOString()}.webm`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-function _playAnimation(animation: string) {
-  if (modelViewer.value) {
-    console.log('Playing animation:', {
-      animation,
-      currentAction: currentAction.value,
-      modelViewer: !!modelViewer.value
-    });
-    
-    modelViewer.value.playAnimation(animation);
-    currentAction.value = animation;
-  } else {
-    console.warn('ModelViewer not initialized when trying to play animation:', animation);
-  }
-}
-
-function _updateEmotion(emotion: string) {
-  if (modelViewer.value) {
-    modelViewer.value.updateEmotion(emotion)
-    currentEmotion.value = emotion
-  }
-}
-
-// 处理文本变化
 function _handleTextChange(newText: string) {
   text.value = newText;
 }
@@ -663,6 +612,7 @@ function handleEmotionSelect(event: Event) {
   const value = select.value;
   if (value && emotions.includes(value as typeof emotions[number])) {
     const updatedKeyframe = { ...selectedKeyframe.value, emotion: value };
+   
     selectedKeyframe.value = updatedKeyframe;
     updateKeyframe(updatedKeyframe);
   }
@@ -674,11 +624,21 @@ function updateKeyframe(keyframe: Keyframe) {
     const index = actionKeyframes.value.findIndex(k => k.id === keyframe.id);
     if (index !== -1) {
       actionKeyframes.value[index] = { ...keyframe };
+      // 新增：如果当前选中，立即切换动作
+      if (selectedKeyframe.value?.id === keyframe.id && keyframe.action) {
+        currentAction.value = keyframe.action;
+        if (modelViewer.value) modelViewer.value.playAnimation(keyframe.action);
+      }
     }
   } else if (keyframe.type === 'emotion') {
     const index = emotionKeyframes.value.findIndex(k => k.id === keyframe.id);
     if (index !== -1) {
       emotionKeyframes.value[index] = { ...keyframe };
+      // 新增：如果当前选中，立即切换表情
+      if (selectedKeyframe.value?.id === keyframe.id && keyframe.emotion) {
+        currentEmotion.value = keyframe.emotion;
+        if (modelViewer.value) modelViewer.value.updateEmotion(keyframe.emotion);
+      }
     }
   }
 }
@@ -1090,4 +1050,4 @@ button:hover {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>
