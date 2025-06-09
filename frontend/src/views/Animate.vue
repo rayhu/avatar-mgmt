@@ -276,6 +276,12 @@ const charCount = computed({
 
 onMounted(() => {
   fetchReadyModels();
+  // 监听 audio 播放事件
+  nextTick(() => {
+    if (audioPlayer.value) {
+      audioPlayer.value.addEventListener('play', handleAudioPlay);
+    }
+  });
 });
 
 // 获取就绪状态的模型列表
@@ -317,6 +323,25 @@ const recordedVideoUrl = ref<string>('');
 
 // 动画定时器
 const animationTimer = ref<number | null>(null);
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+
+onUnmounted(() => {
+  if (audioPlayer.value) {
+    audioPlayer.value.removeEventListener('play', handleAudioPlay);
+  }
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
+  }
+  if (recordedVideoUrl.value) {
+    URL.revokeObjectURL(recordedVideoUrl.value);
+  }
+});
+
+function handleAudioPlay() {
+  if (audioPlayer.value) {
+    startTimelineAnimation(audioPlayer.value);
+  }
+}
 
 async function onAnimate() {
   if (!text.value.trim()) {
