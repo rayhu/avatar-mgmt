@@ -80,11 +80,11 @@ const messages = {
         yes: '点头',
       },
       submit: '生成动画和语音',
-      record: '开始录制',
+      record: '录制小视频',
       stopRecording: '停止录制',
       download: '下载视频',
       recordError: '录制失败，请重试',
-      recordingTip: '请先生成动画和语音后再开始录制',
+      recordingTip: '先要生成动画和语音后才能录制',
       processing: '处理中...',
       loading: '加载中...',
       timeline: {
