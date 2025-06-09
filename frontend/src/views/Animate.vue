@@ -376,6 +376,23 @@ async function onAnimate() {
   }
 }
 
+
+function startRecording() {
+  // TODO: 实现录制功能
+  // 可以设置 isRecording.value = true;
+}
+
+function stopRecording() {
+  // TODO: 实现停止录制功能
+  // 可以设置 isRecording.value = false;
+}
+
+function downloadVideo() {
+  // TODO: 实现下载视频功能
+  // 可以用 recordedVideoUrl.value
+}
+
+
 // 启动时间轴动画
 function startTimelineAnimation(audio: HTMLAudioElement) {
   // 合并所有关键帧，按时间排序
