@@ -1,6 +1,7 @@
 <template>
   <div class="animate-page">
     <h1>{{ t('animate.title') }}</h1>
+    
 
     <!-- 模型选择 -->
     <div class="model-selector">
@@ -35,6 +36,120 @@
             {{ t('modelManagement.changeModel') }}
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- <div class="viewer-container">
+      <ModelViewer
+        ref="modelViewer"
+        :model-url="selectedModel?.url || '/models/default.glb'"
+        :auto-rotate="true"
+        :show-controls="true"
+      />
+    </div> -->
+
+
+    <!-- 时间轴编辑器 -->
+    <div class="timeline-editor">
+      <h3>{{ t('animate.timeline.title') }}</h3>
+      <div class="timeline-container">
+        <div class="timeline-header">
+          <div class="track-label">{{ t('animate.timeline.time') }}</div>
+          <div class="timeline-ruler">
+            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
+              {{ i-1 }}s
+            </div>
+          </div>
+        </div>
+        <div class="timeline-tracks">
+          <div class="track">
+            <div class="track-label">{{ t('animate.timeline.action') }}</div>
+            <div class="track-content" @click="onTrackClick('action', $event)">
+              <div
+                v-for="keyframe in actionKeyframes"
+                :key="keyframe.id"
+                class="keyframe action-keyframe"
+                :style="{ left: `${keyframe.time * 3.33}%` }"
+                @click.stop="selectKeyframe(keyframe)"
+                @mousedown="startDrag(keyframe, $event)"
+              >
+                {{ t(`animate.actions.${keyframe.action ? keyframe.action.charAt(0).toLowerCase() + keyframe.action.slice(1) : ''}`) }}
+              </div>
+            </div>
+          </div>
+          <div class="track">
+            <div class="track-label">{{ t('animate.timeline.emotion') }}</div>
+            <div class="track-content" @click="onTrackClick('emotion', $event)">
+              <div
+                v-for="keyframe in emotionKeyframes"
+                :key="keyframe.id"
+                class="keyframe emotion-keyframe"
+                :style="{ left: `${keyframe.time * 3.33}%` }"
+                @click.stop="selectKeyframe(keyframe)"
+                @mousedown="startDrag(keyframe, $event)"
+              >
+                {{ t(`animate.emotions.${keyframe.emotion?.toLowerCase()}`) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-controls">
+        <button class="control-btn" @click="() => addActionKeyframe()">
+          {{ t('animate.timeline.addAction') }}
+        </button>
+        <button class="control-btn" @click="() => addEmotionKeyframe()">
+          {{ t('animate.timeline.addEmotion') }}
+        </button>
+        <button class="control-btn danger" @click="clearTimeline">
+          {{ t('animate.timeline.clear') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- 关键帧编辑器 -->
+    <div v-if="selectedKeyframe" class="keyframe-editor">
+      <h4>{{ t('animate.timeline.editKeyframe') }}</h4>
+      <div class="editor-content">
+        <div class="form-group">
+          <label>{{ t('animate.timeline.time') }}</label>
+          <input
+            min="0"
+            max="30"
+            step="0.1"
+            class="w-20 px-2 py-1 border rounded"
+            type="number"
+            :value="selectedKeyframe.time"
+            @input="handleTimeInput"
+          />
+        </div>
+        <div v-if="selectedKeyframe.type === 'action'" class="form-group">
+          <label>{{ t('animate.timeline.action') }}</label>
+          <select 
+            class="form-control"
+            :value="selectedKeyframe.action"
+            @change="handleActionSelect"
+          >
+            <option v-for="action in actions" :key="action" :value="action">
+              {{ t(`animate.actions.${action.charAt(0).toLowerCase() + action.slice(1)}`) }}
+            </option>
+          </select>
+        </div>
+        <div v-if="selectedKeyframe.type === 'emotion'" class="form-group">
+          <label>{{ t('animate.timeline.emotion') }}</label>
+          <select 
+            class="form-control"
+            :value="selectedKeyframe.emotion"
+            @change="handleEmotionSelect"
+          >
+            <option v-for="emotion in emotions" :key="emotion" :value="emotion">
+              {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
+            </option>
+          </select>
+        </div>
+        <button class="delete-btn" @click="deleteKeyframe(selectedKeyframe)">
+          {{ t('animate.timeline.delete') }}
+        </button>
       </div>
     </div>
 
@@ -75,18 +190,21 @@
             v-if="!isRecording" 
             class="control-btn" 
             :disabled="isProcessing || !audioUrl"
+            @click="startRecording"
           >
             {{ t('animate.record') }}
           </button>
           <button 
             v-else 
-            class="control-btn danger"
+            class="control-btn danger" 
+            @click="stopRecording"
           >
             {{ t('animate.stopRecording') }}
           </button>
           <button 
             v-if="recordedVideoUrl" 
-            class="control-btn"
+            class="control-btn" 
+            @click="downloadVideo"
           >
             {{ t('animate.download') }}
           </button>
@@ -96,87 +214,11 @@
         </div>
       </div>
     </div>
-
-    <!-- 时间轴编辑器 -->
-    <div class="timeline-editor">
-      <h3>{{ t('animate.timeline.title') }}</h3>
-      <div class="timeline-container">
-        <div class="timeline-header">
-          <div class="track-label">{{ t('animate.timeline.time') }}</div>
-          <div class="timeline-ruler">
-            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
-              {{ i-1 }}s
-            </div>
-          </div>
-        </div>
-        <div class="timeline-tracks">
-          <div class="track">
-            <div class="track-label">{{ t('animate.timeline.action') }}</div>
-            <div class="track-content">
-              <!-- 动作关键帧将在这里显示 -->
-            </div>
-          </div>
-          <div class="track">
-            <div class="track-label">{{ t('animate.timeline.emotion') }}</div>
-            <div class="track-content">
-              <!-- 表情关键帧将在这里显示 -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-controls">
-        <button class="control-btn">
-          {{ t('animate.timeline.addAction') }}
-        </button>
-        <button class="control-btn">
-          {{ t('animate.timeline.addEmotion') }}
-        </button>
-        <button class="control-btn danger">
-          {{ t('animate.timeline.clear') }}
-        </button>
-      </div>
-    </div>
-
-    <!-- 关键帧编辑器 -->
-    <div class="keyframe-editor">
-      <h4>{{ t('animate.timeline.editKeyframe') }}</h4>
-      <div class="editor-content">
-        <div class="form-group">
-          <label>{{ t('animate.timeline.time') }}</label>
-          <input
-            type="number"
-            min="0"
-            max="30"
-            step="0.1"
-            class="form-control"
-          />
-        </div>
-        <div class="form-group">
-          <label>{{ t('animate.timeline.action') }}</label>
-          <select class="form-control" @change="handleActionChange">
-            <option v-for="action in actions" :key="action" :value="action">
-              {{ t(`animate.actions.${action.charAt(0).toLowerCase() + action.slice(1)}`) }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>{{ t('animate.timeline.emotion') }}</label>
-          <select class="form-control">
-            <option v-for="emotion in emotions" :key="emotion" :value="emotion">
-              {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
-            </option>
-          </select>
-        </div>
-        <button class="delete-btn">
-          {{ t('animate.timeline.delete') }}
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
+import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
@@ -184,12 +226,20 @@ import { synthesizeSpeech } from '@/api/azureTTS';
 import type { Model } from '@/types/model';
 import { getModels } from '@/api/model';
 
+interface Keyframe {
+  id: string;
+  time: number;
+  type: 'action' | 'emotion';
+  action?: string;
+  emotion?: string;
+}
+
 const { t } = useI18n() as Composer;
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
 const readyModels = ref<Model[]>([]);
 const selectedModel = ref<Model | null>(null);
 const currentEmotion = ref('');
-const currentAction = ref('');
+const currentAction = ref('Idle');
 const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
 
 const actions = [
@@ -224,20 +274,14 @@ const charCount = computed({
   }
 });
 
-// 视频录制相关
-const isRecording = ref(false);
-const recordedVideoUrl = ref<string>('');
-
-// 自动跳跃相关
-let jumpInterval: number | null = null;
-
 onMounted(() => {
   fetchReadyModels();
-  setTimeout(() => {
-    if (modelViewer.value && !currentAction.value) {
-      startAutoJump();
+  // 监听 audio 播放事件
+  nextTick(() => {
+    if (audioPlayer.value) {
+      audioPlayer.value.addEventListener('play', handleAudioPlay);
     }
-  }, 1000);
+  });
 });
 
 // 获取就绪状态的模型列表
@@ -255,20 +299,49 @@ async function fetchReadyModels() {
     readyModels.value = [];
   }
 }
-
 // 选择模型
 function selectModel(model: Model) {
   selectedModel.value = model;
   currentEmotion.value = '';
-  currentAction.value = '';
-  if (modelViewer.value) {
-    modelViewer.value.playAnimation('Idle');
-  }
-  startAutoJump();
 }
-
 const isProcessing = ref(false);
 const audioUrl = ref<string>('');
+
+// 时间轴相关
+const actionKeyframes = ref<Keyframe[]>([]);
+const emotionKeyframes = ref<Keyframe[]>([]);
+const selectedKeyframe = ref<Keyframe | null>(null);
+const isDragging = ref(false);
+const dragStartX = ref(0);
+const dragStartTime = ref(0);
+
+// 视频录制相关
+const isRecording = ref(false);
+const mediaRecorder = ref<MediaRecorder | null>(null);
+const recordedChunks = ref<Blob[]>([]);
+const recordedVideoUrl = ref<string>('');
+
+// 动画定时器
+const animationTimer = ref<number | null>(null);
+const audioPlayer = ref<HTMLAudioElement | null>(null);
+
+onUnmounted(() => {
+  if (audioPlayer.value) {
+    audioPlayer.value.removeEventListener('play', handleAudioPlay);
+  }
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
+  }
+  if (recordedVideoUrl.value) {
+    URL.revokeObjectURL(recordedVideoUrl.value);
+  }
+});
+
+function handleAudioPlay() {
+  if (audioPlayer.value) {
+    startTimelineAnimation(audioPlayer.value);
+  }
+}
 
 async function onAnimate() {
   if (!text.value.trim()) {
@@ -286,13 +359,15 @@ async function onAnimate() {
     const audioBlob = await synthesizeSpeech(text.value);
     audioUrl.value = URL.createObjectURL(audioBlob);
 
-    if (modelViewer.value) {
-      currentEmotion.value = 'Sad';
-      currentAction.value = 'Idle';
-      
-      modelViewer.value.updateEmotion('Sad');
-      modelViewer.value.playAnimation('Idle');
-    }
+    // 播放音频并驱动动画
+    nextTick(() => {
+      const audio = (document.querySelector('audio') as HTMLAudioElement);
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play();
+        startTimelineAnimation(audio);
+      }
+    });
   } catch (error) {
     console.error('Failed to synthesize speech:', error);
     alert(t('animate.synthesisError'));
@@ -301,49 +376,319 @@ async function onAnimate() {
   }
 }
 
-// 自动跳跃相关
-function startAutoJump() {
-  if (jumpInterval) {
-    clearInterval(jumpInterval);
-  }
-  
-  jumpInterval = window.setInterval(() => {
-    if (modelViewer.value && !currentAction.value) {
-      console.log('Auto jumping...');
-      modelViewer.value.playAnimation('Jump');
-      setTimeout(() => {
-        if (modelViewer.value && !currentAction.value) {
-          modelViewer.value.playAnimation('Idle');
-        }
-      }, 1000);
-    }
-  }, 2000);
+
+function startRecording() {
+  // TODO: 实现录制功能
+  // 可以设置 isRecording.value = true;
 }
 
-onUnmounted(() => {
-  if (jumpInterval) {
-    clearInterval(jumpInterval);
-    jumpInterval = null;
+function stopRecording() {
+  // TODO: 实现停止录制功能
+  // 可以设置 isRecording.value = false;
+}
+
+function downloadVideo() {
+  // TODO: 实现下载视频功能
+  // 可以用 recordedVideoUrl.value
+}
+
+
+// 启动时间轴动画
+function startTimelineAnimation(audio: HTMLAudioElement) {
+  // 合并所有关键帧，按时间排序
+  const allKeyframes = [
+    ...actionKeyframes.value.map(k => ({ ...k })),
+    ...emotionKeyframes.value.map(k => ({ ...k }))
+  ].sort((a, b) => a.time - b.time);
+
+  let lastAction = currentAction.value;
+  let lastEmotion = currentEmotion.value;
+
+  // 清理旧定时器
+  if (animationTimer.value) {
+    clearInterval(animationTimer.value);
+    animationTimer.value = null;
+  }
+
+  animationTimer.value = window.setInterval(() => {
+    const t = audio.currentTime;
+    // 找到 <= 当前时间的最新动作/表情关键帧
+    const actionFrame = [...actionKeyframes.value].filter(k => k.time <= t).sort((a, b) => b.time - a.time)[0];
+    const emotionFrame = [...emotionKeyframes.value].filter(k => k.time <= t).sort((a, b) => b.time - a.time)[0];
+
+    // 切换动作
+    if (actionFrame && actionFrame.action && actionFrame.action !== lastAction) {
+      currentAction.value = actionFrame.action;
+      if (modelViewer.value) modelViewer.value.playAnimation(actionFrame.action);
+      lastAction = actionFrame.action;
+    }
+    // 切换表情
+    if (emotionFrame && emotionFrame.emotion && emotionFrame.emotion !== lastEmotion) {
+      currentEmotion.value = emotionFrame.emotion;
+      if (modelViewer.value) modelViewer.value.updateEmotion(emotionFrame.emotion);
+      lastEmotion = emotionFrame.emotion;
+    }
+
+    // 音频播放结束，清理定时器并重置为 Idle
+    if (audio.ended) {
+      clearInterval(animationTimer.value!);
+      animationTimer.value = null;
+      // 重置动作和表情
+      currentAction.value = 'Idle';
+      currentEmotion.value = '';
+      if (modelViewer.value) {
+        modelViewer.value.playAnimation('Idle');
+        modelViewer.value.updateEmotion('');
+      }
+    }
+  }, 100); // 每 100ms 检查一次
+}
+
+// 监听文本变化，更新字符计数
+watch(text, (newText: string) => {
+  if (newText.length > 180) {
+    text.value = newText.slice(0, 180);
   }
 });
 
-// 修改动作变化处理函数
-function handleActionChange(eventOrAction: Event | string) {
-  const newAction = typeof eventOrAction === 'string'
-    ? eventOrAction
-    : (eventOrAction.target as HTMLSelectElement).value;
-  
-  console.log('Action changed:', newAction);
-  
-  currentAction.value = newAction;
-  if (modelViewer.value) {
-    modelViewer.value.playAnimation(newAction);
+// 清理函数
+onUnmounted(() => {
+  if (mediaRecorder.value && isRecording.value) {
+    mediaRecorder.value.stop();
   }
+  if (recordedVideoUrl.value) {
+    URL.revokeObjectURL(recordedVideoUrl.value);
+  }
+});
+
+function startDrag(keyframe: Keyframe, event: MouseEvent) {
+  if (!keyframe) return;
   
-  // 当选择了动作时，停止自动跳跃
-  if (jumpInterval) {
-    clearInterval(jumpInterval);
-    jumpInterval = null;
+  isDragging.value = true;
+  dragStartX.value = event.clientX;
+  dragStartTime.value = keyframe.time;
+  
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+}
+
+function onDrag(event: MouseEvent) {
+  if (!isDragging.value || !selectedKeyframe.value) return;
+  
+  const deltaX = event.clientX - dragStartX.value;
+  const track = document.querySelector('.track-content') as HTMLElement;
+  const rect = track?.getBoundingClientRect();
+  if (!rect) return;
+  
+  const deltaTime = (deltaX / (rect.width - 4)) * 30;
+  const newTime = Math.max(0, Math.min(30, dragStartTime.value + deltaTime));
+  
+  selectedKeyframe.value.time = Number(newTime.toFixed(1));
+}
+
+function stopDrag() {
+  isDragging.value = false;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+}
+
+
+// 处理轨道点击
+function onTrackClick(type: 'action' | 'emotion', event: MouseEvent) {
+  if (!event.target) return;
+  
+  const track = event.currentTarget as HTMLElement;
+  const rect = track.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const time = (clickX / rect.width) * 30; // 30秒时间轴
+  
+  if (type === 'action') {
+    addActionKeyframe(time);
+  } else {
+    addEmotionKeyframe(time);
+  }
+}
+
+function addActionKeyframe(time: number = 0) {
+  const keyframe: Keyframe = {
+    id: Date.now().toString(),
+    time,
+    type: 'action',
+    action: 'Idle'
+  };
+  actionKeyframes.value.push(keyframe);
+  selectedKeyframe.value = keyframe;
+}
+
+function addEmotionKeyframe(time: number = 0) {
+  const keyframe: Keyframe = {
+    id: Date.now().toString(),
+    time,
+    type: 'emotion',
+    emotion: 'Sad'
+  };
+  emotionKeyframes.value.push(keyframe);
+  selectedKeyframe.value = keyframe;
+}
+
+function _validateKeyframeTime(event: Event) {
+  if (!selectedKeyframe.value) return;
+  const input = event.target as HTMLInputElement;
+  const value = parseFloat(input.value);
+  if (!isNaN(value)) {
+    selectedKeyframe.value.time = Math.max(0, Math.min(30, value));
+  }
+}
+
+function clearTimeline() {
+  if (confirm(t('animate.timeline.confirmClear'))) {
+    actionKeyframes.value = [];
+    emotionKeyframes.value = [];
+    selectedKeyframe.value = null;
+  }
+}
+
+function selectKeyframe(keyframe: Keyframe) {
+  selectedKeyframe.value = keyframe;
+  // 新增：同步当前动作/表情
+  if (keyframe.type === 'action' && keyframe.action) {
+    currentAction.value = keyframe.action;
+    if (modelViewer.value) modelViewer.value.playAnimation(keyframe.action);
+  } else if (keyframe.type === 'emotion' && keyframe.emotion) {
+    currentEmotion.value = keyframe.emotion;
+    if (modelViewer.value) modelViewer.value.updateEmotion(keyframe.emotion);
+  }
+}
+
+// 删除关键帧
+function deleteKeyframe(keyframe: Keyframe) {
+  if (keyframe.type === 'action') {
+    actionKeyframes.value = actionKeyframes.value.filter((k: Keyframe) => k.id !== keyframe.id);
+  } else {
+    emotionKeyframes.value = emotionKeyframes.value.filter((k: Keyframe) => k.id !== keyframe.id);
+  }
+  if (selectedKeyframe.value?.id === keyframe.id) {
+    selectedKeyframe.value = null;
+  }
+}
+
+function _handleTextChange(newText: string) {
+  text.value = newText;
+}
+
+// 处理关键帧选择
+function _handleKeyframeSelect(keyframe: Keyframe) {
+  selectedKeyframe.value = { ...keyframe };
+}
+
+
+// 处理键盘事件
+function _handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    speak();
+  }
+}
+
+// 处理表情变化
+function _handleEmotionChange(key: string) {
+  // 先更新状态
+  currentEmotion.value = key;
+  
+  // 然后更新模型
+  if (modelViewer.value) {
+    modelViewer.value.updateEmotion(key);
+  }
+}
+
+// 处理动作变化
+function _handleActionChange(key: string) {
+  console.log('Action changed:', {
+    from: currentAction.value,
+    to: key
+  });
+  
+  // 先更新状态
+  currentAction.value = key;
+  
+  // 然后更新模型
+  if (modelViewer.value) {
+    modelViewer.value.playAnimation(key);
+  }
+}
+
+// 语音合成
+async function speak() {
+  if (!text.value.trim()) return;
+  try {
+    isProcessing.value = true;
+    const audioBlob = await synthesizeSpeech(text.value);
+    audioUrl.value = URL.createObjectURL(audioBlob);
+  } catch (error) {
+    console.error('Failed to synthesize speech:', error);
+    alert(t('animate.synthesisError'));
+  } finally {
+    isProcessing.value = false;
+  }
+}
+
+// 处理时间输入
+function handleTimeInput(event: Event) {
+  if (!selectedKeyframe.value) return;
+  const input = event.target as HTMLInputElement;
+  const value = parseFloat(input.value);
+  if (!isNaN(value)) {
+    selectedKeyframe.value.time = Math.max(0, Math.min(30, value));
+  }
+}
+
+// 处理动作选择
+function handleActionSelect(event: Event) {
+  if (!selectedKeyframe.value) return;
+  const select = event.target as HTMLSelectElement;
+  const value = select.value;
+  if (value && actions.includes(value as typeof actions[number])) {
+    const updatedKeyframe = { ...selectedKeyframe.value, action: value };
+    selectedKeyframe.value = updatedKeyframe;
+    updateKeyframe(updatedKeyframe);
+  }
+}
+
+// 处理表情选择
+function handleEmotionSelect(event: Event) {
+  if (!selectedKeyframe.value) return;
+  const select = event.target as HTMLSelectElement;
+  const value = select.value;
+  if (value && emotions.includes(value as typeof emotions[number])) {
+    const updatedKeyframe = { ...selectedKeyframe.value, emotion: value };
+   
+    selectedKeyframe.value = updatedKeyframe;
+    updateKeyframe(updatedKeyframe);
+  }
+}
+
+// 处理关键帧更新
+function updateKeyframe(keyframe: Keyframe) {
+  if (keyframe.type === 'action') {
+    const index = actionKeyframes.value.findIndex(k => k.id === keyframe.id);
+    if (index !== -1) {
+      actionKeyframes.value[index] = { ...keyframe };
+      // 新增：如果当前选中，立即切换动作
+      if (selectedKeyframe.value?.id === keyframe.id && keyframe.action) {
+        currentAction.value = keyframe.action;
+        if (modelViewer.value) modelViewer.value.playAnimation(keyframe.action);
+      }
+    }
+  } else if (keyframe.type === 'emotion') {
+    const index = emotionKeyframes.value.findIndex(k => k.id === keyframe.id);
+    if (index !== -1) {
+      emotionKeyframes.value[index] = { ...keyframe };
+      // 新增：如果当前选中，立即切换表情
+      if (selectedKeyframe.value?.id === keyframe.id && keyframe.emotion) {
+        currentEmotion.value = keyframe.emotion;
+        if (modelViewer.value) modelViewer.value.updateEmotion(keyframe.emotion);
+      }
+    }
   }
 }
 </script>
@@ -386,6 +731,12 @@ $background-color: #f5f5f5;
   padding: 24px;
   margin-bottom: 32px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 16px;
+    color: #2c3e50;
+    font-size: 1.4em;
+  }
 }
 
 .model-list {
@@ -454,7 +805,6 @@ $background-color: #f5f5f5;
     }
   }
 }
-
 .timeline-editor {
   background: white;
   border-radius: 8px;
@@ -749,4 +1099,4 @@ button:hover {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>
