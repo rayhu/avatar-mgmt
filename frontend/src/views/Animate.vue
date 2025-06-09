@@ -412,10 +412,17 @@ function startTimelineAnimation(audio: HTMLAudioElement) {
       lastEmotion = emotionFrame.emotion;
     }
 
-    // 音频播放结束，清理定时器
+    // 音频播放结束，清理定时器并重置为 Idle
     if (audio.ended) {
       clearInterval(animationTimer.value!);
       animationTimer.value = null;
+      // 重置动作和表情
+      currentAction.value = 'Idle';
+      currentEmotion.value = '';
+      if (modelViewer.value) {
+        modelViewer.value.playAnimation('Idle');
+        modelViewer.value.updateEmotion('');
+      }
     }
   }, 100); // 每 100ms 检查一次
 }
