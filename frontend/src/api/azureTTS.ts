@@ -12,7 +12,11 @@ export async function synthesizeSpeech(text: string, voice: string = 'zh-CN-Xiao
   const speechConfig = sdk.SpeechConfig.fromSubscription(SPEECH_KEY, SPEECH_REGION);
   speechConfig.speechSynthesisVoiceName = voice;
 
-  const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
+  const pullStream = sdk.AudioOutputStream.createPullStream();
+
+  const audioConfig = sdk.AudioConfig.fromStreamOutput(pullStream);
+
+  const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
 
   return new Promise((resolve, reject) => {
     synthesizer.speakTextAsync(
