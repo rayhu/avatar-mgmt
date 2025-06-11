@@ -309,6 +309,12 @@ defineExpose({
 });
 </script>
 
+<script lang="ts">
+export default {
+  name: 'ModelViewer'
+}
+</script>
+
 <style scoped>
 .model-viewer {
   width: 100%;

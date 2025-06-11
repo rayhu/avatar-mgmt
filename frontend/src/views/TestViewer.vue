@@ -154,6 +154,8 @@ onMounted(() => {
 })
 </script>
 
+@use "@/assets/styles/variables.scss" as *;
+
 <style lang="scss" scoped>
 .test-viewer {
   padding: 32px;

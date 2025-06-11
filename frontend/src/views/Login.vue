@@ -95,6 +95,9 @@ async function onLogin() {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:color";
+@use "@/assets/styles/variables.scss" as *;
+
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -122,6 +125,30 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: $spacing-medium;
+  
+  button {
+    margin-top: $spacing-medium;
+    padding: $spacing-medium;
+    background: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color $transition-duration $transition-timing;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      background: color.adjust($primary-color, $lightness: -10%);
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .form-group {
@@ -157,30 +184,6 @@ h2 {
   color: #dc3545;
   font-size: 0.9rem;
   text-align: center;
-}
-
-.login-button {
-  margin-top: $spacing-medium;
-  padding: $spacing-medium;
-  background: $primary-color;
-  color: white;
-  border: none;
-  border-radius: $border-radius;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color $transition-duration $transition-timing;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover:not(:disabled) {
-    background: darken($primary-color, 10%);
-  }
-  
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
 }
 
 .loading-spinner {
