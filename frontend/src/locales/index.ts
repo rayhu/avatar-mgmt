@@ -2,6 +2,13 @@ import { createI18n as _createI18n } from 'vue-i18n';
 
 const messages = {
   'zh-CN': {
+    language: {
+      selectLanguage: '选择语言',
+      switchToChinese: '切换到简体中文',
+      switchToEnglish: '切换到英文',
+      'zh-CN': '简体中文',
+      'en': '英文'
+    },
     login: {
       title: '登录',
       username: '用户名',
@@ -101,6 +108,13 @@ const messages = {
     },
   },
   'en': {
+    language: {
+      selectLanguage: 'Select Language',
+      switchToChinese: 'Switch to Simplified Chinese',
+      switchToEnglish: 'Switch to English',
+      'zh-CN': 'Simplified Chinese',
+      'en': 'English'
+    },
     login: {
       title: 'Login',
       username: 'Username',

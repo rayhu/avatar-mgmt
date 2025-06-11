@@ -52,14 +52,14 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 12px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-tip {
   height: 60px;
   background: #f0f0f0;
   border-radius: 6px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-actions {
@@ -73,7 +73,7 @@
   width: 120px;
   background: #f0f0f0;
   border-radius: 6px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-list {
@@ -101,7 +101,7 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 8px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-description {
@@ -110,7 +110,7 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 12px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-meta {
@@ -123,7 +123,7 @@
   width: 120px;
   background: #f0f0f0;
   border-radius: 4px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 @keyframes pulse {

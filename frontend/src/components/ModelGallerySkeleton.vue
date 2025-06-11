@@ -43,14 +43,14 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 12px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-tip {
   height: 60px;
   background: #f0f0f0;
   border-radius: 6px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .model-grid {
@@ -71,7 +71,7 @@
   width: 100%;
   height: 200px;
   background: #f0f0f0;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .model-info {
@@ -84,7 +84,7 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 8px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-description {
@@ -93,7 +93,7 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 12px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-meta {
@@ -102,7 +102,7 @@
   background: #f0f0f0;
   border-radius: 4px;
   margin-bottom: 16px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 .skeleton-button {
@@ -110,7 +110,7 @@
   width: 100%;
   background: #f0f0f0;
   border-radius: 6px;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
