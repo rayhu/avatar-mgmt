@@ -1,4 +1,5 @@
 import { createI18n as _createI18n } from 'vue-i18n';
+import type { Messages } from './types';
 
 const messages = {
   'zh-CN': {
@@ -109,6 +110,16 @@ const messages = {
         clear: '清空',
       },
     },
+    errors: {
+      unknown: '发生未知错误',
+      network: '网络错误，请检查网络连接',
+      auth: '认证失败，请重新登录',
+      validation: '输入验证失败',
+      server: '服务器错误，请稍后重试',
+      notFound: '请求的资源不存在',
+      forbidden: '没有权限访问该资源',
+      rateLimit: '请求过于频繁，请稍后重试'
+    },
   },
   'en': {
     language: {
@@ -218,7 +229,20 @@ const messages = {
         clear: 'Clear',
       },
     },
+    errors: {
+      unknown: 'An unknown error occurred',
+      network: 'Network error, please check your connection',
+      auth: 'Authentication failed, please login again',
+      validation: 'Input validation failed',
+      server: 'Server error, please try again later',
+      notFound: 'Requested resource not found',
+      forbidden: 'Access to this resource is forbidden',
+      rateLimit: 'Too many requests, please try again later'
+    },
   },
-};
+} as const;
+
+export type Locale = keyof typeof messages;
+export type MessageSchema = typeof messages[Locale];
 
 export default messages; 
