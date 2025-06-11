@@ -10,7 +10,9 @@
     "lint": "eslint . --ext .js,.ts,.vue",
     "format": "prettier --write .",
     "type-check": "vue-tsc --noEmit",
-    "check": "yarn lint && yarn type-check"
+    "check": "yarn lint && yarn type-check",
+    "i18n:check": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/i18n-check.ts",
+    "i18n:report": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/i18n-check.ts --report"
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
@@ -25,7 +27,8 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@types/node": "^22.15.30",
+    "@types/glob": "^8.1.0",
+    "@types/node": "^20.0.0",
     "@types/three": "^0.177.0",
     "@types/vue": "^2.0.0",
     "@types/vue-i18n": "^7.0.0",
@@ -37,14 +40,17 @@
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-vue": "^9.21.1",
+    "glob": "^11.0.2",
     "prettier": "^3.5.3",
     "sass": "^1.89.1",
-    "typescript": "~5.5.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
     "vercel": "^42.3.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.0.0",
+    "vue-i18n-extract": "^2.0.7",
     "vue-tsc": "^2.2.10",
     "workbox-build": "^7.3.0",
     "workbox-window": "^7.3.0"

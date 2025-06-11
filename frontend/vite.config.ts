@@ -20,7 +20,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Directus 3D Frontend',
+        name: 'Digital Avatar Management',
         short_name: '3DFrontend',
         start_url: '/',
         display: 'standalone',

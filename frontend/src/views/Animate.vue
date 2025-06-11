@@ -694,6 +694,8 @@ function updateKeyframe(keyframe: Keyframe) {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:color";
+
 // 定义颜色变量
 $primary-color: #4CAF50;
 $danger-color: #f44336;
@@ -1007,7 +1009,7 @@ select {
 
 button {
   padding: 8px 16px;
-  background: #4CAF50;
+  background: $primary-color;
   color: white;
   border: none;
   border-radius: 4px;
@@ -1015,7 +1017,7 @@ button {
 }
 
 button:hover {
-  background: #45a049;
+  background: color.adjust($primary-color, $lightness: -10%);
 }
 
 .control-btn {
@@ -1028,7 +1030,7 @@ button:hover {
   transition: all 0.3s;
   
   &:hover:not(:disabled) {
-    background: darken($primary-color, 10%);
+    background: color.adjust($primary-color, $lightness: -10%);
   }
   
   &:disabled {
@@ -1040,7 +1042,7 @@ button:hover {
     background: $danger-color;
     
     &:hover {
-      background: darken($danger-color, 10%);
+      background: color.adjust($danger-color, $lightness: -10%);
     }
   }
 }
@@ -1061,7 +1063,7 @@ button:hover {
   justify-content: center;
   
   &:hover:not(:disabled) {
-    background: darken($primary-color, 10%);
+    background: color.adjust($primary-color, $lightness: -10%);
   }
   
   &:disabled {

@@ -13,6 +13,9 @@
             required
           />
         </div>
+        <div v-if="usernameError" class="error-message">
+          {{ usernameError }}
+        </div>
         <div class="form-group">
           <label for="password">{{ $t('login.password') }}</label>
           <input
@@ -37,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store';
 import { useI18n } from 'vue-i18n';
@@ -51,8 +54,42 @@ const password = ref('');
 const loading = ref(false);
 const error = ref('');
 
+// 用户名验证规则
+const usernameRules = {
+  minLength: 3,
+  maxLength: 20,
+  pattern: /^[a-zA-Z0-9_-]+$/, // 只允许字母、数字、下划线和连字符
+};
+
+// 用户名验证状态
+const usernameError = computed(() => {
+  if (!username.value) return '';
+  
+  if (username.value.length < usernameRules.minLength) {
+    return t('login.usernameTooShort', { min: usernameRules.minLength });
+  }
+  
+  if (username.value.length > usernameRules.maxLength) {
+    return t('login.usernameTooLong', { max: usernameRules.maxLength });
+  }
+  
+  if (!usernameRules.pattern.test(username.value)) {
+    return t('login.usernameInvalid');
+  }
+  
+  return '';
+});
+
+// 表单是否有效
+const isFormValid = computed(() => {
+  return username.value && 
+         !usernameError.value && 
+         password.value && 
+         !loading.value;
+});
+
 async function onLogin() {
-  if (loading.value) return;
+  if (loading.value || !isFormValid.value) return;
   
   loading.value = true;
   error.value = '';
@@ -65,7 +102,9 @@ async function onLogin() {
       'user': { password: 'user123', role: 'user' }
     };
 
-    const account = testAccounts[username.value];
+    // 在比较时使用小写，但保存原始输入
+    const normalizedUsername = username.value.toLowerCase();
+    const account = testAccounts[normalizedUsername];
     
     if (!account || account.password !== password.value) {
       throw new Error('Invalid credentials');
@@ -74,10 +113,11 @@ async function onLogin() {
     // 模拟API调用延迟
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // 使用原始输入的大小写进行存储和显示
     auth.setUser({ 
-      id: username.value, 
+      id: username.value, // 保持原始大小写
       role: account.role, 
-      name: username.value 
+      name: username.value // 保持原始大小写
     }, 'mock-token');
     
     // 根据用户角色跳转到不同页面
