@@ -3,8 +3,6 @@ import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 const SPEECH_KEY = import.meta.env.VITE_AZURE_SPEECH_KEY;
 const SPEECH_REGION = import.meta.env.VITE_AZURE_SPEECH_REGION;
 
-
-
 // Azure TTS API 封装（模板）
 export async function synthesizeSpeech(text: string, voice: string = 'zh-CN-XiaoxiaoNeural'): Promise<Blob> {
   if (!SPEECH_KEY || !SPEECH_REGION) {
