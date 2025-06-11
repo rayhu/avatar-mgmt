@@ -1,4 +1,4 @@
-# 数字人形象库管理网站 (Digital Human Avatar Management System)
+# 数字人形象库管理网站 (Digital Avatar Management System)
 
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://amis-avatar-mgmt.vercel.app)
 [![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat&logo=vue.js&logoColor=white)](https://vuejs.org/)
