@@ -11,4 +11,4 @@ export async function getModels(): Promise<Model[]> {
     console.error('Error fetching models:', error);
     return [];
   }
-} 
+}

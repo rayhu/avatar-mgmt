@@ -64,62 +64,62 @@ const usernameRules = {
 // 用户名验证状态
 const usernameError = computed(() => {
   if (!username.value) return '';
-  
+
   if (username.value.length < usernameRules.minLength) {
     return t('login.usernameTooShort', { min: usernameRules.minLength });
   }
-  
+
   if (username.value.length > usernameRules.maxLength) {
     return t('login.usernameTooLong', { max: usernameRules.maxLength });
   }
-  
+
   if (!usernameRules.pattern.test(username.value)) {
     return t('login.usernameInvalid');
   }
-  
+
   return '';
 });
 
 // 表单是否有效
 const isFormValid = computed(() => {
-  return username.value && 
-         !usernameError.value && 
-         password.value && 
-         !loading.value;
+  return username.value && !usernameError.value && password.value && !loading.value;
 });
 
 async function onLogin() {
   if (loading.value || !isFormValid.value) return;
-  
+
   loading.value = true;
   error.value = '';
-  
+
   try {
     // 模拟登录验证
     type UserRole = 'admin' | 'user';
     const testAccounts: Record<string, { password: string; role: UserRole }> = {
-      'admin': { password: 'admin123', role: 'admin' },
-      'user': { password: 'user123', role: 'user' }
+      admin: { password: 'admin123', role: 'admin' },
+      user: { password: 'user123', role: 'user' },
     };
 
     // 在比较时使用小写，但保存原始输入
     const normalizedUsername = username.value.toLowerCase();
     const account = testAccounts[normalizedUsername];
-    
+
     if (!account || account.password !== password.value) {
       throw new Error('Invalid credentials');
     }
 
     // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // 使用原始输入的大小写进行存储和显示
-    auth.setUser({ 
-      id: username.value, // 保持原始大小写
-      role: account.role, 
-      name: username.value // 保持原始大小写
-    }, 'mock-token');
-    
+    auth.setUser(
+      {
+        id: username.value, // 保持原始大小写
+        role: account.role,
+        name: username.value, // 保持原始大小写
+      },
+      'mock-token',
+    );
+
     // 根据用户角色跳转到不同页面
     if (auth.user?.role === 'admin') {
       router.push('/admin');
@@ -135,8 +135,8 @@ async function onLogin() {
 </script>
 
 <style lang="scss" scoped>
-@use "sass:color";
-@use "@/assets/styles/variables.scss" as *;
+@use 'sass:color';
+@use '@/assets/styles/variables.scss' as *;
 
 .login-container {
   min-height: 100vh;
@@ -165,7 +165,7 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: $spacing-medium;
-  
+
   button {
     margin-top: $spacing-medium;
     padding: $spacing-medium;
@@ -179,11 +179,11 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     &:hover {
       background: color.adjust($primary-color, $lightness: -10%);
     }
-    
+
     &:disabled {
       opacity: 0.7;
       cursor: not-allowed;
@@ -195,24 +195,24 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: $spacing-small;
-  
+
   label {
     color: $text-color;
     font-size: 0.9rem;
   }
-  
+
   input {
     padding: $spacing-medium;
     border: 1px solid $border-color;
     border-radius: $border-radius;
     font-size: 1rem;
     transition: border-color $transition-duration $transition-timing;
-    
+
     &:focus {
       outline: none;
       border-color: $primary-color;
     }
-    
+
     &:disabled {
       background-color: #f5f5f5;
       cursor: not-allowed;
@@ -240,4 +240,4 @@ h2 {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>

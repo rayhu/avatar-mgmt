@@ -13,14 +13,14 @@ const getBrowserLanguage = () => {
   const browserLang = navigator.language;
   // 提取主要语言代码（如 'zh' 或 'en'）
   const mainLang = browserLang.split('-')[0];
-  
+
   // 检查是否支持该语言
   if (mainLang === 'zh') {
     return 'zh-CN';
   } else if (mainLang === 'en') {
     return 'en';
   }
-  
+
   // 如果浏览器语言不在支持列表中，返回默认语言
   return 'en';
 };
@@ -44,4 +44,4 @@ app.use(i18n);
 const auth = useAuthStore();
 auth.initAuth();
 
-app.mount('#app'); 
+app.mount('#app');

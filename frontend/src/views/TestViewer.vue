@@ -1,18 +1,19 @@
 <template>
   <div class="test-viewer">
     <h1>{{ t('test.title') }}</h1>
-    
+
     <!-- 模型选择 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
       <div v-if="!selectedModel" class="model-list">
-        <div v-for="model in readyModels" :key="model.id" class="model-card" @click="selectModel(model)">
+        <div
+          v-for="model in readyModels"
+          :key="model.id"
+          class="model-card"
+          @click="selectModel(model)"
+        >
           <div class="model-preview">
-            <ModelViewer
-              :model-url="model.url"
-              :auto-rotate="true"
-              :show-controls="false"
-            />
+            <ModelViewer :model-url="model.url" :auto-rotate="true" :show-controls="false" />
           </div>
           <div class="model-info">
             <h4>{{ model.name }}</h4>
@@ -22,11 +23,7 @@
       </div>
       <div v-else class="selected-model">
         <div class="model-preview">
-          <ModelViewer
-            :model-url="selectedModel.url"
-            :auto-rotate="true"
-            :show-controls="false"
-          />
+          <ModelViewer :model-url="selectedModel.url" :auto-rotate="true" :show-controls="false" />
         </div>
         <div class="model-info">
           <h4>{{ selectedModel.name }}</h4>
@@ -51,8 +48,8 @@
       <div class="control-section">
         <h3>{{ t('test.viewer.animationControl') }}</h3>
         <div class="button-group">
-          <button 
-            v-for="anim in animations" 
+          <button
+            v-for="anim in animations"
             :key="anim"
             :class="{ active: currentAnimation === anim }"
             @click="playAnimation(anim)"
@@ -65,8 +62,8 @@
       <div class="control-section">
         <h3>{{ t('test.viewer.emotionControl') }}</h3>
         <div class="button-group">
-          <button 
-            v-for="emotion in emotions" 
+          <button
+            v-for="emotion in emotions"
             :key="emotion"
             :class="{ active: currentEmotion === emotion }"
             @click="updateEmotion(emotion)"
@@ -80,18 +77,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import ModelViewer from '../components/ModelViewer.vue'
-import { getModels } from '../api/model'
-import type { Model } from '../types/model'
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import ModelViewer from '../components/ModelViewer.vue';
+import { getModels } from '../api/model';
+import type { Model } from '../types/model';
 
-const { t } = useI18n()
-const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null)
-const readyModels = ref<Model[]>([])
-const selectedModel = ref<Model | null>(null)
-const currentAnimation = ref<string>('')
-const currentEmotion = ref<string>('')
+const { t } = useI18n();
+const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
+const readyModels = ref<Model[]>([]);
+const selectedModel = ref<Model | null>(null);
+const currentAnimation = ref<string>('');
+const currentEmotion = ref<string>('');
 
 const animations: string[] = [
   'Idle',
@@ -107,21 +104,16 @@ const animations: string[] = [
   'Standing',
   'ThumbsUp',
   'WalkJump',
-  'Yes'
-]
+  'Yes',
+];
 
-const emotions: string[] = [
-  'Neutral',
-  'Angry',
-  'Surprised',
-  'Sad'
-]
+const emotions: string[] = ['Neutral', 'Angry', 'Surprised', 'Sad'];
 
 // 获取就绪状态的模型列表
 async function fetchReadyModels(): Promise<void> {
   try {
     const models = await getModels();
-    readyModels.value = models.filter(model => model.status === 'ready');
+    readyModels.value = models.filter((model) => model.status === 'ready');
   } catch (error) {
     console.error('Failed to fetch models:', error);
   }
@@ -144,14 +136,14 @@ function playAnimation(animation: string): void {
 
 function updateEmotion(emotion: string): void {
   if (modelViewer.value) {
-    modelViewer.value.updateEmotion(emotion)
-    currentEmotion.value = emotion
+    modelViewer.value.updateEmotion(emotion);
+    currentEmotion.value = emotion;
   }
 }
 
 onMounted(() => {
   fetchReadyModels();
-})
+});
 </script>
 
 @use "@/assets/styles/variables.scss" as *;
@@ -307,5 +299,4 @@ onMounted(() => {
     }
   }
 }
-</style>  
- 
+</style>

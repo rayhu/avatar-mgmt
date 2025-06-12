@@ -9,4 +9,4 @@ export interface Model {
   createdAt: string;
   updatedAt: string;
   createTime?: string; // 兼容旧代码
-} 
+}

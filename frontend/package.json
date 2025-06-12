@@ -8,6 +8,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.ts,.vue --config .eslintrc.cjs",
+    "lint:fix": "eslint . --ext .js,.ts,.vue --config .eslintrc.cjs --fix",
     "format": "prettier --write .",
     "type-check": "vue-tsc --noEmit",
     "check": "yarn lint && yarn type-check",

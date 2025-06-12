@@ -4,7 +4,10 @@ const SPEECH_KEY = import.meta.env.VITE_AZURE_SPEECH_KEY;
 const SPEECH_REGION = import.meta.env.VITE_AZURE_SPEECH_REGION;
 
 // Azure TTS API 封装（模板）
-export async function synthesizeSpeech(text: string, voice: string = 'zh-CN-XiaoxiaoNeural'): Promise<Blob> {
+export async function synthesizeSpeech(
+  text: string,
+  voice: string = 'zh-CN-XiaoxiaoNeural',
+): Promise<Blob> {
   if (!SPEECH_KEY || !SPEECH_REGION) {
     throw new Error('Azure Speech credentials not configured');
   }
@@ -21,7 +24,7 @@ export async function synthesizeSpeech(text: string, voice: string = 'zh-CN-Xiao
   return new Promise((resolve, reject) => {
     synthesizer.speakTextAsync(
       text,
-      result => {
+      (result) => {
         if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
           const audioData = result.audioData;
           const blob = new Blob([audioData], { type: 'audio/wav' });
@@ -31,10 +34,10 @@ export async function synthesizeSpeech(text: string, voice: string = 'zh-CN-Xiao
         }
         synthesizer.close();
       },
-      error => {
+      (error) => {
         synthesizer.close();
         reject(error);
-      }
+      },
     );
   });
-} 
+}

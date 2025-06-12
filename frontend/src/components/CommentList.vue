@@ -4,7 +4,8 @@
     <!-- TODO: 展示评论列表，支持提交新评论 -->
     <ul>
       <li v-for="comment in comments" :key="comment.id">
-        <strong>{{ comment.user }}</strong>: {{ comment.content }}
+        <strong>{{ comment.user }}</strong
+        >: {{ comment.content }}
       </li>
     </ul>
     <form @submit.prevent="onSubmit">
@@ -62,4 +63,4 @@ button {
   color: #fff;
   cursor: pointer;
 }
-</style> 
+</style>

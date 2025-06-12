@@ -22,4 +22,4 @@
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist"]
-} 
+}

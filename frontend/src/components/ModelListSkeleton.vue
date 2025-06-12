@@ -4,7 +4,7 @@
       <div class="skeleton-title"></div>
       <div class="skeleton-tip"></div>
     </div>
-    
+
     <div class="skeleton-actions">
       <div class="skeleton-button"></div>
     </div>
@@ -39,7 +39,7 @@
   background: #fff;
   padding: 32px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .skeleton-header {
@@ -137,4 +137,4 @@
     opacity: 1;
   }
 }
-</style> 
+</style>

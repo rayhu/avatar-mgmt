@@ -7,7 +7,7 @@ const messages = {
       switchToChinese: '切换到简体中文',
       switchToEnglish: '切换到英文',
       'zh-CN': '简体中文',
-      'en': '英文'
+      en: '英文',
     },
     login: {
       title: '登录',
@@ -42,23 +42,23 @@ const messages = {
       modelStatus: {
         ready: '已就绪',
         draft: '草稿中',
-        offline: '已下线'
+        offline: '已下线',
       },
       modelInfo: {
         name: '模型名称',
         description: '模型描述',
         status: '状态',
         createTime: '创建时间',
-        updateTime: '更新时间'
-      }
+        updateTime: '更新时间',
+      },
     },
     test: {
       title: '动作和表情测试',
       viewer: {
         title: '动作和表情测试页面',
         animationControl: '动作控制',
-        emotionControl: '表情控制'
-      }
+        emotionControl: '表情控制',
+      },
     },
     animate: {
       title: '动画和语音导出',
@@ -121,16 +121,16 @@ const messages = {
       server: '服务器错误，请稍后重试',
       notFound: '请求的资源不存在',
       forbidden: '没有权限访问该资源',
-      rateLimit: '请求过于频繁，请稍后重试'
+      rateLimit: '请求过于频繁，请稍后重试',
     },
   },
-  'en': {
+  en: {
     language: {
       selectLanguage: 'Select Language',
       switchToChinese: 'Switch to Simplified Chinese',
       switchToEnglish: 'Switch to English',
       'zh-CN': 'Simplified Chinese',
-      'en': 'English'
+      en: 'English',
     },
     login: {
       title: 'Login',
@@ -157,7 +157,8 @@ const messages = {
       modelGallery: 'Model Gallery',
       modelSelection: 'Model Selection',
       galleryTip: 'Here you can browse and view details of all "Ready" status models.',
-      listTip: 'Here you can manage all models, including editing, deleting, and changing their status.',
+      listTip:
+        'Here you can manage all models, including editing, deleting, and changing their status.',
       uploadModel: 'Upload Model',
       deleteModel: 'Delete Model',
       editModel: 'Edit Model',
@@ -165,23 +166,23 @@ const messages = {
       modelStatus: {
         ready: 'Ready',
         draft: 'Draft',
-        offline: 'Offline'
+        offline: 'Offline',
       },
       modelInfo: {
         name: 'Model Name',
         description: 'Description',
         status: 'Status',
         createTime: 'Created At',
-        updateTime: 'Updated At'
-      }
+        updateTime: 'Updated At',
+      },
     },
     test: {
       title: 'Action and Emotion Test',
       viewer: {
         title: 'Action and Emotion Test Page',
         animationControl: 'Action Control',
-        emotionControl: 'Emotion Control'
-      }
+        emotionControl: 'Emotion Control',
+      },
     },
     animate: {
       title: 'Animation and Voice Export',
@@ -244,12 +245,12 @@ const messages = {
       server: 'Server error, please try again later',
       notFound: 'Requested resource not found',
       forbidden: 'Access to this resource is forbidden',
-      rateLimit: 'Too many requests, please try again later'
+      rateLimit: 'Too many requests, please try again later',
     },
   },
 } as const;
 
 export type Locale = keyof typeof messages;
-export type MessageSchema = typeof messages[Locale];
+export type MessageSchema = (typeof messages)[Locale];
 
-export default messages; 
+export default messages;

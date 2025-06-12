@@ -1,0 +1,16 @@
+{
+  "issues": [],
+  "summary": {
+    "totalIssues": 0,
+    "missingKeys": 0,
+    "unusedKeys": 0,
+    "duplicateKeys": 0,
+    "hardcodedStrings": 0,
+    "formatIssues": 0
+  },
+  "timestamp": "2025-06-12T01:56:09.203Z",
+  "config": {
+    "vueFiles": [],
+    "localeFiles": ["en.ts", "index.ts", "types.ts", "zh-CN.ts"]
+  }
+}
