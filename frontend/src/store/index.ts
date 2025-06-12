@@ -16,12 +16,12 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     token: null,
   }),
-  
+
   getters: {
     isAuthenticated: (state) => !!state.token,
     isAdmin: (state) => state.user?.role === 'admin',
   },
-  
+
   actions: {
     setUser(user: User, token: string) {
       this.user = user;
@@ -29,18 +29,18 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
     },
-    
+
     clearUser() {
       this.user = null;
       this.token = null;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
-    
+
     initAuth() {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
-      
+
       if (token && userStr) {
         try {
           const user = JSON.parse(userStr) as User;
@@ -53,6 +53,6 @@ export const useAuthStore = defineStore('auth', {
       } else {
         this.clearUser();
       }
-    }
-  }
-}); 
+    },
+  },
+});

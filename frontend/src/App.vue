@@ -4,7 +4,9 @@
     <nav class="main-nav">
       <div class="nav-left">
         <template v-if="auth.isAuthenticated">
-          <router-link v-if="auth.isAdmin" to="/admin">{{ t('modelManagement.title') }}</router-link>
+          <router-link v-if="auth.isAdmin" to="/admin">{{
+            t('modelManagement.title')
+          }}</router-link>
           <router-link to="/user">{{ t('modelManagement.modelGallery') }}</router-link>
           <router-link to="/animate">{{ t('animate.title') }}</router-link>
           <router-link v-if="auth.isAdmin" to="/test">{{ t('test.title') }}</router-link>
@@ -31,7 +33,7 @@
 import { useAuthStore } from './store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { inject } from "@vercel/analytics"
+import { inject } from '@vercel/analytics';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import { onMounted } from 'vue';
 
@@ -55,7 +57,9 @@ onMounted(() => {
 <style lang="scss">
 body {
   margin: 0;
-  font-family: 'Inter', 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family:
+    'Inter', 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
   background: #f5f6fa;
 }
 
@@ -101,4 +105,4 @@ body {
     text-decoration: underline;
   }
 }
-</style> 
+</style>

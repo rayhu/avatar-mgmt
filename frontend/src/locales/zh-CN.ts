@@ -69,5 +69,5 @@ export default {
     notifications: '通知',
     account: '账户',
     security: '安全',
-  }
-}; 
+  },
+};

@@ -1,4 +1,4 @@
-@use "@/assets/styles/variables.scss" as *;
+@use '@/assets/styles/variables.scss' as *;
 
 // Reset and base styles
 * {
@@ -31,10 +31,22 @@ body {
   text-align: center;
 }
 
-.mt-1 { margin-top: $spacing-small; }
-.mt-2 { margin-top: $spacing-medium; }
-.mt-3 { margin-top: $spacing-large; }
+.mt-1 {
+  margin-top: $spacing-small;
+}
+.mt-2 {
+  margin-top: $spacing-medium;
+}
+.mt-3 {
+  margin-top: $spacing-large;
+}
 
-.mb-1 { margin-bottom: $spacing-small; }
-.mb-2 { margin-bottom: $spacing-medium; }
-.mb-3 { margin-bottom: $spacing-large; } 
+.mb-1 {
+  margin-bottom: $spacing-small;
+}
+.mb-2 {
+  margin-bottom: $spacing-medium;
+}
+.mb-3 {
+  margin-bottom: $spacing-large;
+}

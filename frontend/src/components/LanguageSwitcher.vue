@@ -1,14 +1,10 @@
 <template>
-  <div 
-    class="language-switcher" 
-    v-click-outside="closeDropdown"
-    @keydown.esc="closeDropdown"
-  >
-    <button 
+  <div v-click-outside="closeDropdown" class="language-switcher" @keydown.esc="closeDropdown">
+    <button
       class="lang-btn"
-      @click="toggleDropdown"
       :aria-label="t('language.selectLanguage')"
       :aria-expanded="isOpen"
+      @click="toggleDropdown"
       @keydown.enter="toggleDropdown"
       @keydown.space.prevent="toggleDropdown"
     >
@@ -18,28 +14,28 @@
       </span>
       <span class="dropdown-icon" :class="{ 'is-open': isOpen }">▼</span>
     </button>
-    
-    <div 
-      v-show="isOpen" 
-      class="dropdown-menu" 
+
+    <div
+      v-show="isOpen"
+      class="dropdown-menu"
       role="menu"
       @keydown.down.prevent="navigateOptions(1)"
       @keydown.up.prevent="navigateOptions(-1)"
       @keydown.enter="selectHighlightedLanguage"
       @keydown.space.prevent="selectHighlightedLanguage"
     >
-      <button 
-        v-for="lang in languages" 
+      <button
+        v-for="lang in languages"
         :key="lang.code"
         class="dropdown-item"
-        :class="{ 
+        :class="{
           active: currentLocale === lang.code,
-          highlighted: highlightedIndex === languages.indexOf(lang)
+          highlighted: highlightedIndex === languages.indexOf(lang),
         }"
-        @click="selectLanguage(lang.code)"
-        @mouseenter="highlightedIndex = languages.indexOf(lang)"
         role="menuitem"
         :aria-selected="currentLocale === lang.code"
+        @click="selectLanguage(lang.code)"
+        @mouseenter="highlightedIndex = languages.indexOf(lang)"
       >
         <span class="flag">{{ lang.flag }}</span>
         <span class="lang-name">{{ t(`language.${lang.code}`) }}</span>
@@ -59,7 +55,7 @@ interface Language {
 
 const languages: Language[] = [
   { code: 'zh-CN', flag: '🇨🇳' },
-  { code: 'en', flag: '🇺🇸' }
+  { code: 'en', flag: '🇺🇸' },
 ];
 
 const { locale, t } = useI18n();
@@ -68,14 +64,14 @@ const isOpen = ref(false);
 const highlightedIndex = ref(0);
 
 const currentFlag = computed(() => {
-  const lang = languages.find(l => l.code === currentLocale.value);
+  const lang = languages.find((l) => l.code === currentLocale.value);
   return lang?.flag || languages[0].flag;
 });
 
 function toggleDropdown() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    highlightedIndex.value = languages.findIndex(l => l.code === currentLocale.value);
+    highlightedIndex.value = languages.findIndex((l) => l.code === currentLocale.value);
   }
 }
 
@@ -108,7 +104,7 @@ function selectHighlightedLanguage() {
 // Click outside directive
 const vClickOutside = {
   mounted(el: HTMLElement & { clickOutsideEvent?: (event: Event) => void }, binding: any) {
-    el.clickOutsideEvent = function(event: Event) {
+    el.clickOutsideEvent = function (event: Event) {
       if (!(el === event.target || el.contains(event.target as Node))) {
         binding.value();
       }
@@ -124,7 +120,7 @@ const vClickOutside = {
 </script>
 
 <style lang="scss" scoped>
-@use "@/assets/styles/variables.scss" as *;
+@use '@/assets/styles/variables.scss' as *;
 
 .language-switcher {
   position: relative;
@@ -164,7 +160,7 @@ const vClickOutside = {
     .dropdown-icon {
       font-size: 10px;
       transition: transform 0.2s ease;
-      
+
       &.is-open {
         transform: rotate(180deg);
       }
@@ -203,7 +199,8 @@ const vClickOutside = {
       text-align: left;
       transition: all 0.2s ease;
 
-      &:hover, &.highlighted {
+      &:hover,
+      &.highlighted {
         background: #f8f9fa;
       }
 
@@ -238,4 +235,4 @@ const vClickOutside = {
     transform: translateY(0);
   }
 }
-</style> 
+</style>

@@ -18,7 +18,10 @@
             <h3>{{ model.name }}</h3>
             <p>{{ model.description }}</p>
             <div class="model-meta">
-              <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+              <span
+                >{{ t('modelManagement.modelInfo.createTime') }}:
+                {{ formatDate(model.createTime) }}</span
+              >
             </div>
             <button class="view-btn" @click="viewModel(model)">
               {{ t('modelManagement.viewModel') }}
@@ -54,7 +57,7 @@ function viewModel(model: Model) {
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     // TODO: 实际API调用
     readyModels.value = [
       {
@@ -67,7 +70,7 @@ onMounted(async () => {
         tags: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString()
+        createTime: new Date().toISOString(),
       },
       {
         id: '2',
@@ -79,8 +82,8 @@ onMounted(async () => {
         tags: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString()
-      }
+        createTime: new Date().toISOString(),
+      },
     ];
   } finally {
     loading.value = false;
@@ -97,7 +100,7 @@ onMounted(async () => {
   background: #fff;
   padding: 32px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .gallery-header {
@@ -136,7 +139,7 @@ onMounted(async () => {
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -190,4 +193,4 @@ onMounted(async () => {
     background: darken($primary-color, 10%);
   }
 }
-</style> 
+</style>

@@ -41,7 +41,7 @@ function initScene() {
     75,
     container.value.clientWidth / container.value.clientHeight,
     0.1,
-    1000
+    1000,
   );
   camera.position.z = 5;
 
@@ -94,7 +94,7 @@ async function loadModel(url: string) {
   try {
     const gltf = await loader.loadAsync(url);
     console.log('Model loaded successfully:', gltf);
-    
+
     // 清除旧模型和动画
     if (model) {
       scene.remove(model);
@@ -103,7 +103,7 @@ async function loadModel(url: string) {
       mixer.stopAllAction();
       mixer.uncacheRoot(model!);
     }
-    
+
     model = gltf.scene;
     if (model) {
       scene.add(model);
@@ -122,14 +122,17 @@ async function loadModel(url: string) {
 
       // 存储可用的动画
       availableAnimations = gltf.animations;
-      console.log('Available animations:', availableAnimations.map(a => a.name));
+      console.log(
+        'Available animations:',
+        availableAnimations.map((a) => a.name),
+      );
 
       // 设置动画混合器
       if (availableAnimations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
-        
+
         // 默认播放 Idle 动画
-        const idleAnim = availableAnimations.find(a => a.name === 'Idle');
+        const idleAnim = availableAnimations.find((a) => a.name === 'Idle');
         if (idleAnim) {
           currentAnimationAction = mixer.clipAction(idleAnim);
           currentAnimationAction.setLoop(THREE.LoopRepeat, Infinity);
@@ -146,25 +149,25 @@ async function loadModel(url: string) {
       const box = new THREE.Box3().setFromObject(model);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
-      
+
       console.log('Model dimensions:', {
         center: center.toArray(),
-        size: size.toArray()
+        size: size.toArray(),
       });
-      
+
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = camera.fov * (Math.PI / 180);
       let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
-      
+
       camera.position.set(0, size.y * 0.5, cameraZ * 1.5);
       camera.lookAt(center);
-      
+
       controls.target.copy(center);
       controls.update();
-      
+
       console.log('Camera adjusted:', {
         position: camera.position.toArray(),
-        target: controls.target.toArray()
+        target: controls.target.toArray(),
       });
     }
   } catch (error) {
@@ -178,23 +181,26 @@ function playAnimation(animationName: string) {
     console.warn('Animation mixer or model not initialized');
     return;
   }
-  
+
   console.log('Playing animation:', animationName);
-  console.log('Available animations:', availableAnimations.map(a => a.name));
-  
+  console.log(
+    'Available animations:',
+    availableAnimations.map((a) => a.name),
+  );
+
   try {
     // 查找匹配的动画
-    const targetAnim = availableAnimations.find(a => a.name === animationName);
+    const targetAnim = availableAnimations.find((a) => a.name === animationName);
     if (!targetAnim) {
       console.warn(`Animation "${animationName}" not found in available animations`);
       return;
     }
-    
+
     // 创建新的动画动作
     const newAction = mixer.clipAction(targetAnim);
     newAction.setLoop(THREE.LoopRepeat, Infinity);
     newAction.clampWhenFinished = false;
-    
+
     // 如果有当前正在播放的动画，创建平滑过渡
     if (currentAnimationAction && currentAnimationAction.isRunning()) {
       newAction.reset();
@@ -203,7 +209,7 @@ function playAnimation(animationName: string) {
     } else {
       newAction.reset().play();
     }
-    
+
     // 更新当前动画动作
     currentAnimationAction = newAction;
     console.log(`Animation "${animationName}" started`);
@@ -218,9 +224,9 @@ function updateEmotion(emotion: string) {
     console.warn('Model not loaded');
     return;
   }
-  
+
   console.log('Updating emotion to:', emotion);
-  
+
   try {
     model.traverse((object) => {
       if (object instanceof THREE.Mesh) {
@@ -249,32 +255,41 @@ function updateEmotion(emotion: string) {
 // 处理窗口大小变化
 function handleResize() {
   if (!container.value || !camera || !renderer) return;
-  
+
   camera.aspect = container.value.clientWidth / container.value.clientHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(container.value.clientWidth, container.value.clientHeight);
 }
 
 // 监听属性变化
-watch(() => props.modelUrl, (newUrl) => {
-  if (newUrl) {
-    loadModel(newUrl);
-  }
-});
+watch(
+  () => props.modelUrl,
+  (newUrl) => {
+    if (newUrl) {
+      loadModel(newUrl);
+    }
+  },
+);
 
-watch(() => props.emotion, (newEmotion) => {
-  if (newEmotion) {
-    console.log('Emotion prop changed:', newEmotion);
-    updateEmotion(newEmotion);
-  }
-});
+watch(
+  () => props.emotion,
+  (newEmotion) => {
+    if (newEmotion) {
+      console.log('Emotion prop changed:', newEmotion);
+      updateEmotion(newEmotion);
+    }
+  },
+);
 
-watch(() => props.action, (newAction) => {
-  if (newAction) {
-    console.log('Action prop changed:', newAction);
-    playAnimation(newAction);
-  }
-});
+watch(
+  () => props.action,
+  (newAction) => {
+    if (newAction) {
+      console.log('Action prop changed:', newAction);
+      playAnimation(newAction);
+    }
+  },
+);
 
 // 组件挂载时初始化
 onMounted(() => {
@@ -311,14 +326,14 @@ defineExpose({
       return null;
     }
     return renderer.domElement.captureStream(30); // 30fps
-  }
+  },
 });
 </script>
 
 <script lang="ts">
 export default {
-  name: 'ModelViewer'
-}
+  name: 'ModelViewer',
+};
 </script>
 
 <style scoped>
@@ -329,4 +344,4 @@ export default {
   border-radius: 8px;
   overflow: hidden;
 }
-</style> 
+</style>

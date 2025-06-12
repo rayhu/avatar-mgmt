@@ -3,7 +3,7 @@ export interface Language {
   switchToChinese: string;
   switchToEnglish: string;
   'zh-CN': string;
-  'en': string;
+  en: string;
 }
 
 export interface Login {
@@ -128,4 +128,4 @@ export interface Messages {
   test: Test;
   animate: Animate;
   errors: Errors;
-} 
+}

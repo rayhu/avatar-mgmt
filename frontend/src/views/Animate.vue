@@ -1,19 +1,19 @@
 <template>
   <div class="animate-page">
     <h1>{{ t('animate.title') }}</h1>
-    
 
     <!-- 模型选择 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
       <div v-if="!selectedModel" class="model-list">
-        <div v-for="model in readyModels" :key="model.id" class="model-card" @click="selectModel(model)">
+        <div
+          v-for="model in readyModels"
+          :key="model.id"
+          class="model-card"
+          @click="selectModel(model)"
+        >
           <div class="model-preview">
-            <ModelViewer
-              :model-url="model.url"
-              :auto-rotate="true"
-              :show-controls="false"
-            />
+            <ModelViewer :model-url="model.url" :auto-rotate="true" :show-controls="false" />
           </div>
           <div class="model-info">
             <h4>{{ model.name }}</h4>
@@ -23,11 +23,7 @@
       </div>
       <div v-else class="selected-model">
         <div class="model-preview">
-          <ModelViewer
-            :model-url="selectedModel.url"
-            :auto-rotate="true"
-            :show-controls="false"
-          />
+          <ModelViewer :model-url="selectedModel.url" :auto-rotate="true" :show-controls="false" />
         </div>
         <div class="model-info">
           <h4>{{ selectedModel.name }}</h4>
@@ -48,7 +44,6 @@
       />
     </div> -->
 
-
     <!-- 时间轴编辑器 -->
     <div class="timeline-editor">
       <h3>{{ t('animate.timeline.title') }}</h3>
@@ -56,8 +51,13 @@
         <div class="timeline-header">
           <div class="track-label">{{ t('animate.timeline.time') }}</div>
           <div class="timeline-ruler">
-            <div v-for="i in 31" :key="i" class="time-marker" :style="{ left: `${(i-1) * 3.33}%` }">
-              {{ i-1 }}s
+            <div
+              v-for="i in 31"
+              :key="i"
+              class="time-marker"
+              :style="{ left: `${(i - 1) * 3.33}%` }"
+            >
+              {{ i - 1 }}s
             </div>
           </div>
         </div>
@@ -73,7 +73,11 @@
                 @click.stop="selectKeyframe(keyframe)"
                 @mousedown="startDrag(keyframe, $event)"
               >
-                {{ t(`animate.actions.${keyframe.action ? keyframe.action.charAt(0).toLowerCase() + keyframe.action.slice(1) : ''}`) }}
+                {{
+                  t(
+                    `animate.actions.${keyframe.action ? keyframe.action.charAt(0).toLowerCase() + keyframe.action.slice(1) : ''}`,
+                  )
+                }}
               </div>
             </div>
           </div>
@@ -125,7 +129,7 @@
         </div>
         <div v-if="selectedKeyframe.type === 'action'" class="form-group">
           <label>{{ t('animate.timeline.action') }}</label>
-          <select 
+          <select
             class="form-control"
             :value="selectedKeyframe.action"
             @change="handleActionSelect"
@@ -137,7 +141,7 @@
         </div>
         <div v-if="selectedKeyframe.type === 'emotion'" class="form-group">
           <label>{{ t('animate.timeline.emotion') }}</label>
-          <select 
+          <select
             class="form-control"
             :value="selectedKeyframe.emotion"
             @change="handleEmotionSelect"
@@ -167,11 +171,7 @@
             {{ charCount }}/180
           </div>
         </div>
-        <button 
-          class="generate-btn" 
-          :disabled="isProcessing || !text.trim()" 
-          @click="onAnimate"
-        >
+        <button class="generate-btn" :disabled="isProcessing || !text.trim()" @click="onAnimate">
           <span v-if="isProcessing" class="loading-spinner"></span>
           <span v-else>{{ t('animate.submit') }}</span>
         </button>
@@ -186,26 +186,18 @@
         />
         <audio ref="audioPlayer" controls :src="audioUrl"></audio>
         <div class="preview-controls">
-          <button 
-            v-if="!isRecording" 
-            class="control-btn" 
+          <button
+            v-if="!isRecording"
+            class="control-btn"
             :disabled="isProcessing || !audioUrl"
             @click="startRecording"
           >
             {{ t('animate.record') }}
           </button>
-          <button 
-            v-else 
-            class="control-btn danger" 
-            @click="stopRecording"
-          >
+          <button v-else class="control-btn danger" @click="stopRecording">
             {{ t('animate.stopRecording') }}
           </button>
-          <button 
-            v-if="recordedVideoUrl" 
-            class="control-btn" 
-            @click="downloadVideo"
-          >
+          <button v-if="recordedVideoUrl" class="control-btn" @click="downloadVideo">
             {{ t('animate.download') }}
           </button>
           <div v-if="!audioUrl" class="recording-tip">
@@ -256,14 +248,10 @@ const actions = [
   'Standing',
   'ThumbsUp',
   'WalkJump',
-  'Yes'
+  'Yes',
 ] as const;
 
-const emotions = [
-  'Angry',
-  'Surprised',
-  'Sad'
-] as const;
+const emotions = ['Angry', 'Surprised', 'Sad'] as const;
 
 const charCount = computed({
   get: () => text.value.length,
@@ -271,7 +259,7 @@ const charCount = computed({
     if (value > 180) {
       text.value = text.value.slice(0, 180);
     }
-  }
+  },
 });
 
 onMounted(() => {
@@ -289,7 +277,7 @@ async function fetchReadyModels() {
   try {
     const models = await getModels();
     if (Array.isArray(models)) {
-      readyModels.value = models.filter(model => model.status === 'ready');
+      readyModels.value = models.filter((model) => model.status === 'ready');
     } else {
       console.error('Invalid models data:', models);
       readyModels.value = [];
@@ -361,7 +349,7 @@ async function onAnimate() {
 
     // 播放音频并驱动动画
     nextTick(() => {
-      const audio = (document.querySelector('audio') as HTMLAudioElement);
+      const audio = document.querySelector('audio') as HTMLAudioElement;
       if (audio) {
         audio.currentTime = 0;
         audio.play();
@@ -375,7 +363,6 @@ async function onAnimate() {
     isProcessing.value = false;
   }
 }
-
 
 function startRecording() {
   if (!modelViewer.value) {
@@ -411,13 +398,13 @@ function startRecording() {
     // 合并视频和音频流
     const combinedStream = new MediaStream([
       ...videoStream.getVideoTracks(),
-      ...audioDestination.stream.getAudioTracks()
+      ...audioDestination.stream.getAudioTracks(),
     ]);
 
     // 创建 MediaRecorder 实例
     mediaRecorder.value = new MediaRecorder(combinedStream, {
       mimeType: 'video/webm;codecs=vp9,opus',
-      videoBitsPerSecond: 2500000 // 2.5Mbps
+      videoBitsPerSecond: 2500000, // 2.5Mbps
     });
 
     // 收集录制的数据块
@@ -431,7 +418,7 @@ function startRecording() {
     // 录制完成后的处理
     mediaRecorder.value.onstop = () => {
       const blob = new Blob(recordedChunks.value, {
-        type: 'video/webm'
+        type: 'video/webm',
       });
       recordedVideoUrl.value = URL.createObjectURL(blob);
       isRecording.value = false;
@@ -446,7 +433,7 @@ function startRecording() {
 
     // 重置并播放音频
     audioElement.currentTime = 0;
-    
+
     // 添加音频结束事件监听器
     const handleAudioEnded = () => {
       if (isRecording.value) {
@@ -455,8 +442,8 @@ function startRecording() {
       audioElement.removeEventListener('ended', handleAudioEnded);
     };
     audioElement.addEventListener('ended', handleAudioEnded);
-    
-    audioElement.play().catch(error => {
+
+    audioElement.play().catch((error) => {
       console.error('Failed to play audio:', error);
       stopRecording();
     });
@@ -471,8 +458,8 @@ function stopRecording() {
   if (mediaRecorder.value && isRecording.value) {
     mediaRecorder.value.stop();
     // 停止所有视频轨道
-    mediaRecorder.value.stream.getTracks().forEach(track => track.stop());
-    
+    mediaRecorder.value.stream.getTracks().forEach((track) => track.stop());
+
     // 停止音频播放
     if (audioPlayer.value) {
       audioPlayer.value.pause();
@@ -495,13 +482,12 @@ function downloadVideo() {
   document.body.removeChild(a);
 }
 
-
 // 启动时间轴动画
 function startTimelineAnimation(audio: HTMLAudioElement) {
   // 合并所有关键帧，按时间排序
   const allKeyframes = [
-    ...actionKeyframes.value.map(k => ({ ...k })),
-    ...emotionKeyframes.value.map(k => ({ ...k }))
+    ...actionKeyframes.value.map((k) => ({ ...k })),
+    ...emotionKeyframes.value.map((k) => ({ ...k })),
   ].sort((a, b) => a.time - b.time);
 
   let lastAction = currentAction.value;
@@ -516,8 +502,12 @@ function startTimelineAnimation(audio: HTMLAudioElement) {
   animationTimer.value = window.setInterval(() => {
     const t = audio.currentTime;
     // 找到 <= 当前时间的最新动作/表情关键帧
-    const actionFrame = [...actionKeyframes.value].filter(k => k.time <= t).sort((a, b) => b.time - a.time)[0];
-    const emotionFrame = [...emotionKeyframes.value].filter(k => k.time <= t).sort((a, b) => b.time - a.time)[0];
+    const actionFrame = [...actionKeyframes.value]
+      .filter((k) => k.time <= t)
+      .sort((a, b) => b.time - a.time)[0];
+    const emotionFrame = [...emotionKeyframes.value]
+      .filter((k) => k.time <= t)
+      .sort((a, b) => b.time - a.time)[0];
 
     // 切换动作
     if (actionFrame && actionFrame.action && actionFrame.action !== lastAction) {
@@ -566,26 +556,26 @@ onUnmounted(() => {
 
 function startDrag(keyframe: Keyframe, event: MouseEvent) {
   if (!keyframe) return;
-  
+
   isDragging.value = true;
   dragStartX.value = event.clientX;
   dragStartTime.value = keyframe.time;
-  
+
   document.addEventListener('mousemove', onDrag);
   document.addEventListener('mouseup', stopDrag);
 }
 
 function onDrag(event: MouseEvent) {
   if (!isDragging.value || !selectedKeyframe.value) return;
-  
+
   const deltaX = event.clientX - dragStartX.value;
   const track = document.querySelector('.track-content') as HTMLElement;
   const rect = track?.getBoundingClientRect();
   if (!rect) return;
-  
+
   const deltaTime = (deltaX / (rect.width - 4)) * 30;
   const newTime = Math.max(0, Math.min(30, dragStartTime.value + deltaTime));
-  
+
   selectedKeyframe.value.time = Number(newTime.toFixed(1));
 }
 
@@ -595,16 +585,15 @@ function stopDrag() {
   document.removeEventListener('mouseup', stopDrag);
 }
 
-
 // 处理轨道点击
 function onTrackClick(type: 'action' | 'emotion', event: MouseEvent) {
   if (!event.target) return;
-  
+
   const track = event.currentTarget as HTMLElement;
   const rect = track.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
   const time = (clickX / rect.width) * 30; // 30秒时间轴
-  
+
   if (type === 'action') {
     addActionKeyframe(time);
   } else {
@@ -617,7 +606,7 @@ function addActionKeyframe(time: number = 0) {
     id: Date.now().toString(),
     time,
     type: 'action',
-    action: 'Idle'
+    action: 'Idle',
   };
   actionKeyframes.value.push(keyframe);
   selectedKeyframe.value = keyframe;
@@ -628,7 +617,7 @@ function addEmotionKeyframe(time: number = 0) {
     id: Date.now().toString(),
     time,
     type: 'emotion',
-    emotion: 'Sad'
+    emotion: 'Sad',
   };
   emotionKeyframes.value.push(keyframe);
   selectedKeyframe.value = keyframe;
@@ -684,7 +673,6 @@ function _handleKeyframeSelect(keyframe: Keyframe) {
   selectedKeyframe.value = { ...keyframe };
 }
 
-
 // 处理键盘事件
 function _handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Enter' && !event.shiftKey) {
@@ -697,7 +685,7 @@ function _handleKeyDown(event: KeyboardEvent) {
 function _handleEmotionChange(key: string) {
   // 先更新状态
   currentEmotion.value = key;
-  
+
   // 然后更新模型
   if (modelViewer.value) {
     modelViewer.value.updateEmotion(key);
@@ -708,12 +696,12 @@ function _handleEmotionChange(key: string) {
 function _handleActionChange(key: string) {
   console.log('Action changed:', {
     from: currentAction.value,
-    to: key
+    to: key,
   });
-  
+
   // 先更新状态
   currentAction.value = key;
-  
+
   // 然后更新模型
   if (modelViewer.value) {
     modelViewer.value.playAnimation(key);
@@ -750,7 +738,7 @@ function handleActionSelect(event: Event) {
   if (!selectedKeyframe.value) return;
   const select = event.target as HTMLSelectElement;
   const value = select.value;
-  if (value && actions.includes(value as typeof actions[number])) {
+  if (value && actions.includes(value as (typeof actions)[number])) {
     const updatedKeyframe = { ...selectedKeyframe.value, action: value };
     selectedKeyframe.value = updatedKeyframe;
     updateKeyframe(updatedKeyframe);
@@ -762,9 +750,9 @@ function handleEmotionSelect(event: Event) {
   if (!selectedKeyframe.value) return;
   const select = event.target as HTMLSelectElement;
   const value = select.value;
-  if (value && emotions.includes(value as typeof emotions[number])) {
+  if (value && emotions.includes(value as (typeof emotions)[number])) {
     const updatedKeyframe = { ...selectedKeyframe.value, emotion: value };
-   
+
     selectedKeyframe.value = updatedKeyframe;
     updateKeyframe(updatedKeyframe);
   }
@@ -773,7 +761,7 @@ function handleEmotionSelect(event: Event) {
 // 处理关键帧更新
 function updateKeyframe(keyframe: Keyframe) {
   if (keyframe.type === 'action') {
-    const index = actionKeyframes.value.findIndex(k => k.id === keyframe.id);
+    const index = actionKeyframes.value.findIndex((k) => k.id === keyframe.id);
     if (index !== -1) {
       actionKeyframes.value[index] = { ...keyframe };
       // 新增：如果当前选中，立即切换动作
@@ -783,7 +771,7 @@ function updateKeyframe(keyframe: Keyframe) {
       }
     }
   } else if (keyframe.type === 'emotion') {
-    const index = emotionKeyframes.value.findIndex(k => k.id === keyframe.id);
+    const index = emotionKeyframes.value.findIndex((k) => k.id === keyframe.id);
     if (index !== -1) {
       emotionKeyframes.value[index] = { ...keyframe };
       // 新增：如果当前选中，立即切换表情
@@ -797,10 +785,10 @@ function updateKeyframe(keyframe: Keyframe) {
 </script>
 
 <style lang="scss" scoped>
-@use "sass:color";
+@use 'sass:color';
 
 // 定义颜色变量
-$primary-color: #4CAF50;
+$primary-color: #4caf50;
 $danger-color: #f44336;
 $text-color: #666;
 $border-color: #ddd;
@@ -969,7 +957,7 @@ $background-color: #f5f5f5;
   display: flex;
   align-items: stretch;
   margin-bottom: 10px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -1028,7 +1016,7 @@ $background-color: #f5f5f5;
 }
 
 .emotion-keyframe {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
 }
 
@@ -1131,19 +1119,19 @@ button:hover {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
-  
+
   &:hover:not(:disabled) {
     background: color.adjust($primary-color, $lightness: -10%);
   }
-  
+
   &:disabled {
     background: #cccccc;
     cursor: not-allowed;
   }
-  
+
   &.danger {
     background: $danger-color;
-    
+
     &:hover {
       background: color.adjust($danger-color, $lightness: -10%);
     }
@@ -1164,11 +1152,11 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover:not(:disabled) {
     background: color.adjust($primary-color, $lightness: -10%);
   }
-  
+
   &:disabled {
     background: #cccccc;
     cursor: not-allowed;

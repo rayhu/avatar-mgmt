@@ -1,1 +1,4 @@
-cd frontend && yarn check
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd frontend && yarn check && yarn i18n:check && yarn format

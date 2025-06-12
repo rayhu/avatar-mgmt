@@ -22,13 +22,16 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/attributes-order': 'warn',
     'vue/no-template-shadow': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', { 
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_',
-    }],
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      },
+    ],
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-this-alias': 'warn',
     '@typescript-eslint/no-array-constructor': 'warn',
   },
   ignorePatterns: ['dist/**/*', 'node_modules/**/*'],
-}; 
+};

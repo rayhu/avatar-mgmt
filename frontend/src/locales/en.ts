@@ -69,5 +69,5 @@ export default {
     notifications: 'Notifications',
     account: 'Account',
     security: 'Security',
-  }
-}; 
+  },
+};

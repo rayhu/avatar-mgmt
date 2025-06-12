@@ -18,8 +18,14 @@
             <h3>{{ model.name }}</h3>
             <p>{{ model.description }}</p>
             <div class="model-meta">
-              <span>{{ t('modelManagement.modelInfo.status') }}: {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span>
-              <span>{{ t('modelManagement.modelInfo.createTime') }}: {{ formatDate(model.createTime) }}</span>
+              <span
+                >{{ t('modelManagement.modelInfo.status') }}:
+                {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span
+              >
+              <span
+                >{{ t('modelManagement.modelInfo.createTime') }}:
+                {{ formatDate(model.createTime) }}</span
+              >
             </div>
           </div>
           <div class="model-actions">
@@ -51,7 +57,7 @@ function formatDate(date?: string) {
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     // TODO: 实际API调用
     models.value = [
       {
@@ -63,7 +69,7 @@ onMounted(async () => {
         tags: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString()
+        createTime: new Date().toISOString(),
       },
       {
         id: '2',
@@ -74,8 +80,8 @@ onMounted(async () => {
         tags: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString()
-      }
+        createTime: new Date().toISOString(),
+      },
     ];
   } finally {
     loading.value = false;
@@ -92,7 +98,7 @@ onMounted(async () => {
   background: #fff;
   padding: 32px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .list-header {
@@ -159,7 +165,7 @@ onMounted(async () => {
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -183,4 +189,4 @@ onMounted(async () => {
   font-size: 0.9rem;
   color: #6c757d;
 }
-</style> 
+</style>
