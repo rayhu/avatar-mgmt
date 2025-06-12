@@ -9,7 +9,7 @@
  * 注意：此脚本不会修改任何文件，仅进行检查和报告
  */
 
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
@@ -109,7 +109,7 @@ async function main() {
     if (process.argv.includes('--report')) {
       // 生成报告文件
       const reportPath = join(__dirname, '../reports/i18n-report.json');
-      require('fs').writeFileSync(reportPath, JSON.stringify(report, null, 2));
+      writeFileSync(reportPath, JSON.stringify(report, null, 2));
       console.log(`Report generated at: ${reportPath}`);
     } else {
       // 输出检查结果

@@ -305,7 +305,13 @@ onUnmounted(() => {
 // 导出组件
 defineExpose({
   playAnimation,
-  updateEmotion
+  updateEmotion,
+  getVideoStream: () => {
+    if (!renderer || !renderer.domElement) {
+      return null;
+    }
+    return renderer.domElement.captureStream(30); // 30fps
+  }
 });
 </script>
 

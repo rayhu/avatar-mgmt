@@ -1,5 +1,4 @@
 import { createI18n as _createI18n } from 'vue-i18n';
-import type { Messages } from './types';
 
 const messages = {
   'zh-CN': {
@@ -66,6 +65,8 @@ const messages = {
       text: '文本内容',
       textPlaceholder: '请输入要合成的文字（最多180个字符，约30秒）',
       textTooLong: '文本太长，请控制在180个字符以内',
+      textRequired: '请输入文本内容',
+      synthesisError: '语音合成失败，请重试',
       emotion: '表情',
       emotions: {
         neutral: '平静',
@@ -108,6 +109,8 @@ const messages = {
         addEmotion: '添加表情',
         delete: '删除',
         clear: '清空',
+        confirmClear: '确定要清空时间轴吗？',
+        changeModel: '更换模型',
       },
     },
     errors: {
@@ -185,6 +188,8 @@ const messages = {
       text: 'Text Content',
       textPlaceholder: 'Please enter the text to synthesize (max 180 characters, about 30 seconds)',
       textTooLong: 'Text is too long, please keep it under 180 characters',
+      textRequired: 'Please enter text content',
+      synthesisError: 'Speech synthesis failed, please try again',
       emotion: 'Emotion',
       emotions: {
         neutral: 'Neutral',
@@ -227,6 +232,8 @@ const messages = {
         addEmotion: 'Add Emotion',
         delete: 'Delete',
         clear: 'Clear',
+        confirmClear: 'Are you sure you want to clear the timeline?',
+        changeModel: 'Change Model',
       },
     },
     errors: {
