@@ -383,16 +383,40 @@ function startRecording() {
     return;
   }
 
+  if (!audioUrl.value) {
+    alert(t('animate.recordingTip'));
+    return;
+  }
+
   try {
     // 获取模型预览区域的视频流
-    const stream = modelViewer.value.getVideoStream();
-    if (!stream) {
+    const videoStream = modelViewer.value.getVideoStream();
+    if (!videoStream) {
       throw new Error('Failed to get video stream');
     }
 
+    // 获取音频元素
+    const audioElement = audioPlayer.value;
+    if (!audioElement) {
+      throw new Error('Audio element not found');
+    }
+
+    // 创建音频上下文
+    const audioContext = new AudioContext();
+    const audioDestination = audioContext.createMediaStreamDestination();
+    const audioSource = audioContext.createMediaElementSource(audioElement);
+    audioSource.connect(audioDestination);
+    audioSource.connect(audioContext.destination); // 保持音频可听
+
+    // 合并视频和音频流
+    const combinedStream = new MediaStream([
+      ...videoStream.getVideoTracks(),
+      ...audioDestination.stream.getAudioTracks()
+    ]);
+
     // 创建 MediaRecorder 实例
-    mediaRecorder.value = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp9',
+    mediaRecorder.value = new MediaRecorder(combinedStream, {
+      mimeType: 'video/webm;codecs=vp9,opus',
       videoBitsPerSecond: 2500000 // 2.5Mbps
     });
 
@@ -411,11 +435,31 @@ function startRecording() {
       });
       recordedVideoUrl.value = URL.createObjectURL(blob);
       isRecording.value = false;
+
+      // 清理音频上下文
+      audioContext.close();
     };
 
     // 开始录制
     mediaRecorder.value.start(100); // 每100ms收集一次数据
     isRecording.value = true;
+
+    // 重置并播放音频
+    audioElement.currentTime = 0;
+    
+    // 添加音频结束事件监听器
+    const handleAudioEnded = () => {
+      if (isRecording.value) {
+        stopRecording();
+      }
+      audioElement.removeEventListener('ended', handleAudioEnded);
+    };
+    audioElement.addEventListener('ended', handleAudioEnded);
+    
+    audioElement.play().catch(error => {
+      console.error('Failed to play audio:', error);
+      stopRecording();
+    });
   } catch (error) {
     console.error('Failed to start recording:', error);
     alert(t('animate.recordingError'));
@@ -428,6 +472,12 @@ function stopRecording() {
     mediaRecorder.value.stop();
     // 停止所有视频轨道
     mediaRecorder.value.stream.getTracks().forEach(track => track.stop());
+    
+    // 停止音频播放
+    if (audioPlayer.value) {
+      audioPlayer.value.pause();
+      audioPlayer.value.currentTime = 0;
+    }
   }
 }
 
