@@ -1,5 +1,4 @@
 import { createI18n as _createI18n } from 'vue-i18n';
-import type { Messages } from './types';
 
 const messages = {
   'zh-CN': {
