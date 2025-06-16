@@ -41,3 +41,22 @@ export async function synthesizeSpeech(
     );
   });
 }
+
+export interface VoiceOption {
+  name: string; // Azure voice name identifier
+  label: string; // Readable label shown in UI
+}
+
+/**
+ * A curated list of commonly-used Azure neural voices.
+ * You can extend this list or fetch voices dynamically from Azure REST API
+ * (https://learn.microsoft.com/azure/cognitive-services/speech-service/rest-text-to-speech#list-voices).
+ */
+export const availableVoices: VoiceOption[] = [
+  { name: 'zh-CN-XiaoxiaoNeural', label: 'Xiaoxiao – 中文女声' },
+  { name: 'zh-CN-XiaoyiNeural', label: 'Xiaoyi – 中文女声' },
+  { name: 'zh-CN-YunjianNeural', label: 'Yunjian – 中文男声' },
+  { name: 'zh-CN-YunyangNeural', label: 'Yunyang – 中文男声' },
+  // { name: 'en-US-AriaNeural', label: 'Aria – English Female' },
+  // { name: 'en-US-GuyNeural', label: 'Guy – English Male' },
+];

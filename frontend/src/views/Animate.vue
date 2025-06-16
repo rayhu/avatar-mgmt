@@ -170,6 +170,15 @@
           <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
             {{ charCount }}/180
           </div>
+          <!-- 语音选择 -->
+          <div class="form-group">
+            <label>{{ t('animate.voice') }}</label>
+            <select v-model="selectedVoice" class="form-control">
+              <option v-for="voice in voices" :key="voice.name" :value="voice.name">
+                {{ voice.label }}
+              </option>
+            </select>
+          </div>
         </div>
         <button class="generate-btn" :disabled="isProcessing || !text.trim()" @click="onAnimate">
           <span v-if="isProcessing" class="loading-spinner"></span>
@@ -214,7 +223,7 @@ import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
-import { synthesizeSpeech } from '@/api/azureTTS';
+import { synthesizeSpeech, availableVoices } from '@/api/azureTTS';
 import type { Model } from '@/types/model';
 import { getModels } from '@/api/model';
 
@@ -261,6 +270,10 @@ const charCount = computed({
     }
   },
 });
+
+// Azure TTS voice list
+const voices = availableVoices;
+const selectedVoice = ref<string>(voices[0]?.name || 'zh-CN-XiaoxiaoNeural');
 
 onMounted(() => {
   fetchReadyModels();
@@ -344,7 +357,7 @@ async function onAnimate() {
 
   try {
     isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value);
+    const audioBlob = await synthesizeSpeech(text.value, selectedVoice.value);
     audioUrl.value = URL.createObjectURL(audioBlob);
 
     // 播放音频并驱动动画
@@ -713,7 +726,7 @@ async function speak() {
   if (!text.value.trim()) return;
   try {
     isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value);
+    const audioBlob = await synthesizeSpeech(text.value, selectedVoice.value);
     audioUrl.value = URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error('Failed to synthesize speech:', error);
