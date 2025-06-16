@@ -58,6 +58,7 @@ export default {
     textRequired: '请输入文本',
     textTooLong: '文本长度不能超过180个字符',
     synthesisError: '语音合成失败',
+    voice: '声音',
     startRecording: '开始录制',
     stopRecording: '停止录制',
     downloadVideo: '下载视频',

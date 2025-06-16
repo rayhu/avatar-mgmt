@@ -60,3 +60,41 @@ export const availableVoices: VoiceOption[] = [
   // { name: 'en-US-AriaNeural', label: 'Aria – English Female' },
   // { name: 'en-US-GuyNeural', label: 'Guy – English Male' },
 ];
+
+/** Azure REST API response voice schema */
+interface AzureVoiceApiItem {
+  Name: string; // "zh-CN-XiaoxiaoNeural"
+  ShortName: string; // same as Name, but keep for completeness
+  LocalName: string; // Localized display name, e.g. "晓晓"
+  Gender: string;
+  Locale: string;
+  VoiceType: string;
+}
+
+/**
+ * Fetch available voices from Azure Text-to-Speech REST endpoint.
+ * Docs: https://learn.microsoft.com/azure/cognitive-services/speech-service/rest-text-to-speech#list-voices
+ * Note: This call is subject to browser CORS policy. If your key is not allowed
+ * to be exposed on the client, consider proxying this request on the server.
+ */
+export async function fetchVoices(): Promise<VoiceOption[]> {
+  if (!SPEECH_KEY || !SPEECH_REGION) {
+    throw new Error('Azure Speech credentials not configured');
+  }
+  const endpoint = `https://${SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
+  const res = await fetch(endpoint, {
+    headers: {
+      'Ocp-Apim-Subscription-Key': SPEECH_KEY,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch voices list: ${res.status} ${res.statusText}`);
+  }
+  const data: AzureVoiceApiItem[] = await res.json();
+  // Map to VoiceOption – use ShortName as id, and combine LocalName with Locale for label
+  return data.map((v) => ({
+    name: v.ShortName || v.Name,
+    label: `${v.Locale} – ${v.LocalName}`,
+  }));
+}
