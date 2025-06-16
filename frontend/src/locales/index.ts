@@ -68,6 +68,7 @@ const messages = {
       textRequired: '请输入文本内容',
       synthesisError: '语音合成失败，请重试',
       emotion: '表情',
+      voice: '声音',
       emotions: {
         neutral: '平静',
         angry: '生气',
@@ -192,6 +193,7 @@ const messages = {
       textRequired: 'Please enter text content',
       synthesisError: 'Speech synthesis failed, please try again',
       emotion: 'Emotion',
+      voice: 'Voice',
       emotions: {
         neutral: 'Neutral',
         angry: 'Angry',

@@ -58,6 +58,7 @@ export default {
     textRequired: 'Please enter text',
     textTooLong: 'Text cannot exceed 180 characters',
     synthesisError: 'Speech synthesis failed',
+    voice: 'Voice',
     startRecording: 'Start Recording',
     stopRecording: 'Stop Recording',
     downloadVideo: 'Download Video',

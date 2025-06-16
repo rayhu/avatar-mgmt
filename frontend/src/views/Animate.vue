@@ -170,6 +170,15 @@
           <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
             {{ charCount }}/180
           </div>
+          <!-- 语音选择 -->
+          <div class="form-group">
+            <label>{{ t('animate.voice') }}</label>
+            <select v-model="selectedVoice" class="form-control">
+              <option v-for="voice in filteredVoices" :key="voice.name" :value="voice.name">
+                {{ voice.label }}
+              </option>
+            </select>
+          </div>
         </div>
         <button class="generate-btn" :disabled="isProcessing || !text.trim()" @click="onAnimate">
           <span v-if="isProcessing" class="loading-spinner"></span>
@@ -214,7 +223,7 @@ import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
-import { synthesizeSpeech } from '@/api/azureTTS';
+import { synthesizeSpeech, availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
 import type { Model } from '@/types/model';
 import { getModels } from '@/api/model';
 
@@ -262,7 +271,38 @@ const charCount = computed({
   },
 });
 
+// Azure TTS voice list (reactive)
+const voices = ref<VoiceOption[]>(availableVoices);
+
+// Only display voices that start with zh-CN
+const filteredVoices = computed(() => voices.value.filter((v) => v.name.startsWith('zh-CN')));
+
+const selectedVoice = ref<string>(filteredVoices.value[0]?.name || 'zh-CN-XiaoxiaoNeural');
+
+// Try to fetch full voices list from Azure when component is mounted
+async function loadVoices() {
+  try {
+    const remote = await fetchVoices();
+    if (Array.isArray(remote) && remote.length) {
+      // Keep only zh-CN voices for UI
+      const zhVoices = remote.filter((v) => v.name.startsWith('zh-CN'));
+      if (zhVoices.length) {
+        voices.value = zhVoices;
+      } else {
+        voices.value = remote;
+      }
+      // Ensure selected voice exists
+      if (!filteredVoices.value.find((v) => v.name === selectedVoice.value)) {
+        selectedVoice.value = filteredVoices.value[0]?.name || selectedVoice.value;
+      }
+    }
+  } catch (err) {
+    console.warn('Unable to fetch voices list, fallback to static list.', err);
+  }
+}
+
 onMounted(() => {
+  loadVoices();
   fetchReadyModels();
   // 监听 audio 播放事件
   nextTick(() => {
@@ -344,7 +384,7 @@ async function onAnimate() {
 
   try {
     isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value);
+    const audioBlob = await synthesizeSpeech(text.value, selectedVoice.value);
     audioUrl.value = URL.createObjectURL(audioBlob);
 
     // 播放音频并驱动动画
@@ -713,7 +753,7 @@ async function speak() {
   if (!text.value.trim()) return;
   try {
     isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value);
+    const audioBlob = await synthesizeSpeech(text.value, selectedVoice.value);
     audioUrl.value = URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error('Failed to synthesize speech:', error);
