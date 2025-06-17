@@ -226,6 +226,7 @@ import ModelViewer from '@/components/ModelViewer.vue';
 import { synthesizeSpeech, availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
 import type { Model } from '@/types/model';
 import { getModels } from '@/api/model';
+import { generateSSML } from '@/api/openai';
 
 interface Keyframe {
   id: string;
@@ -352,6 +353,9 @@ const recordedVideoUrl = ref<string>('');
 // 动画定时器
 const animationTimer = ref<number | null>(null);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
+
+const ssml = ref('');           // 存放生成的 SSML
+const isGeneratingSSML = ref(false);  // 按钮 loading 状态
 
 onUnmounted(() => {
   if (audioPlayer.value) {
@@ -820,6 +824,21 @@ function updateKeyframe(keyframe: Keyframe) {
         if (modelViewer.value) modelViewer.value.updateEmotion(keyframe.emotion);
       }
     }
+  }
+}
+
+async function onGenerateSSML() {
+  if (!text.value.trim()) {
+    alert(t('animate.textRequired')); return;
+  }
+  try {
+    isGeneratingSSML.value = true;
+    ssml.value = await generateSSML(text.value, selectedVoice.value);
+  } catch (e) {
+    console.error(e);
+    alert('SSML 生成失败');
+  } finally {
+    isGeneratingSSML.value = false;
   }
 }
 </script>
