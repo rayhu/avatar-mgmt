@@ -354,8 +354,8 @@ const recordedVideoUrl = ref<string>('');
 const animationTimer = ref<number | null>(null);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 
-const ssml = ref('');           // 存放生成的 SSML
-const isGeneratingSSML = ref(false);  // 按钮 loading 状态
+const ssml = ref(''); // 存放生成的 SSML
+const isGeneratingSSML = ref(false); // 按钮 loading 状态
 
 onUnmounted(() => {
   if (audioPlayer.value) {
@@ -829,7 +829,8 @@ function updateKeyframe(keyframe: Keyframe) {
 
 async function onGenerateSSML() {
   if (!text.value.trim()) {
-    alert(t('animate.textRequired')); return;
+    alert(t('animate.textRequired'));
+    return;
   }
   try {
     isGeneratingSSML.value = true;

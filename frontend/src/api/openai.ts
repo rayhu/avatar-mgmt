@@ -11,7 +11,7 @@ export async function generateSSML(text: string, voice: string) {
   const res = await fetch('/api/openai-ssml', {
     method: 'POST',
     body: JSON.stringify({ prompt, model: 'gpt-4o' }),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
   const { ssml } = await res.json();
   return ssml as string;
