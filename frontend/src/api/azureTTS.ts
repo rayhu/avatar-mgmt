@@ -31,10 +31,26 @@ export async function synthesizeSpeech(
       .replace(/<\/speak>/, '')
       .trim();
 
-    content = `<speak version="1.0" xml:lang="zh-CN" xmlns="http://www.w3.org/2001/10/synthesis"><voice name="${voice}">${inner}</voice></speak>`;
+    const hasVoice = /<voice[\s>]/i.test(inner);
+    let processed = inner;
+    if (hasVoice) {
+      const m = inner.match(/<voice[^>]*name=["']([^"']+)["']/i);
+      const detected = m?.[1];
+      if (detected && detected !== voice) {
+        console.warn(
+          `[azureTTS] LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`,
+        );
+      }
+    } else {
+      processed = `<voice name="${voice}">${inner}</voice>`;
+    }
+    const wrapped = processed;
+    content = `<speak version="1.0" xml:lang="zh-CN" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts">${wrapped}</speak>`;
   }
 
-  const speakFn = isSSML ? synthesizer.speakSsmlAsync.bind(synthesizer) : synthesizer.speakTextAsync.bind(synthesizer);
+  const speakFn = isSSML
+    ? synthesizer.speakSsmlAsync.bind(synthesizer)
+    : synthesizer.speakTextAsync.bind(synthesizer);
   console.log('[Content]', content);
   return new Promise((resolve, reject) => {
     speakFn(

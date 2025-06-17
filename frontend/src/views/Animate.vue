@@ -170,10 +170,12 @@
           <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
             {{ charCount }}/180
           </div>
-          <button class="control-btn" @click="onGenerateSSML">{{ t('animate.timeline.generateSSML') }}</button>
+          <button class="control-btn" @click="onGenerateSSML">
+            {{ t('animate.timeline.generateSSML') }}
+          </button>
 
           <!-- SSML 编辑器 -->
-          <textarea v-if="ssml" v-model="ssml" rows="8" class="ssml-textarea" />
+          <textarea v-model="ssml" rows="8" class="ssml-textarea" />
 
           <!-- 语音选择 -->
           <div class="form-group">
@@ -220,6 +222,30 @@
         </div>
       </div>
     </div>
+
+    <!-- 测试用：典型情绪示例表格 -->
+    <div class="sample-table">
+      <h3>{{ t('animate.sampleSentences') }}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>{{ t('animate.emotion') }}</th>
+            <th>{{ t('animate.text') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="sample in samples"
+            :key="sample.text"
+            @click="applySample(sample.text)"
+            class="sample-row"
+          >
+            <td>{{ sample.emotion }}</td>
+            <td>{{ sample.text }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -228,7 +254,12 @@ import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
-import { synthesizeSpeech as synthesizeSpeechFront, availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
+import {
+  synthesizeSpeech as synthesizeSpeechFront,
+  availableVoices,
+  fetchVoices,
+  type VoiceOption,
+} from '@/api/azureTTS';
 import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
 import type { Model } from '@/types/model';
 import { getModels } from '@/api/model';
@@ -366,9 +397,7 @@ const isGeneratingSSML = ref(false); // 按钮 loading 状态
 
 // Azure 语音合成依旧按构建模式区分：生产默认走后端代理
 const useFrontendAzure = Boolean(import.meta.env.VITE_AZURE_SPEECH_KEY);
-const synthesizeSpeech = useFrontendAzure
-  ? synthesizeSpeechFront
-  : synthesizeSpeechBackend;
+const synthesizeSpeech = useFrontendAzure ? synthesizeSpeechFront : synthesizeSpeechBackend;
 
 // 如果配置了前端 OpenAI KEY，则优先在浏览器直接调用 OpenAI，避免跨域 / 404
 const useFrontendOpenAI = Boolean(import.meta.env.VITE_OPENAI_API_KEY);
@@ -866,6 +895,23 @@ async function onGenerateSSML() {
     isGeneratingSSML.value = false;
   }
 }
+
+// 典型情绪示例
+interface SampleSentence {
+  emotion: string;
+  text: string;
+}
+
+const samples: SampleSentence[] = [
+  { emotion: 'empathetic', text: '非常抱歉让您有这样的体验' },
+  { emotion: 'cheerful', text: '哇，太开心啦～感谢您喜欢我们的服务。' },
+  { emotion: 'assistant', text: '别担心，袋袋来啦～我们一起查一下您的情况吧。' },
+  { emotion: 'hopeful', text: '今天也要元气满满哦～袋袋祝您天天开心，一切顺利！' },
+];
+
+function applySample(sampleText: string) {
+  text.value = sampleText;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -1284,5 +1330,29 @@ button:hover {
   font-family: monospace;
   border: 1px solid #dcdcdc;
   border-radius: 6px;
+}
+
+.sample-table {
+  margin-top: 32px;
+}
+
+.sample-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sample-table th,
+.sample-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.sample-row {
+  cursor: pointer;
+}
+
+.sample-row:hover {
+  background: #f8f9fa;
 }
 </style>

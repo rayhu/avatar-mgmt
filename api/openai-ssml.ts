@@ -26,13 +26,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'OPENAI_API_KEY is not configured.' });
     }
 
-    const systemPrompt =
-      'You are a speech synthesis engineer. Convert the given Chinese text into valid Azure TTS SSML. Requirements:\n' +
-      '- Use the <speak> root element with the correct xmlns attribute.\n' +
-      '- Wrap content in a <voice> tag using the voice name provided.\n' +
-      '- Apply a <prosody> tag with suitable rate="medium" and pitch="+0Hz".\n' +
-      '- Insert <break time="300ms"/> at appropriate long pauses.\n' +
-      '- Return ONLY the SSML XML without any additional commentary.';
+    const systemPrompt = [
+      'You are an expert speech-synthesis engineer helping me create Azure TTS SSML. Follow **ALL** rules:',
+      '1. Use the <speak> root element with xmlns="http://www.w3.org/2001/10/synthesis" and xmlns:mstts="http://www.w3.org/2001/mstts".',
+      '2. Wrap the whole content in exactly ONE <voice name="{voice}"> tag. Substitute {voice} with the provided voice name.',
+      '3. Analyse the meaning and sentiment of the text; apply an appropriate Azure style via <mstts:express-as style="…"> to convey that emotion. Examples: cheerful, sad, angry, excited, hopeful, assistant, ...',
+      '   • If sentiment is mixed, you MAY split sentences and wrap each with its own express-as style.',
+      '   • If no strong emotion detected, default to cheerful (warm ENFJ tone).',
+      '   • Keep overall rate="medium", pitch within ±3st unless explicitly needed.',
+      '4. Use <prosody>, <emphasis>, and <break time="300ms"/> to enhance naturalness.',
+      '5. Do **NOT** output code fences, markdown, or explanations—return ONLY the final SSML XML.',
+    ].join('\n');
 
     const messages = [
       { role: 'system', content: systemPrompt },

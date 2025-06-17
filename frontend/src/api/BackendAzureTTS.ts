@@ -6,8 +6,16 @@ export async function synthesizeSpeech(
   isSSML: boolean = false,
 ): Promise<Blob> {
   const ssml = isSSML
-    ? content
-    : `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="zh-CN"><voice name="${voice}">${content}</voice></speak>`;
+    ? (() => {
+        if (content.includes('mstts:') && !/xmlns:mstts=/.test(content)) {
+          return content.replace(
+            /<speak([^>]*?)>/i,
+            '<speak$1 xmlns:mstts="http://www.w3.org/2001/mstts">',
+          );
+        }
+        return content;
+      })()
+    : `<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" version="1.0" xml:lang="zh-CN"><voice name="${voice}">${content}</voice></speak>`;
 
   const res = await fetch(`${API_BASE}/api/azure-tts`, {
     method: 'POST',
@@ -20,4 +28,4 @@ export async function synthesizeSpeech(
     throw new Error(`Azure TTS proxy error: ${res.status} ${msg}`);
   }
   return await res.blob();
-} 
+}
