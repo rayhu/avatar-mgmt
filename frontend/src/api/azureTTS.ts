@@ -1,12 +1,17 @@
+// Azure client-side TTS using Microsoft Cognitive Services SDK – for local development only
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 
 const SPEECH_KEY = import.meta.env.VITE_AZURE_SPEECH_KEY;
 const SPEECH_REGION = import.meta.env.VITE_AZURE_SPEECH_REGION;
 
-// Azure TTS API 封装（模板）
+/**
+ * 调用后端 `/api/azure-tts` 合成语音。
+ * 如果提供的是纯文本，将自动包装为最简 SSML 并添加 <voice> 标签。
+ */
 export async function synthesizeSpeech(
-  text: string,
+  content: string,
   voice: string = 'zh-CN-XiaoxiaoNeural',
+  isSSML: boolean = false,
 ): Promise<Blob> {
   if (!SPEECH_KEY || !SPEECH_REGION) {
     throw new Error('Azure Speech credentials not configured');
@@ -16,14 +21,24 @@ export async function synthesizeSpeech(
   speechConfig.speechSynthesisVoiceName = voice;
 
   const pullStream = sdk.AudioOutputStream.createPullStream();
-
   const audioConfig = sdk.AudioConfig.fromStreamOutput(pullStream);
-
   const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
 
+  if (isSSML) {
+    // 不可靠的 SSML 直接重构为标准格式
+    const inner = content
+      .replace(/<speak[\s\S]*?>/, '')
+      .replace(/<\/speak>/, '')
+      .trim();
+
+    content = `<speak version="1.0" xml:lang="zh-CN" xmlns="http://www.w3.org/2001/10/synthesis"><voice name="${voice}">${inner}</voice></speak>`;
+  }
+
+  const speakFn = isSSML ? synthesizer.speakSsmlAsync.bind(synthesizer) : synthesizer.speakTextAsync.bind(synthesizer);
+  console.log('[Content]', content);
   return new Promise((resolve, reject) => {
-    synthesizer.speakTextAsync(
-      text,
+    speakFn(
+      content,
       (result) => {
         if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
           const audioData = result.audioData;
@@ -43,58 +58,19 @@ export async function synthesizeSpeech(
 }
 
 export interface VoiceOption {
-  name: string; // Azure voice name identifier
-  label: string; // Readable label shown in UI
+  name: string;
+  label: string;
 }
 
-/**
- * A curated list of commonly-used Azure neural voices.
- * You can extend this list or fetch voices dynamically from Azure REST API
- * (https://learn.microsoft.com/azure/cognitive-services/speech-service/rest-text-to-speech#list-voices).
- */
+// 静态语音列表：如需完整列表可以让后端代理 Azure /voices/list
 export const availableVoices: VoiceOption[] = [
   { name: 'zh-CN-XiaoxiaoNeural', label: 'Xiaoxiao – 中文女声' },
   { name: 'zh-CN-XiaoyiNeural', label: 'Xiaoyi – 中文女声' },
   { name: 'zh-CN-YunjianNeural', label: 'Yunjian – 中文男声' },
   { name: 'zh-CN-YunyangNeural', label: 'Yunyang – 中文男声' },
-  // { name: 'en-US-AriaNeural', label: 'Aria – English Female' },
-  // { name: 'en-US-GuyNeural', label: 'Guy – English Male' },
 ];
 
-/** Azure REST API response voice schema */
-interface AzureVoiceApiItem {
-  Name: string; // "zh-CN-XiaoxiaoNeural"
-  ShortName: string; // same as Name, but keep for completeness
-  LocalName: string; // Localized display name, e.g. "晓晓"
-  Gender: string;
-  Locale: string;
-  VoiceType: string;
-}
-
-/**
- * Fetch available voices from Azure Text-to-Speech REST endpoint.
- * Docs: https://learn.microsoft.com/azure/cognitive-services/speech-service/rest-text-to-speech#list-voices
- * Note: This call is subject to browser CORS policy. If your key is not allowed
- * to be exposed on the client, consider proxying this request on the server.
- */
+// In local dev we skip dynamic voice list fetching to avoid exposing keys
 export async function fetchVoices(): Promise<VoiceOption[]> {
-  if (!SPEECH_KEY || !SPEECH_REGION) {
-    throw new Error('Azure Speech credentials not configured');
-  }
-  const endpoint = `https://${SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
-  const res = await fetch(endpoint, {
-    headers: {
-      'Ocp-Apim-Subscription-Key': SPEECH_KEY,
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch voices list: ${res.status} ${res.statusText}`);
-  }
-  const data: AzureVoiceApiItem[] = await res.json();
-  // Map to VoiceOption – use ShortName as id, and combine LocalName with Locale for label
-  return data.map((v) => ({
-    name: v.ShortName || v.Name,
-    label: `${v.Locale} – ${v.LocalName}`,
-  }));
+  return availableVoices;
 }

@@ -100,6 +100,7 @@ const messages = {
       recordingTip: '先要生成动画和语音后才能录制',
       processing: '处理中...',
       loading: '加载中...',
+      ssmlEditor: 'SSML 编辑器',
       timeline: {
         title: '时间轴编辑器',
         time: '时间',
@@ -112,6 +113,7 @@ const messages = {
         clear: '清空',
         confirmClear: '确定要清空时间轴吗？',
         changeModel: '更换模型',
+        generateSSML: '生成 SSML',
       },
     },
     errors: {
@@ -225,6 +227,7 @@ const messages = {
       recordingTip: 'Please generate animation and voice first before recording',
       processing: 'Processing...',
       loading: 'Loading...',
+      ssmlEditor: 'SSML Editor',
       timeline: {
         title: 'Timeline Editor',
         time: 'Time',
@@ -237,6 +240,7 @@ const messages = {
         clear: 'Clear',
         confirmClear: 'Are you sure you want to clear the timeline?',
         changeModel: 'Change Model',
+        generateSSML: 'Generate SSML',
       },
     },
     errors: {

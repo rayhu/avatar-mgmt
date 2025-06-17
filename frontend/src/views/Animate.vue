@@ -170,6 +170,11 @@
           <div class="char-count" :class="{ 'near-limit': charCount > 150 }">
             {{ charCount }}/180
           </div>
+          <button class="control-btn" @click="onGenerateSSML">{{ t('animate.timeline.generateSSML') }}</button>
+
+          <!-- SSML 编辑器 -->
+          <textarea v-if="ssml" v-model="ssml" rows="8" class="ssml-textarea" />
+
           <!-- 语音选择 -->
           <div class="form-group">
             <label>{{ t('animate.voice') }}</label>
@@ -223,9 +228,12 @@ import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
-import { synthesizeSpeech, availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
+import { synthesizeSpeech as synthesizeSpeechFront, availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
+import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
 import type { Model } from '@/types/model';
 import { getModels } from '@/api/model';
+import { generateSSML as generateSSMLBackend } from '@/api/openai';
+import { generateSSMLFront } from '@/api/openaiFrontend';
 
 interface Keyframe {
   id: string;
@@ -353,6 +361,19 @@ const recordedVideoUrl = ref<string>('');
 const animationTimer = ref<number | null>(null);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 
+const ssml = ref(''); // 存放生成的 SSML
+const isGeneratingSSML = ref(false); // 按钮 loading 状态
+
+// Azure 语音合成依旧按构建模式区分：生产默认走后端代理
+const useFrontendAzure = Boolean(import.meta.env.VITE_AZURE_SPEECH_KEY);
+const synthesizeSpeech = useFrontendAzure
+  ? synthesizeSpeechFront
+  : synthesizeSpeechBackend;
+
+// 如果配置了前端 OpenAI KEY，则优先在浏览器直接调用 OpenAI，避免跨域 / 404
+const useFrontendOpenAI = Boolean(import.meta.env.VITE_OPENAI_API_KEY);
+const generateSSML = useFrontendOpenAI ? generateSSMLFront : generateSSMLBackend;
+
 onUnmounted(() => {
   if (audioPlayer.value) {
     audioPlayer.value.removeEventListener('play', handleAudioPlay);
@@ -384,7 +405,11 @@ async function onAnimate() {
 
   try {
     isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value, selectedVoice.value);
+    const audioBlob = await synthesizeSpeech(
+      ssml.value || text.value,
+      selectedVoice.value,
+      Boolean(ssml.value),
+    );
     audioUrl.value = URL.createObjectURL(audioBlob);
 
     // 播放音频并驱动动画
@@ -753,7 +778,11 @@ async function speak() {
   if (!text.value.trim()) return;
   try {
     isProcessing.value = true;
-    const audioBlob = await synthesizeSpeech(text.value, selectedVoice.value);
+    const audioBlob = await synthesizeSpeech(
+      ssml.value || text.value,
+      selectedVoice.value,
+      Boolean(ssml.value),
+    );
     audioUrl.value = URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error('Failed to synthesize speech:', error);
@@ -820,6 +849,27 @@ function updateKeyframe(keyframe: Keyframe) {
         if (modelViewer.value) modelViewer.value.updateEmotion(keyframe.emotion);
       }
     }
+  }
+}
+
+async function onGenerateSSML() {
+  if (!text.value.trim()) {
+    alert(t('animate.textRequired'));
+    return;
+  }
+  try {
+    isGeneratingSSML.value = true;
+    ssml.value = await generateSSML(text.value, selectedVoice.value);
+    console.log('[SSML]', ssml.value);
+    if (!ssml.value.trim()) {
+      alert('SSML 生成结果为空，请稍后重试。');
+      return;
+    }
+  } catch (e) {
+    console.error(e);
+    alert('SSML 生成失败');
+  } finally {
+    isGeneratingSSML.value = false;
   }
 }
 </script>
@@ -1231,5 +1281,14 @@ button:hover {
   to {
     transform: rotate(360deg);
   }
+}
+
+.ssml-textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px 12px;
+  font-family: monospace;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
 }
 </style>
