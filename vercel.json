@@ -5,12 +5,10 @@
   "installCommand": "yarn install",
   "framework": "vite",
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/api/(.*)", "dest": "/api/$1.ts" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
-    "VITE_API_URL": "https://amis-avatar-mgmt.vercel.app/api"
+    "VITE_API_URL": ""
   }
 } 

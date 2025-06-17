@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Analytics />
     <nav class="main-nav">
       <div class="nav-left">
         <template v-if="auth.isAuthenticated">
@@ -46,7 +45,12 @@ function logout() {
   router.push('/login');
 }
 
+// 在组件挂载时注入 Vercel Analytics
 onMounted(() => {
+  const enableAnalytics = import.meta.env.VITE_ANALYTICS === 'true';
+  if (enableAnalytics) {
+    inject();
+  }
   const savedLocale = localStorage.getItem('preferred-language');
   if (savedLocale) {
     locale.value = savedLocale;

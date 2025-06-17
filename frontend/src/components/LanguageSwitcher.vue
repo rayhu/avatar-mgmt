@@ -103,7 +103,10 @@ function selectHighlightedLanguage() {
 
 // Click outside directive
 const vClickOutside = {
-  mounted(el: HTMLElement & { clickOutsideEvent?: (event: Event) => void }, binding: any) {
+  mounted(
+    el: HTMLElement & { clickOutsideEvent?: (event: Event) => void },
+    binding: { value: () => void },
+  ) {
     el.clickOutsideEvent = function (event: Event) {
       if (!(el === event.target || el.contains(event.target as Node))) {
         binding.value();
