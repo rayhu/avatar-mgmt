@@ -47,7 +47,10 @@ function logout() {
 
 // 在组件挂载时注入 Vercel Analytics
 onMounted(() => {
-  inject();
+  const enableAnalytics = import.meta.env.VITE_ANALYTICS === 'true';
+  if (enableAnalytics) {
+    inject();
+  }
   const savedLocale = localStorage.getItem('preferred-language');
   if (savedLocale) {
     locale.value = savedLocale;

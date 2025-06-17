@@ -549,12 +549,6 @@ function downloadVideo() {
 
 // 启动时间轴动画
 function startTimelineAnimation(audio: HTMLAudioElement) {
-  // 合并所有关键帧，按时间排序
-  const allKeyframes = [
-    ...actionKeyframes.value.map((k) => ({ ...k })),
-    ...emotionKeyframes.value.map((k) => ({ ...k })),
-  ].sort((a, b) => a.time - b.time);
-
   let lastAction = currentAction.value;
   let lastEmotion = currentEmotion.value;
 
