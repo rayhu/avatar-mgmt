@@ -27,6 +27,7 @@ let clock = new THREE.Clock();
 let availableAnimations: THREE.AnimationClip[] = [];
 let animationLoop: number | null = null;
 let currentAnimationAction: THREE.AnimationAction | null = null;
+let lastVisemeIndex: number | null = null;
 
 // 初始化场景
 function initScene() {
@@ -252,6 +253,32 @@ function updateEmotion(emotion: string) {
   }
 }
 
+// 更新音素
+function updateViseme(id: number) {
+  if (!model) return;
+  model.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh)) return;
+    const mesh = obj as THREE.Mesh;
+    const dict = mesh.morphTargetDictionary;
+    const infl = mesh.morphTargetInfluences;
+    if (!dict || !infl) return;
+
+    // Azure visemeId 0-21，假设形变名为 viseme_0, viseme_1…
+    const key = `viseme_${id}`;
+    const idx = dict[key];
+    if (idx === undefined) return;
+
+    // 清零上一个
+    if (lastVisemeIndex !== null && infl[lastVisemeIndex] !== undefined) {
+      infl[lastVisemeIndex] = 0;
+    }
+
+    // 设置当前口型
+    infl[idx] = 1;
+    lastVisemeIndex = idx;
+  });
+}
+
 // 处理窗口大小变化
 function handleResize() {
   if (!container.value || !camera || !renderer) return;
@@ -321,6 +348,7 @@ onUnmounted(() => {
 defineExpose({
   playAnimation,
   updateEmotion,
+  updateViseme,
   getVideoStream: () => {
     if (!renderer || !renderer.domElement) {
       return null;

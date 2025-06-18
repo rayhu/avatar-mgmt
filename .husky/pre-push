@@ -1,4 +1,22 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-cd frontend && yarn check && yarn i18n:check && yarn format
+# Stop on first failure
+set -e
+
+# Ensure repo is clean and install is up-to-date (optional – skip for speed)
+# Uncomment if you want to verify lockfile consistency
+# yarn install --immutable
+
+# 1. Lint & type-check frontend
+cd frontend
+
+# Lint & type check (alias "check" already runs both)
+yarn check
+
+# 2. Verify i18n keys completeness
+yarn i18n:check
+
+# 3. (Optional) run unit tests / build – uncomment if required
+# yarn test
+# yarn build
