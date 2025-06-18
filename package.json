@@ -9,6 +9,10 @@
     "yarn": "1.x"
   },
   "packageManager": "yarn@1.22.22",
+  "workspaces": [
+    "frontend",
+    "api-server"
+  ],
   "lint-staged": {
     "frontend/**/*.{js,ts,vue}": [
       "cd frontend && yarn lint",
@@ -19,9 +23,9 @@
     ]
   },
   "devDependencies": {
+    "@vercel/node": "^3.0.2",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.0",
-    "@vercel/node": "^3.0.2"
+    "lint-staged": "^16.1.0"
   },
   "volta": {
     "node": "22.16.0",

@@ -33,7 +33,7 @@ services:
       DB_PASSWORD: directus
       WEBSOCKETS_ENABLED: true
     volumes:
-      - ./uploads:/directus/uploads
-      - ./extensions:/directus/extensions
-      - ./db_json:/directus/db_json
-      - ./schemas:/directus/schemas
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+      - ./directus/db_json:/directus/db_json
+      - ./directus/schemas:/directus/schemas

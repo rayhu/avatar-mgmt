@@ -1,13 +1,18 @@
+import 'dotenv/config';
+
+
 import express from 'express';
 
-import openaiHandler from '../api/openai-ssml';
-import azureTTSHandler from '../api/azure-tts';
+import openaiHandler from './handlers/openai-ssml';
+import azureTTSHandler from './handlers/azure-tts';
+import avatarsHandler from './handlers/avatars';
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
 
 app.post('/api/openai-ssml', openaiHandler);
 app.post('/api/azure-tts', azureTTSHandler);
+app.get('/api/avatars', avatarsHandler);
 
 app.get('/health', (_req, res) => res.send('ok'));
 

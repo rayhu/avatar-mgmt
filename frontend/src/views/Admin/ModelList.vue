@@ -13,7 +13,10 @@
         <button class="action-btn">{{ t('modelManagement.uploadModel') }}</button>
       </div>
       <div class="model-list">
-        <div v-for="model in models" :key="model.id" class="model-item">
+        <div v-for="model in avatars" :key="model.id" class="model-item">
+          <div class="model-preview">
+            <ModelCard :preview-url="model.previewUrl" />
+          </div>
           <div class="model-info">
             <h3>{{ model.name }}</h3>
             <p>{{ model.description }}</p>
@@ -41,12 +44,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ModelListSkeleton from '@/components/ModelListSkeleton.vue';
-import type { Model } from '@/types/model';
+import ModelListSkeleton from '../../components/ModelListSkeleton.vue';
+import ModelCard from '../../components/ModelCard.vue';
+import type { Avatar } from '../../types/avatar';
+import { getAvatars } from '../../api/avatars';
 
 const { t } = useI18n();
 
-const models = ref<Model[]>([]);
+const avatars = ref<Avatar[]>([]);
 const loading = ref(true);
 
 function formatDate(date?: string) {
@@ -54,35 +59,27 @@ function formatDate(date?: string) {
   return new Date(date).toLocaleString();
 }
 
+// 获取所有模型列表
+async function fetchAllModels() {
+  try {
+    const models = await getAvatars();
+    if (Array.isArray(models)) {
+      avatars.value = models;
+    } else {
+      console.error('Invalid models data:', models);
+      avatars.value = [];
+    }
+  } catch (error) {
+    console.error('Failed to fetch models:', error);
+    avatars.value = [];
+  }
+}
+
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    // TODO: 实际API调用
-    models.value = [
-      {
-        id: '1',
-        name: '测试模型1',
-        description: '这是一个测试模型',
-        url: '/models/test1.glb',
-        status: 'ready',
-        tags: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString(),
-      },
-      {
-        id: '2',
-        name: '测试模型2',
-        description: '这是另一个测试模型',
-        url: '/models/test2.glb',
-        status: 'draft',
-        tags: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString(),
-      },
-    ];
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await fetchAllModels();
   } finally {
     loading.value = false;
   }
@@ -166,6 +163,20 @@ onMounted(async () => {
 
   &:hover {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.model-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 20px;
+  flex-shrink: 0;
+
+  :deep(.model-card) {
+    width: 100%;
+    height: 100%;
   }
 }
 

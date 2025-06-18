@@ -21,9 +21,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./uploads:/directus/uploads
-      - ./extensions:/directus/extensions
-      - ./schemas:/directus/schemas
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+      - ./directus/schemas:/directus/schemas
     expose:
       - "8055"
     networks:

@@ -1,11 +1,14 @@
 # Directus specific
-/uploads/*
-!/uploads/.gitkeep
+/directus/uploads/*
+!/directus/uploads/.gitkeep
+!/directus/db_data/.gitkeep
+/directus/extensions/*
+!/directus/extensions/.gitkeep
+
+# Database files
 /db_data/*
 /db_data.*/*
-!/db_data/.gitkeep
-/extensions/*
-!/extensions/.gitkeep
+
 
 # Environment files
 .env

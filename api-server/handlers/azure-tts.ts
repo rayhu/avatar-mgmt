@@ -1,11 +1,11 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // POST /api/azure-tts
 // Body: { ssml: string }
 // Returns: binary audio (mp3)
 // Requires env vars: AZURE_SPEECH_KEY, AZURE_SPEECH_REGION
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: Request, res: Response) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

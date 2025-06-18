@@ -13,7 +13,7 @@
           @click="selectModel(model)"
         >
           <div class="model-preview">
-            <ModelViewer :model-url="model.url" :auto-rotate="true" :show-controls="false" />
+            <ModelCard :preview-url="model.previewUrl" />
           </div>
           <div class="model-info">
             <h4>{{ model.name }}</h4>
@@ -23,7 +23,7 @@
       </div>
       <div v-else class="selected-model">
         <div class="model-preview">
-          <ModelViewer :model-url="selectedModel.url" :auto-rotate="true" :show-controls="false" />
+          <ModelCard :preview-url="selectedModel.previewUrl" />
         </div>
         <div class="model-info">
           <h4>{{ selectedModel.name }}</h4>
@@ -80,13 +80,14 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
-import { getModels } from '../api/model';
-import type { Model } from '../types/model';
+import { getAvatars } from '../api/avatars';
+import type { Avatar } from '../types/avatar';
+import ModelCard from '../components/ModelCard.vue';
 
 const { t } = useI18n();
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
-const readyModels = ref<Model[]>([]);
-const selectedModel = ref<Model | null>(null);
+const readyModels = ref<Avatar[]>([]);
+const selectedModel = ref<Avatar | null>(null);
 const currentAnimation = ref<string>('');
 const currentEmotion = ref<string>('');
 
@@ -110,17 +111,19 @@ const animations: string[] = [
 const emotions: string[] = ['Neutral', 'Angry', 'Surprised', 'Sad'];
 
 // 获取就绪状态的模型列表
-async function fetchReadyModels(): Promise<void> {
+async function fetchReadyAvatars(): Promise<void> {
   try {
-    const models = await getModels();
-    readyModels.value = models.filter((model) => model.status === 'ready');
+    const avatars = await getAvatars();
+    console.log('Fetched avatars:', avatars);
+    readyModels.value = avatars.filter((model) => model.status === 'ready');
+    console.log('Ready models:', readyModels.value);
   } catch (error) {
     console.error('Failed to fetch models:', error);
   }
 }
 
 // 选择模型
-function selectModel(model: Model): void {
+function selectModel(model: Avatar): void {
   selectedModel.value = model;
   currentAnimation.value = '';
   currentEmotion.value = '';
@@ -142,7 +145,7 @@ function updateEmotion(emotion: string): void {
 }
 
 onMounted(() => {
-  fetchReadyModels();
+  fetchReadyAvatars();
 });
 </script>
 

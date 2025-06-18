@@ -1,4 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 
@@ -151,7 +152,7 @@ const VOICE_STYLES: Record<string, string[]> = {
 
 // 尝试从本地 JSON 文件加载 voice → styles 映射，成功后覆盖默认 VOICE_STYLES
 try {
-  const jsonPath = path.join(process.cwd(), 'frontend', 'public', 'azure-voices-zh.json');
+  const jsonPath = path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json');
   const raw = fs.readFileSync(jsonPath, 'utf-8');
   const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
   list.forEach((v) => {
@@ -169,7 +170,7 @@ try {
 // Returns: { ssml: string }
 // The OpenAI API key is expected in the environment variable OPENAI_API_KEY.
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: Request, res: Response) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
