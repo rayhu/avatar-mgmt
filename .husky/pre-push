@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Stop on first failure
 set -e
 
@@ -11,8 +8,8 @@ set -e
 # 1. Lint & type-check frontend
 cd frontend
 
-# Lint & type check (alias "check" already runs both)
-yarn check
+# Lint & type check (package.json script "check")
+yarn run check
 
 # 2. Verify i18n keys completeness
 yarn i18n:check

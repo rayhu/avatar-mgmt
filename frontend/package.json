@@ -1,5 +1,5 @@
 {
-  "name": "directus-3d-frontend",
+  "name": "avatar-mgmt-frontend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -17,12 +17,8 @@
     "i18n:report": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/i18n-check.ts --report"
   },
   "dependencies": {
-    "@codemirror/basic-setup": "^0.20.0",
-    "@codemirror/lang-xml": "^6.1.0",
     "@vercel/analytics": "^1.5.0",
     "@vueuse/core": "^13.3.0",
-    "axios": "^1.9.0",
-    "codemirror": "^6.0.1",
     "microsoft-cognitiveservices-speech-sdk": "^1.44.1",
     "pinia": "^3.0.3",
     "three": "^0.177.0",
@@ -55,13 +51,17 @@
     "vercel": "^42.3.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.0.0",
-    "vue-i18n-extract": "^2.0.7",
+    "vue-eslint-parser": "^10.1.3",
     "vue-tsc": "^2.2.10",
     "workbox-build": "^7.3.0",
     "workbox-window": "^7.3.0"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "yarn": ">=1.22.0"
+    "node": ">=22.0.0",
+    "yarn": "1.x"
+  },
+  "volta": {
+    "node": "22.16.0",
+    "yarn": "1.22.22"
   }
 }
