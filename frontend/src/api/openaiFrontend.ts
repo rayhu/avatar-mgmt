@@ -74,14 +74,7 @@ const VOICE_STYLES: Record<string, string[]> = {
     'sad',
     'serious',
   ],
-  'zh-CN-XiaozhenNeural': [
-    'angry',
-    'cheerful',
-    'disgruntled',
-    'fearful',
-    'sad',
-    'serious',
-  ],
+  'zh-CN-XiaozhenNeural': ['angry', 'cheerful', 'disgruntled', 'fearful', 'sad', 'serious'],
   'zh-CN-YunfengNeural': [
     'angry',
     'cheerful',
@@ -119,11 +112,7 @@ const VOICE_STYLES: Record<string, string[]> = {
     'sad',
     'serious',
   ],
-  'zh-CN-YunyangNeural': [
-    'customerservice',
-    'narration-professional',
-    'newscast-casual',
-  ],
+  'zh-CN-YunyangNeural': ['customerservice', 'narration-professional', 'newscast-casual'],
   'zh-CN-YunyeNeural': [
     'angry',
     'calm',
@@ -173,15 +162,9 @@ export async function generateSSMLFront(text: string, voice: string) {
 
   // 优先使用 JSON 中的映射，其次回退到内置 VOICE_STYLES，再退到默认集合
   const stylesMap = await getVoiceStyleMap();
-  const allowedStyles =
-    (stylesMap[voice] && stylesMap[voice].length ? stylesMap[voice] : VOICE_STYLES[voice]) ?? [
-      'cheerful',
-      'sad',
-      'angry',
-      'excited',
-      'hopeful',
-      'assistant',
-    ];
+  const allowedStyles = (stylesMap[voice] && stylesMap[voice].length
+    ? stylesMap[voice]
+    : VOICE_STYLES[voice]) ?? ['cheerful', 'sad', 'angry', 'excited', 'hopeful', 'assistant'];
 
   const styleList = allowedStyles.join('、');
 

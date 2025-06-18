@@ -43,11 +43,7 @@
       "assistant",
       "newscast"
     ],
-    "roles": [
-      "Narrator",
-      "YoungAdultMale",
-      "Boy"
-    ]
+    "roles": ["Narrator", "YoungAdultMale", "Boy"]
   },
   {
     "name": "zh-CN-YunjianNeural",
@@ -85,19 +81,13 @@
   {
     "name": "zh-CN-YunyangNeural",
     "label": "zh-CN – 云扬",
-    "styles": [
-      "customerservice",
-      "narration-professional",
-      "newscast-casual"
-    ],
+    "styles": ["customerservice", "narration-professional", "newscast-casual"],
     "roles": []
   },
   {
     "name": "zh-CN-XiaochenNeural",
     "label": "zh-CN – 晓辰",
-    "styles": [
-      "livecommercial"
-    ],
+    "styles": ["livecommercial"],
     "roles": []
   },
   {
@@ -126,9 +116,7 @@
   {
     "name": "zh-CN-XiaomengNeural",
     "label": "zh-CN – 晓梦",
-    "styles": [
-      "chat"
-    ],
+    "styles": ["chat"],
     "roles": []
   },
   {
@@ -174,20 +162,13 @@
   {
     "name": "zh-CN-XiaoruiNeural",
     "label": "zh-CN – 晓睿",
-    "styles": [
-      "calm",
-      "fearful",
-      "angry",
-      "sad"
-    ],
+    "styles": ["calm", "fearful", "angry", "sad"],
     "roles": []
   },
   {
     "name": "zh-CN-XiaoshuangNeural",
     "label": "zh-CN – 晓双",
-    "styles": [
-      "chat"
-    ],
+    "styles": ["chat"],
     "roles": []
   },
   {
@@ -231,36 +212,19 @@
   {
     "name": "zh-CN-XiaozhenNeural",
     "label": "zh-CN – 晓甄",
-    "styles": [
-      "angry",
-      "disgruntled",
-      "cheerful",
-      "fearful",
-      "sad",
-      "serious"
-    ],
+    "styles": ["angry", "disgruntled", "cheerful", "fearful", "sad", "serious"],
     "roles": []
   },
   {
     "name": "zh-CN-YunfengNeural",
     "label": "zh-CN – 云枫",
-    "styles": [
-      "angry",
-      "disgruntled",
-      "cheerful",
-      "fearful",
-      "sad",
-      "serious",
-      "depressed"
-    ],
+    "styles": ["angry", "disgruntled", "cheerful", "fearful", "sad", "serious", "depressed"],
     "roles": []
   },
   {
     "name": "zh-CN-YunhaoNeural",
     "label": "zh-CN – 云皓",
-    "styles": [
-      "advertisement-upbeat"
-    ],
+    "styles": ["advertisement-upbeat"],
     "roles": []
   },
   {
@@ -272,13 +236,7 @@
   {
     "name": "zh-CN-YunxiaNeural",
     "label": "zh-CN – 云夏",
-    "styles": [
-      "calm",
-      "fearful",
-      "cheerful",
-      "angry",
-      "sad"
-    ],
+    "styles": ["calm", "fearful", "cheerful", "angry", "sad"],
     "roles": []
   },
   {
@@ -331,10 +289,7 @@
       "depressed",
       "documentary-narration"
     ],
-    "roles": [
-      "OlderAdultMale",
-      "SeniorMale"
-    ]
+    "roles": ["OlderAdultMale", "SeniorMale"]
   },
   {
     "name": "zh-CN-YunfanMultilingualNeural",

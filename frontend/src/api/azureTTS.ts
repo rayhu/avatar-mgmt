@@ -5,16 +5,34 @@ const SPEECH_KEY = import.meta.env.VITE_AZURE_SPEECH_KEY;
 const SPEECH_REGION = import.meta.env.VITE_AZURE_SPEECH_REGION;
 
 const visemeName: Record<number, string> = {
-  0: 'Silence', 1: 'AE', 2: 'AA', 3: 'AO', 4: 'EH', 5: 'ER',
-  6: 'IY', 7: 'UW', 8: 'OW', 9: 'AW', 10: 'OY', 11: 'AY',
-  12: 'HH', 13: 'R', 14: 'L', 15: 'S/Z', 16: 'SH/CH',
-  17: 'TH', 18: 'F/V', 19: 'D/T/N', 20: 'K/G', 21: 'P/B/M',
+  0: 'Silence',
+  1: 'AE',
+  2: 'AA',
+  3: 'AO',
+  4: 'EH',
+  5: 'ER',
+  6: 'IY',
+  7: 'UW',
+  8: 'OW',
+  9: 'AW',
+  10: 'OY',
+  11: 'AY',
+  12: 'HH',
+  13: 'R',
+  14: 'L',
+  15: 'S/Z',
+  16: 'SH/CH',
+  17: 'TH',
+  18: 'F/V',
+  19: 'D/T/N',
+  20: 'K/G',
+  21: 'P/B/M',
 };
 
 const timeline: { id: number; t: number }[] = [];
 
-function handleViseme(id:number, t:number){
-  timeline.push({id, t});
+function handleViseme(id: number, t: number) {
+  timeline.push({ id, t });
   // 调 UI 组件更新
 }
 
@@ -68,7 +86,6 @@ export async function synthesizeSpeech(
       .replace(/<speak[\s\S]*?>/, '')
       .replace(/<\/speak>/, '')
       .trim();
-
 
     const hasVoice = /<voice[\s>]/i.test(inner);
     let processed = inner;

@@ -1,1 +1,9 @@
-npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Stop on first failure
+set -e
+
+# Lint staged files (ESLint + Prettier handled in lint-staged config)
+# Using --no-install avoids automatic npm install in CI hooks
+npx --no-install lint-staged

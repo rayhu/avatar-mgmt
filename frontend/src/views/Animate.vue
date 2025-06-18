@@ -173,7 +173,7 @@
           <button class="control-btn" @click="onGenerateSSML">
             {{ t('animate.timeline.generateSSML') }}
           </button>
-          <button class="control-btn danger" @click="onClearSSML" style="margin-left: 8px;">
+          <button class="control-btn danger" @click="onClearSSML" style="margin-left: 8px">
             {{ t('animate.timeline.clearEmotionTags') }}
           </button>
 
@@ -184,8 +184,14 @@
           <div class="form-group">
             <label>{{ t('animate.voice') }}</label>
             <select v-model="selectedVoice" class="form-control">
-              <option v-for="voice in filteredVoices" :key="voice.name" :value="voice.name" :title="voice.styles ? voice.styles.join(', ') : ''">
-                {{ voice.label }}{{ voice.styles && voice.styles.length ? ' (' + voice.styles.length + ')' : '' }}
+              <option
+                v-for="voice in filteredVoices"
+                :key="voice.name"
+                :value="voice.name"
+                :title="voice.styles ? voice.styles.join(', ') : ''"
+              >
+                {{ voice.label
+                }}{{ voice.styles && voice.styles.length ? ' (' + voice.styles.length + ')' : '' }}
               </option>
             </select>
           </div>
