@@ -116,6 +116,20 @@ yarn dev
 npx vercel --prod
 ```
 
+### SSL 证书配置
+
+对于自托管部署，项目支持 Let's Encrypt SSL 证书自动配置：
+
+```bash
+# 配置 SSL 证书
+./init-letsencrypt.sh your-domain.com your-email@domain.com
+
+# 启动生产服务
+docker compose -f docker-compose.prod.yml up -d
+```
+
+详细配置说明请参考 [SSL 配置文档](./docs/ssl-setup.md)。
+
 ## 🔧 服务管理 (Service Management)
 
 ### 后端服务
@@ -134,4 +148,7 @@ docker-compose down      # 停止并清理容器
 
 - [前端开发文档](./frontend/README.md)
 - [API 文档](https://amis-avatar-mgmt.vercel.app/docs)
+- [API Server 文档](./docs/api-server.md)
+- [SSL 配置文档](./docs/ssl-setup.md)
+- [部署指南](./docs/deployment.md)
 
