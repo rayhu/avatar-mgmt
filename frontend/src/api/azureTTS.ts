@@ -34,10 +34,8 @@ export async function synthesizeSpeech(
 
   const speechConfig = sdk.SpeechConfig.fromSubscription(SPEECH_KEY, SPEECH_REGION);
   speechConfig.speechSynthesisVoiceName = voice;
-  speechConfig.setProperty(
-    sdk.PropertyId.SpeechServiceConnection_SynthesisVisemeEvent,
-    'true',
-  );
+  // Enable viseme events (string key avoids TS enum mismatch in SDK typings)
+  speechConfig.setProperty('speech.synthesis.viseme.enabled', 'true');
 
   const pullStream = sdk.AudioOutputStream.createPullStream();
   const audioConfig = sdk.AudioConfig.fromStreamOutput(pullStream);
@@ -117,6 +115,7 @@ export async function synthesizeSpeech(
 export interface VoiceOption {
   name: string;
   label: string;
+  styles?: string[];
 }
 
 // 静态语音列表：如需完整列表可以让后端代理 Azure /voices/list
@@ -127,7 +126,53 @@ export const availableVoices: VoiceOption[] = [
   { name: 'zh-CN-YunyangNeural', label: 'Yunyang – 中文男声' },
 ];
 
-// In local dev we skip dynamic voice list fetching to avoid exposing keys
+// Azure REST voices list item (subset of fields we need)
+interface AzureVoiceApiItem {
+  ShortName: string;
+  Name: string;
+  Locale: string;
+  LocalName: string;
+}
+
+/**
+ * Fetch full voices list from Azure TTS REST endpoint.
+ * 如果浏览器因 CORS 或 key 安全性限制请求失败，将回退到静态列表。
+ */
 export async function fetchVoices(): Promise<VoiceOption[]> {
+  // 1) Try local JSON shipped via /public
+  try {
+    const local = await fetch('/azure-voices-zh.json');
+    if (local.ok) {
+      const json: { name: string; label: string; styles?: string[] }[] = await local.json();
+      return json.map((v) => ({ name: v.name, label: v.label, styles: v.styles }));
+    }
+  } catch (e) {
+    /* ignore – will fallback */
+  }
+
+  // 2) Try Azure REST (only in dev when key可用)
+  if (SPEECH_KEY && SPEECH_REGION) {
+    try {
+      const endpoint = `https://${SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
+      const res = await fetch(endpoint, {
+        headers: {
+          'Ocp-Apim-Subscription-Key': SPEECH_KEY,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (res.ok) {
+        const data: AzureVoiceApiItem[] = await res.json();
+        return data.map((v) => ({
+          name: v.ShortName || v.Name,
+          label: `${v.Locale} – ${v.LocalName}`,
+        }));
+      }
+    } catch (err) {
+      console.warn('[azureTTS] Azure voices list fetch failed:', err);
+    }
+  }
+
+  // 3) Fallback to hardcoded subset
+  console.warn('[azureTTS] Falling back to static voices list');
   return availableVoices;
 }

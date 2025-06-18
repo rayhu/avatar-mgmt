@@ -1,0 +1,357 @@
+[
+  {
+    "name": "zh-CN-XiaoxiaoNeural",
+    "label": "zh-CN – 晓晓",
+    "styles": [
+      "assistant",
+      "chat",
+      "customerservice",
+      "newscast",
+      "affectionate",
+      "angry",
+      "calm",
+      "cheerful",
+      "disgruntled",
+      "fearful",
+      "gentle",
+      "lyrical",
+      "sad",
+      "serious",
+      "poetry-reading",
+      "friendly",
+      "chat-casual",
+      "whispering",
+      "sorry",
+      "excited"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunxiNeural",
+    "label": "zh-CN – 云希",
+    "styles": [
+      "narration-relaxed",
+      "embarrassed",
+      "fearful",
+      "cheerful",
+      "disgruntled",
+      "serious",
+      "angry",
+      "sad",
+      "depressed",
+      "chat",
+      "assistant",
+      "newscast"
+    ],
+    "roles": [
+      "Narrator",
+      "YoungAdultMale",
+      "Boy"
+    ]
+  },
+  {
+    "name": "zh-CN-YunjianNeural",
+    "label": "zh-CN – 云健",
+    "styles": [
+      "narration-relaxed",
+      "sports-commentary",
+      "sports-commentary-excited",
+      "angry",
+      "disgruntled",
+      "cheerful",
+      "sad",
+      "serious",
+      "depressed",
+      "documentary-narration"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoyiNeural",
+    "label": "zh-CN – 晓伊",
+    "styles": [
+      "angry",
+      "disgruntled",
+      "affectionate",
+      "cheerful",
+      "fearful",
+      "sad",
+      "embarrassed",
+      "serious",
+      "gentle"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunyangNeural",
+    "label": "zh-CN – 云扬",
+    "styles": [
+      "customerservice",
+      "narration-professional",
+      "newscast-casual"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaochenNeural",
+    "label": "zh-CN – 晓辰",
+    "styles": [
+      "livecommercial"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaochenMultilingualNeural",
+    "label": "zh-CN – 晓辰 多语言",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaohanNeural",
+    "label": "zh-CN – 晓涵",
+    "styles": [
+      "calm",
+      "fearful",
+      "cheerful",
+      "disgruntled",
+      "serious",
+      "angry",
+      "sad",
+      "gentle",
+      "affectionate",
+      "embarrassed"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaomengNeural",
+    "label": "zh-CN – 晓梦",
+    "styles": [
+      "chat"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaomoNeural",
+    "label": "zh-CN – 晓墨",
+    "styles": [
+      "embarrassed",
+      "calm",
+      "fearful",
+      "cheerful",
+      "disgruntled",
+      "serious",
+      "angry",
+      "sad",
+      "depressed",
+      "affectionate",
+      "gentle",
+      "envious"
+    ],
+    "roles": [
+      "YoungAdultFemale",
+      "YoungAdultMale",
+      "OlderAdultFemale",
+      "OlderAdultMale",
+      "SeniorFemale",
+      "SeniorMale",
+      "Girl",
+      "Boy"
+    ]
+  },
+  {
+    "name": "zh-CN-XiaoqiuNeural",
+    "label": "zh-CN – 晓秋",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaorouNeural",
+    "label": "zh-CN – 晓柔",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoruiNeural",
+    "label": "zh-CN – 晓睿",
+    "styles": [
+      "calm",
+      "fearful",
+      "angry",
+      "sad"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoshuangNeural",
+    "label": "zh-CN – 晓双",
+    "styles": [
+      "chat"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoxiaoDialectsNeural",
+    "label": "zh-CN – 晓晓 方言",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoxiaoMultilingualNeural",
+    "label": "zh-CN – 晓晓 多语言",
+    "styles": [
+      "affectionate",
+      "cheerful",
+      "empathetic",
+      "excited",
+      "poetry-reading",
+      "sorry",
+      "story"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoyanNeural",
+    "label": "zh-CN – 晓颜",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoyouNeural",
+    "label": "zh-CN – 晓悠",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaoyuMultilingualNeural",
+    "label": "zh-CN – 晓宇 多语言",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-XiaozhenNeural",
+    "label": "zh-CN – 晓甄",
+    "styles": [
+      "angry",
+      "disgruntled",
+      "cheerful",
+      "fearful",
+      "sad",
+      "serious"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunfengNeural",
+    "label": "zh-CN – 云枫",
+    "styles": [
+      "angry",
+      "disgruntled",
+      "cheerful",
+      "fearful",
+      "sad",
+      "serious",
+      "depressed"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunhaoNeural",
+    "label": "zh-CN – 云皓",
+    "styles": [
+      "advertisement-upbeat"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunjieNeural",
+    "label": "zh-CN – 云杰",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunxiaNeural",
+    "label": "zh-CN – 云夏",
+    "styles": [
+      "calm",
+      "fearful",
+      "cheerful",
+      "angry",
+      "sad"
+    ],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunxiaoMultilingualNeural",
+    "label": "zh-CN – Yunxiao Multilingual",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunyeNeural",
+    "label": "zh-CN – 云野",
+    "styles": [
+      "embarrassed",
+      "calm",
+      "fearful",
+      "cheerful",
+      "disgruntled",
+      "serious",
+      "angry",
+      "sad"
+    ],
+    "roles": [
+      "YoungAdultFemale",
+      "YoungAdultMale",
+      "OlderAdultFemale",
+      "OlderAdultMale",
+      "SeniorFemale",
+      "SeniorMale",
+      "Girl",
+      "Boy"
+    ]
+  },
+  {
+    "name": "zh-CN-YunyiMultilingualNeural",
+    "label": "zh-CN – 云逸 多语言",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-YunzeNeural",
+    "label": "zh-CN – 云泽",
+    "styles": [
+      "calm",
+      "fearful",
+      "cheerful",
+      "disgruntled",
+      "serious",
+      "angry",
+      "sad",
+      "depressed",
+      "documentary-narration"
+    ],
+    "roles": [
+      "OlderAdultMale",
+      "SeniorMale"
+    ]
+  },
+  {
+    "name": "zh-CN-YunfanMultilingualNeural",
+    "label": "zh-CN – Yunfan Multilingual",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-Xiaochen:DragonHDLatestNeural",
+    "label": "zh-CN – Xiaochen Dragon HD Latest",
+    "styles": [],
+    "roles": []
+  },
+  {
+    "name": "zh-CN-Yunfan:DragonHDLatestNeural",
+    "label": "zh-CN – Yunfan Dragon HD Latest",
+    "styles": [],
+    "roles": []
+  }
+]

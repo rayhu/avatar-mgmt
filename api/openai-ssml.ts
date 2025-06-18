@@ -1,4 +1,168 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import fs from 'fs';
+import path from 'path';
+
+// Azure TTS 各 voice 支持的情绪标签（精简示例，可按需补充）
+const VOICE_STYLES: Record<string, string[]> = {
+  'zh-CN-XiaochenNeural': ['livecommercial'],
+  'zh-CN-XiaohanNeural': [
+    'affectionate',
+    'angry',
+    'calm',
+    'cheerful',
+    'disgruntled',
+    'embarrassed',
+    'fearful',
+    'gentle',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-XiaomengNeural': ['chat'],
+  'zh-CN-XiaomoNeural': [
+    'affectionate',
+    'angry',
+    'calm',
+    'cheerful',
+    'depressed',
+    'disgruntled',
+    'embarrassed',
+    'envious',
+    'fearful',
+    'gentle',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-XiaoruiNeural': ['angry', 'calm', 'fearful', 'sad'],
+  'zh-CN-XiaoshuangNeural': ['chat'],
+  'zh-CN-XiaoxiaoMultilingualNeural': [
+    'affectionate',
+    'cheerful',
+    'empathetic',
+    'excited',
+    'poetry-reading',
+    'sorry',
+    'story',
+  ],
+  'zh-CN-XiaoxiaoNeural': [
+    'affectionate',
+    'angry',
+    'assistant',
+    'calm',
+    'chat',
+    'chat-casual',
+    'cheerful',
+    'customerservice',
+    'disgruntled',
+    'excited',
+    'fearful',
+    'friendly',
+    'gentle',
+    'lyrical',
+    'newscast',
+    'poetry-reading',
+    'sad',
+    'serious',
+    'sorry',
+    'whispering',
+  ],
+  'zh-CN-XiaoyiNeural': [
+    'affectionate',
+    'angry',
+    'cheerful',
+    'disgruntled',
+    'embarrassed',
+    'fearful',
+    'gentle',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-XiaozhenNeural': [
+    'angry',
+    'cheerful',
+    'disgruntled',
+    'fearful',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-YunfengNeural': [
+    'angry',
+    'cheerful',
+    'depressed',
+    'disgruntled',
+    'fearful',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-YunhaoNeural2': ['advertisement-upbeat'],
+  'zh-CN-YunjianNeural': [
+    'angry',
+    'cheerful',
+    'depressed',
+    'disgruntled',
+    'documentary-narration',
+    'narration-relaxed',
+    'sad',
+    'serious',
+    'sports-commentary',
+    'sports-commentary-excited',
+  ],
+  'zh-CN-YunxiaNeural': ['angry', 'calm', 'cheerful', 'fearful', 'sad'],
+  'zh-CN-YunxiNeural': [
+    'angry',
+    'assistant',
+    'chat',
+    'cheerful',
+    'depressed',
+    'disgruntled',
+    'embarrassed',
+    'fearful',
+    'narration-relaxed',
+    'newscast',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-YunyangNeural': [
+    'customerservice',
+    'narration-professional',
+    'newscast-casual',
+  ],
+  'zh-CN-YunyeNeural': [
+    'angry',
+    'calm',
+    'cheerful',
+    'disgruntled',
+    'embarrassed',
+    'fearful',
+    'sad',
+    'serious',
+  ],
+  'zh-CN-YunzeNeural': [
+    'angry',
+    'calm',
+    'cheerful',
+    'depressed',
+    'disgruntled',
+    'documentary-narration',
+    'fearful',
+    'sad',
+    'serious',
+  ],
+};
+
+// 尝试从本地 JSON 文件加载 voice → styles 映射，成功后覆盖默认 VOICE_STYLES
+try {
+  const jsonPath = path.join(process.cwd(), 'frontend', 'public', 'azure-voices-zh.json');
+  const raw = fs.readFileSync(jsonPath, 'utf-8');
+  const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
+  list.forEach((v) => {
+    VOICE_STYLES[v.name] = v.styles ?? [];
+  });
+  // eslint-disable-next-line no-console
+  console.log('[openai-ssml] Loaded voice styles from azure-voices-zh.json');
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.warn('[openai-ssml] Failed to load azure-voices-zh.json, fallback to static map.', err);
+}
 
 // POST /api/openai-ssml
 // Body: { text: string; voice?: string; model?: string }
@@ -26,17 +190,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'OPENAI_API_KEY is not configured.' });
     }
 
-    const systemPrompt = [
-      'You are an expert speech-synthesis engineer helping me create Azure TTS SSML. Follow **ALL** rules:',
-      '1. Use the <speak> root element with xmlns="http://www.w3.org/2001/10/synthesis" and xmlns:mstts="http://www.w3.org/2001/mstts".',
-      '2. Wrap the whole content in exactly ONE <voice name="{voice}"> tag. Substitute {voice} with the provided voice name.',
-      '3. Analyse the meaning and sentiment of the text; apply an appropriate Azure style via <mstts:express-as style="…"> to convey that emotion. Examples: cheerful, sad, angry, excited, hopeful, assistant, ...',
-      '   • If sentiment is mixed, you MAY split sentences and wrap each with its own express-as style.',
-      '   • If no strong emotion detected, default to cheerful (warm ENFJ tone).',
-      '   • Keep overall rate="medium", pitch within ±3st unless explicitly needed.',
-      '4. Use <prosody>, <emphasis>, and <break time="300ms"/> to enhance naturalness.',
-      '5. Do **NOT** output code fences, markdown, or explanations—return ONLY the final SSML XML.',
-    ].join('\n');
+    // 根据当前 voice 取支持的情绪列表，若未知则使用通用集合
+    const allowedStyles = VOICE_STYLES[voice] ?? [
+      'cheerful',
+      'sad',
+      'angry',
+      'excited',
+      'hopeful',
+      'assistant',
+    ];
+
+    const styleList = allowedStyles.join(', ');
+
+    const systemPrompt = `You are an expert speech-synthesis engineer helping me create Azure TTS SSML. Follow **ALL** rules:
+1. Use the <speak> root element with xmlns="http://www.w3.org/2001/10/synthesis" and xmlns:mstts="http://www.w3.org/2001/mstts".
+2. Wrap the whole content in exactly ONE <voice name="${voice}"> tag.
+3. Analyse the meaning and sentiment of the text and apply Azure style via <mstts:express-as>:
+   • Allowed styles for ${voice}: ${styleList}.
+   • Use exactly one style per sentence or split sentences to enhance contrast.
+   • ALWAYS include styledegree="1" or "2" (use 2 for strong emotions like angry or excited).
+   • If no strong emotion detected, default to cheerful with styledegree="1".
+4. Combine with <prosody> (rate/pitch) and <emphasis> to reinforce emotion;
+   e.g. sad → pitch="-2st" rate="slow", excited → pitch="+3st" rate="fast".
+5. Insert <break time="500ms"/> between sentences when emotion changes.
+6. Return ONLY valid SSML XML—NO markdown, code fences, or explanations.
+
+Example:
+<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts">
+  <voice name="${voice}">
+    <mstts:express-as style="cheerful" styledegree="2">
+      大家好！
+    </mstts:express-as>
+    <break time="500ms"/>
+    <mstts:express-as style="sad" styledegree="1">
+      很抱歉让您久等了。
+    </mstts:express-as>
+  </voice>
+</speak>`;
 
     const messages = [
       { role: 'system', content: systemPrompt },
