@@ -26,7 +26,7 @@ const avatarHandler = async (req: Request, res: Response) => {
     // 假设每个 avatar 有 file 字段存储文件 id
     const avatars = (response.data.data || []).map((avatar: any) => ({
       ...avatar,
-      previewUrl: avatar.preview ? `${BASE_URL}/assets/${avatar.preview}` : undefined,
+      previewUrl: avatar.preview ? `${BASE_URL}/directus/${avatar.preview}` : undefined,
     }));
 
     res.json(avatars);

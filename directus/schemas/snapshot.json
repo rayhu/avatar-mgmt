@@ -80,30 +80,65 @@
     },
     {
       "collection": "avatars",
-      "field": "main_file",
-      "type": "uuid",
-      "meta": {
-        "interface": "file",
-        "note": "3D、2D、视频等主文件"
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "preview_image",
-      "type": "uuid",
-      "meta": {
-        "interface": "file",
-        "note": "形象封面图片"
-      }
-    },
-    {
-      "collection": "avatars",
       "field": "tags",
       "type": "json",
       "meta": {
         "interface": "tags"
       }
+    },
+    {
+      "collection": "avatars",
+      "field": "glb_file",
+      "type": "uuid",
+      "meta": {
+        "interface": "file",
+        "special": ["file"]
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "preview",
+      "type": "uuid",
+      "meta": {
+        "interface": "file-image",
+        "special": ["file"]
+      }
     }
   ],
-  "relations": []
+  "relations": [
+    {
+      "collection": "avatars",
+      "field": "glb_file",
+      "related_collection": "directus_files",
+      "meta": {
+        "many_collection": "avatars",
+        "many_field": "glb_file",
+        "one_collection": "directus_files",
+        "one_deselect_action": "nullify"
+      },
+      "schema": {
+        "table": "avatars",
+        "column": "glb_file",
+        "foreign_key_table": "directus_files",
+        "foreign_key_column": "id"
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "preview",
+      "related_collection": "directus_files",
+      "meta": {
+        "many_collection": "avatars",
+        "many_field": "preview",
+        "one_collection": "directus_files",
+        "one_deselect_action": "nullify"
+      },
+      "schema": {
+        "table": "avatars",
+        "column": "preview",
+        "foreign_key_table": "directus_files",
+        "foreign_key_column": "id"
+      }
+    }
+  ]
 }
