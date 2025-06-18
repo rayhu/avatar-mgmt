@@ -1,7 +1,10 @@
+import 'dotenv/config';
+
+
 import express from 'express';
 
-import openaiHandler from '../api/openai-ssml';
-import azureTTSHandler from '../api/azure-tts';
+import openaiHandler from './handlers/openai-ssml';
+import azureTTSHandler from './handlers/azure-tts';
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
