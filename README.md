@@ -23,10 +23,34 @@ git clone [repository-url]
 cd avatar-mgmt
 ```
 
-2. 启动后端服务
+2. 启动后端服务（Docker Compose）
+
+本仓库提供两套 Compose 文件：
+
+| 场景 | 文件 | 常用启动命令 |
+| ---- | ----- | ------------- |
+| 本地开发 | `docker-compose.dev.yml` | `docker compose -f docker-compose.dev.yml up -d --build` |
+| 生产/自托管 | `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up -d --build` |
+
+> 两套文件均使用同一份 `.env`，差异主要在镜像体积、调试端口映射以及是否启用 Nginx 反向代理。
+
+例如本地调试：
 ```bash
-docker-compose up -d
+cp .env.example .env   # 根据需要编辑变量
+docker compose -f docker-compose.dev.yml up -d --build
 ```
+
+停止并清理：
+```bash
+docker compose -f docker-compose.dev.yml down -v   # 如需保留数据去掉 -v
+```
+
+生产服务器部署：
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+更多参数与端口说明见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 
 3. 启动前端开发服务器
 ```bash

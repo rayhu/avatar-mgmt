@@ -4,6 +4,11 @@
   "scripts": {
     "prepare": "husky"
   },
+  "engines": {
+    "node": ">=22.0.0",
+    "yarn": "1.x"
+  },
+  "packageManager": "yarn@1.22.22",
   "lint-staged": {
     "frontend/**/*.{js,ts,vue}": [
       "cd frontend && yarn lint",
@@ -17,5 +22,9 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
     "@vercel/node": "^3.0.2"
+  },
+  "volta": {
+    "node": "22.16.0",
+    "yarn": "1.22.22"
   }
 }

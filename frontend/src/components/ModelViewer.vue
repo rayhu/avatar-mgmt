@@ -20,7 +20,7 @@ const container = ref<HTMLElement | null>(null);
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
-let controls: OrbitControls;
+let controls: InstanceType<typeof OrbitControls>;
 let mixer: THREE.AnimationMixer | null = null;
 let model: THREE.Group | null = null;
 let clock = new THREE.Clock();
