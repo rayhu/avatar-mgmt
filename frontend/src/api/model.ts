@@ -2,13 +2,16 @@ import type { Model } from '../types/model';
 
 export async function getModels(): Promise<Model[]> {
   try {
-    const response = await fetch('/api/models');
-    if (!response.ok) {
-      throw new Error('Failed to fetch models');
+    const res = await fetch('/api/models');
+    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+      return await res.json();
     }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching models:', error);
+    throw new Error('invalid response');
+  } catch (e) {
+    console.warn('[model] /api/models unavailable, fallback to built-in list');
     return [];
+    // return [
+    //   { id: 'default', name: 'Default Avatar', file: '/models/default.glb', status: 'ready' },
+    // ] as Model[];
   }
 }

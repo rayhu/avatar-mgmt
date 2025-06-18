@@ -1,9 +1,10 @@
-import { createI18n as _createI18n } from 'vue-i18n';
-import zhCN from './zh-CN';
+// central locale aggregator
+
+import zh from './zh-CN';
 import en from './en';
 
 const messages = {
-  'zh-CN': zhCN,
+  'zh-CN': zh,
   en,
 } as const;
 

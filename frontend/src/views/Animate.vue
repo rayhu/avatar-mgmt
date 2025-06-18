@@ -173,6 +173,9 @@
           <button class="control-btn" @click="onGenerateSSML">
             {{ t('animate.timeline.generateSSML') }}
           </button>
+          <button class="control-btn danger" @click="onClearSSML" style="margin-left: 8px;">
+            {{ t('animate.timeline.clearEmotionTags') }}
+          </button>
 
           <!-- SSML 编辑器 -->
           <textarea v-model="ssml" rows="8" class="ssml-textarea" />
@@ -343,11 +346,9 @@ async function loadVoices() {
 onMounted(() => {
   loadVoices();
   fetchReadyModels();
-  // 监听 audio 播放事件
+  // 不再使用老的 handleAudioPlay
   nextTick(() => {
-    if (audioPlayer.value) {
-      audioPlayer.value.addEventListener('play', handleAudioPlay);
-    }
+    /* no-op */
   });
 });
 
@@ -395,6 +396,9 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 const ssml = ref(''); // 存放生成的 SSML
 const isGeneratingSSML = ref(false); // 按钮 loading 状态
 
+// Viseme 时间轴缓存 {id, t}
+const visemeTimeline: { id: number; t: number }[] = [];
+
 // Azure 语音合成依旧按构建模式区分：生产默认走后端代理
 const useFrontendAzure = Boolean(import.meta.env.VITE_AZURE_SPEECH_KEY);
 const synthesizeSpeech = useFrontendAzure ? synthesizeSpeechFront : synthesizeSpeechBackend;
@@ -404,22 +408,8 @@ const useFrontendOpenAI = Boolean(import.meta.env.VITE_OPENAI_API_KEY);
 const generateSSML = useFrontendOpenAI ? generateSSMLFront : generateSSMLBackend;
 
 onUnmounted(() => {
-  if (audioPlayer.value) {
-    audioPlayer.value.removeEventListener('play', handleAudioPlay);
-  }
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop();
-  }
-  if (recordedVideoUrl.value) {
-    URL.revokeObjectURL(recordedVideoUrl.value);
-  }
+  // no play listener cleanup needed
 });
-
-function handleAudioPlay() {
-  if (audioPlayer.value) {
-    startTimelineAnimation(audioPlayer.value);
-  }
-}
 
 async function onAnimate() {
   if (!text.value.trim()) {
@@ -438,6 +428,7 @@ async function onAnimate() {
       ssml.value || text.value,
       selectedVoice.value,
       Boolean(ssml.value),
+      handleViseme,
     );
     audioUrl.value = URL.createObjectURL(audioBlob);
 
@@ -448,6 +439,10 @@ async function onAnimate() {
         audio.currentTime = 0;
         audio.play();
         startTimelineAnimation(audio);
+
+        // 开始口型同步
+        visemeTimeline.length = 0; // 清空旧数据
+        syncVisemeWithAudio(audio);
       }
     });
   } catch (error) {
@@ -896,6 +891,10 @@ async function onGenerateSSML() {
   }
 }
 
+function onClearSSML() {
+  ssml.value = '';
+}
+
 // 典型情绪示例
 interface SampleSentence {
   emotion: string;
@@ -911,6 +910,30 @@ const samples: SampleSentence[] = [
 
 function applySample(sampleText: string) {
   text.value = sampleText;
+}
+
+function handleViseme(id: number, t: number, _anim?: string) {
+  // 将口型事件发送给 ModelViewer
+  if (modelViewer.value && typeof (modelViewer.value as any).updateViseme === 'function') {
+    (modelViewer.value as any).updateViseme(id);
+  }
+
+  // 记录到时间轴
+  visemeTimeline.push({ id, t });
+}
+
+// 播放器启动时根据 currentTime 同步 viseme
+function syncVisemeWithAudio(audio: HTMLAudioElement) {
+  let idx = 0;
+  function tick() {
+    const now = audio.currentTime * 1000; // ms
+    while (idx < visemeTimeline.length && now >= visemeTimeline[idx].t) {
+      const { id, t } = visemeTimeline[idx++];
+      console.log(`[SYNC] ${now.toFixed(0)}ms ▶ viseme ${id} (理想 ${t}ms)`);
+    }
+    if (!audio.paused && idx < visemeTimeline.length) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
 </script>
 

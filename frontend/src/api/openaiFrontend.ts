@@ -8,7 +8,7 @@ export async function generateSSMLFront(text: string, voice: string) {
   - 使用唯一的 <voice name="${voice}"> 包裹全部正文。
   - 先分析文本所表达的情绪（开心、悲伤、愤怒、激动、希望……），再用 <mstts:express-as style="…"> 包裹对应句子或整段。
   - 若情绪不明显，则默认使用 cheerful，保持 ENFJ 风格（积极、鼓励）。
-  - 可结合 <prosody>、<emphasis> 提升表现力；rate="medium"，pitch 范围±1st。
+  - 可结合 <prosody>、<emphasis> 提升表现力；rate="medium"，pitch 范围±2st。pitch 如果是0，写成 +0st 不要写 0st。
   - 合理位置插入 <break time="300ms"/>。
   - 只输出最终 SSML XML，禁止附加说明或 Markdown 代码块。
 
@@ -27,7 +27,7 @@ export async function generateSSMLFront(text: string, voice: string) {
         { role: 'system', content: 'Convert text to Azure SSML' },
         { role: 'user', content: prompt },
       ],
-      temperature: 0.7,
+      temperature: 0.2,
     }),
   });
 
