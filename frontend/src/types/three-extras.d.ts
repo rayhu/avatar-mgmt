@@ -1,7 +1,6 @@
 declare module 'three/examples/jsm/controls/OrbitControls.js' {
   import { OrbitControls as OC } from 'three/examples/jsm/controls/OrbitControls';
-  const OrbitControls: typeof OC;
-  export default OrbitControls;
+  export const OrbitControls: typeof OC;
 }
 
 declare module 'three/examples/jsm/loaders/GLTFLoader.js' {
