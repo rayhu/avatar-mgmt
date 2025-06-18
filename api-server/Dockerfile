@@ -7,8 +7,6 @@ RUN npm install --omit=dev
 
 # Copy api-server source
 COPY api-server .
-# Copy API route handlers
-COPY api ./api
 
 ENV NODE_ENV=production
 CMD ["npm", "start"] 

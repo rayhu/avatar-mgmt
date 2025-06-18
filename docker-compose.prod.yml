@@ -5,7 +5,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env
+      - .env.prod
     environment:
       POSTGRES_DB: directus
     volumes:
@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     env_file:
-      - .env
+      - .env.prod 
     volumes:
       - ./directus/uploads:/directus/uploads
       - ./directus/extensions:/directus/extensions
@@ -35,7 +35,7 @@ services:
       dockerfile: api-server/Dockerfile
     restart: always
     env_file:
-      - .env
+      - .env.prod
     expose:
       - "3000"
     networks:

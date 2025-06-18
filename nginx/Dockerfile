@@ -11,7 +11,7 @@ WORKDIR /app
 # Copy only dependency manifests first for better caching
 COPY frontend/package.json frontend/yarn.lock ./frontend/
 RUN cd frontend \
-    && yarn install --production --non-interactive --network-timeout 100000
+    && yarn install --non-interactive --network-timeout 100000
 
 # Copy source and build
 COPY frontend ./frontend
