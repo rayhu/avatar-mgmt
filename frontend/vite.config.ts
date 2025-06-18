@@ -54,6 +54,11 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      '/assets': {
+        target: 'http://localhost:8055',  // Directus 后端地址
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/assets/, '/assets'),
+      },
     },
   },
   envDir: '.',

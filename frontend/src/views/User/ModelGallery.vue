@@ -12,7 +12,7 @@
       <div class="model-grid">
         <div v-for="model in readyModels" :key="model.id" class="model-card">
           <div class="model-preview">
-            <img :src="model.previewUrl" :alt="model.name" />
+            <ModelCard :preview-url="model.previewUrl" />
           </div>
           <div class="model-info">
             <h3>{{ model.name }}</h3>
@@ -36,12 +36,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ModelGallerySkeleton from '@/components/ModelGallerySkeleton.vue';
-import type { Model } from '@/types/model';
+import ModelGallerySkeleton from '../../components/ModelGallerySkeleton.vue';
+import ModelCard from '../../components/ModelCard.vue';
+import type { Avatar } from '../../types/avatar';
+import { getAvatars } from '../../api/avatars';
 
 const { t } = useI18n();
 
-const readyModels = ref<Model[]>([]);
+const readyModels = ref<Avatar[]>([]);
 const loading = ref(true);
 
 function formatDate(date?: string) {
@@ -49,42 +51,32 @@ function formatDate(date?: string) {
   return new Date(date).toLocaleString();
 }
 
-function viewModel(model: Model) {
+function viewModel(model: Avatar) {
   // TODO: 实现查看模型详情的逻辑
   console.log('View model:', model);
+}
+
+// 获取就绪状态的模型列表
+async function fetchReadyModels() {
+  try {
+    const models = await getAvatars();
+    if (Array.isArray(models)) {
+      readyModels.value = models.filter((model) => model.status === 'ready');
+    } else {
+      console.error('Invalid models data:', models);
+      readyModels.value = [];
+    }
+  } catch (error) {
+    console.error('Failed to fetch models:', error);
+    readyModels.value = [];
+  }
 }
 
 onMounted(async () => {
   try {
     // 模拟API调用延迟
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    // TODO: 实际API调用
-    readyModels.value = [
-      {
-        id: '1',
-        name: '测试模型1',
-        description: '这是一个测试模型',
-        url: '/models/test1.glb',
-        previewUrl: 'https://via.placeholder.com/300x200',
-        status: 'ready',
-        tags: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString(),
-      },
-      {
-        id: '2',
-        name: '测试模型2',
-        description: '这是另一个测试模型',
-        url: '/models/test2.glb',
-        previewUrl: 'https://via.placeholder.com/300x200',
-        status: 'ready',
-        tags: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createTime: new Date().toISOString(),
-      },
-    ];
+    await fetchReadyModels();
   } finally {
     loading.value = false;
   }
@@ -148,12 +140,6 @@ onMounted(async () => {
   height: 200px;
   background: #f8f9fa;
   overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 }
 
 .model-info {

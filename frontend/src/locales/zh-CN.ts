@@ -53,7 +53,7 @@ export default {
     edit: '编辑',
   },
   animate: {
-    title: '动画设置',
+    title: '语音动画导出',
     text: '文本',
     textRequired: '请输入文本',
     textTooLong: '文本长度不能超过180个字符',
@@ -159,7 +159,7 @@ export default {
     },
   },
   test: {
-    title: '动作和表情测试',
+    title: '动作表情测试',
     viewer: {
       title: '动作和表情测试页面',
       animationControl: '动作控制',

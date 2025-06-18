@@ -1,4 +1,4 @@
-export interface Model {
+export interface Avatar {
   id: string;
   name: string;
   description: string;

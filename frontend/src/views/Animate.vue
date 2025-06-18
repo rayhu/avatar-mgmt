@@ -13,7 +13,7 @@
           @click="selectModel(model)"
         >
           <div class="model-preview">
-            <ModelViewer :model-url="model.url" :auto-rotate="true" :show-controls="false" />
+            <ModelCard :preview-url="model.previewUrl" />
           </div>
           <div class="model-info">
             <h4>{{ model.name }}</h4>
@@ -23,7 +23,7 @@
       </div>
       <div v-else class="selected-model">
         <div class="model-preview">
-          <ModelViewer :model-url="selectedModel.url" :auto-rotate="true" :show-controls="false" />
+          <ModelCard :preview-url="selectedModel.previewUrl" />
         </div>
         <div class="model-info">
           <h4>{{ selectedModel.name }}</h4>
@@ -263,6 +263,7 @@ import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
+import ModelCard from '@/components/ModelCard.vue';
 import {
   synthesizeSpeech as synthesizeSpeechFront,
   availableVoices,
@@ -270,8 +271,8 @@ import {
   type VoiceOption,
 } from '@/api/azureTTS';
 import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
-import type { Model } from '@/types/model';
-import { getModels } from '@/api/model';
+import type { Avatar } from '@/types/avatar';
+import { getAvatars } from '@/api/avatars';
 import { generateSSML as generateSSMLBackend } from '@/api/openai';
 import { generateSSMLFront } from '@/api/openaiFrontend';
 
@@ -285,8 +286,8 @@ interface Keyframe {
 
 const { t } = useI18n() as Composer;
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
-const readyModels = ref<Model[]>([]);
-const selectedModel = ref<Model | null>(null);
+const readyModels = ref<Avatar[]>([]);
+const selectedModel = ref<Avatar | null>(null);
 const currentEmotion = ref('');
 const currentAction = ref('Idle');
 const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
@@ -366,7 +367,7 @@ onMounted(() => {
 // 获取就绪状态的模型列表
 async function fetchReadyModels() {
   try {
-    const models = await getModels();
+    const models = await getAvatars();
     if (Array.isArray(models)) {
       readyModels.value = models.filter((model) => model.status === 'ready');
     } else {
@@ -379,7 +380,7 @@ async function fetchReadyModels() {
   }
 }
 // 选择模型
-function selectModel(model: Model) {
+function selectModel(model: Avatar) {
   selectedModel.value = model;
   currentEmotion.value = '';
 }

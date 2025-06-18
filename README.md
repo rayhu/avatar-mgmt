@@ -70,7 +70,7 @@ yarn dev
 - 用户名：admin
 - 密码：admin123
 
-#### 后端 (Backend)
+#### Directus
 - 邮箱：admin@example.com
 - 密码：admin1234
 
