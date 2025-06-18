@@ -50,6 +50,10 @@ docker compose -f docker-compose.dev.yml down -v   # 如需保留数据去掉 -v
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
+先执行 docker compose -f docker-compose.prod.yml build --no-cache
+再执行 docker compose -f docker-compose.prod.yml up -d
+这样的生产环境镜像一定是全新构建的，不会有任何缓存残留。
+
 更多参数与端口说明见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 
 3. 启动前端开发服务器

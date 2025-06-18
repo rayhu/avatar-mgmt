@@ -3,10 +3,10 @@ WORKDIR /app
 
 # Copy api-server package.json for dependencies
 COPY api-server/package.json ./package.json
-RUN npm install --omit=dev
+RUN npm install
 
 # Copy api-server source
 COPY api-server .
 
 ENV NODE_ENV=production
-CMD ["npm", "start"] 
+CMD ["node", "./node_modules/tsx/dist/cli.mjs", "index.ts"] 
