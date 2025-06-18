@@ -327,6 +327,11 @@ const filteredVoices = computed(() => voices.value.filter((v) => v.name.startsWi
 
 const selectedVoice = ref<string>(filteredVoices.value[0]?.name || 'zh-CN-XiaoxiaoNeural');
 
+// 当用户更换语音时，自动清空已生成的 SSML，避免内容与 voice 不匹配
+watch(selectedVoice, () => {
+  ssml.value = '';
+});
+
 // Try to fetch full voices list from Azure when component is mounted
 async function loadVoices() {
   try {
