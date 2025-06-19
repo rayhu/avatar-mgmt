@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  # Nginx Proxy Manager
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'      # HTTP
+      - '443:443'    # HTTPS
+      - '81:81'      # Admin UI
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - internal
+
+  # Database for Nginx Proxy Manager
+  nginx-proxy-manager-db:
+    image: 'jc21/mariadb-aria:latest'
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - internal
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_DB: directus
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  # Directus CMS
+  directus:
+    image: directus/directus:10
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env.prod
+    volumes:
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+      - ./directus/schemas:/directus/schemas
+    expose:
+      - "8055"
+    networks:
+      - internal
+
+  # API Server
+  api:
+    build:
+      context: .
+      dockerfile: api-server/Dockerfile
+    restart: always
+    depends_on:
+      - directus
+    env_file:
+      - .env.prod
+    expose:
+      - "3000"
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge 
