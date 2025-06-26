@@ -10,8 +10,8 @@ services:
       - '443:443'    # HTTPS
       - '81:81'      # Admin UI
     volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - ./jc21/data:/data
+      - ./jc21/letsencrypt:/etc/letsencrypt
     networks:
       - internal
 
@@ -25,7 +25,7 @@ services:
       MYSQL_USER: 'npm'
       MYSQL_PASSWORD: 'npm'
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - ./jc21/data/mysql:/var/lib/mysql
     networks:
       - internal
 

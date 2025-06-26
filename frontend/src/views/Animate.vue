@@ -916,8 +916,8 @@ interface SampleSentence {
 const samples: SampleSentence[] = [
   { emotion: 'empathetic', text: '非常抱歉让您有这样的体验' },
   { emotion: 'cheerful', text: '哇，太开心啦～感谢您喜欢我们的服务。' },
-  { emotion: 'assistant', text: '别担心，袋袋来啦～我们一起查一下您的情况吧。' },
-  { emotion: 'hopeful', text: '今天也要元气满满哦～袋袋祝您天天开心，一切顺利！' },
+  { emotion: 'assistant', text: '别担心，我来啦～我们一起查一下您的情况吧。' },
+  { emotion: 'hopeful', text: '今天也要元气满满哦～祝您天天开心，一切顺利！' },
 ];
 
 function applySample(sampleText: string) {
