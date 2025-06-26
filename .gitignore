@@ -201,3 +201,7 @@ public/models/*.glb
 public/models/*.gltf
 public/models/*.bin
 .vercel
+
+/jc21/**/*
+!/jc21/data/**/*
+!/jc21/letsencrypt/**/*

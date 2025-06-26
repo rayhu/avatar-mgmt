@@ -25,14 +25,15 @@ cd avatar-mgmt
 
 2. 启动后端服务（Docker Compose）
 
-本仓库提供两套 Compose 文件：
+本仓库提供三套 Compose 文件：
 
-| 场景 | 文件 | 常用启动命令 |
-| ---- | ----- | ------------- |
-| 本地开发 | `docker-compose.dev.yml` | `docker compose -f docker-compose.dev.yml up -d --build` |
-| 生产/自托管 | `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up -d --build` |
+| 场景 | 文件 | 常用启动命令 | 说明 |
+| ---- | ----- | ------------- | ---- |
+| 本地开发 | `docker-compose.dev.yml` | `docker compose -f docker-compose.dev.yml up -d --build` | 开发调试用 |
+| 生产/自托管 | `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up -d --build` | 手动 Nginx 配置 |
+| **简化生产** | `docker-compose.prod-simple.yml` | `./deploy-daidai-simple.sh` | **推荐：使用 Nginx Proxy Manager** |
 
-> 两套文件均使用同一份 `.env`，差异主要在镜像体积、调试端口映射以及是否启用 Nginx 反向代理。
+> 三套文件均使用同一份 `.env`，差异主要在镜像体积、调试端口映射以及反向代理配置方式。
 
 例如本地调试：
 ```bash
@@ -45,8 +46,13 @@ docker compose -f docker-compose.dev.yml up -d --build
 docker compose -f docker-compose.dev.yml down -v   # 如需保留数据去掉 -v
 ```
 
-生产服务器部署：
+生产服务器部署（推荐简化方案）：
 ```bash
+# 一键部署（使用 Nginx Proxy Manager）
+./deploy-daidai-simple.sh
+
+# 或手动部署（传统 Nginx 配置）
+docker compose -f docker-compose.prod.yml down
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
@@ -116,6 +122,50 @@ yarn dev
 npx vercel --prod
 ```
 
+### 自托管部署选项
+
+#### 🎯 推荐：简化部署（Nginx Proxy Manager）
+
+使用图形化界面管理反向代理和 SSL 证书，大大简化配置复杂度：
+
+```bash
+# 一键部署
+./deploy-daidai-simple.sh
+
+# 访问管理界面：http://你的服务器IP:81
+# 默认账号：admin@example.com / changeme
+```
+
+详细配置请参考 [简化部署指南](./DEPLOY-DAIDAI-SIMPLE.md)。
+
+#### 🔧 传统部署（手动 Nginx 配置）
+
+对于需要精细控制的高级用户：
+
+```bash
+# 配置 SSL 证书
+./init-letsencrypt.sh your-domain.com your-email@domain.com
+
+# 启动生产服务
+docker compose -f docker-compose.prod.yml up -d
+```
+
+详细配置说明请参考 [SSL 配置文档](./docs/ssl-setup.md)。
+
+### SSL 证书配置
+
+对于自托管部署，项目支持 Let's Encrypt SSL 证书自动配置：
+
+```bash
+# 配置 SSL 证书
+./init-letsencrypt.sh your-domain.com your-email@domain.com
+
+# 启动生产服务
+docker compose -f docker-compose.prod.yml up -d
+```
+
+详细配置说明请参考 [SSL 配置文档](./docs/ssl-setup.md)。
+
 ## 🔧 服务管理 (Service Management)
 
 ### 后端服务
@@ -134,4 +184,8 @@ docker-compose down      # 停止并清理容器
 
 - [前端开发文档](./frontend/README.md)
 - [API 文档](https://amis-avatar-mgmt.vercel.app/docs)
+- [API Server 文档](./docs/api-server.md)
+- [SSL 配置文档](./docs/ssl-setup.md)
+- [部署指南](./docs/deployment.md)
+- [**简化部署指南**](./DEPLOY-DAIDAI-SIMPLE.md) - 推荐阅读
 

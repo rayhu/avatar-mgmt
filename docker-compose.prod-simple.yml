@@ -1,6 +1,35 @@
 version: "3.9"
 
 services:
+  # Nginx Proxy Manager
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'      # HTTP
+      - '443:443'    # HTTPS
+      - '81:81'      # Admin UI
+    volumes:
+      - ./jc21/data:/data
+      - ./jc21/letsencrypt:/etc/letsencrypt
+    networks:
+      - internal
+
+  # Database for Nginx Proxy Manager
+  nginx-proxy-manager-db:
+    image: 'jc21/mariadb-aria:latest'
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./jc21/data/mysql:/var/lib/mysql
+    networks:
+      - internal
+
+  # PostgreSQL Database
   db:
     image: postgres:15
     restart: always
@@ -13,6 +42,7 @@ services:
     networks:
       - internal
 
+  # Directus CMS
   directus:
     image: directus/directus:10
     restart: always
@@ -29,6 +59,7 @@ services:
     networks:
       - internal
 
+  # API Server
   api:
     build:
       context: .
@@ -42,33 +73,6 @@ services:
       - "3000"
     networks:
       - internal
-
-  nginx:
-    build:
-      context: .
-      dockerfile: nginx/Dockerfile
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    depends_on:
-      - api
-      - directus
-    networks:
-      - internal
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-
-  certbot:
-    image: certbot/certbot
-    restart: unless-stopped
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 networks:
   internal:
