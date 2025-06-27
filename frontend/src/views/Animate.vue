@@ -273,7 +273,7 @@ import {
 import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
 import type { Avatar } from '@/types/avatar';
 import { getAvatars } from '@/api/avatars';
-import { generateSSML as generateSSMLBackend } from '@/api/openai';
+import { generateSSMLBackend } from '@/api/openaiBackend';
 import { generateSSMLFront } from '@/api/openaiFrontend';
 
 interface Keyframe {
