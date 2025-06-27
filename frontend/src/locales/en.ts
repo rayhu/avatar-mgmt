@@ -139,6 +139,7 @@ export default {
     modelList: 'Model List',
     modelGallery: 'Model Gallery',
     modelSelection: 'Model Selection',
+    changeModel: 'Change Model',
     galleryTip: 'Here you can browse and view details of all "Ready" status models.',
     listTip:
       'Here you can manage all models, including editing, deleting, and changing their status.',

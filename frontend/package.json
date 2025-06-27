@@ -14,7 +14,8 @@
     "generate-voices": "node scripts/generate-azure-voices.mjs",
     "type-check": "vue-tsc --noEmit",
     "check": "yarn lint && yarn type-check",
-    "i18n:check": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/i18n-check.ts",
+    "sass-check": "node scripts/check-sass-warnings.js",
+    "i18n:check": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/check-i18n.ts",
     "i18n:report": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/i18n-check.ts --report"
   },
   "dependencies": {

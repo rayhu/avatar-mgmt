@@ -3,7 +3,7 @@ export interface Avatar {
   name: string;
   description: string;
   url: string;
-  previewUrl?: string;
+  preview?: string;
   status: 'draft' | 'pending' | 'processing' | 'ready' | 'error';
   tags: string[];
   createdAt: string;

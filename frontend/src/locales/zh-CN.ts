@@ -139,6 +139,7 @@ export default {
     modelList: '模型列表',
     modelGallery: '模型展示',
     modelSelection: '模型选择',
+    changeModel: '切换模型',
     galleryTip: '这里将展示所有"就绪"状态的模型，用户可浏览和查看详情。',
     listTip: '这里将展示所有模型，支持编辑、删除、设置状态等操作。',
     uploadModel: '上传模型',
