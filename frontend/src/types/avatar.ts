@@ -4,6 +4,7 @@ export interface Avatar {
   description: string;
   url: string;
   preview?: string;
+  previewUrl?: string;
   status: 'draft' | 'pending' | 'processing' | 'ready' | 'error';
   tags: string[];
   createdAt: string;
