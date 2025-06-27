@@ -178,7 +178,4 @@ class Logger {
 export const logger = new Logger();
 
 // 导出便捷函数
-export const log = logger;
-
-// 导出类型
-export type { LogContext }; 
+export const log = logger; 
