@@ -39,7 +39,8 @@ function getAllKeys(obj: any, prefix = ''): string[] {
   const keys: string[] = [];
   
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    // 使用 Object.prototype.hasOwnProperty.call 来安全地检查属性
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const fullKey = prefix ? `${prefix}.${key}` : key;
       
       if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
