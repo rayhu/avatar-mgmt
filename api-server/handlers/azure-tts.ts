@@ -42,7 +42,8 @@ export default async function handler(req: Request, res: Response) {
     console.log('🌐 调用 Azure TTS:', {
       region,
       voice,
-      keyLength: key.length
+      keyLength: key.length,
+      ssmlLength: ssml.length
     });
 
     const url = `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`;
@@ -60,7 +61,8 @@ export default async function handler(req: Request, res: Response) {
     console.log('📥 Azure 响应:', {
       status: azureRes.status,
       statusText: azureRes.statusText,
-      ok: azureRes.ok
+      ok: azureRes.ok,
+      headers: Object.fromEntries(azureRes.headers.entries())
     });
 
     if (!azureRes.ok) {
@@ -76,7 +78,8 @@ export default async function handler(req: Request, res: Response) {
 
     console.log('✅ Azure TTS 成功:', {
       bufferSize: buffer.length,
-      audioSizeKB: (buffer.length / 1024).toFixed(2)
+      audioSizeKB: (buffer.length / 1024).toFixed(2),
+      contentType: azureRes.headers.get('content-type')
     });
 
     res.setHeader('Content-Type', 'audio/mpeg');

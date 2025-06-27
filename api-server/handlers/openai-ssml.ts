@@ -171,7 +171,15 @@ try {
 // The OpenAI API key is expected in the environment variable OPENAI_API_KEY.
 
 export default async function handler(req: Request, res: Response) {
+  console.log('🤖 OpenAI SSML 请求开始:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    bodySize: req.body ? JSON.stringify(req.body).length : 0
+  });
+
   if (req.method !== 'POST') {
+    console.log('❌ 方法不允许:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -182,14 +190,25 @@ export default async function handler(req: Request, res: Response) {
       model?: string;
     };
 
+    console.log('📝 请求参数:', {
+      text: text?.slice(0, 50) + (text && text.length > 50 ? '...' : ''),
+      voice,
+      model,
+      textLength: text?.length || 0
+    });
+
     if (!text || typeof text !== 'string' || !text.trim()) {
+      console.log('❌ 文本参数无效');
       return res.status(400).json({ error: 'Parameter "text" is required.' });
     }
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_API_KEY) {
+      console.log('❌ OpenAI API 密钥未配置');
       return res.status(500).json({ error: 'OPENAI_API_KEY is not configured.' });
     }
+
+    console.log('🤖 调用 OpenAI API 生成 SSML...');
 
     // 根据当前 voice 取支持的情绪列表，若未知则使用通用集合
     const allowedStyles = VOICE_STYLES[voice] ?? [
@@ -202,6 +221,12 @@ export default async function handler(req: Request, res: Response) {
     ];
 
     const styleList = allowedStyles.join(', ');
+
+    console.log('📋 语音样式配置:', {
+      voice,
+      allowedStylesCount: allowedStyles.length,
+      styleList: styleList.slice(0, 100) + (styleList.length > 100 ? '...' : '')
+    });
 
     const systemPrompt = `You are an expert speech-synthesis engineer helping me create Azure TTS SSML. Follow **ALL** rules:
 1. Use the <speak> root element with xmlns="http://www.w3.org/2001/10/synthesis" and xmlns:mstts="http://www.w3.org/2001/mstts".
@@ -237,6 +262,13 @@ Example:
       },
     ];
 
+    console.log('📡 发送 OpenAI 请求:', {
+      model,
+      messagesCount: messages.length,
+      systemPromptLength: systemPrompt.length,
+      userContentLength: messages[1].content.length
+    });
+
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -250,8 +282,15 @@ Example:
       }),
     });
 
+    console.log('📥 OpenAI 响应:', {
+      status: openaiResponse.status,
+      statusText: openaiResponse.statusText,
+      ok: openaiResponse.ok
+    });
+
     if (!openaiResponse.ok) {
       const errorText = await openaiResponse.text();
+      console.error('❌ OpenAI 请求失败:', errorText);
       return res.status(500).json({ error: 'OpenAI request failed', details: errorText });
     }
 
@@ -261,9 +300,20 @@ Example:
     // Remove possible markdown fences
     ssml = ssml.replace(/^```[\s\S]*?\n/, '').replace(/```$/g, '').trim();
 
+    console.log('✅ OpenAI SSML 生成成功:', {
+      ssmlLength: ssml.length,
+      ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : ''),
+      model,
+      voice
+    });
+
     return res.status(200).json({ ssml });
   } catch (error: any) {
-    console.error('openai-ssml handler error:', error);
+    console.error('❌ OpenAI SSML handler 错误:', {
+      error: error.message,
+      errorType: error.constructor.name,
+      stack: error.stack
+    });
     return res.status(500).json({ error: 'Internal server error' });
   }
 } 
