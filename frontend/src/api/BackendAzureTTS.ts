@@ -3,6 +3,8 @@
  * 通过后端代理调用 Azure TTS，避免在前端暴露 Azure key
  */
 
+import { logger } from '@/utils/logger';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 export interface VoiceOption {
@@ -43,24 +45,33 @@ export async function synthesizeSpeech(
   onViseme?: (id: number, timeMs: number, animation?: string) => void,
 ): Promise<Blob> {
   const url = `${API_BASE_URL}/api/azure-tts`;
+  const startTime = Date.now();
   
-  console.log('🔊 开始语音合成请求:', {
-    url,
+  logger.apiCall('Azure TTS', url, {
     voice,
     isSSML,
     contentLength: content.length,
-    contentPreview: content.slice(0, 100) + '...'
+    contentPreview: content.slice(0, 100) + (content.length > 100 ? '...' : '')
   });
   
   // 后端暂不支持 viseme，返回空实现
   if (onViseme) {
-    console.warn('⚠️ Viseme callback is not supported in backend mode');
+    logger.warn('Viseme callback is not supported in backend mode', {
+      component: 'BackendAzureTTS',
+      method: 'synthesizeSpeech'
+    });
   }
   
   try {
     // 处理 SSML 格式，参考前端 azureTTS.ts 的逻辑
     let processedContent = content;
     if (isSSML) {
+      logger.debug('处理 SSML 格式', {
+        component: 'BackendAzureTTS',
+        method: 'synthesizeSpeech',
+        originalContent: content.slice(0, 200) + (content.length > 200 ? '...' : '')
+      });
+
       // 不可靠的 SSML 直接重构为标准格式
       // 0st 是无效的，需要转换为 +0st
       processedContent = content.replace(/pitch="0st"/g, 'pitch="+0st"');
@@ -76,9 +87,12 @@ export async function synthesizeSpeech(
         const m = inner.match(/<voice[^>]*name=["']([^"']+)["']/i);
         const detected = m?.[1];
         if (detected && detected !== voice) {
-          console.warn(
-            `[BackendAzureTTS] LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`,
-          );
+          logger.warn(`LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`, {
+            component: 'BackendAzureTTS',
+            method: 'synthesizeSpeech',
+            selectedVoice: voice,
+            detectedVoice: detected
+          });
         }
       } else {
         processed = `<voice name="${voice}">${inner}</voice>`;
@@ -94,8 +108,11 @@ export async function synthesizeSpeech(
 </speak>`;
     }
 
-    console.log('📡 发送请求到:', url);
-    console.log('📝 处理后的内容:', processedContent);
+    logger.debug('发送请求', {
+      component: 'BackendAzureTTS',
+      method: 'synthesizeSpeech',
+      processedContent: processedContent.slice(0, 200) + (processedContent.length > 200 ? '...' : '')
+    });
     
     const response = await fetch(url, {
       method: 'POST',
@@ -108,16 +125,15 @@ export async function synthesizeSpeech(
       }),
     });
 
-    console.log('📥 收到响应:', {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
+    const duration = Date.now() - startTime;
+    logger.apiResponse('Azure TTS', response.status, {
+      duration,
       headers: Object.fromEntries(response.headers.entries())
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('❌ 语音合成失败:', {
+      logger.apiError('Azure TTS', new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`), {
         status: response.status,
         statusText: response.statusText,
         errorData
@@ -126,29 +142,39 @@ export async function synthesizeSpeech(
     }
 
     const blob = await response.blob();
-    console.log('✅ 语音合成成功:', {
+    logger.info('语音合成成功', {
+      component: 'BackendAzureTTS',
+      method: 'synthesizeSpeech',
       blobSize: blob.size,
-      blobType: blob.type
+      blobType: blob.type,
+      duration
     });
     
     return blob;
   } catch (error) {
     const err = error as Error;
-    console.error('❌ 语音合成请求失败:', {
-      error: err.message,
-      errorType: err.constructor.name,
-      url,
+    const duration = Date.now() - startTime;
+    
+    logger.apiError('Azure TTS', err, {
+      duration,
       voice,
-      contentLength: content.length
+      contentLength: content.length,
+      isSSML
     });
     
     // 检查是否是网络错误
     if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-      console.error('🌐 网络连接错误，可能的原因:');
-      console.error('   - 后端服务器未启动');
-      console.error('   - API_BASE_URL 配置错误:', API_BASE_URL);
-      console.error('   - CORS 配置问题');
-      console.error('   - 网络连接问题');
+      logger.error('网络连接错误，可能的原因:', {
+        component: 'BackendAzureTTS',
+        method: 'synthesizeSpeech',
+        apiBaseUrl: API_BASE_URL,
+        possibleCauses: [
+          '后端服务器未启动',
+          'API_BASE_URL 配置错误',
+          'CORS 配置问题',
+          '网络连接问题'
+        ]
+      });
     }
     
     throw error;
@@ -162,7 +188,11 @@ export async function synthesizeSpeech(
  * @returns 音频 Blob
  */
 export async function textToSpeech(text: string, voice: string = 'zh-CN-XiaoxiaoNeural'): Promise<Blob> {
-  console.log('🎯 开始文本转语音:', {
+  const startTime = Date.now();
+  
+  logger.info('开始文本转语音', {
+    component: 'BackendAzureTTS',
+    method: 'textToSpeech',
     text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
     voice,
     textLength: text.length,
@@ -173,20 +203,29 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
     // 直接调用 synthesizeSpeech，传入纯文本
     const audioBlob = await synthesizeSpeech(text, voice, false);
     
-    console.log('🎉 文本转语音完成:', {
+    const duration = Date.now() - startTime;
+    logger.info('文本转语音完成', {
+      component: 'BackendAzureTTS',
+      method: 'textToSpeech',
       blobSize: audioBlob.size,
-      blobType: audioBlob.type
+      blobType: audioBlob.type,
+      duration
     });
     
     return audioBlob;
   } catch (error) {
     const err = error as Error;
-    console.error('❌ 文本转语音失败:', {
+    const duration = Date.now() - startTime;
+    
+    logger.error('文本转语音失败', {
+      component: 'BackendAzureTTS',
+      method: 'textToSpeech',
       error: err.message,
       errorType: err.constructor.name,
       text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
       voice,
-      apiBaseUrl: API_BASE_URL
+      apiBaseUrl: API_BASE_URL,
+      duration
     });
     throw error;
   }

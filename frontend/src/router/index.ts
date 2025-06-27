@@ -8,6 +8,7 @@ import {
 import Login from '../views/Login.vue';
 import TestViewer from '../views/TestViewer.vue';
 import { useAuthStore } from '../store';
+import { logger } from '@/utils/logger';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -73,13 +74,36 @@ const router = createRouter({
 router.beforeEach(
   (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     const auth = useAuthStore();
+    
+    logger.info('路由守卫检查', {
+      component: 'Router',
+      method: 'beforeEach',
+      from: from.path,
+      to: to.path,
+      isAuthenticated: auth.isAuthenticated,
+      userRole: auth.user?.role,
+      requiredRoles: to.meta.roles,
+      isPublic: to.meta.public
+    });
 
     // 检查是否是公开路由
     if (to.meta.public) {
       // 如果已登录且访问登录页，重定向到对应角色首页
       if (auth.isAuthenticated) {
-        next(auth.user?.role === 'admin' ? '/admin' : '/user');
+        const redirectPath = auth.user?.role === 'admin' ? '/admin' : '/user';
+        logger.info('已登录用户访问登录页，重定向', {
+          component: 'Router',
+          method: 'beforeEach',
+          redirectPath,
+          userRole: auth.user?.role
+        });
+        next(redirectPath);
       } else {
+        logger.info('未登录用户访问公开路由，允许访问', {
+          component: 'Router',
+          method: 'beforeEach',
+          route: to.path
+        });
         next();
       }
       return;
@@ -87,6 +111,11 @@ router.beforeEach(
 
     // 检查是否已登录
     if (!auth.isAuthenticated) {
+      logger.warn('未登录用户访问受保护路由，重定向到登录页', {
+        component: 'Router',
+        method: 'beforeEach',
+        attemptedRoute: to.path
+      });
       next('/login');
       return;
     }
@@ -95,10 +124,25 @@ router.beforeEach(
     const requiredRoles = to.meta.roles as string[] | undefined;
     if (requiredRoles && !requiredRoles.includes(auth.user?.role || '')) {
       // 如果没有权限，重定向到对应角色首页
-      next(auth.user?.role === 'admin' ? '/admin' : '/user');
+      const redirectPath = auth.user?.role === 'admin' ? '/admin' : '/user';
+      logger.warn('用户权限不足，重定向', {
+        component: 'Router',
+        method: 'beforeEach',
+        userRole: auth.user?.role,
+        requiredRoles,
+        attemptedRoute: to.path,
+        redirectPath
+      });
+      next(redirectPath);
       return;
     }
 
+    logger.info('路由守卫检查通过，允许访问', {
+      component: 'Router',
+      method: 'beforeEach',
+      route: to.path,
+      userRole: auth.user?.role
+    });
     next();
   },
 );
