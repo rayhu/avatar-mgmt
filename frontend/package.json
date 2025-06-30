@@ -16,7 +16,7 @@
     "check": "yarn lint && yarn type-check",
     "sass-check": "node scripts/check-sass-warnings.js",
     "i18n:check": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/check-i18n.ts",
-    "i18n:report": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/i18n-check.ts --report"
+    "i18n:report": "NODE_OPTIONS='--loader ts-node/esm' ts-node scripts/check-i18n.ts --report"
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",

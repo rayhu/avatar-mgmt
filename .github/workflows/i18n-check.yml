@@ -1,4 +1,4 @@
-name: i18n-check
+name: check-i18n
 
 on:
   pull_request:
@@ -34,7 +34,7 @@ jobs:
         run: yarn install
       
       - name: Check i18n
-        id: i18n-check
+        id: check-i18n
         run: yarn i18n:check
         continue-on-error: false
       

@@ -181,3 +181,19 @@ docker compose exec directus npx directus schema apply --dry-run schemas/snapsho
 ```
 docker compose exec directus npx directus schema apply --yes --safe schemas/snapshot.json
 ```
+
+
+7. 权限
+
+为了方便前端分享给不特定群体，允许直接查看缩略图。
+
+```
+npm install node-fetch
+
+export DIRECTUS_URL=http://localhost:8055
+export DIRECTUS_ADMIN_EMAIL=admin@example.com
+export DIRECTUS_ADMIN_PASSWORD=your_admin_password
+
+node setup-directus-permissions.js
+```
+脚本会自动检测是否已存在权限和策略，不会重复创建，可以安全多次运行。

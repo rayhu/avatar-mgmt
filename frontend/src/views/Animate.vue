@@ -73,11 +73,7 @@
                 @click.stop="selectKeyframe(keyframe)"
                 @mousedown="startDrag(keyframe, $event)"
               >
-                {{
-                  t(
-                    `animate.actions.${keyframe.action ? keyframe.action.charAt(0).toLowerCase() + keyframe.action.slice(1) : ''}`,
-                  )
-                }}
+                {{ t(getActionDisplayName(keyframe.action || '')) }}
               </div>
             </div>
           </div>
@@ -92,7 +88,7 @@
                 @click.stop="selectKeyframe(keyframe)"
                 @mousedown="startDrag(keyframe, $event)"
               >
-                {{ t(`animate.emotions.${keyframe.emotion?.toLowerCase()}`) }}
+                {{ t(getEmotionDisplayName(keyframe.emotion || '')) }}
               </div>
             </div>
           </div>
@@ -135,7 +131,7 @@
             @change="handleActionSelect"
           >
             <option v-for="action in actions" :key="action" :value="action">
-              {{ t(`animate.actions.${action.charAt(0).toLowerCase() + action.slice(1)}`) }}
+              {{ t(getActionDisplayName(action)) }}
             </option>
           </select>
         </div>
@@ -147,7 +143,7 @@
             @change="handleEmotionSelect"
           >
             <option v-for="emotion in emotions" :key="emotion" :value="emotion">
-              {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
+              {{ t(getEmotionDisplayName(emotion)) }}
             </option>
           </select>
         </div>
@@ -275,6 +271,8 @@ import type { Avatar } from '@/types/avatar';
 import { getAvatars } from '@/api/avatars';
 import { generateSSMLBackend } from '@/api/openaiBackend';
 import { generateSSMLFront } from '@/api/openaiFrontend';
+import { getActionAnimations, getEmotionAnimations } from '@/config/animations';
+import type { AnimationConfig } from '@/types/animation';
 
 interface Keyframe {
   id: string;
@@ -292,24 +290,23 @@ const currentEmotion = ref('');
 const currentAction = ref('Idle');
 const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
 
-const actions = [
-  'Idle',
-  'Walking',
-  'Running',
-  'Jump',
-  'Wave',
-  'Dance',
-  'Death',
-  'No',
-  'Punch',
-  'Sitting',
-  'Standing',
-  'ThumbsUp',
-  'WalkJump',
-  'Yes',
-] as const;
+// 从配置文件获取动作和表情数据
+const actionAnimations = getActionAnimations();
+const emotionAnimations = getEmotionAnimations();
 
-const emotions = ['Angry', 'Surprised', 'Sad'] as const;
+// 提取动作名称数组（用于下拉框）
+const actions = computed(() => 
+  actionAnimations
+    .filter(anim => anim.enabled)
+    .map(anim => anim.actualName)
+);
+
+// 提取表情名称数组（用于下拉框）
+const emotions = computed(() => 
+  emotionAnimations
+    .filter(anim => anim.enabled)
+    .map(anim => anim.actualName)
+);
 
 const charCount = computed({
   get: () => text.value.length,
@@ -434,31 +431,73 @@ async function onAnimate() {
     return;
   }
 
+  console.log('🎬 Starting animation generation...');
+  console.log('Text:', text.value);
+  console.log('SSML:', ssml.value);
+  console.log('Selected voice:', selectedVoice.value);
+  console.log('Model viewer:', modelViewer.value);
+
   try {
     isProcessing.value = true;
+    
+    // 清理之前的状态
+    if (animationTimer.value) {
+      console.log('🧹 Cleaning up previous animation timer');
+      clearInterval(animationTimer.value);
+      animationTimer.value = null;
+    }
+    
+    // 停止当前音频播放
+    const currentAudio = document.querySelector('audio') as HTMLAudioElement;
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+    
+    // 重置模型状态
+    if (modelViewer.value) {
+      console.log('🔄 Resetting model state');
+      modelViewer.value.playAnimation('Idle');
+      modelViewer.value.updateEmotion('');
+    }
+    
+    console.log('🔊 Synthesizing speech...');
     const audioBlob = await synthesizeSpeech(
       ssml.value || text.value,
       selectedVoice.value,
       Boolean(ssml.value),
       handleViseme,
     );
+    console.log('✅ Speech synthesized successfully');
+    
+    // 清理之前的音频 URL
+    if (audioUrl.value) {
+      URL.revokeObjectURL(audioUrl.value);
+    }
     audioUrl.value = URL.createObjectURL(audioBlob);
 
     // 播放音频并驱动动画
     nextTick(() => {
       const audio = document.querySelector('audio') as HTMLAudioElement;
       if (audio) {
+        console.log('🎵 Starting audio playback and animation...');
         audio.currentTime = 0;
-        audio.play();
-        startTimelineAnimation(audio);
+        audio.play().then(() => {
+          console.log('✅ Audio started playing');
+          startTimelineAnimation(audio);
 
-        // 开始口型同步
-        visemeTimeline.length = 0; // 清空旧数据
-        syncVisemeWithAudio(audio);
+          // 开始口型同步
+          visemeTimeline.length = 0; // 清空旧数据
+          syncVisemeWithAudio(audio);
+        }).catch((error) => {
+          console.error('❌ Failed to play audio:', error);
+        });
+      } else {
+        console.error('❌ Audio element not found');
       }
     });
   } catch (error) {
-    console.error('Failed to synthesize speech:', error);
+    console.error('❌ Failed to synthesize speech:', error);
     alert(t('animate.synthesisError'));
   } finally {
     isProcessing.value = false;
@@ -475,6 +514,8 @@ function startRecording() {
     alert(t('animate.recordingTip'));
     return;
   }
+
+  console.log('🎬 Starting recording with animation sync...');
 
   try {
     // 获取模型预览区域的视频流
@@ -526,6 +567,8 @@ function startRecording() {
 
       // 清理音频上下文
       audioContext.close();
+      
+      console.log('✅ Recording completed');
     };
 
     // 开始录制
@@ -544,18 +587,29 @@ function startRecording() {
     };
     audioElement.addEventListener('ended', handleAudioEnded);
 
-    audioElement.play().catch((error) => {
-      console.error('Failed to play audio:', error);
+    // 播放音频并同步动画
+    audioElement.play().then(() => {
+      console.log('🎵 Recording audio started, syncing animation...');
+      // 确保动画与录制同步
+      startTimelineAnimation(audioElement);
+      
+      // 开始口型同步
+      visemeTimeline.length = 0; // 清空旧数据
+      syncVisemeWithAudio(audioElement);
+    }).catch((error) => {
+      console.error('❌ Failed to play audio during recording:', error);
       stopRecording();
     });
   } catch (error) {
-    console.error('Failed to start recording:', error);
+    console.error('❌ Failed to start recording:', error);
     alert(t('animate.recordingError'));
     isRecording.value = false;
   }
 }
 
 function stopRecording() {
+  console.log('🛑 Stopping recording...');
+  
   if (mediaRecorder.value && isRecording.value) {
     mediaRecorder.value.stop();
     // 停止所有视频轨道
@@ -566,6 +620,22 @@ function stopRecording() {
       audioPlayer.value.pause();
       audioPlayer.value.currentTime = 0;
     }
+    
+    // 清理动画定时器
+    if (animationTimer.value) {
+      console.log('🧹 Cleaning up animation timer after recording');
+      clearInterval(animationTimer.value);
+      animationTimer.value = null;
+    }
+    
+    // 重置模型状态
+    if (modelViewer.value) {
+      console.log('🔄 Resetting model state after recording');
+      modelViewer.value.playAnimation('Idle');
+      modelViewer.value.updateEmotion('');
+    }
+    
+    console.log('✅ Recording stopped and cleaned up');
   }
 }
 
@@ -585,13 +655,45 @@ function downloadVideo() {
 
 // 启动时间轴动画
 function startTimelineAnimation(audio: HTMLAudioElement) {
+  console.log('🎭 Starting timeline animation...');
+  
   let lastAction = currentAction.value;
   let lastEmotion = currentEmotion.value;
 
   // 清理旧定时器
   if (animationTimer.value) {
+    console.log('🧹 Cleaning up existing animation timer');
     clearInterval(animationTimer.value);
     animationTimer.value = null;
+  }
+
+  // 如果没有关键帧，添加默认的关键帧
+  if (actionKeyframes.value.length === 0) {
+    console.log('No action keyframes found, adding default Idle animation');
+    addActionKeyframe(0);
+  }
+  
+  if (emotionKeyframes.value.length === 0) {
+    console.log('No emotion keyframes found, adding default Sad emotion');
+    addEmotionKeyframe(0);
+  }
+
+  // 立即应用初始状态
+  const initialActionFrame = actionKeyframes.value.find(k => k.time === 0);
+  const initialEmotionFrame = emotionKeyframes.value.find(k => k.time === 0);
+  
+  if (initialActionFrame && initialActionFrame.action) {
+    console.log(`🎬 Setting initial action: ${initialActionFrame.action}`);
+    currentAction.value = initialActionFrame.action;
+    if (modelViewer.value) modelViewer.value.playAnimation(initialActionFrame.action);
+    lastAction = initialActionFrame.action;
+  }
+  
+  if (initialEmotionFrame && initialEmotionFrame.emotion) {
+    console.log(`😊 Setting initial emotion: ${initialEmotionFrame.emotion}`);
+    currentEmotion.value = initialEmotionFrame.emotion;
+    if (modelViewer.value) modelViewer.value.updateEmotion(initialEmotionFrame.emotion);
+    lastEmotion = initialEmotionFrame.emotion;
   }
 
   animationTimer.value = window.setInterval(() => {
@@ -606,12 +708,14 @@ function startTimelineAnimation(audio: HTMLAudioElement) {
 
     // 切换动作
     if (actionFrame && actionFrame.action && actionFrame.action !== lastAction) {
+      console.log(`Switching action from ${lastAction} to ${actionFrame.action} at time ${t}`);
       currentAction.value = actionFrame.action;
       if (modelViewer.value) modelViewer.value.playAnimation(actionFrame.action);
       lastAction = actionFrame.action;
     }
     // 切换表情
     if (emotionFrame && emotionFrame.emotion && emotionFrame.emotion !== lastEmotion) {
+      console.log(`Switching emotion from ${lastEmotion} to ${emotionFrame.emotion} at time ${t}`);
       currentEmotion.value = emotionFrame.emotion;
       if (modelViewer.value) modelViewer.value.updateEmotion(emotionFrame.emotion);
       lastEmotion = emotionFrame.emotion;
@@ -619,6 +723,7 @@ function startTimelineAnimation(audio: HTMLAudioElement) {
 
     // 音频播放结束，清理定时器并重置为 Idle
     if (audio.ended) {
+      console.log('Audio ended, cleaning up animation timer');
       clearInterval(animationTimer.value!);
       animationTimer.value = null;
       // 重置动作和表情
@@ -630,6 +735,8 @@ function startTimelineAnimation(audio: HTMLAudioElement) {
       }
     }
   }, 100); // 每 100ms 检查一次
+  
+  console.log('✅ Timeline animation started');
 }
 
 // 监听文本变化，更新字符计数
@@ -837,7 +944,7 @@ function handleActionSelect(event: Event) {
   if (!selectedKeyframe.value) return;
   const select = event.target as HTMLSelectElement;
   const value = select.value;
-  if (value && actions.includes(value as (typeof actions)[number])) {
+  if (value && actions.value.includes(value)) {
     const updatedKeyframe = { ...selectedKeyframe.value, action: value };
     selectedKeyframe.value = updatedKeyframe;
     updateKeyframe(updatedKeyframe);
@@ -849,7 +956,7 @@ function handleEmotionSelect(event: Event) {
   if (!selectedKeyframe.value) return;
   const select = event.target as HTMLSelectElement;
   const value = select.value;
-  if (value && emotions.includes(value as (typeof emotions)[number])) {
+  if (value && emotions.value.includes(value)) {
     const updatedKeyframe = { ...selectedKeyframe.value, emotion: value };
 
     selectedKeyframe.value = updatedKeyframe;
@@ -946,6 +1053,16 @@ function syncVisemeWithAudio(audio: HTMLAudioElement) {
     if (!audio.paused && idx < visemeTimeline.length) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
+}
+
+function getActionDisplayName(action: string) {
+  const actionData = actionAnimations.find(anim => anim.actualName === action);
+  return actionData ? actionData.displayName : action;
+}
+
+function getEmotionDisplayName(emotion: string) {
+  const emotionData = emotionAnimations.find(anim => anim.actualName === emotion);
+  return emotionData ? emotionData.displayName : emotion;
 }
 </script>
 
