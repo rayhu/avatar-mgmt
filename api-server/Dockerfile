@@ -6,7 +6,7 @@ COPY 。/package.json ./package.json
 RUN npm install
 
 # Copy api-server source
-COPY 。 .
+COPY . .
 
 ENV NODE_ENV=production
 CMD ["node", "./node_modules/tsx/dist/cli.mjs", "index.ts"] 
