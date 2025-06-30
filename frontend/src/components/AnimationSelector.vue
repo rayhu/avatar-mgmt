@@ -70,7 +70,14 @@
         </div>
         <div class="info-item">
           <label>{{ t('animation.enabled') }}:</label>
-          <span>{{ selectedAnimation.enabled ? t('common.yes') : t('common.no') }}</span>
+          <span>
+            <template v-if="selectedAnimation.type === 'action' || selectedAnimation.type === 'emotion'">
+              {{ 'enabled' in selectedAnimation && selectedAnimation.enabled ? t('common.yes') : t('common.no') }}
+            </template>
+            <template v-else>
+              -
+            </template>
+          </span>
         </div>
       </div>
     </div>
@@ -84,6 +91,7 @@ import { animationManager } from '@/utils/animationManager';
 import { getActionAnimations, getEmotionAnimations } from '@/config/animations';
 import { logger } from '@/utils/logger';
 import type { Animation } from '@/types/animation';
+import { AnimationType } from '@/types/animation';
 
 const { t } = useI18n();
 

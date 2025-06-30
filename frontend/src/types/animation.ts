@@ -19,7 +19,7 @@ export interface ActionAnimation {
   // 显示名称：用于 UI 显示，支持国际化
   displayName: string;
   // 动画类型
-  type: AnimationType.ACTION;
+  type: AnimationType;
   // 动画描述
   description?: string;
   // 动画分类
@@ -39,7 +39,7 @@ export interface EmotionAnimation {
   actualName: string;
   callName: string;
   displayName: string;
-  type: AnimationType.EMOTION;
+  type: AnimationType;
   description?: string;
   intensity?: number;
   enabled?: boolean;
@@ -51,7 +51,7 @@ export interface VisemeAnimation {
   actualName: string;
   callName: string;
   displayName: string;
-  type: AnimationType.VISEME;
+  type: AnimationType;
   visemeId: number;
   description?: string;
 }

@@ -181,8 +181,8 @@ async function loadModel(url: string) {
 }
 
 // 播放动画
-function playAnimation(animationName: string) {
-  console.log('🎭 ModelViewer.playAnimation called with:', animationName);
+function playAnimation(animationName: string, duration?: number, loop: boolean = true) {
+  console.log('🎭 ModelViewer.playAnimation called with:', animationName, 'duration:', duration, 'loop:', loop);
   
   if (!mixer || !model) {
     console.warn('❌ Animation mixer or model not initialized');
@@ -208,9 +208,15 @@ function playAnimation(animationName: string) {
 
     // 创建新的动画动作
     const newAction = mixer.clipAction(targetAnim);
-    newAction.setLoop(THREE.LoopRepeat, Infinity);
-    newAction.clampWhenFinished = false;
-
+    
+    // 根据参数设置循环模式
+    if (loop) {
+      newAction.setLoop(THREE.LoopRepeat, Infinity);
+    } else {
+      newAction.setLoop(THREE.LoopOnce, 1);
+      newAction.clampWhenFinished = true;
+    }
+    
     // 如果有当前正在播放的动画，创建平滑过渡
     if (currentAnimationAction && currentAnimationAction.isRunning()) {
       console.log(`🔄 Cross-fading from ${currentAnimationAction.getClip().name} to ${animationName}`);
@@ -225,6 +231,14 @@ function playAnimation(animationName: string) {
     // 更新当前动画动作
     currentAnimationAction = newAction;
     console.log(`✅ Animation "${animationName}" started successfully`);
+    
+    // 如果是非循环动画且有 duration，设置定时器回到 idle
+    if (!loop && duration && duration > 0) {
+      setTimeout(() => {
+        console.log(`⏰ Animation "${animationName}" duration completed, returning to idle`);
+        playAnimation('Idle', undefined, true);
+      }, duration * 1000);
+    }
   } catch (error) {
     console.error('❌ Error playing animation:', error);
   }
@@ -324,7 +338,7 @@ watch(
   (newAction) => {
     if (newAction) {
       console.log('Action prop changed:', newAction);
-      playAnimation(newAction);
+      playAnimation(newAction, undefined, true);
     }
   },
 );

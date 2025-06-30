@@ -55,6 +55,7 @@
             :key="anim"
             :class="{ active: currentAnimation === anim }"
             @click="playAnimation(anim)"
+            :title="getAnimationTooltip(anim)"
           >
             {{ getAnimationDisplayName(anim) }}
           </button>
@@ -106,6 +107,26 @@ function getAnimationDisplayName(callName: string): string {
     return t(animation.displayName);
   }
   return callName; // 回退到调用名称
+}
+
+// 获取动画工具提示（包含 duration 信息）
+function getAnimationTooltip(callName: string): string {
+  const animation = getAnimationByCallName(callName);
+  if (animation && animation.type === 'action' && 'parameters' in animation) {
+    const duration = animation.parameters?.duration;
+    const loop = animation.parameters?.loop;
+    const description = animation.description || '';
+    
+    let tooltip = description;
+    if (duration) {
+      tooltip += `\n⏱️ 时长: ${duration}秒`;
+    }
+    if (loop !== undefined) {
+      tooltip += `\n🔄 ${loop ? '循环播放' : '播放一次后回到待机'}`;
+    }
+    return tooltip;
+  }
+  return callName;
 }
 
 // 获取表情显示名称
@@ -171,7 +192,15 @@ function playAnimation(animation: string): void {
     const animationConfig = getAnimationByCallName(animation);
     if (animationConfig) {
       console.log('Playing animation:', animationConfig.actualName);
-      modelViewer.value.playAnimation(animationConfig.actualName);
+      // 如果是动作动画，传递 duration 和 loop 参数
+      if (animationConfig.type === 'action' && 'parameters' in animationConfig) {
+        const duration = animationConfig.parameters?.duration;
+        const loop = animationConfig.parameters?.loop ?? true;
+        modelViewer.value.playAnimation(animationConfig.actualName, duration, loop);
+      } else {
+        // 其他类型动画使用默认参数
+        modelViewer.value.playAnimation(animationConfig.actualName);
+      }
       currentAnimation.value = animation;
     } else {
       logger.warn('动画配置未找到', {

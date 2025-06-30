@@ -17,7 +17,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: true,
-      duration: 0,
+      duration: 2.0,
       speed: 1.0
     }
   },
@@ -31,7 +31,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: true,
-      duration: 0,
+      duration: 1.5,
       speed: 1.0
     }
   },
@@ -45,7 +45,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: true,
-      duration: 0,
+      duration: 1.0,
       speed: 1.2
     }
   },
@@ -59,7 +59,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: false,
-      duration: 2.0,
+      duration: 1.5,
       speed: 1.0
     }
   },
@@ -73,7 +73,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: false,
-      duration: 1.5,
+      duration: 2.0,
       speed: 1.0
     }
   },
@@ -87,7 +87,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: true,
-      duration: 0,
+      duration: 3.0,
       speed: 1.0
     }
   },
@@ -115,7 +115,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: false,
-      duration: 1.0,
+      duration: 1.5,
       speed: 1.0
     }
   },
@@ -129,7 +129,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: false,
-      duration: 1.5,
+      duration: 2.0,
       speed: 1.0
     }
   },
@@ -171,7 +171,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: false,
-      duration: 1.0,
+      duration: 2.0,
       speed: 1.0
     }
   },
@@ -185,7 +185,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: true,
-      duration: 0,
+      duration: 2.0,
       speed: 1.0
     }
   },
@@ -199,7 +199,7 @@ const actionAnimations = [
     enabled: true,
     parameters: {
       loop: false,
-      duration: 1.0,
+      duration: 1.5,
       speed: 1.0
     }
   }
@@ -215,7 +215,7 @@ const emotionAnimations = [
     description: '生气表情，角色表现出愤怒',
     intensity: 1.0,
     enabled: true,
-    morphTargets: ['angry', 'brow_furrow']
+    morphTargets: ['angry']
   },
   {
     actualName: 'Surprised',
@@ -225,7 +225,7 @@ const emotionAnimations = [
     description: '惊讶表情，角色表现出惊讶',
     intensity: 1.0,
     enabled: true,
-    morphTargets: ['surprised', 'eye_wide']
+    morphTargets: ['surprised']
   },
   {
     actualName: 'Sad',
@@ -235,7 +235,7 @@ const emotionAnimations = [
     description: '悲伤表情，角色表现出悲伤',
     intensity: 1.0,
     enabled: true,
-    morphTargets: ['sad', 'mouth_frown']
+    morphTargets: ['sad']
   }
 ];
 

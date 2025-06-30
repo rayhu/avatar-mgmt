@@ -9,7 +9,10 @@ import {
   AnimationType, 
   AnimationState, 
   AnimationEvent, 
-  AnimationManager as IAnimationManager 
+  AnimationManager as IAnimationManager,
+  ActionAnimation,
+  EmotionAnimation,
+  VisemeAnimation
 } from '@/types/animation';
 import { 
   getAnimationByCallName, 
@@ -49,7 +52,7 @@ export class AnimationManager implements IAnimationManager {
 
   // 根据类型获取动画
   getAnimationsByType(type: AnimationType): Animation[] {
-    return getAnimationsByType(type);
+    return getAnimationsByType(type) as Animation[];
   }
 
   // 根据调用名称获取动画
@@ -74,7 +77,8 @@ export class AnimationManager implements IAnimationManager {
       throw new Error(`Animation not found: ${callName}`);
     }
 
-    if (!animation.enabled) {
+    // 类型收窄，只有 action/emotion 才有 enabled
+    if ((animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) && 'enabled' in animation && !animation.enabled) {
       logger.warn('动画已禁用', {
         component: 'AnimationManager',
         method: 'playAnimation',
@@ -96,29 +100,25 @@ export class AnimationManager implements IAnimationManager {
       // 根据动画类型执行不同的播放逻辑
       switch (animation.type) {
         case AnimationType.ACTION:
-          await this.playActionAnimation(animation);
+          await this.playActionAnimation(animation as ActionAnimation);
           break;
         case AnimationType.EMOTION:
-          await this.playEmotionAnimation(animation);
+          await this.playEmotionAnimation(animation as EmotionAnimation);
           break;
         case AnimationType.VISEME:
-          await this.playVisemeAnimation(animation);
+          await this.playVisemeAnimation(animation as VisemeAnimation);
           break;
         default:
-          throw new Error(`Unknown animation type: ${animation.type}`);
+          throw new Error(`Unknown animation type: ${(animation as any).type}`);
       }
 
-      // 更新状态
       this.currentState.isPlaying = true;
       this.currentState.progress = 0;
-
-      // 触发事件
       this.emit('start', {
         type: 'start',
         animation,
         timestamp: Date.now()
       });
-
     } catch (error) {
       logger.error('播放动画失败', {
         component: 'AnimationManager',
@@ -126,26 +126,25 @@ export class AnimationManager implements IAnimationManager {
         callName,
         error: error instanceof Error ? error.message : String(error)
       });
-
       this.emit('error', {
         type: 'error',
         animation,
         timestamp: Date.now(),
         data: error
       });
-
       throw error;
     }
   }
 
   // 播放动作动画
-  private async playActionAnimation(animation: Animation): Promise<void> {
-    if (!this.modelViewer) {
-      throw new Error('Model viewer not set');
-    }
-
+  private async playActionAnimation(animation: ActionAnimation): Promise<void> {
+    if (!this.modelViewer) throw new Error('Model viewer not set');
     if (this.modelViewer.playAnimation) {
-      await this.modelViewer.playAnimation(animation.actualName);
+      // 从动画参数中获取 duration 和 loop 设置
+      const duration = animation.parameters?.duration;
+      const loop = animation.parameters?.loop ?? true;
+      
+      await this.modelViewer.playAnimation(animation.actualName, duration, loop);
     } else {
       logger.warn('模型查看器不支持动作动画', {
         component: 'AnimationManager',
@@ -156,11 +155,8 @@ export class AnimationManager implements IAnimationManager {
   }
 
   // 播放表情动画
-  private async playEmotionAnimation(animation: Animation): Promise<void> {
-    if (!this.modelViewer) {
-      throw new Error('Model viewer not set');
-    }
-
+  private async playEmotionAnimation(animation: EmotionAnimation): Promise<void> {
+    if (!this.modelViewer) throw new Error('Model viewer not set');
     if (this.modelViewer.updateEmotion) {
       await this.modelViewer.updateEmotion(animation.actualName);
     } else {
@@ -173,11 +169,8 @@ export class AnimationManager implements IAnimationManager {
   }
 
   // 播放口型动画
-  private async playVisemeAnimation(animation: Animation): Promise<void> {
-    if (!this.modelViewer) {
-      throw new Error('Model viewer not set');
-    }
-
+  private async playVisemeAnimation(animation: VisemeAnimation): Promise<void> {
+    if (!this.modelViewer) throw new Error('Model viewer not set');
     if (this.modelViewer.updateViseme) {
       await this.modelViewer.updateViseme(animation.visemeId);
     } else {
@@ -265,7 +258,10 @@ export class AnimationManager implements IAnimationManager {
   // 检查动画是否可用
   isAnimationEnabled(callName: string): boolean {
     const animation = this.getAnimationByCallName(callName);
-    return animation?.enabled ?? false;
+    if (!animation) {
+      return false;
+    }
+    return (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) && 'enabled' in animation ? (animation.enabled ?? false) : false;
   }
 
   // 获取动画信息
@@ -281,7 +277,7 @@ export class AnimationManager implements IAnimationManager {
       displayName: animation.displayName,
       type: animation.type,
       description: animation.description,
-      enabled: animation.enabled
+      enabled: (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) && 'enabled' in animation ? animation.enabled : undefined
     };
   }
 

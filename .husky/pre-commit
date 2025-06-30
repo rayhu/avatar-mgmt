@@ -4,3 +4,4 @@ set -e
 # Lint staged files (ESLint + Prettier handled in lint-staged config)
 # Using --no-install avoids automatic npm install in CI hooks
 npx --no-install lint-staged
+cd frontend && yarn run check && yarn i18n:check
