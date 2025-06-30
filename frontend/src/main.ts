@@ -6,6 +6,7 @@ import { createI18n } from 'vue-i18n';
 import messages from './locales';
 import './assets/styles/global.scss';
 import { useAuthStore } from './store';
+import { logger } from '@/utils/logger';
 
 // 获取浏览器语言
 const getBrowserLanguage = () => {
@@ -28,11 +29,29 @@ const getBrowserLanguage = () => {
 // 优先使用浏览器语言，如果没有则使用保存的语言设置，最后使用默认语言
 const savedLocale = localStorage.getItem('preferred-language') || getBrowserLanguage();
 
+logger.info('应用启动', {
+  component: 'Main',
+  method: 'startup',
+  browserLanguage: navigator.language,
+  savedLocale,
+  finalLocale: savedLocale,
+  isDevelopment: import.meta.env.DEV,
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL
+});
+
 const i18n = createI18n({
   legacy: false,
   locale: savedLocale,
   fallbackLocale: 'en',
   messages,
+});
+
+logger.info('i18n 初始化完成', {
+  component: 'Main',
+  method: 'startup',
+  locale: savedLocale,
+  fallbackLocale: 'en',
+  availableLocales: Object.keys(messages)
 });
 
 const app = createApp(App);
@@ -41,7 +60,25 @@ app.use(pinia);
 app.use(router);
 app.use(i18n);
 
+logger.info('Vue 应用插件安装完成', {
+  component: 'Main',
+  method: 'startup',
+  plugins: ['pinia', 'router', 'i18n']
+});
+
 const auth = useAuthStore();
 auth.initAuth();
 
+logger.info('认证状态初始化完成', {
+  component: 'Main',
+  method: 'startup',
+  isAuthenticated: auth.isAuthenticated,
+  userRole: auth.user?.role
+});
+
 app.mount('#app');
+
+logger.info('应用挂载完成', {
+  component: 'Main',
+  method: 'startup'
+});

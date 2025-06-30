@@ -86,15 +86,15 @@ function initScene() {
 // 加载模型
 async function loadModel(url: string) {
   if (!scene) {
-    console.error('Scene not initialized');
+    console.error('❌ Scene not initialized');
     return;
   }
 
-  console.log('Loading model from:', url);
+  console.log('📦 Loading model from:', url);
   const loader = new GLTFLoader();
   try {
     const gltf = await loader.loadAsync(url);
-    console.log('Model loaded successfully:', gltf);
+    console.log('✅ Model loaded successfully:', gltf);
 
     // 清除旧模型和动画
     if (model) {
@@ -108,29 +108,33 @@ async function loadModel(url: string) {
     model = gltf.scene;
     if (model) {
       scene.add(model);
-      console.log('Model added to scene');
+      console.log('✅ Model added to scene');
 
       // 检查表情系统
+      let morphTargetCount = 0;
       model.traverse((object) => {
         if (object instanceof THREE.Mesh) {
           const mesh = object as THREE.Mesh;
           if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
-            console.log('Found mesh with morph targets:', mesh.name);
-            console.log('Available morph targets:', Object.keys(mesh.morphTargetDictionary));
+            morphTargetCount++;
+            console.log('🎭 Found mesh with morph targets:', mesh.name);
+            console.log('   Available morph targets:', Object.keys(mesh.morphTargetDictionary));
           }
         }
       });
+      console.log(`📊 Total meshes with morph targets: ${morphTargetCount}`);
 
       // 存储可用的动画
       availableAnimations = gltf.animations;
       console.log(
-        'Available animations:',
+        '🎬 Available animations:',
         availableAnimations.map((a) => a.name),
       );
 
       // 设置动画混合器
       if (availableAnimations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
+        console.log('✅ Animation mixer created');
 
         // 默认播放 Idle 动画
         const idleAnim = availableAnimations.find((a) => a.name === 'Idle');
@@ -138,12 +142,12 @@ async function loadModel(url: string) {
           currentAnimationAction = mixer.clipAction(idleAnim);
           currentAnimationAction.setLoop(THREE.LoopRepeat, Infinity);
           currentAnimationAction.play();
-          console.log('Playing Idle animation');
+          console.log('✅ Playing default Idle animation');
         } else {
-          console.warn('Idle animation not found');
+          console.warn('⚠️ Idle animation not found, available animations:', availableAnimations.map(a => a.name));
         }
       } else {
-        console.warn('No animations found in model');
+        console.warn('⚠️ No animations found in model');
       }
 
       // 调整相机位置
@@ -151,7 +155,7 @@ async function loadModel(url: string) {
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
 
-      console.log('Model dimensions:', {
+      console.log('📐 Model dimensions:', {
         center: center.toArray(),
         size: size.toArray(),
       });
@@ -166,20 +170,24 @@ async function loadModel(url: string) {
       controls.target.copy(center);
       controls.update();
 
-      console.log('Camera adjusted:', {
+      console.log('📷 Camera adjusted:', {
         position: camera.position.toArray(),
         target: controls.target.toArray(),
       });
     }
   } catch (error) {
-    console.error('Error loading model:', error);
+    console.error('❌ Error loading model:', error);
   }
 }
 
 // 播放动画
-function playAnimation(animationName: string) {
+function playAnimation(animationName: string, duration?: number, loop: boolean = true) {
+  console.log('🎭 ModelViewer.playAnimation called with:', animationName, 'duration:', duration, 'loop:', loop);
+  
   if (!mixer || !model) {
-    console.warn('Animation mixer or model not initialized');
+    console.warn('❌ Animation mixer or model not initialized');
+    console.log('Mixer:', mixer);
+    console.log('Model:', model);
     return;
   }
 
@@ -193,29 +201,46 @@ function playAnimation(animationName: string) {
     // 查找匹配的动画
     const targetAnim = availableAnimations.find((a) => a.name === animationName);
     if (!targetAnim) {
-      console.warn(`Animation "${animationName}" not found in available animations`);
+      console.warn(`❌ Animation "${animationName}" not found in available animations`);
+      console.log('Available animations:', availableAnimations.map(a => a.name));
       return;
     }
 
     // 创建新的动画动作
     const newAction = mixer.clipAction(targetAnim);
-    newAction.setLoop(THREE.LoopRepeat, Infinity);
-    newAction.clampWhenFinished = false;
-
+    
+    // 根据参数设置循环模式
+    if (loop) {
+      newAction.setLoop(THREE.LoopRepeat, Infinity);
+    } else {
+      newAction.setLoop(THREE.LoopOnce, 1);
+      newAction.clampWhenFinished = true;
+    }
+    
     // 如果有当前正在播放的动画，创建平滑过渡
     if (currentAnimationAction && currentAnimationAction.isRunning()) {
+      console.log(`🔄 Cross-fading from ${currentAnimationAction.getClip().name} to ${animationName}`);
       newAction.reset();
       newAction.play();
       newAction.crossFadeFrom(currentAnimationAction, 0.5, true);
     } else {
+      console.log(`▶️ Starting animation: ${animationName}`);
       newAction.reset().play();
     }
 
     // 更新当前动画动作
     currentAnimationAction = newAction;
-    console.log(`Animation "${animationName}" started`);
+    console.log(`✅ Animation "${animationName}" started successfully`);
+    
+    // 如果是非循环动画且有 duration，设置定时器回到 idle
+    if (!loop && duration && duration > 0) {
+      setTimeout(() => {
+        console.log(`⏰ Animation "${animationName}" duration completed, returning to idle`);
+        playAnimation('Idle', undefined, true);
+      }, duration * 1000);
+    }
   } catch (error) {
-    console.error('Error playing animation:', error);
+    console.error('❌ Error playing animation:', error);
   }
 }
 
@@ -313,7 +338,7 @@ watch(
   (newAction) => {
     if (newAction) {
       console.log('Action prop changed:', newAction);
-      playAnimation(newAction);
+      playAnimation(newAction, undefined, true);
     }
   },
 );

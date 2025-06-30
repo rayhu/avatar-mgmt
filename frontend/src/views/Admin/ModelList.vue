@@ -87,7 +87,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/variables.scss';
+@use '@/assets/styles/variables.scss' as *;
+@use 'sass:color';
 
 .admin-model-list {
   max-width: 1200px;
@@ -135,13 +136,13 @@ onMounted(async () => {
   transition: all 0.3s ease;
 
   &:hover {
-    background: darken($primary-color, 10%);
+    background: color.adjust($primary-color, $lightness: -10%);
   }
 
   &.danger {
     background: #dc3545;
     &:hover {
-      background: darken(#dc3545, 10%);
+      background: color.adjust(#dc3545, $lightness: -10%);
     }
   }
 }

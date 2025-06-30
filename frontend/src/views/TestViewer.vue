@@ -2,7 +2,7 @@
   <div class="test-viewer">
     <h1>{{ t('test.title') }}</h1>
 
-    <!-- 模型选择 -->
+    <!-- 模型选择器 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
       <div v-if="!selectedModel" class="model-list">
@@ -35,15 +35,17 @@
       </div>
     </div>
 
+    <!-- 模型查看器 -->
     <div class="viewer-container">
       <ModelViewer
         ref="modelViewer"
-        :model-url="selectedModel?.url || '/models/default.glb'"
+        :model-url="selectedModel?.url"
         :auto-rotate="true"
         :show-controls="true"
       />
     </div>
 
+    <!-- 控制面板 -->
     <div class="controls">
       <div class="control-section">
         <h3>{{ t('test.viewer.animationControl') }}</h3>
@@ -53,8 +55,9 @@
             :key="anim"
             :class="{ active: currentAnimation === anim }"
             @click="playAnimation(anim)"
+            :title="getAnimationTooltip(anim)"
           >
-            {{ t(`animate.actions.${anim.charAt(0).toLowerCase() + anim.slice(1)}`) }}
+            {{ getAnimationDisplayName(anim) }}
           </button>
         </div>
       </div>
@@ -68,7 +71,7 @@
             :class="{ active: currentEmotion === emotion }"
             @click="updateEmotion(emotion)"
           >
-            {{ t(`animate.emotions.${emotion.toLowerCase()}`) }}
+            {{ getEmotionDisplayName(emotion) }}
           </button>
         </div>
       </div>
@@ -77,12 +80,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
 import { getAvatars } from '../api/avatars';
 import type { Avatar } from '../types/avatar';
 import ModelCard from '../components/ModelCard.vue';
+import { getActionAnimations, getEmotionAnimations, getAnimationByCallName } from '@/config/animations';
+import { logger } from '@/utils/logger';
 
 const { t } = useI18n();
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
@@ -91,39 +96,85 @@ const selectedModel = ref<Avatar | null>(null);
 const currentAnimation = ref<string>('');
 const currentEmotion = ref<string>('');
 
-const animations: string[] = [
-  'Idle',
-  'Walking',
-  'Running',
-  'Jump',
-  'Wave',
-  'Dance',
-  'Death',
-  'No',
-  'Punch',
-  'Sitting',
-  'Standing',
-  'ThumbsUp',
-  'WalkJump',
-  'Yes',
-];
+// 使用配置文件中的动画，而不是硬编码
+const animations = getActionAnimations().map(anim => anim.callName);
+const emotions = getEmotionAnimations().map(anim => anim.callName);
 
-const emotions: string[] = ['Neutral', 'Angry', 'Surprised', 'Sad'];
+// 获取动画显示名称
+function getAnimationDisplayName(callName: string): string {
+  const animation = getAnimationByCallName(callName);
+  if (animation) {
+    return t(animation.displayName);
+  }
+  return callName; // 回退到调用名称
+}
+
+// 获取动画工具提示（包含 duration 信息）
+function getAnimationTooltip(callName: string): string {
+  const animation = getAnimationByCallName(callName);
+  if (animation && animation.type === 'action' && 'parameters' in animation) {
+    const duration = animation.parameters?.duration;
+    const loop = animation.parameters?.loop;
+    const description = animation.description || '';
+    
+    let tooltip = description;
+    if (duration) {
+      tooltip += `\n⏱️ 时长: ${duration}秒`;
+    }
+    if (loop !== undefined) {
+      tooltip += `\n🔄 ${loop ? '循环播放' : '播放一次后回到待机'}`;
+    }
+    return tooltip;
+  }
+  return callName;
+}
+
+// 获取表情显示名称
+function getEmotionDisplayName(callName: string): string {
+  const emotion = getAnimationByCallName(callName);
+  if (emotion) {
+    return t(emotion.displayName);
+  }
+  return callName; // 回退到调用名称
+}
 
 // 获取就绪状态的模型列表
 async function fetchReadyAvatars(): Promise<void> {
   try {
+    logger.info('获取就绪状态的模型列表', {
+      component: 'TestViewer',
+      method: 'fetchReadyAvatars'
+    });
+    
     const avatars = await getAvatars();
     console.log('Fetched avatars:', avatars);
     readyModels.value = avatars.filter((model) => model.status === 'ready');
     console.log('Ready models:', readyModels.value);
+    
+    logger.info('模型列表获取成功', {
+      component: 'TestViewer',
+      method: 'fetchReadyAvatars',
+      count: readyModels.value.length
+    });
   } catch (error) {
+    logger.error('获取模型列表失败', {
+      component: 'TestViewer',
+      method: 'fetchReadyAvatars',
+      error: error instanceof Error ? error.message : String(error)
+    });
     console.error('Failed to fetch models:', error);
   }
 }
 
 // 选择模型
 function selectModel(model: Avatar): void {
+  logger.info('选择模型', {
+    component: 'TestViewer',
+    method: 'selectModel',
+    modelId: model.id,
+    modelName: model.name
+  });
+  
   selectedModel.value = model;
   currentAnimation.value = '';
   currentEmotion.value = '';
@@ -131,20 +182,65 @@ function selectModel(model: Avatar): void {
 
 function playAnimation(animation: string): void {
   if (modelViewer.value) {
-    console.log('Playing animation:', animation);
-    modelViewer.value.playAnimation(animation);
-    currentAnimation.value = animation;
+    logger.info('播放动画', {
+      component: 'TestViewer',
+      method: 'playAnimation',
+      animation
+    });
+    
+    // 获取动画配置，使用实际名称播放
+    const animationConfig = getAnimationByCallName(animation);
+    if (animationConfig) {
+      console.log('Playing animation:', animationConfig.actualName);
+      // 如果是动作动画，传递 duration 和 loop 参数
+      if (animationConfig.type === 'action' && 'parameters' in animationConfig) {
+        const duration = animationConfig.parameters?.duration;
+        const loop = animationConfig.parameters?.loop ?? true;
+        modelViewer.value.playAnimation(animationConfig.actualName, duration, loop);
+      } else {
+        // 其他类型动画使用默认参数
+        modelViewer.value.playAnimation(animationConfig.actualName);
+      }
+      currentAnimation.value = animation;
+    } else {
+      logger.warn('动画配置未找到', {
+        component: 'TestViewer',
+        method: 'playAnimation',
+        animation
+      });
+    }
   }
 }
 
 function updateEmotion(emotion: string): void {
   if (modelViewer.value) {
-    modelViewer.value.updateEmotion(emotion);
-    currentEmotion.value = emotion;
+    logger.info('更新表情', {
+      component: 'TestViewer',
+      method: 'updateEmotion',
+      emotion
+    });
+    
+    // 获取表情配置，使用实际名称更新
+    const emotionConfig = getAnimationByCallName(emotion);
+    if (emotionConfig) {
+      modelViewer.value.updateEmotion(emotionConfig.actualName);
+      currentEmotion.value = emotion;
+    } else {
+      logger.warn('表情配置未找到', {
+        component: 'TestViewer',
+        method: 'updateEmotion',
+        emotion
+      });
+    }
   }
 }
 
 onMounted(() => {
+  logger.info('TestViewer 组件挂载', {
+    component: 'TestViewer',
+    method: 'onMounted'
+  });
+  
   fetchReadyAvatars();
 });
 </script>

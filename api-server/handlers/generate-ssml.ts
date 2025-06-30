@@ -1,9 +1,8 @@
-// import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 
-// Azure TTS 各 voice 支持的情绪标签（精简示例，可按需补充）
+// 支持的情绪标签映射（与前端保持一致）
 const VOICE_STYLES: Record<string, string[]> = {
   'zh-CN-XiaochenNeural': ['livecommercial'],
   'zh-CN-XiaohanNeural': [
@@ -77,14 +76,7 @@ const VOICE_STYLES: Record<string, string[]> = {
     'sad',
     'serious',
   ],
-  'zh-CN-XiaozhenNeural': [
-    'angry',
-    'cheerful',
-    'disgruntled',
-    'fearful',
-    'sad',
-    'serious',
-  ],
+  'zh-CN-XiaozhenNeural': ['angry', 'cheerful', 'disgruntled', 'fearful', 'sad', 'serious'],
   'zh-CN-YunfengNeural': [
     'angry',
     'cheerful',
@@ -122,11 +114,7 @@ const VOICE_STYLES: Record<string, string[]> = {
     'sad',
     'serious',
   ],
-  'zh-CN-YunyangNeural': [
-    'customerservice',
-    'narration-professional',
-    'newscast-casual',
-  ],
+  'zh-CN-YunyangNeural': ['customerservice', 'narration-professional', 'newscast-casual'],
   'zh-CN-YunyeNeural': [
     'angry',
     'calm',
@@ -150,31 +138,37 @@ const VOICE_STYLES: Record<string, string[]> = {
   ],
 };
 
-// 尝试从本地 JSON 文件加载 voice → styles 映射，成功后覆盖默认 VOICE_STYLES
-try {
-  const jsonPath = path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json');
-  const raw = fs.readFileSync(jsonPath, 'utf-8');
-  const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
-  list.forEach((v) => {
-    VOICE_STYLES[v.name] = v.styles ?? [];
-  });
-  // eslint-disable-next-line no-console
-  console.log('[openai-ssml] Loaded voice styles from azure-voices-zh.json');
-} catch (err) {
-  // eslint-disable-next-line no-console
-  console.warn('[openai-ssml] Failed to load azure-voices-zh.json, fallback to static map.', err);
+// 从 JSON 文件加载 voice → styles 映射
+let voiceStyleMap: Record<string, string[]> | null = null;
+function loadVoiceStyleMap(): Record<string, string[]> {
+  if (voiceStyleMap) return voiceStyleMap;
+  
+  try {
+    const jsonPath = path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json');
+    const raw = fs.readFileSync(jsonPath, 'utf-8');
+    const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
+    voiceStyleMap = {};
+    list.forEach((v) => {
+      voiceStyleMap![v.name] = v.styles ?? [];
+    });
+    console.log('[generate-ssml] Loaded voice styles from azure-voices-zh.json');
+  } catch (err) {
+    console.warn('[generate-ssml] Failed to load azure-voices-zh.json, fallback to static map:', err);
+    voiceStyleMap = VOICE_STYLES;
+  }
+  
+  return voiceStyleMap;
 }
 
-// POST /api/openai-ssml
-// Body: { text: string; voice?: string; model?: string }
+// POST /api/generate-ssml
+// Body: { text: string, voice?: string }
 // Returns: { ssml: string }
-// The OpenAI API key is expected in the environment variable OPENAI_API_KEY.
+// Requires env var: OPENAI_API_KEY
 
 export default async function handler(req: Request, res: Response) {
-  console.log('🤖 OpenAI SSML 请求开始:', {
+  console.log('📝 SSML 生成请求开始:', {
     method: req.method,
     url: req.url,
-    headers: req.headers,
     bodySize: req.body ? JSON.stringify(req.body).length : 0
   });
 
@@ -184,16 +178,14 @@ export default async function handler(req: Request, res: Response) {
   }
 
   try {
-    const { text, voice = 'zh-CN-XiaoxiaoNeural', model = 'gpt-4o' } = req.body as {
+    const { text, voice = 'zh-CN-XiaoxiaoNeural' } = req.body as {
       text?: string;
       voice?: string;
-      model?: string;
     };
 
     console.log('📝 请求参数:', {
       text: text?.slice(0, 50) + (text && text.length > 50 ? '...' : ''),
       voice,
-      model,
       textLength: text?.length || 0
     });
 
@@ -210,64 +202,22 @@ export default async function handler(req: Request, res: Response) {
 
     console.log('🤖 调用 OpenAI API 生成 SSML...');
 
-    // 根据当前 voice 取支持的情绪列表，若未知则使用通用集合
-    const allowedStyles = VOICE_STYLES[voice] ?? [
-      'cheerful',
-      'sad',
-      'angry',
-      'excited',
-      'hopeful',
-      'assistant',
-    ];
+    // 获取 voice 支持的情绪列表
+    const stylesMap = loadVoiceStyleMap();
+    const allowedStyles = (stylesMap[voice] && stylesMap[voice].length
+      ? stylesMap[voice]
+      : VOICE_STYLES[voice]) ?? ['cheerful', 'sad', 'angry', 'excited', 'hopeful', 'assistant'];
 
-    const styleList = allowedStyles.join(', ');
+    const styleList = allowedStyles.join('、');
 
-    console.log('📋 语音样式配置:', {
-      voice,
-      allowedStylesCount: allowedStyles.length,
-      styleList: styleList.slice(0, 100) + (styleList.length > 100 ? '...' : '')
-    });
+    const prompt = `你是一名语音合成工程师，请将以下中文文本转换为符合 Azure TTS 的 SSML，要求：
+  - 使用 <speak> 根元素，声明 version="1.0"、xmlns="http://www.w3.org/2001/10/synthesis" 和 xml:lang="zh-CN"。
+  - 使用唯一的 <voice name="${voice}"> 包裹全部正文。
+  - 生成简单、标准的 SSML 格式，避免复杂的 mstts 标签。
+  - 只输出最终 SSML XML，禁止附加说明或 Markdown 代码块。
 
-    const systemPrompt = `You are an expert speech-synthesis engineer helping me create Azure TTS SSML. Follow **ALL** rules:
-1. Use the <speak> root element with xmlns="http://www.w3.org/2001/10/synthesis" and xmlns:mstts="http://www.w3.org/2001/mstts".
-2. Wrap the whole content in exactly ONE <voice name="${voice}"> tag.
-3. Analyse the meaning and sentiment of the text and apply Azure style via <mstts:express-as>:
-   • Allowed styles for ${voice}: ${styleList}.
-   • Use exactly one style per sentence or split sentences to enhance contrast.
-   • ALWAYS include styledegree="1" or "2" (use 2 for strong emotions like angry or excited).
-   • If no strong emotion detected, default to cheerful with styledegree="1".
-4. Combine with <prosody> (rate/pitch) and <emphasis> to reinforce emotion;
-   e.g. sad → pitch="-2st" rate="slow", excited → pitch="+3st" rate="fast".
-5. Insert <break time="500ms"/> between sentences when emotion changes.
-6. Return ONLY valid SSML XML—NO markdown, code fences, or explanations.
-
-Example:
-<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts">
-  <voice name="${voice}">
-    <mstts:express-as style="cheerful" styledegree="2">
-      大家好！
-    </mstts:express-as>
-    <break time="500ms"/>
-    <mstts:express-as style="sad" styledegree="1">
-      很抱歉让您久等了。
-    </mstts:express-as>
-  </voice>
-</speak>`;
-
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      {
-        role: 'user',
-        content: `Voice: ${voice}\n\nText:\n"""${text.trim()}"""`,
-      },
-    ];
-
-    console.log('📡 发送 OpenAI 请求:', {
-      model,
-      messagesCount: messages.length,
-      systemPromptLength: systemPrompt.length,
-      userContentLength: messages[1].content.length
-    });
+  文本：
+  """${text.trim()}"""`;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -276,8 +226,11 @@ Example:
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model,
-        messages,
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'Convert text to Azure SSML' },
+          { role: 'user', content: prompt },
+        ],
         temperature: 0.2,
       }),
     });
@@ -297,23 +250,24 @@ Example:
     const data = (await openaiResponse.json()) as any;
     let ssml: string = data?.choices?.[0]?.message?.content || '';
 
-    // Remove possible markdown fences
-    ssml = ssml.replace(/^```[\s\S]*?\n/, '').replace(/```$/g, '').trim();
+    // 移除可能的 markdown 代码块
+    ssml = ssml
+      .replace(/^```[\s\S]*?\n/, '')
+      .replace(/```$/g, '')
+      .trim();
 
-    console.log('✅ OpenAI SSML 生成成功:', {
+    console.log('✅ SSML 生成成功:', {
       ssmlLength: ssml.length,
-      ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : ''),
-      model,
-      voice
+      ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : '')
     });
 
+    console.log('generate-ssml handler success for text:', text.slice(0, 100));
     return res.status(200).json({ ssml });
   } catch (error: any) {
-    console.error('❌ OpenAI SSML handler 错误:', {
+    console.error('❌ SSML 生成 handler 错误:', {
       error: error.message,
-      errorType: error.constructor.name,
       stack: error.stack
     });
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 } 

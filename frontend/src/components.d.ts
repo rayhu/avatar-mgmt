@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AnimationSelector: typeof import('./components/AnimationSelector.vue')['default']
     CommentList: typeof import('./components/CommentList.vue')['default']
     LanguageSwitcher: typeof import('./components/LanguageSwitcher.vue')['default']
     LikeButton: typeof import('./components/LikeButton.vue')['default']

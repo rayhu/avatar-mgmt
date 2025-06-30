@@ -1,144 +1,454 @@
-{
-  "version": "1.0.0",
-  "collections": [
-    {
-      "collection": "avatars",
-      "meta": {
-        "icon": "person",
-        "note": "数字人形象库",
-        "display_template": "{{name}}"
-      },
-      "schema": {
-        "name": "avatars",
-        "comment": "数字人形象库"
-      }
-    }
-  ],
-  "fields": [
-    {
-      "collection": "avatars",
-      "field": "id",
-      "type": "integer",
-      "meta": {
-        "primary_key": true,
-        "auto_increment": true
-      },
-      "schema": {
-        "is_primary_key": true,
-        "has_auto_increment": true
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "name",
-      "type": "string",
-      "meta": {
-        "interface": "input",
-        "required": true,
-        "note": "形象名称"
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "purpose",
-      "type": "string",
-      "meta": {
-        "interface": "select-dropdown",
-        "options": {
-          "choices": [
-            { "text": "客服", "value": "客服" },
-            { "text": "品牌", "value": "品牌" },
-            { "text": "主持人", "value": "主持人" },
-            { "text": "AI助手", "value": "AI助手" }
-          ]
-        }
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "style",
-      "type": "string",
-      "meta": {
-        "interface": "select-dropdown",
-        "options": {
-          "choices": [
-            { "text": "卡通", "value": "卡通" },
-            { "text": "写实", "value": "写实" },
-            { "text": "未来感", "value": "未来感" },
-            { "text": "国风", "value": "国风" }
-          ]
-        }
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "description",
-      "type": "text",
-      "meta": {
-        "interface": "textarea"
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "tags",
-      "type": "json",
-      "meta": {
-        "interface": "tags"
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "glb_file",
-      "type": "uuid",
-      "meta": {
-        "interface": "file",
-        "special": ["file"]
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "preview",
-      "type": "uuid",
-      "meta": {
-        "interface": "file-image",
-        "special": ["file"]
-      }
-    }
-  ],
-  "relations": [
-    {
-      "collection": "avatars",
-      "field": "glb_file",
-      "related_collection": "directus_files",
-      "meta": {
-        "many_collection": "avatars",
-        "many_field": "glb_file",
-        "one_collection": "directus_files",
-        "one_deselect_action": "nullify"
-      },
-      "schema": {
-        "table": "avatars",
-        "column": "glb_file",
-        "foreign_key_table": "directus_files",
-        "foreign_key_column": "id"
-      }
-    },
-    {
-      "collection": "avatars",
-      "field": "preview",
-      "related_collection": "directus_files",
-      "meta": {
-        "many_collection": "avatars",
-        "many_field": "preview",
-        "one_collection": "directus_files",
-        "one_deselect_action": "nullify"
-      },
-      "schema": {
-        "table": "avatars",
-        "column": "preview",
-        "foreign_key_table": "directus_files",
-        "foreign_key_column": "id"
-      }
-    }
-  ]
-}
+version: 1
+directus: 11.8.0
+vendor: postgres
+collections:
+  - collection: avatars
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: avatars
+      color: null
+      display_template: '{{name}}'
+      group: null
+      hidden: false
+      icon: person
+      item_duplication_fields: null
+      note: 数字人形象库
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: avatars
+fields:
+  - collection: avatars
+    field: id
+    type: integer
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: false
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: avatars
+      data_type: integer
+      default_value: nextval('avatars_id_seq'::regclass)
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: false
+      is_unique: true
+      is_indexed: false
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: avatars
+    field: name
+    type: string
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: 形象名称
+      options: null
+      readonly: false
+      required: true
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: avatars
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: avatars
+    field: purpose
+    type: string
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: purpose
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: 客服
+            value: 客服
+          - text: 品牌
+            value: 品牌
+          - text: 主持人
+            value: 主持人
+          - text: AI助手
+            value: AI助手
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: purpose
+      table: avatars
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: avatars
+    field: style
+    type: string
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: style
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: 卡通
+            value: 卡通
+          - text: 写实
+            value: 写实
+          - text: 未来感
+            value: 未来感
+          - text: 国风
+            value: 国风
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: style
+      table: avatars
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: avatars
+    field: description
+    type: text
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: description
+      group: null
+      hidden: false
+      interface: textarea
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: description
+      table: avatars
+      data_type: text
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: avatars
+    field: tags
+    type: json
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: tags
+      group: null
+      hidden: false
+      interface: tags
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 8
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: tags
+      table: avatars
+      data_type: json
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: avatars
+    field: glb_file
+    type: uuid
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: glb_file
+      group: null
+      hidden: false
+      interface: file
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 9
+      special:
+        - file
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: glb_file
+      table: avatars
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_files
+      foreign_key_column: id
+  - collection: avatars
+    field: preview
+    type: uuid
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: preview
+      group: null
+      hidden: false
+      interface: file-image
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 10
+      special:
+        - file
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: preview
+      table: avatars
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_files
+      foreign_key_column: id
+  - collection: avatars
+    field: status
+    type: string
+    meta:
+      collection: avatars
+      conditions: null
+      display: null
+      display_options: null
+      field: status
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: 草稿
+            value: draft
+          - text: 停用
+            value: pending
+          - text: 待审
+            value: processing
+          - text: 就绪
+            value: ready
+          - text: 有错
+            value: error
+      readonly: false
+      required: false
+      sort: 11
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: status
+      table: avatars
+      data_type: character varying
+      default_value: draft
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+relations:
+  - collection: avatars
+    field: glb_file
+    related_collection: directus_files
+    meta:
+      junction_field: null
+      many_collection: avatars
+      many_field: glb_file
+      one_allowed_collections: null
+      one_collection: directus_files
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: avatars
+      column: glb_file
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      constraint_name: avatars_glb_file_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: avatars
+    field: preview
+    related_collection: directus_files
+    meta:
+      junction_field: null
+      many_collection: avatars
+      many_field: preview
+      one_allowed_collections: null
+      one_collection: directus_files
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: avatars
+      column: preview
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      constraint_name: avatars_preview_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
