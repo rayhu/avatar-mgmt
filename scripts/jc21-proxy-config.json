@@ -1,0 +1,133 @@
+{
+  "description": "jc21 Nginx Proxy Manager 代理主机配置文件",
+  "version": "1.0",
+  "created_at": "2025-01-01T00:00:00Z",
+  "configs": [
+    {
+      "name": "API 服务",
+      "domain_names": "api.daidai.amis.hk",
+      "forward_host": "api",
+      "forward_port": 3000,
+      "forward_scheme": "http",
+      "ssl_forced": true,
+      "websockets_support": true,
+      "block_exploits": true,
+      "advanced_config": "# API 服务自定义配置\nclient_max_body_size 10M;\nproxy_read_timeout 300s;\nproxy_connect_timeout 75s;\nproxy_send_timeout 300s;",
+      "locations": []
+    },
+    {
+      "name": "Directus 管理界面",
+      "domain_names": "admin.daidai.amis.hk",
+      "forward_host": "directus",
+      "forward_port": 8055,
+      "forward_scheme": "http",
+      "ssl_forced": true,
+      "websockets_support": true,
+      "block_exploits": true,
+      "advanced_config": "",
+      "locations": []
+    },
+    {
+      "name": "前端应用",
+      "domain_names": "daidai.amis.hk",
+      "forward_host": "frontend",
+      "forward_port": 80,
+      "forward_scheme": "http",
+      "ssl_forced": true,
+      "websockets_support": false,
+      "block_exploits": true,
+      "advanced_config": "",
+      "locations": []
+    },
+    {
+      "name": "API 服务 (路径代理)",
+      "domain_names": "daidai.amis.hk",
+      "forward_host": "api",
+      "forward_port": 3000,
+      "forward_scheme": "http",
+      "ssl_forced": true,
+      "websockets_support": true,
+      "block_exploits": true,
+      "advanced_config": "",
+      "locations": [
+        {
+          "path": "/api",
+          "forward_host": "api",
+          "forward_port": 3000,
+          "forward_scheme": "http"
+        }
+      ]
+    },
+    {
+      "name": "Directus 管理界面 (路径代理)",
+      "domain_names": "daidai.amis.hk",
+      "forward_host": "directus",
+      "forward_port": 8055,
+      "forward_scheme": "http",
+      "ssl_forced": true,
+      "websockets_support": true,
+      "block_exploits": true,
+      "advanced_config": "",
+      "locations": [
+        {
+          "path": "/admin",
+          "forward_host": "directus",
+          "forward_port": 8055,
+          "forward_scheme": "http"
+        }
+      ]
+    }
+  ],
+  "local_test_configs": [
+    {
+      "name": "API 服务 (本地测试)",
+      "domain_names": "localhost",
+      "forward_host": "api",
+      "forward_port": 3000,
+      "forward_scheme": "http",
+      "ssl_forced": false,
+      "websockets_support": true,
+      "block_exploits": true,
+      "advanced_config": "",
+      "locations": []
+    },
+    {
+      "name": "Directus 管理界面 (本地测试)",
+      "domain_names": "localhost",
+      "forward_host": "directus",
+      "forward_port": 8055,
+      "forward_scheme": "http",
+      "ssl_forced": false,
+      "websockets_support": true,
+      "block_exploits": true,
+      "advanced_config": "",
+      "locations": []
+    }
+  ],
+  "ssl_configs": [
+    {
+      "proxy_host_id": 1,
+      "ssl_forced": true,
+      "http2_support": true,
+      "hsts_enabled": true,
+      "hsts_subdomains": true,
+      "certificate_id": null
+    },
+    {
+      "proxy_host_id": 2,
+      "ssl_forced": true,
+      "http2_support": true,
+      "hsts_enabled": true,
+      "hsts_subdomains": true,
+      "certificate_id": null
+    },
+    {
+      "proxy_host_id": 3,
+      "ssl_forced": true,
+      "http2_support": true,
+      "hsts_enabled": true,
+      "hsts_subdomains": true,
+      "certificate_id": null
+    }
+  ]
+} 
