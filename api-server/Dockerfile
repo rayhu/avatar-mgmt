@@ -2,7 +2,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Copy api-server package.json for dependencies
-COPY 。/package.json ./package.json
+COPY ./package.json ./package.json
 RUN npm install
 
 # Copy api-server source
