@@ -1,0 +1,140 @@
+{
+  "description": "jc21 路径分离架构配置文件",
+  "version": "1.0",
+  "architecture": "path-based",
+  "created_at": "2025-01-01T00:00:00Z",
+  "configs": {
+    "production": {
+      "domain": "daidai.amis.hk",
+      "ssl_enabled": true,
+      "main_proxy": {
+        "name": "主域名代理",
+        "domain_names": "daidai.amis.hk",
+        "forward_host": "frontend",
+        "forward_port": 80,
+        "forward_scheme": "http",
+        "ssl_forced": true,
+        "websockets_support": false,
+        "block_exploits": true,
+        "advanced_config": "# 路径分离配置\nlocation /api/ {\n    proxy_pass http://api:3000/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n    \n    # API 特定配置\n    proxy_read_timeout 300s;\n    proxy_connect_timeout 75s;\n    proxy_send_timeout 300s;\n    client_max_body_size 10M;\n}\n\nlocation /directus/ {\n    proxy_pass http://directus:8055/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n    \n    # Directus 特定配置\n    proxy_read_timeout 300s;\n    proxy_connect_timeout 75s;\n    proxy_send_timeout 300s;\n    client_max_body_size 50M;\n}\n\nlocation /admin/ {\n    proxy_pass http://directus:8055/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n    \n    # Directus 管理界面特定配置\n    proxy_read_timeout 300s;\n    proxy_connect_timeout 75s;\n    proxy_send_timeout 300s;\n    client_max_body_size 50M;\n}\n\n# 前端静态文件配置\nlocation / {\n    try_files $uri $uri/ /index.html;\n    \n    # 静态文件缓存\n    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {\n        expires 1y;\n        add_header Cache-Control \"public, immutable\";\n    }\n}",
+        "locations": [
+          {
+            "path": "/api",
+            "forward_host": "api",
+            "forward_port": 3000,
+            "forward_scheme": "http",
+            "description": "API 服务路径"
+          },
+          {
+            "path": "/directus",
+            "forward_host": "directus",
+            "forward_port": 8055,
+            "forward_scheme": "http",
+            "description": "Directus 服务路径"
+          },
+          {
+            "path": "/admin",
+            "forward_host": "directus",
+            "forward_port": 8055,
+            "forward_scheme": "http",
+            "description": "Directus 管理界面路径"
+          }
+        ]
+      }
+    },
+    "local_test": {
+      "domain": "localhost",
+      "ssl_enabled": false,
+      "main_proxy": {
+        "name": "本地测试代理",
+        "domain_names": "localhost",
+        "forward_host": "frontend",
+        "forward_port": 80,
+        "forward_scheme": "http",
+        "ssl_forced": false,
+        "websockets_support": false,
+        "block_exploits": true,
+        "advanced_config": "# 本地测试路径分离配置\nlocation /api/ {\n    proxy_pass http://api:3000/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n    \n    # API 特定配置\n    proxy_read_timeout 300s;\n    proxy_connect_timeout 75s;\n    proxy_send_timeout 300s;\n    client_max_body_size 10M;\n}\n\nlocation /directus/ {\n    proxy_pass http://directus:8055/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n    \n    # Directus 特定配置\n    proxy_read_timeout 300s;\n    proxy_connect_timeout 75s;\n    proxy_send_timeout 300s;\n    client_max_body_size 50M;\n}\n\nlocation /admin/ {\n    proxy_pass http://directus:8055/;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Proto $scheme;\n    \n    # Directus 管理界面特定配置\n    proxy_read_timeout 300s;\n    proxy_connect_timeout 75s;\n    proxy_send_timeout 300s;\n    client_max_body_size 50M;\n}\n\n# 前端静态文件配置\nlocation / {\n    try_files $uri $uri/ /index.html;\n}",
+        "locations": [
+          {
+            "path": "/api",
+            "forward_host": "api",
+            "forward_port": 3000,
+            "forward_scheme": "http",
+            "description": "API 服务路径"
+          },
+          {
+            "path": "/directus",
+            "forward_host": "directus",
+            "forward_port": 8055,
+            "forward_scheme": "http",
+            "description": "Directus 服务路径"
+          },
+          {
+            "path": "/admin",
+            "forward_host": "directus",
+            "forward_port": 8055,
+            "forward_scheme": "http",
+            "description": "Directus 管理界面路径"
+          }
+        ]
+      }
+    }
+  },
+  "service_mapping": {
+    "frontend": {
+      "container": "frontend",
+      "port": 80,
+      "description": "前端静态页面服务",
+      "paths": ["/"]
+    },
+    "api": {
+      "container": "api",
+      "port": 3000,
+      "description": "后端 API 服务",
+      "paths": ["/api/*"]
+    },
+    "directus": {
+      "container": "directus",
+      "port": 8055,
+      "description": "Directus CMS 服务",
+      "paths": ["/directus/*", "/admin/*"]
+    }
+  },
+  "access_urls": {
+    "production": {
+      "frontend": "https://daidai.amis.hk",
+      "api": "https://daidai.amis.hk/api",
+      "directus": "https://daidai.amis.hk/directus",
+      "admin": "https://daidai.amis.hk/admin"
+    },
+    "local_test": {
+      "frontend": "http://localhost",
+      "api": "http://localhost/api",
+      "directus": "http://localhost/directus",
+      "admin": "http://localhost/admin"
+    }
+  },
+  "deployment_notes": {
+    "advantages": [
+      "单域名管理，简化 DNS 配置",
+      "统一的 SSL 证书管理",
+      "更好的缓存控制",
+      "简化的防火墙规则",
+      "统一的访问日志"
+    ],
+    "considerations": [
+      "需要确保路径不冲突",
+      "API 路径需要正确处理前缀",
+      "静态文件需要正确配置缓存",
+      "需要处理 SPA 路由"
+    ],
+    "best_practices": [
+      "使用路径前缀区分服务",
+      "配置适当的超时时间",
+      "启用静态文件缓存",
+      "配置错误页面",
+      "监控服务健康状态"
+    ]
+  }
+} 
