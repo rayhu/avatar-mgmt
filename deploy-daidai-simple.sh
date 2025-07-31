@@ -6,7 +6,7 @@
 set -e
 
 # 配置变量
-DOMAIN="daidai.amis.hk"
+DOMAIN="xiaoying.amis.hk"
 PROJECT_DIR="$(pwd)"
 
 # 颜色定义
