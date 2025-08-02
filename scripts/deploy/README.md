@@ -13,8 +13,7 @@ scripts/deploy/
 ├── modules/             # 功能模块
 │   ├── common.sh        # 通用功能（日志、配置、错误处理）
 │   ├── build.sh         # 构建模块（前端、API）
-│   ├── deploy.sh        # 部署模块（服务器部署）
-│   └── config.sh        # 配置模块（JC21配置）
+│   └── deploy.sh        # 部署模块（服务器部署）
 └── README.md           # 说明文档
 ```
 
@@ -36,9 +35,6 @@ scripts/deploy/
 
 # 完整部署
 ./scripts/deploy/main.sh deploy --full
-
-# 配置JC21
-./scripts/deploy/main.sh config --configure
 
 # 测试部署
 ./scripts/deploy/main.sh test
@@ -73,13 +69,7 @@ export DOMAIN="daidai.amis.hk"
   - `--start`: 只启动服务
   - `--status`: 检查服务状态
 
-### **4. Config Module (`config.sh`)**
-- **功能**: JC21配置管理
-- **选项**:
-  - `--configure`: 配置JC21
-  - `--check`: 检查配置
-  - `--reset`: 重置配置
-  - `--test`: 测试连接
+
 
 ## 🔧 **快速命令**
 
@@ -91,10 +81,7 @@ export DOMAIN="daidai.amis.hk"
 # 2. 部署到服务器
 ./scripts/deploy/main.sh deploy --full
 
-# 3. 配置JC21
-./scripts/deploy/main.sh config --configure
-
-# 4. 测试部署
+# 3. 测试部署
 ./scripts/deploy/main.sh test
 ```
 
@@ -137,11 +124,7 @@ export DOMAIN="daidai.amis.hk"
    docker compose version
    ```
 
-4. **JC21配置问题**
-   ```bash
-   # 重置JC21配置
-   ./scripts/deploy/main.sh config --reset
-   ```
+
 
 ## 📈 **优势对比**
 
@@ -169,8 +152,8 @@ export DOMAIN="daidai.amis.hk"
 2. **使用新系统**
    ```bash
    # 替换旧命令
-   # 旧: ./scripts/deploy-to-singapore.sh --deploy
-   # 新: ./scripts/deploy/main.sh deploy --full
+   # 旧: ./scripts/deploy-to-singapore.sh --deploy  
+# 新: ./scripts/deploy/main.sh deploy --full
    ```
 
 3. **更新CI/CD**
@@ -207,12 +190,4 @@ export DOMAIN="daidai.amis.hk"
 **这个新的部署系统提供了更好的可维护性、可扩展性和错误处理能力！** 🚀 
 
 
-检查前端是否工作：
-```
-sudo docker exec avatar-mgmt-nginx-proxy-manager-1 curl -s http://frontend:80
-```
 
-检查API是否工作：
-```
-sudo docker exec avatar-mgmt-nginx-proxy-manager-1 curl -s http://api:3000/health
-```
