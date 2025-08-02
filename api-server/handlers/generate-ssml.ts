@@ -144,14 +144,33 @@ function loadVoiceStyleMap(): Record<string, string[]> {
   if (voiceStyleMap) return voiceStyleMap;
   
   try {
-    const jsonPath = path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json');
-    const raw = fs.readFileSync(jsonPath, 'utf-8');
-    const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
-    voiceStyleMap = {};
-    list.forEach((v) => {
-      voiceStyleMap![v.name] = v.styles ?? [];
-    });
-    console.log('[generate-ssml] Loaded voice styles from azure-voices-zh.json');
+    // 尝试多个可能的路径
+    const possiblePaths = [
+      path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json'),
+      path.join(process.cwd(), 'public', 'azure-voices-zh.json'),
+      path.join(process.cwd(), 'azure-voices-zh.json'),
+      '/app/public/azure-voices-zh.json'
+    ];
+    
+    let jsonPath = null;
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        jsonPath = p;
+        break;
+      }
+    }
+    
+    if (jsonPath) {
+      const raw = fs.readFileSync(jsonPath, 'utf-8');
+      const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
+      voiceStyleMap = {};
+      list.forEach((v) => {
+        voiceStyleMap![v.name] = v.styles ?? [];
+      });
+      console.log('[generate-ssml] Loaded voice styles from azure-voices-zh.json');
+    } else {
+      throw new Error('azure-voices-zh.json not found in any expected location');
+    }
   } catch (err) {
     console.warn('[generate-ssml] Failed to load azure-voices-zh.json, fallback to static map:', err);
     voiceStyleMap = VOICE_STYLES;
