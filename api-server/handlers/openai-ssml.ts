@@ -152,14 +152,33 @@ const VOICE_STYLES: Record<string, string[]> = {
 
 // 尝试从本地 JSON 文件加载 voice → styles 映射，成功后覆盖默认 VOICE_STYLES
 try {
-  const jsonPath = path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json');
-  const raw = fs.readFileSync(jsonPath, 'utf-8');
-  const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
-  list.forEach((v) => {
-    VOICE_STYLES[v.name] = v.styles ?? [];
-  });
-  // eslint-disable-next-line no-console
-  console.log('[openai-ssml] Loaded voice styles from azure-voices-zh.json');
+  // 尝试多个可能的路径
+  const possiblePaths = [
+    path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json'),
+    path.join(process.cwd(), 'public', 'azure-voices-zh.json'),
+    path.join(process.cwd(), 'azure-voices-zh.json'),
+    '/app/public/azure-voices-zh.json'
+  ];
+  
+  let jsonPath = null;
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      jsonPath = p;
+      break;
+    }
+  }
+  
+  if (jsonPath) {
+    const raw = fs.readFileSync(jsonPath, 'utf-8');
+    const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
+    list.forEach((v) => {
+      VOICE_STYLES[v.name] = v.styles ?? [];
+    });
+    // eslint-disable-next-line no-console
+    console.log('[openai-ssml] Loaded voice styles from azure-voices-zh.json');
+  } else {
+    throw new Error('azure-voices-zh.json not found in any expected location');
+  }
 } catch (err) {
   // eslint-disable-next-line no-console
   console.warn('[openai-ssml] Failed to load azure-voices-zh.json, fallback to static map.', err);

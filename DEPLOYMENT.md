@@ -1,168 +1,244 @@
-# 部署指南
+# Avatar Management 部署指南
 
-## Vercel 部署
+## 📋 **概述**
 
-1. 确保代码已提交到主分支
-2. 执行部署命令：
-   ```bash
-   npx vercel --prod
-   ```
+本文档描述了如何部署 Avatar Management 系统到生产环境。系统使用 Docker Compose 和 JC21 Nginx Proxy Manager 进行容器化部署。
 
-## 域名配置
+## 🏗️ **系统架构**
 
-项目使用以下域名：
-- 主域名：https://amis-avatar-mgmt.vercel.app
-- 预览域名：https://amis-avatar-mgmt-d4s2fjsmm-rays-projects-83e166d9.vercel.app
-
-## 环境要求
-
-- Node.js 16+
-- Vercel CLI
-
-## 部署流程
-
-1. 开发环境
-   - 使用 `npx vercel` 部署到预览环境
-   - 自动生成预览域名
-   - 适合测试和代码审查
-
-2. 生产环境
-   - 使用 `npx vercel --prod` 部署到生产环境
-   - 自动部署到主域名
-   - 确保代码已通过测试
-
-## 环境变量
-
-确保以下环境变量已正确配置：
-- `VITE_API_URL`: API 服务器地址
-- `VITE_DIRECTUS_URL`: Directus 服务器地址
-- `VITE_DIRECTUS_TOKEN`: Directus 访问令牌
-
-## 故障排除
-
-1. 部署失败
-   - 检查 Node.js 版本
-   - 确认所有依赖已正确安装
-   - 查看 Vercel 部署日志
-
-2. 环境变量问题
-   - 在 Vercel 项目设置中检查环境变量
-   - 确保所有必需的环境变量都已设置
-
-3. 构建错误
-   - 检查 `package.json` 中的构建脚本
-   - 确认所有依赖版本兼容
-   - 查看构建日志获取详细错误信息
-
-## 回滚部署
-
-如果需要回滚到之前的版本：
-1. 在 Vercel 仪表板中找到之前的部署
-2. 点击 "..." 菜单
-3. 选择 "Promote to Production"
-
-## 监控和维护
-
-- 使用 Vercel Analytics 监控应用性能
-- 定期检查部署日志
-- 保持依赖包更新
-- 定期备份数据
-
-## Docker 生产部署（内部服务器）
-
-> 适用于 **小赢生产环境**，使用 `docker-compose.prod.yml` 一键启动 Directus、API Server、Postgres 与 Nginx。Vercel 仅用于开发测试，两套部署方式互不影响。
-
-### 准备工作
-1. 在目标服务器安装 Docker & Compose：
-   ```bash
-   curl -fsSL https://get.docker.com | sudo sh
-   sudo apt-get install -y docker-compose-plugin   # Linux
-   ```
-2. 克隆仓库到 `/opt/avatar-mgmt`（或任意目录）。
-3. 复制或编辑 `.env` 并填写生产凭据：
-   ```dotenv
-   # Directus
-   KEY=supersecretkey
-   SECRET=supersecretsecret
-   ADMIN_EMAIL=admin@example.com
-   ADMIN_PASSWORD=StrongPwd123
-   DB_CLIENT=postgres
-   DB_HOST=db
-   DB_PORT=5432
-   DB_DATABASE=directus
-   DB_USER=directus
-   DB_PASSWORD=directus
-
-   # OpenAI
-   OPENAI_API_KEY=sk-xxxx
-   # Azure Speech
-   AZURE_SPEECH_KEY=your-azure-key
-   AZURE_SPEECH_REGION=eastasia
-   ```
-
-### 启动命令
-```bash
-# 首次启动（含构建镜像）
-docker compose -f docker-compose.prod.yml up -d --build
-
-# 查看日志
-docker compose -f docker-compose.prod.yml logs -f
+```
+用户请求 → JC21 Nginx Proxy Manager → 各服务容器
+├── 前端 (Vue.js + Vite) → nginx:alpine
+├── API服务 (Node.js + Express) → avatar-mgmt-api
+├── 数据库 (PostgreSQL) → postgres:15
+├── CMS (Directus) → directus/directus:11.8
+└── 代理管理 (JC21) → jc21/nginx-proxy-manager
 ```
 
-### 默认端口
-| 服务 | 端口 | 说明 |
-| ---- | ---- | ---- |
-| Directus | 8055 (内部) / 80 (外部 Nginx) | `/admin` 后台 |
-| API Server | 3000 (内部) / 80 | `/api/*` |
-| Postgres | 5432 (内部) | 仅内部访问 |
+## 🚀 **快速部署**
 
-> 若 80/443 被占用，可修改 `docker-compose.prod.yml` 中 `nginx` 的 `ports` 映射，如 `"8080:80"`。
+### **1. 环境准备**
 
-### 备份与恢复
-- **Schema**：`directus schema snapshot schemas/snapshot.json`
-- **数据库**：`pg_dump -Fc -d directus > backup_$(date +%F).dump`
-- **文件**：`tar czf uploads_$(date +%F).tgz uploads/`
+确保本地环境已安装：
+- Node.js 22+
+- Yarn 1.22+
+- Docker & Docker Compose
+- SSH 密钥配置
 
-恢复顺序：数据库 → Schema Apply → 解压 uploads。
+### **2. 构建项目**
 
-### 常见问题排查（Docker）
-| 症状 | 日志关键词 | 解决方案 |
-| ---- | ---------- | -------- |
-| Nginx 报 `host not found in upstream "directus"` | nginx | 确保 `directus` 容器已启动，且 `docker compose restart nginx` 后重新解析 DNS |
-| API 报 `ERR_UNKNOWN_FILE_EXTENSION ".ts"` | api | `package.json` 中 `start` 使用 `tsx index.ts`，重建镜像 `docker compose build --no-cache api` |
-| API 返回 `OPENAI_API_KEY is not configured.` | api | 在 `.env` 填入有效 `OPENAI_API_KEY`，并 `docker compose up -d --build api` |
-| Directus 连接 `::1:54321` 失败 | directus | `.env` 中 `DB_HOST=db`、`DB_PORT=5432`，不要写宿主端口 |
+```bash
+# 构建前端
+cd frontend && yarn install && yarn build
 
-> 建议每次修改 `.env` 或 Dockerfile 后使用 `docker compose build --no-cache` 强制重建，避免旧缓存。
+# 构建API镜像
+docker build -t avatar-mgmt-api:latest -f api-server/Dockerfile .
+```
 
-## 本地 Docker 测试
+### **3. 部署到服务器**
 
-1. 使用测试凭据创建 `.env` 文件（可复用上面模板）。
-2. 运行：
-   ```bash
-   docker compose -f docker-compose.prod.yml up -d --build
-   ```
-3. 访问：
-   - `http://localhost/admin` Directus 后台
-   - `http://localhost/api/openai-ssml` POST 测试 `{ "text":"你好" }`
-   - `http://localhost/health` API 健康检查
-4. 停止并清理：
-   ```bash
-   docker compose -f docker-compose.prod.yml down   # 保留数据卷
-   # or
-   docker compose -f docker-compose.prod.yml down -v # 删除数据卷（慎用）
-   ```
+使用新的模块化部署系统：
 
+```bash
+# 完整部署流程
+./scripts/deploy/main.sh build --all
+./scripts/deploy/main.sh deploy --full
+```
 
-## 新增环境变量说明
-| 变量 | 作用 |
-| ---- | ---- |
-| `OPENAI_API_KEY` | OpenAI 调用凭证 |
-| `AZURE_SPEECH_KEY` | Azure Speech 服务 Key |
-| `AZURE_SPEECH_REGION` | Azure 区域（eastasia 等） |
-| `KEY`/`SECRET` | Directus JWT & 加密密钥 |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Directus 初始管理员 |
+### **4. 配置JC21**
+
+1. **访问管理界面**: http://daidai.amis.hk:81
+2. **登录**: admin@example.com / changeme
+3. **配置路径代理**:
+
+#### **路径代理配置**
+```
+路径: /api/ → 转发到: api:3000
+路径: /directus/ → 转发到: directus:8055
+路径: / → 转发到: frontend:80
+```
+
+#### **高级配置示例**
+```nginx
+location /api/ {
+    proxy_pass http://api:3000/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+## 📦 **模块化部署系统**
+
+### **使用新的部署脚本**
+
+```bash
+# 查看帮助
+./scripts/deploy/main.sh --help
+
+# 构建组件
+./scripts/deploy/main.sh build --frontend
+./scripts/deploy/main.sh build --api
+./scripts/deploy/main.sh build --all
+
+# 部署到服务器
+./scripts/deploy/main.sh deploy --full
+./scripts/deploy/main.sh deploy --sync
+./scripts/deploy/main.sh deploy --status
+
+# 配置JC21
+./scripts/deploy/main.sh config --configure
+./scripts/deploy/main.sh config --test
+
+# 维护操作
+./scripts/deploy/main.sh logs
+./scripts/deploy/main.sh status
+./scripts/deploy/main.sh backup
+```
+
+### **环境变量配置**
+
+```bash
+export SERVER_HOST="daidai-singapore"
+export REMOTE_DIR="/opt/avatar-mgmt"
+export DOMAIN="daidai.amis.hk"
+```
+
+## 🔧 **服务配置**
+
+### **Docker Compose 配置**
+
+主要服务配置在 `docker-compose.prod-simple.yml`:
+
+```yaml
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api-server/Dockerfile
+    expose:
+      - "3000"
+    networks:
+      - internal
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+    networks:
+      - internal
+
+  directus:
+    image: directus/directus:11.8
+    expose:
+      - "8055"
+    networks:
+      - internal
+
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - '80:80'
+      - '443:443'
+      - '81:81'
+    volumes:
+      - ./jc21/data:/data
+      - ./jc21/letsencrypt:/etc/letsencrypt
+    networks:
+      - internal
+```
+
+## 🌐 **访问地址**
+
+### **生产环境**
+- **前端应用**: https://daidai.amis.hk
+- **API服务**: https://daidai.amis.hk/api/health
+- **Directus管理**: https://daidai.amis.hk/directus
+- **JC21管理**: http://daidai.amis.hk:81
+
+### **测试命令**
+```bash
+# 测试前端
+curl -s -o /dev/null -w "%{http_code}" https://daidai.amis.hk
+
+# 测试API
+curl -s https://daidai.amis.hk/api/health
+
+# 测试JC21管理界面
+curl -s -o /dev/null -w "%{http_code}" http://daidai.amis.hk:81
+```
+
+## 🛠️ **故障排除**
+
+### **常见问题**
+
+1. **JC21路径代理不工作**
+   - 检查nginx配置中的 `proxy_pass` 末尾是否有斜杠
+   - 确保路径匹配正确
+
+2. **API服务无法访问**
+   - 检查容器是否正常运行: `docker ps`
+   - 检查API健康状态: `curl http://api:3000/health`
+
+3. **前端构建失败**
+   - 清理node_modules: `rm -rf node_modules yarn.lock`
+   - 重新安装: `yarn install`
+
+4. **JC21登录问题**
+   - 默认凭据: admin@example.com / changeme
+   - 如需重置: 删除jc21数据目录重新部署
+
+### **日志查看**
+
+```bash
+# 查看所有服务日志
+./scripts/deploy/main.sh logs
+
+# 查看特定服务日志
+ssh daidai-singapore "cd /opt/avatar-mgmt && sudo docker compose logs api"
+```
+
+## 🔄 **维护操作**
+
+### **备份数据**
+```bash
+./scripts/deploy/main.sh backup
+```
+
+### **重启服务**
+```bash
+./scripts/deploy/main.sh deploy --restart
+```
+
+### **更新部署**
+```bash
+./scripts/deploy/main.sh build --all
+./scripts/deploy/main.sh deploy --sync
+./scripts/deploy/main.sh deploy --restart
+```
+
+## 📋 **部署检查清单**
+
+- [ ] 前端构建成功
+- [ ] API镜像构建成功
+- [ ] 代码同步到服务器
+- [ ] Docker容器启动正常
+- [ ] JC21配置正确
+- [ ] 路径代理工作正常
+- [ ] 所有服务可访问
+- [ ] SSL证书配置（可选）
+
+## 🎯 **最佳实践**
+
+1. **使用模块化部署脚本** - 避免手动操作
+2. **定期备份数据** - 保护重要配置
+3. **监控服务状态** - 及时发现问题
+4. **测试所有功能** - 确保部署成功
+5. **记录配置变更** - 便于问题排查
 
 ---
 
-> **开发环境仍使用 Vercel**：`npx vercel` → 预览，`npx vercel --prod` → 生产（测试域名）。两者与 Docker 生产环境互不干扰，只需在 `.env` 或 Vercel Dashboard 配置对应的 API 地址即可。 
+**使用新的模块化部署系统，部署过程更加可靠和可维护！** 🚀 

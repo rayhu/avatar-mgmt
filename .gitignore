@@ -206,4 +206,5 @@ public/models/*.bin
 !/jc21/data/**/*
 !/jc21/letsencrypt/**/*
 frontend/public/audio-samples/
-
+/data/**/*
+!/data/.gitkeep
