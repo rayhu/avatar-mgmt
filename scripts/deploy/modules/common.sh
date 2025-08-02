@@ -96,7 +96,6 @@ show_help() {
 模块:
   build       构建前端
   deploy      部署到服务器
-  config      配置JC21
   test        测试部署
   logs        查看日志
   status      查看状态
@@ -115,6 +114,6 @@ show_help() {
 示例:
   $0 build
   $0 deploy
-  $0 config
+  $0 test
 "
 } 

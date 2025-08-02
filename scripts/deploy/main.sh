@@ -22,7 +22,6 @@ Avatar Management 部署系统
 模块:
   build       构建前端和API镜像
   deploy      部署到服务器
-  config      配置JC21
   test        测试部署
   logs        查看日志
   status      查看状态
@@ -41,13 +40,12 @@ Avatar Management 部署系统
 快速命令:
   $0 build --all              # 构建所有组件
   $0 deploy --full            # 完整部署
-  $0 config --configure       # 配置JC21
   $0 test                     # 测试部署
 
 示例:
   $0 build --frontend
   $0 deploy --sync
-  $0 config --test
+  $0 test
 "
 }
 
@@ -61,10 +59,6 @@ test_deployment() {
     # 检查服务状态
     source "$MODULES_DIR/deploy.sh"
     check_service_status
-    
-    # 测试JC21连接
-    source "$MODULES_DIR/config.sh"
-    test_jc21_connections
     
     log_success "部署测试完成"
 }
@@ -95,10 +89,6 @@ backup_data() {
     local backup_dir="./backups/$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$backup_dir"
     
-    # 备份JC21数据
-    remote_exec "cd $REMOTE_DIR && sudo tar -czf jc21-backup.tar.gz jc21/"
-    rsync -avz "$SERVER_HOST:$REMOTE_DIR/jc21-backup.tar.gz" "$backup_dir/"
-    
     # 备份Directus数据
     remote_exec "cd $REMOTE_DIR && sudo tar -czf directus-backup.tar.gz directus/"
     rsync -avz "$SERVER_HOST:$REMOTE_DIR/directus-backup.tar.gz" "$backup_dir/"
@@ -118,12 +108,6 @@ restore_data() {
     log_info "恢复数据: $backup_dir"
     
     check_ssh_connection
-    
-    # 恢复JC21数据
-    if [ -f "$backup_dir/jc21-backup.tar.gz" ]; then
-        rsync -avz "$backup_dir/jc21-backup.tar.gz" "$SERVER_HOST:$REMOTE_DIR/"
-        remote_exec "cd $REMOTE_DIR && sudo tar -xzf jc21-backup.tar.gz"
-    fi
     
     # 恢复Directus数据
     if [ -f "$backup_dir/directus-backup.tar.gz" ]; then
@@ -148,10 +132,7 @@ main() {
             source "$MODULES_DIR/deploy.sh"
             main "$@"
             ;;
-        config)
-            source "$MODULES_DIR/config.sh"
-            main "$@"
-            ;;
+
         test)
             test_deployment
             ;;
