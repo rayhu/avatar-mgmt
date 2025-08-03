@@ -36,7 +36,7 @@ export default defineConfig({
       },
     }),
     viteCompression(),
-  ],
+  ] as any, // 临时类型断言解决兼容性问题
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -52,14 +52,8 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
-    proxy: {
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
-      '/directus/assets': {
-        target: 'http://localhost:8055',
-        changeOrigin: true,
-        rewrite: path => path.replace(/^\/directus\/assets/, '/assets'),
-      },
-    },
+    // 移除代理配置，因为现在使用域名架构
+    // 前端直接调用 api.daidai.localhost 和 directus.daidai.localhost
   },
   envDir: '.',
 });

@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 import Login from '../views/Login.vue';
 import TestViewer from '../views/TestViewer.vue';
+import EnvTest from '../views/EnvTest.vue';
 import { useAuthStore } from '../store';
 import { logger } from '@/utils/logger';
 
@@ -54,6 +55,15 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'test.title',
       roles: ['admin'], // 仅管理员可访问
+    },
+  },
+  {
+    path: '/env-test',
+    name: 'envTest',
+    component: EnvTest,
+    meta: {
+      title: '环境测试',
+      public: true, // 公开路由，不需要登录
     },
   },
   {
