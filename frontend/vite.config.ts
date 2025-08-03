@@ -10,6 +10,9 @@ export default defineConfig(({ mode }) => {
   console.log('🔧 Vite 构建模式:', mode);
   
   return {
+    preview: {
+      allowedHosts: 'all'
+    },
     plugins: [
       vue(),
       AutoImport({
