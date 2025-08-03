@@ -55,8 +55,6 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       open: true,
-      // 移除代理配置，因为现在使用域名架构
-      // 前端直接调用 api.daidai.localhost 和 directus.daidai.localhost
     },
     envDir: '.',
     // 根据模式设置不同的环境变量

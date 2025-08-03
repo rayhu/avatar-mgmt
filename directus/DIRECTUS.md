@@ -196,5 +196,10 @@ export DIRECTUS_ADMIN_EMAIL=admin@example.com
 export DIRECTUS_ADMIN_PASSWORD=your_admin_password
 
 node setup-directus-permissions.js
+
+
 ```
 脚本会自动检测是否已存在权限和策略，不会重复创建，可以安全多次运行。
+
+#### 自行检查也可查看 Public 在 Directus_files上的权限
+http://directus.daidai.localhost:8055/admin/settings/policies

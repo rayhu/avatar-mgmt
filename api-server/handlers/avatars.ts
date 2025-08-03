@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
-
+ 
 // 获取 Directus 配置
 function getDirectusConfig() {
   const env = process.env.NODE_ENV || 'development';
