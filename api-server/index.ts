@@ -38,12 +38,19 @@ function displayEnvironmentConfig() {
   console.log(`📌 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🚀 PORT: ${process.env.PORT || '3000'}`);
   console.log(`🏗️ DIRECTUS_URL: ${process.env.DIRECTUS_URL || '❌ 未配置'}`);
-  console.log(`🔑 DIRECTUS_TOKEN: ${process.env.DIRECTUS_TOKEN ? '✅ 已配置 (长度: ' + process.env.DIRECTUS_TOKEN.length + ')' : '❌ 未配置'}`);
-  
+  if (process.env.DIRECTUS_TOKEN) {
+    const token = process.env.DIRECTUS_TOKEN;
+    const len = token.length;
+    const start = token.slice(0, 4);
+    const end = token.slice(-4);
+    console.log(`🔑 DIRECTUS_TOKEN: ✅ 已配置 (长度: ${len}, 开头: ${start}, 结尾: ${end})`);
+  } else {
+    console.log('🔑 DIRECTUS_TOKEN: ❌ 未配置');
+  }
+
   // 显示其他相关环境变量
   const otherEnvs = [
-    'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USER',
-    'KEY', 'SECRET', 'PUBLIC_URL', 'CORS_ENABLED', 'CORS_ORIGIN'
+    'OPENAI_API_KEY', 'AZURE_SPEECH_KEY', 'AZURE_SPEECH_REGION'
   ];
   
   const configuredEnvs = otherEnvs.filter(env => process.env[env]);
