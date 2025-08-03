@@ -44,7 +44,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env.local-test
+      - .env.stage.directus
     environment:
       POSTGRES_DB: directus
     volumes:
@@ -65,7 +65,7 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env.local-test
+      - .env.stage.directus
     volumes:
       - ./directus/uploads:/directus/uploads
       - ./directus/extensions:/directus/extensions
@@ -90,7 +90,7 @@ services:
     depends_on:
       - directus
     env_file:
-      - .env.local-test
+      - .env.stage.api
     ports:
       - "3000:3000"
     networks:
