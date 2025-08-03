@@ -1,15 +1,7 @@
 import type { Request, Response } from 'express';
 import axios from 'axios';
  
-// 构建 Directus assets URL - 使用环境变量
-function buildDirectusAssetsUrl(fileId: string): string {
-  // 直接使用环境变量中的 DIRECTUS_URL
-  const directusUrl = process.env.DIRECTUS_URL;
-  if (!directusUrl) {
-    throw new Error('DIRECTUS_URL 环境变量未配置');
-  }
-  return `${directusUrl}/assets/${fileId}`;
-}
+// 注意：previewUrl 现在由前端根据环境配置构建
 
 const avatarHandler = async (req: Request, res: Response) => {
   console.log('🖼️ Avatars 请求开始:', {
@@ -51,22 +43,11 @@ const avatarHandler = async (req: Request, res: Response) => {
       dataCount: response.data?.data?.length || 0
     });
 
-    // 动态获取当前访问的域名
-    let BASE_URL =
-      process.env.NODE_ENV === 'production'
-        ? 'https://yourdomain.com'
-        : 'http://localhost:5173';
-    // BASE_URL = `${req.protocol}://${req.get('host')}`;
-    
-    // 假设每个 avatar 有 file 字段存储文件 id
-    const avatars = (response.data.data || []).map((avatar: any) => ({
-      ...avatar,
-      previewUrl: avatar.preview ? buildDirectusAssetsUrl(avatar.preview) : undefined,
-    }));
+    // 只返回原始数据，让前端根据环境构建URL
+    const avatars = response.data.data || [];
 
     console.log('✅ Avatars 查询成功:', {
-      avatarCount: avatars.length,
-      baseUrl: BASE_URL
+      avatarCount: avatars.length
     });
 
     res.json(avatars);

@@ -141,4 +141,11 @@ export function getDirectusUrl(endpointKey: keyof typeof API_CONFIG.development.
   const url = `${config.directus.baseUrl}${config.directus.endpoints[endpointKey]}`;
   console.log('🔗 Directus URL:', url);
   return url;
+}
+
+// 构建 Directus 资产 URL
+export function buildDirectusAssetUrl(fileId: string): string {
+  const config = getApiConfig();
+  const url = `${config.directus.baseUrl}/assets/${fileId}`;
+  return url;
 } 
