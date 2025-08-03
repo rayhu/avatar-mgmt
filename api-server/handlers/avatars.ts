@@ -1,6 +1,31 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
+// 获取 Directus 配置
+function getDirectusConfig() {
+  const env = process.env.NODE_ENV || 'development';
+  
+  const configs = {
+    development: {
+      directusBaseUrl: 'http://directus.daidai.localhost:8055'
+    },
+    stage: {
+      directusBaseUrl: 'http://directus.daidai.localhost:8055'
+    },
+    production: {
+      directusBaseUrl: 'https://directus.daidai.amis.hk'
+    }
+  };
+  
+  return configs[env as keyof typeof configs] || configs.development;
+}
+
+// 构建 Directus assets URL
+function buildDirectusAssetsUrl(fileId: string): string {
+  const config = getDirectusConfig();
+  return `${config.directusBaseUrl}/assets/${fileId}`;
+}
+
 const avatarHandler = async (req: Request, res: Response) => {
   console.log('🖼️ Avatars 请求开始:', {
     method: req.method,
@@ -51,8 +76,7 @@ const avatarHandler = async (req: Request, res: Response) => {
     // 假设每个 avatar 有 file 字段存储文件 id
     const avatars = (response.data.data || []).map((avatar: any) => ({
       ...avatar,
-      previewUrl:  `/directus/assets/${avatar.preview}`,
-      // previewUrl: avatar.preview ? `${BASE_URL}/directus/${avatar.preview}` : undefined,
+      previewUrl: avatar.preview ? buildDirectusAssetsUrl(avatar.preview) : undefined,
     }));
 
     console.log('✅ Avatars 查询成功:', {
@@ -75,7 +99,7 @@ const avatarHandler = async (req: Request, res: Response) => {
       console.error('📥 Directus API 错误:', {
         status: error.response.status,
         statusText: error.response.statusText,
-        data: error.response.data
+        data: JSON.stringify(error.response.data, null, 2)
       });
     }
     

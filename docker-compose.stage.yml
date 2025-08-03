@@ -44,7 +44,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env.prod
+      - .env.stage.directus
     environment:
       POSTGRES_DB: directus
     volumes:
@@ -65,13 +65,13 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env.prod
+      - .env.stage.directus
     volumes:
       - ./directus/uploads:/directus/uploads
       - ./directus/extensions:/directus/extensions
       - ./directus/schemas:/directus/schemas
-    expose:
-      - "8055"
+    ports:
+      - "8055:8055"
     networks:
       - internal
     healthcheck:
@@ -90,9 +90,9 @@ services:
     depends_on:
       - directus
     env_file:
-      - .env.prod
-    expose:
-      - "3000"
+      - .env.stage.api
+    ports:
+      - "3000:3000"
     networks:
       - internal
     healthcheck:
@@ -105,9 +105,12 @@ services:
     image: nginx:alpine
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
+      # 开发环境：使用无缓存配置
       - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    expose:
-      - "80"
+      # 生产环境：使用有缓存配置（取消注释下面这行，注释上面这行）
+      # - ./frontend/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "5173:5173"
     networks:
       - internal
 

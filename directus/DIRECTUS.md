@@ -177,11 +177,12 @@ docker compose exec directus npx directus schema snapshot schemas/backup-before-
 ```
 docker compose exec directus npx directus schema apply --dry-run schemas/snapshot.json
 ```
-进行实际导入
+在repo根目录进行实际导入，不需要修改后面的路径，那些是已经映射好的路径
 ```
-docker compose exec directus npx directus schema apply --yes --safe schemas/snapshot.json
+docker compose -f docker-compose.stage.yml exec directus npx directus schema apply --yes schemas/snapshot.yml 
 ```
-
+or
+docker compose -f docker-compose.dev.yml exec directus npx directus schema apply --yes schemas/snapshot.yml 
 
 7. 权限
 

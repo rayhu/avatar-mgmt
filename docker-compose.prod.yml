@@ -44,7 +44,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env.local-test
+      - .env.prod.directus
     environment:
       POSTGRES_DB: directus
     volumes:
@@ -65,7 +65,7 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env.local-test
+      - .env.prod.directus
     volumes:
       - ./directus/uploads:/directus/uploads
       - ./directus/extensions:/directus/extensions
@@ -90,7 +90,7 @@ services:
     depends_on:
       - directus
     env_file:
-      - .env.local-test
+      - .env.prod.api
     ports:
       - "3000:3000"
     networks:
@@ -105,7 +105,7 @@ services:
     image: nginx:alpine
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "5173:5173"
     networks:

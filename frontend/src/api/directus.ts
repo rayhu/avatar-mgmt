@@ -1,8 +1,5 @@
 import { logger } from '@/utils/logger';
-
-// import axios from 'axios';
-
-const _API_URL = import.meta.env.VITE_API_URL;
+import { getDirectusUrl } from '@/config/api';
 
 export async function login(_email: string, _password: string) {
   logger.info('Directus 登录请求', {
@@ -12,7 +9,8 @@ export async function login(_email: string, _password: string) {
   });
   
   // TODO: 调用 Directus Auth API
-  // return axios.post(`${_API_URL}/auth/login`, { email: username, password });
+  // const url = getDirectusUrl('auth');
+  // return axios.post(url, { email: username, password });
   
   logger.info('Directus 登录成功 (mock)', {
     component: 'DirectusAPI',
@@ -38,14 +36,16 @@ export async function logout(_token: string) {
 }
 
 export async function fetchModels(_token: string) {
-  logger.apiCall('Directus Models', `${_API_URL}/items/models`, {
+  const url = getDirectusUrl('models');
+  
+  logger.apiCall('Directus Models', url, {
     component: 'DirectusAPI',
     method: 'fetchModels',
     tokenLength: _token.length
   });
   
   // TODO: 拉取模型列表
-  // return axios.get(`${_API_URL}/items/models`, { headers: { Authorization: `Bearer ${token}` } });
+  // return axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
   
   logger.info('获取模型列表成功 (mock)', {
     component: 'DirectusAPI',

@@ -1,9 +1,10 @@
 import type { Avatar } from '../types/avatar';
 import { logger } from '@/utils/logger';
+import { getApiUrl } from '@/config/api';
 
 export async function getAvatars(): Promise<Avatar[]> {
   const startTime = Date.now();
-  const url = '/api/avatars';
+  const url = getApiUrl('avatars');
   
   logger.apiCall('Avatars', url, {
     component: 'AvatarsAPI',
@@ -42,7 +43,7 @@ export async function getAvatars(): Promise<Avatar[]> {
       duration
     });
     
-    logger.warn('/api/avatars unavailable, returning empty array', {
+    logger.warn(`${url} unavailable, returning empty array`, {
       component: 'AvatarsAPI',
       method: 'getAvatars',
       error: error.message
