@@ -4,8 +4,7 @@
  */
 
 import { logger } from '@/utils/logger';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+import { getApiUrl } from '@/config/api';
 
 export interface VoiceOption {
   name: string;
@@ -44,7 +43,7 @@ export async function synthesizeSpeech(
   isSSML: boolean = false,
   onViseme?: (id: number, timeMs: number, animation?: string) => void,
 ): Promise<Blob> {
-  const url = `${API_BASE_URL}/api/azure-tts`;
+  const url = getApiUrl('azureTTS');
   const startTime = Date.now();
   
   logger.apiCall('Azure TTS', url, {
@@ -167,7 +166,7 @@ export async function synthesizeSpeech(
       logger.error('网络连接错误，可能的原因:', {
         component: 'BackendAzureTTS',
         method: 'synthesizeSpeech',
-        apiBaseUrl: API_BASE_URL,
+        apiBaseUrl: getApiUrl('azureTTS'),
         possibleCauses: [
           '后端服务器未启动',
           'API_BASE_URL 配置错误',
@@ -196,7 +195,7 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
     text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
     voice,
     textLength: text.length,
-    apiBaseUrl: API_BASE_URL
+    apiBaseUrl: getApiUrl('azureTTS')
   });
   
   try {
@@ -224,7 +223,7 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
       errorType: err.constructor.name,
       text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
       voice,
-      apiBaseUrl: API_BASE_URL,
+      apiBaseUrl: getApiUrl('azureTTS'),
       duration
     });
     throw error;
@@ -280,7 +279,7 @@ export async function fetchVoices(): Promise<VoiceOption[]> {
  */
 export async function checkBackendAvailability(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE_URL}/health`);
+    const response = await fetch(getApiUrl('health'));
     return response.ok;
   } catch (error) {
     console.warn('Backend Azure TTS not available:', error);

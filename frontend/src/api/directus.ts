@@ -1,5 +1,5 @@
 import { logger } from '@/utils/logger';
-import { buildDirectusUrl } from '@/config/api';
+import { getDirectusUrl } from '@/config/api';
 
 export async function login(_email: string, _password: string) {
   logger.info('Directus 登录请求', {
@@ -9,7 +9,7 @@ export async function login(_email: string, _password: string) {
   });
   
   // TODO: 调用 Directus Auth API
-  // const url = buildDirectusUrl('/auth/login');
+  // const url = getDirectusUrl('auth');
   // return axios.post(url, { email: username, password });
   
   logger.info('Directus 登录成功 (mock)', {
@@ -36,7 +36,7 @@ export async function logout(_token: string) {
 }
 
 export async function fetchModels(_token: string) {
-  const url = buildDirectusUrl('/items/models');
+  const url = getDirectusUrl('models');
   
   logger.apiCall('Directus Models', url, {
     component: 'DirectusAPI',

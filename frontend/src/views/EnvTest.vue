@@ -22,20 +22,19 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { debugEnv, getEnvConfig } from '@/config/env';
-import { buildApiUrl, buildDirectusUrl } from '@/config/api';
+import { getApiConfig, getApiUrl, getDirectusUrl } from '@/config/api';
 
 const envInfo = ref('');
 const apiResult = ref('');
 
 onMounted(() => {
   // 显示环境信息
-  const env = getEnvConfig();
+  const config = getApiConfig();
   envInfo.value = JSON.stringify({
-    mode: env.mode,
-    apiBaseUrl: env.apiBaseUrl,
-    directusBaseUrl: env.directusBaseUrl,
-    frontendBaseUrl: env.frontendBaseUrl,
+    mode: import.meta.env.MODE || 'development',
+    apiBaseUrl: config.api.baseUrl,
+    directusBaseUrl: config.directus.baseUrl,
+    frontendBaseUrl: import.meta.env.BASE_URL || '/',
     viteEnv: {
       MODE: import.meta.env.MODE,
       DEV: import.meta.env.DEV,
@@ -45,12 +44,23 @@ onMounted(() => {
   }, null, 2);
   
   // 调用调试函数
-  debugEnv();
+  console.log('🌍 环境调试信息:', {
+    mode: import.meta.env.MODE || 'development',
+    apiBaseUrl: config.api.baseUrl,
+    directusBaseUrl: config.directus.baseUrl,
+    frontendBaseUrl: import.meta.env.BASE_URL || '/',
+    viteEnv: {
+      MODE: import.meta.env.MODE,
+      DEV: import.meta.env.DEV,
+      PROD: import.meta.env.PROD,
+      BASE_URL: import.meta.env.BASE_URL,
+    }
+  });
 });
 
 async function testApi() {
   try {
-    const url = buildApiUrl('/health');
+    const url = getApiUrl('health');
     const response = await fetch(url);
     const data = await response.text();
     
@@ -66,7 +76,8 @@ Error: ${error}`;
 
 async function testDirectus() {
   try {
-    const url = buildDirectusUrl('/');
+    const config = getApiConfig();
+    const url = config.directus.baseUrl;
     const response = await fetch(url);
     const data = await response.text();
     

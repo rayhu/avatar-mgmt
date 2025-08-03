@@ -181,7 +181,8 @@ docker compose exec directus npx directus schema apply --dry-run schemas/snapsho
 ```
 docker compose -f docker-compose.stage.yml exec directus npx directus schema apply --yes schemas/snapshot.yml 
 ```
-
+or
+docker compose -f docker-compose.dev.yml exec directus npx directus schema apply --yes schemas/snapshot.yml 
 
 7. 权限
 

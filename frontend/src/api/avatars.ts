@@ -1,10 +1,10 @@
 import type { Avatar } from '../types/avatar';
 import { logger } from '@/utils/logger';
-import { buildApiUrl } from '@/config/api';
+import { getApiUrl } from '@/config/api';
 
 export async function getAvatars(): Promise<Avatar[]> {
   const startTime = Date.now();
-  const url = buildApiUrl('/avatars');
+  const url = getApiUrl('avatars');
   
   logger.apiCall('Avatars', url, {
     component: 'AvatarsAPI',

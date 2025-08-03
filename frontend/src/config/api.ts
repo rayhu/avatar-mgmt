@@ -1,5 +1,3 @@
-import { getEnvConfig, debugEnv } from './env';
-
 // API 配置文件
 export const API_CONFIG = {
   // 开发环境
@@ -7,8 +5,33 @@ export const API_CONFIG = {
     api: {
       baseUrl: 'http://api.daidai.localhost:3000',
       endpoints: {
-        avatars: '/avatars',
+        avatars: '/api/avatars',
         health: '/health',
+        openaiSSML: '/api/openai-ssml',
+        azureTTS: '/api/azure-tts',
+        generateSSML: '/api/generate-ssml',
+      }
+    },
+    directus: {
+      baseUrl: 'http://directus.daidai.localhost:8055',
+      endpoints: {
+        assets: '/assets',
+        auth: '/auth/login',
+        models: '/items/models',
+      }
+    }
+  },
+  
+  // Stage 环境
+  stage: {
+    api: {
+      baseUrl: 'http://api.daidai.localhost:3000',
+      endpoints: {
+        avatars: '/api/avatars',
+        health: '/health',
+        openaiSSML: '/api/openai-ssml',
+        azureTTS: '/api/azure-tts',
+        generateSSML: '/api/generate-ssml',
       }
     },
     directus: {
@@ -26,8 +49,11 @@ export const API_CONFIG = {
     api: {
       baseUrl: 'https://api.daidai.amis.hk',
       endpoints: {
-        avatars: '/avatars',
+        avatars: '/api/avatars',
         health: '/health',
+        openaiSSML: '/api/openai-ssml',
+        azureTTS: '/api/azure-tts',
+        generateSSML: '/api/generate-ssml',
       }
     },
     directus: {
@@ -55,23 +81,23 @@ export function getApiConfig() {
   });
   
   // 显示环境配置
-  debugEnv();
+  console.log('🌍 当前环境配置:', API_CONFIG[env as keyof typeof API_CONFIG] || API_CONFIG.development);
   
   return API_CONFIG[env as keyof typeof API_CONFIG] || API_CONFIG.development;
 }
 
-// API URL 构建器
-export function buildApiUrl(endpoint: string): string {
+// 便捷的 API URL 构建器 - 直接使用配置中的 endpoints
+export function getApiUrl(endpointKey: keyof typeof API_CONFIG.development.api.endpoints): string {
   const config = getApiConfig();
-  const url = `${config.api.baseUrl}${endpoint}`;
+  const url = `${config.api.baseUrl}${config.api.endpoints[endpointKey]}`;
   console.log('🔗 API URL:', url);
   return url;
 }
 
-// Directus URL 构建器
-export function buildDirectusUrl(endpoint: string): string {
+// 便捷的 Directus URL 构建器 - 直接使用配置中的 endpoints
+export function getDirectusUrl(endpointKey: keyof typeof API_CONFIG.development.directus.endpoints): string {
   const config = getApiConfig();
-  const url = `${config.directus.baseUrl}${endpoint}`;
+  const url = `${config.directus.baseUrl}${config.directus.endpoints[endpointKey]}`;
   console.log('🔗 Directus URL:', url);
   return url;
 } 
