@@ -1,29 +1,14 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import axios from 'axios';
  
-// 获取 Directus 配置
-function getDirectusConfig() {
-  const env = process.env.NODE_ENV || 'development';
-  
-  const configs = {
-    development: {
-      directusBaseUrl: 'http://directus.daidai.localhost:8055'
-    },
-    stage: {
-      directusBaseUrl: 'http://directus.daidai.localhost:8055'
-    },
-    production: {
-      directusBaseUrl: 'https://directus.daidai.amis.hk'
-    }
-  };
-  
-  return configs[env as keyof typeof configs] || configs.development;
-}
-
-// 构建 Directus assets URL
+// 构建 Directus assets URL - 使用环境变量
 function buildDirectusAssetsUrl(fileId: string): string {
-  const config = getDirectusConfig();
-  return `${config.directusBaseUrl}/assets/${fileId}`;
+  // 直接使用环境变量中的 DIRECTUS_URL
+  const directusUrl = process.env.DIRECTUS_URL;
+  if (!directusUrl) {
+    throw new Error('DIRECTUS_URL 环境变量未配置');
+  }
+  return `${directusUrl}/assets/${fileId}`;
 }
 
 const avatarHandler = async (req: Request, res: Response) => {
