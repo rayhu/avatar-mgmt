@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   
   return {
     preview: {
-      allowedHosts: 'all'
+      allowedHosts: ''
     },
     plugins: [
       vue(),
@@ -57,6 +57,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
+      host: '0.0.0.0',
       open: true,
     },
     envDir: '.',

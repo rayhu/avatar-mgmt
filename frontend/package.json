@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --mode development",
+    "dev": "vite --mode development --host 0.0.0.0",
     "build": "yarn build:prod",
     "build:stage": "vite build --mode stage",
     "build:prod": "vite build --mode production",
