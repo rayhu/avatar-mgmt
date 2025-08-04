@@ -5,6 +5,7 @@ import router from './router';
 import { createI18n } from 'vue-i18n';
 import messages from './locales';
 import './assets/styles/global.scss';
+import './assets/styles/mobile.scss';
 import { useAuthStore } from './store';
 import { logger } from '@/utils/logger';
 

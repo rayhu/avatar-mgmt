@@ -12,6 +12,7 @@ declare module 'vue' {
     CommentList: typeof import('./components/CommentList.vue')['default']
     LanguageSwitcher: typeof import('./components/LanguageSwitcher.vue')['default']
     LikeButton: typeof import('./components/LikeButton.vue')['default']
+    MobileMenu: typeof import('./components/MobileMenu.vue')['default']
     ModelCard: typeof import('./components/ModelCard.vue')['default']
     ModelGallerySkeleton: typeof import('./components/ModelGallerySkeleton.vue')['default']
     ModelListSkeleton: typeof import('./components/ModelListSkeleton.vue')['default']

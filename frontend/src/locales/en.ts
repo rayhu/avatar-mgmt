@@ -11,6 +11,10 @@ export default {
     search: 'Search',
     noData: 'No Data',
   },
+  navigation: {
+    menu: 'Menu',
+    close: 'Close',
+  },
   errors: {
     unknown: 'An unknown error occurred',
     network: 'Network error, please check your connection',

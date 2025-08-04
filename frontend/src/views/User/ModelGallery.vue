@@ -94,6 +94,18 @@ onMounted(async () => {
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    margin: 20px 16px;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    margin: 16px 8px;
+    padding: 16px;
+  }
 }
 
 .gallery-header {
@@ -122,6 +134,19 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
   margin-top: 24px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
 }
 
 .model-card {
@@ -175,9 +200,21 @@ onMounted(async () => {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-height: 44px;
+  font-size: 16px;
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    font-size: 16px;
+  }
 
   &:hover {
     background: color.adjust($primary-color, $lightness: -10%);
+  }
+  
+  &:active {
+    background: color.adjust($primary-color, $lightness: -15%);
+    transform: scale(0.98);
   }
 }
 </style>

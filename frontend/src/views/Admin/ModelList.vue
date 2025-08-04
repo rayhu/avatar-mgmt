@@ -31,7 +31,7 @@
               >
             </div>
           </div>
-          <div class="model-actions">
+          <div class="model-actions model-item-actions">
             <button class="action-btn">{{ t('modelManagement.editModel') }}</button>
             <button class="action-btn danger">{{ t('modelManagement.deleteModel') }}</button>
           </div>
@@ -97,6 +97,18 @@ onMounted(async () => {
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    margin: 20px 16px;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    margin: 16px 8px;
+    padding: 16px;
+  }
 }
 
 .list-header {
@@ -118,12 +130,30 @@ onMounted(async () => {
   .tip-icon {
     font-style: normal;
   }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
 }
 
 .model-actions {
   margin-bottom: 20px;
   display: flex;
   gap: 12px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+    
+    .action-btn {
+      flex: 1;
+    }
+  }
 }
 
 .action-btn {
@@ -134,6 +164,8 @@ onMounted(async () => {
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-height: 44px;
+  font-size: 14px;
 
   &:hover {
     background: color.adjust($primary-color, $lightness: -10%);
@@ -144,6 +176,18 @@ onMounted(async () => {
     &:hover {
       background: color.adjust(#dc3545, $lightness: -10%);
     }
+  }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px 20px;
+    font-size: 16px;
+    min-height: 48px;
+    flex: 1;
+  }
+  
+  &:active {
+    transform: scale(0.98);
   }
 }
 
@@ -165,6 +209,14 @@ onMounted(async () => {
   &:hover {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
+  
+  // 移动端垂直布局
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
 }
 
 .model-preview {
@@ -178,6 +230,18 @@ onMounted(async () => {
   :deep(.model-card) {
     width: 100%;
     height: 100%;
+  }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    align-self: center;
+    margin-right: 0;
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: 480px) {
+    width: 100px;
+    height: 100px;
   }
 }
 
@@ -193,6 +257,21 @@ onMounted(async () => {
     margin: 0 0 12px 0;
     color: #6c757d;
   }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    text-align: center;
+    
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+  }
 }
 
 .model-meta {
@@ -200,5 +279,41 @@ onMounted(async () => {
   gap: 20px;
   font-size: 0.9rem;
   color: #6c757d;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
+}
+
+// 模型项目中的按钮组（区别于顶部的按钮组）
+.model-item-actions {
+  @media (max-width: 768px) {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+    
+    .action-btn {
+      flex: 1;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    gap: 8px;
+    
+    .action-btn {
+      padding: 10px 16px;
+      font-size: 15px;
+    }
+  }
 }
 </style>

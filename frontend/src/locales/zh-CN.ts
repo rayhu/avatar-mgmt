@@ -11,6 +11,10 @@ export default {
     search: '搜索',
     noData: '暂无数据',
   },
+  navigation: {
+    menu: '菜单',
+    close: '关闭',
+  },
   errors: {
     unknown: '发生未知错误',
     network: '网络错误，请检查网络连接',

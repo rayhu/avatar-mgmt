@@ -1,7 +1,8 @@
 <template>
   <div>
     <nav class="main-nav">
-      <div class="nav-left">
+      <!-- 桌面端导航 -->
+      <div class="nav-left desktop-nav">
         <template v-if="auth.isAuthenticated">
           <router-link v-if="auth.isAdmin" to="/admin">{{
             t('modelManagement.title')
@@ -14,9 +15,15 @@
           <router-link to="/login">{{ t('login.title') }}</router-link>
         </template>
       </div>
+      
+      <!-- 移动端菜单按钮 -->
+      <div class="mobile-nav-container">
+        <MobileMenu />
+      </div>
+      
       <div class="nav-right">
         <template v-if="auth.isAuthenticated">
-          <span class="user-info">
+          <span class="user-info desktop-only">
             {{ auth.user?.name }}（{{ t(auth.user?.role === 'admin' ? 'admin' : 'user') }}）
             <a href="#" @click.prevent="logout">{{ t('logout') }}</a>
           </span>
@@ -34,6 +41,7 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { inject } from '@vercel/analytics';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
+import MobileMenu from './components/MobileMenu.vue';
 import { onMounted, watch } from 'vue';
 import { logger } from '@/utils/logger';
 
@@ -115,16 +123,55 @@ body {
   border-bottom: 1px solid #e0e0e0;
   align-items: center;
 
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+    
+    &.mobile-collapsed {
+      flex-direction: row;
+      
+      .nav-left {
+        display: none;
+      }
+    }
+  }
+
   .nav-left {
     display: flex;
     gap: 24px;
     align-items: center;
+  }
+  
+  .desktop-nav {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+  
+  .mobile-nav-container {
+    display: none;
+    
+    @media (max-width: 768px) {
+      display: block;
+    }
+  }
+  
+  .desktop-only {
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 
   .nav-right {
     display: flex;
     align-items: center;
     gap: 16px;
+    
+    @media (max-width: 768px) {
+      gap: 12px;
+    }
   }
 
   a {
@@ -133,8 +180,29 @@ body {
     font-weight: bold;
     font-size: 1.1em;
     transition: color 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    
+    @media (max-width: 768px) {
+      font-size: 0.95em;
+      padding: 6px 10px;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 0.9em;
+      padding: 6px 8px;
+    }
+    
     &:hover {
       color: #42b883;
+      background-color: rgba(66, 184, 131, 0.1);
+    }
+    
+    &:active {
+      background-color: rgba(66, 184, 131, 0.2);
     }
   }
 }

@@ -1,0 +1,65 @@
+// 移动端优化样式
+@use '@/assets/styles/variables.scss' as *;
+
+// 移动端媒体查询混合器
+@mixin mobile {
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-md}) and (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
+
+@mixin mobile-and-tablet {
+  @media (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
+
+// 移动端基础样式
+body {
+  @include mobile {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+// 容器优化
+.container {
+  @include mobile {
+    padding: 0 $spacing-medium;
+    max-width: 100%;
+  }
+}
+
+// 触摸目标最小尺寸 (44px for iOS)
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// 移动端按钮样式
+.btn-mobile {
+  @include mobile {
+    padding: 12px 20px;
+    font-size: 16px;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+}
+
+// 移动端卡片样式
+.card-mobile {
+  @include mobile {
+    margin: 0 $spacing-small;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
