@@ -19,6 +19,10 @@
             <p>{{ model.description }}</p>
             <div class="model-meta">
               <span
+                >{{ t('modelManagement.modelInfo.version') }}:
+                {{ model.version || 'N/A' }}</span
+              >
+              <span
                 >{{ t('modelManagement.modelInfo.createTime') }}:
                 {{ formatDate(model.createTime) }}</span
               >
@@ -36,8 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ModelGallerySkeleton from '../../components/ModelGallerySkeleton.vue';
-import ModelCard from '../../components/ModelCard.vue';
+// ModelGallerySkeleton 和 ModelCard 已自动导入
 import type { Avatar } from '../../types/avatar';
 import { getAvatars } from '../../api/avatars';
 

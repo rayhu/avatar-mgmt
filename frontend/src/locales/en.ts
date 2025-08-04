@@ -6,10 +6,12 @@ export default {
     confirm: 'Confirm',
     cancel: 'Cancel',
     save: 'Save',
+    saving: 'Saving...',
     delete: 'Delete',
     edit: 'Edit',
     search: 'Search',
     noData: 'No Data',
+    confirmDelete: 'Are you sure you want to delete {name}?',
   },
   navigation: {
     menu: 'Menu',
@@ -117,7 +119,7 @@ export default {
     selectLanguage: 'Select Language',
     switchToChinese: 'Switch to Simplified Chinese',
     switchToEnglish: 'Switch to English',
-    'zh-CN': 'Simplified Chinese',
+    'zh-CN': '简体中文',
     en: 'English',
   },
   login: {
@@ -154,12 +156,16 @@ export default {
     modelStatus: {
       ready: 'Ready',
       draft: 'Draft',
+      pending: 'Pending',
+      processing: 'Processing',
+      error: 'Error',
       offline: 'Offline',
     },
     modelInfo: {
       name: 'Model Name',
       description: 'Description',
       status: 'Status',
+      version: 'Version',
       createTime: 'Created At',
       updateTime: 'Updated At',
     },

@@ -94,7 +94,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '@/store';
+import { useAuthStore } from '../store';
 import { useRouter } from 'vue-router';
 
 const { t } = useI18n();

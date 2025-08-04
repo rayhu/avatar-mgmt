@@ -40,10 +40,8 @@ import { useAuthStore } from './store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { inject } from '@vercel/analytics';
-import LanguageSwitcher from './components/LanguageSwitcher.vue';
-import MobileMenu from './components/MobileMenu.vue';
 import { onMounted, watch } from 'vue';
-import { logger } from '@/utils/logger';
+import { logger } from './utils/logger';
 
 const auth = useAuthStore();
 const router = useRouter();

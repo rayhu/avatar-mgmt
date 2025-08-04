@@ -6,10 +6,12 @@ export default {
     confirm: '确认',
     cancel: '取消',
     save: '保存',
+    saving: '保存中...',
     delete: '删除',
     edit: '编辑',
     search: '搜索',
     noData: '暂无数据',
+    confirmDelete: '确定要删除 {name} 吗？',
   },
   navigation: {
     menu: '菜单',
@@ -157,7 +159,7 @@ export default {
     switchToChinese: '切换到简体中文',
     switchToEnglish: '切换到英文',
     'zh-CN': '简体中文',
-    en: '英文',
+    en: 'English',
   },
   login: {
     title: '登录',
@@ -192,12 +194,16 @@ export default {
     modelStatus: {
       ready: '已就绪',
       draft: '草稿中',
+      pending: '待审核',
+      processing: '处理中',
+      error: '错误',
       offline: '已下线',
     },
     modelInfo: {
       name: '模型名称',
       description: '模型描述',
       status: '状态',
+      version: '版本',
       createTime: '创建时间',
       updateTime: '更新时间',
     },

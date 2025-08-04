@@ -103,6 +103,44 @@
       "meta": {
         "interface": "tags"
       }
+    },
+    {
+      "collection": "avatars",
+      "field": "version",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "required": false,
+        "note": "模型版本号",
+        "placeholder": "例如：1.0.0",
+        "width": "half"
+      },
+      "schema": {
+        "default_value": "1.0.0"
+      }
+    },
+    {
+      "collection": "avatars",
+      "field": "status",
+      "type": "string",
+      "meta": {
+        "interface": "select-dropdown",
+        "required": true,
+        "note": "模型状态",
+        "width": "half",
+        "options": {
+          "choices": [
+            { "text": "草稿", "value": "draft" },
+            { "text": "待审核", "value": "pending" },
+            { "text": "处理中", "value": "processing" },
+            { "text": "就绪", "value": "ready" },
+            { "text": "错误", "value": "error" }
+          ]
+        }
+      },
+      "schema": {
+        "default_value": "draft"
+      }
     }
   ],
   "relations": []

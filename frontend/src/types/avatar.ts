@@ -7,6 +7,7 @@ export interface Avatar {
   previewUrl?: string;
   status: 'draft' | 'pending' | 'processing' | 'ready' | 'error';
   tags: string[];
+  version?: string; // 模型版本号
   createdAt: string;
   updatedAt: string;
   createTime?: string; // 兼容旧代码

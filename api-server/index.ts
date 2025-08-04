@@ -7,6 +7,7 @@ import openaiHandler from './handlers/openai-ssml';
 import azureTTSHandler from './handlers/azure-tts';
 import avatarsHandler from './handlers/avatars';
 import generateSSMLHandler from './handlers/generate-ssml';
+import avatarManagementHandler from './handlers/avatar-management';
 
 const app = express();
 
@@ -29,6 +30,10 @@ app.post('/api/openai-ssml', openaiHandler);
 app.post('/api/azure-tts', azureTTSHandler);
 app.post('/api/generate-ssml', generateSSMLHandler);
 app.get('/api/avatars', avatarsHandler);
+
+// Avatar 管理路由
+app.put('/api/avatars/:id', avatarManagementHandler);
+app.patch('/api/avatars/:id', avatarManagementHandler);
 
 app.get('/health', (_req, res) => res.send('ok'));
 

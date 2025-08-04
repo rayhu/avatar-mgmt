@@ -26,26 +26,37 @@
                 {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span
               >
               <span
+                >{{ t('modelManagement.modelInfo.version') }}:
+                {{ model.version || 'N/A' }}</span
+              >
+              <span
                 >{{ t('modelManagement.modelInfo.createTime') }}:
                 {{ formatDate(model.createTime) }}</span
               >
             </div>
           </div>
           <div class="model-actions model-item-actions">
-            <button class="action-btn">{{ t('modelManagement.editModel') }}</button>
-            <button class="action-btn danger">{{ t('modelManagement.deleteModel') }}</button>
+            <button class="action-btn" @click="editModel(model)">
+              {{ t('modelManagement.editModel') }}
+            </button>
           </div>
         </div>
       </div>
     </template>
+    
+    <!-- 编辑模型对话框 -->
+    <EditAvatarModal
+      :is-visible="isEditModalVisible"
+      :avatar="editingAvatar"
+      @close="closeEditModal"
+      @updated="handleAvatarUpdated"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ModelListSkeleton from '../../components/ModelListSkeleton.vue';
-import ModelCard from '../../components/ModelCard.vue';
 import type { Avatar } from '../../types/avatar';
 import { getAvatars } from '../../api/avatars';
 
@@ -53,6 +64,8 @@ const { t } = useI18n();
 
 const avatars = ref<Avatar[]>([]);
 const loading = ref(true);
+const isEditModalVisible = ref(false);
+const editingAvatar = ref<Avatar | null>(null);
 
 function formatDate(date?: string) {
   if (!date) return '-';
@@ -72,6 +85,35 @@ async function fetchAllModels() {
   } catch (error) {
     console.error('Failed to fetch models:', error);
     avatars.value = [];
+  }
+}
+
+// 编辑模型
+function editModel(avatar: Avatar) {
+  editingAvatar.value = avatar;
+  isEditModalVisible.value = true;
+}
+
+// 删除模型
+function deleteModel(avatar: Avatar) {
+  if (confirm(t('common.confirmDelete', { name: avatar.name }))) {
+    // TODO: 实现删除功能
+    console.log('删除模型:', avatar);
+  }
+}
+
+// 关闭编辑对话框
+function closeEditModal() {
+  isEditModalVisible.value = false;
+  editingAvatar.value = null;
+}
+
+// 处理模型更新
+function handleAvatarUpdated(updatedAvatar: Avatar) {
+  // 更新列表中的模型数据
+  const index = avatars.value.findIndex(a => a.id === updatedAvatar.id);
+  if (index !== -1) {
+    avatars.value[index] = updatedAvatar;
   }
 }
 

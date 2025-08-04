@@ -360,46 +360,6 @@ fields:
       foreign_key_table: directus_files
       foreign_key_column: id
   - collection: avatars
-    field: version
-    type: string
-    meta:
-      collection: avatars
-      conditions: null
-      display: null
-      display_options: null
-      field: version
-      group: null
-      hidden: false
-      interface: input
-      note: 模型版本号
-      options:
-        placeholder: 例如：1.0.0
-      readonly: false
-      required: false
-      sort: 11
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: version
-      table: avatars
-      data_type: character varying
-      default_value: '1.0.0'
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: avatars
     field: status
     type: string
     meta:
@@ -416,17 +376,17 @@ fields:
         choices:
           - text: 草稿
             value: draft
-          - text: 待审核
+          - text: 停用
             value: pending
-          - text: 处理中
+          - text: 待审
             value: processing
           - text: 就绪
             value: ready
-          - text: 错误
+          - text: 有错
             value: error
       readonly: false
       required: false
-      sort: 12
+      sort: 11
       special: null
       translations: null
       validation: null
