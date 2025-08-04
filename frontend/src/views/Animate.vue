@@ -51,10 +51,20 @@
         <div class="timeline-header">
           <div class="track-label">{{ t('animate.timeline.time') }}</div>
           <div class="timeline-ruler">
+            <!-- 桌面端：显示所有刻度 -->
             <div
-              v-for="i in 31"
-              :key="i"
-              class="time-marker"
+              v-for="i in timeMarkers.all"
+              :key="`desktop-${i}`"
+              class="time-marker desktop-marker"
+              :style="{ left: `${(i - 1) * 3.33}%` }"
+            >
+              {{ i - 1 }}s
+            </div>
+            <!-- 移动端：只显示主要刻度 -->
+            <div
+              v-for="i in timeMarkers.mobile"
+              :key="`mobile-${i}`"
+              class="time-marker mobile-marker"
               :style="{ left: `${(i - 1) * 3.33}%` }"
             >
               {{ i - 1 }}s
@@ -316,6 +326,12 @@ const charCount = computed({
     }
   },
 });
+
+// 时间标记配置
+const timeMarkers = computed(() => ({
+  all: Array.from({ length: 31 }, (_, i) => i + 1), // 桌面端：0-30秒，每1秒
+  mobile: Array.from({ length: 7 }, (_, i) => i * 5 + 1), // 移动端：0,5,10,15,20,25,30秒
+}));
 
 // Azure TTS voice list (reactive)
 const voices = ref<VoiceOption[]>(availableVoices);
@@ -1098,6 +1114,26 @@ $background-color: #f5f5f5;
     color: #2c3e50;
     font-size: 1.2em;
   }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 16px;
+    
+    h1 {
+      font-size: 1.6em;
+      margin-bottom: 24px;
+    }
+    
+    h3 {
+      font-size: 1.2em;
+      margin-bottom: 12px;
+    }
+    
+    h4 {
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+  }
 }
 
 .model-selector {
@@ -1112,12 +1148,30 @@ $background-color: #f5f5f5;
     color: #2c3e50;
     font-size: 1.4em;
   }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+  }
 }
 
 .model-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .model-card {
@@ -1179,6 +1233,23 @@ $background-color: #f5f5f5;
       color: #666;
     }
   }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+    
+    .model-preview {
+      width: 150px;
+      height: 150px;
+      align-self: center;
+    }
+    
+    .model-info {
+      width: 100%;
+    }
+  }
 }
 .timeline-editor {
   background: white;
@@ -1195,6 +1266,24 @@ $background-color: #f5f5f5;
     display: flex;
     gap: 12px;
     margin-top: 16px;
+  }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    
+    .timeline-controls {
+      flex-direction: column;
+      gap: 8px;
+      
+      .control-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+      }
+    }
   }
 }
 
@@ -1233,6 +1322,19 @@ $background-color: #f5f5f5;
   align-items: center;
   justify-content: flex-end;
   height: 30px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    width: 50px;
+    font-size: 12px;
+    padding: 0 8px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 40px;
+    font-size: 11px;
+    padding: 0 6px;
+  }
 }
 
 .track {
@@ -1261,6 +1363,25 @@ $background-color: #f5f5f5;
   height: 10px;
   background: #999;
   bottom: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+// 桌面端显示所有刻度
+.desktop-marker {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+// 移动端只显示主要刻度
+.mobile-marker {
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+    font-size: 10px;
+  }
 }
 
 .time-marker::after {
@@ -1290,6 +1411,26 @@ $background-color: #f5f5f5;
   min-width: 60px;
   text-align: left;
   user-select: none;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-width: 50px;
+    border-radius: 6px;
+    // 增大触摸目标
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px 12px;
+    font-size: 10px;
+    min-width: 40px;
+    min-height: 36px;
+  }
 }
 
 .action-keyframe {
@@ -1307,12 +1448,37 @@ $background-color: #f5f5f5;
   padding: 15px;
   border-radius: 4px;
   margin-bottom: 20px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
 }
 
 .editor-content {
   display: flex;
   gap: 15px;
   align-items: flex-end;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    
+    .form-group {
+      width: 100%;
+    }
+    
+    .delete-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+  }
 }
 
 .form-group {
@@ -1347,6 +1513,23 @@ $background-color: #f5f5f5;
     padding: 24px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
+  
+  // 移动端适配：改为垂直布局
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 24px;
+    
+    .form-section {
+      padding: 16px;
+      border-radius: 12px;
+    }
+    
+    .preview-section {
+      padding: 16px;
+      border-radius: 12px;
+    }
+  }
 }
 
 .form-group {
@@ -1360,6 +1543,14 @@ textarea {
   border: 1px solid #ddd;
   border-radius: 4px;
   resize: vertical;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    min-height: 120px;
+    padding: 12px;
+    font-size: 16px; // 防止iOS自动缩放
+    border-radius: 8px;
+  }
 }
 
 .char-count {
@@ -1378,6 +1569,14 @@ select {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 16px; // 防止iOS自动缩放
+    border-radius: 8px;
+    min-height: 44px; // 触摸友好
+  }
 }
 
 button {
@@ -1401,6 +1600,7 @@ button:hover {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 36px;
 
   &:hover:not(:disabled) {
     background: color.adjust($primary-color, $lightness: -10%);
@@ -1416,6 +1616,18 @@ button:hover {
 
     &:hover {
       background: color.adjust($danger-color, $lightness: -10%);
+    }
+  }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px 20px;
+    font-size: 16px;
+    min-height: 44px;
+    border-radius: 8px;
+    
+    &:active {
+      transform: scale(0.98);
     }
   }
 }
@@ -1450,6 +1662,17 @@ button:hover {
   display: flex;
   gap: 10px;
   justify-content: center;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    
+    .control-btn {
+      width: 100%;
+    }
+  }
 }
 
 .recording-tip {
@@ -1486,11 +1709,30 @@ button:hover {
 
 .sample-table {
   margin-top: 32px;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    margin-top: 24px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    
+    h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+  }
 }
 
 .sample-table table {
   width: 100%;
   border-collapse: collapse;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    border: none;
+  }
 }
 
 .sample-table th,
@@ -1498,10 +1740,25 @@ button:hover {
   border: 1px solid #e0e0e0;
   padding: 8px 12px;
   text-align: left;
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px 8px;
+    font-size: 14px;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
 }
 
 .sample-row {
   cursor: pointer;
+  
+  // 移动端触摸优化
+  @media (max-width: 768px) {
+    &:active {
+      background: #e3f2fd;
+    }
+  }
 }
 
 .sample-row:hover {
