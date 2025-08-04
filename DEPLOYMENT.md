@@ -432,6 +432,8 @@ cd ..
 docker compose -f docker-compose.prod.yml build api --no-cache
 
 # 5. 启动服务
+docker compose -f docker-compose.prod.yml restart api frontend
+
 docker compose -f docker-compose.prod.yml up -d
 
 # 6. 检查服务状态

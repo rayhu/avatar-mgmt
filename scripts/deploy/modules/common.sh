@@ -48,7 +48,7 @@ export PROJECT_NAME="avatar-mgmt"
 
 # 检查必需的工具
 check_requirements() {
-    local tools=("ssh" "rsync" "docker" "docker-compose")
+    local tools=("ssh" "rsync" "docker")
     
     for tool in "${tools[@]}"; do
         if ! command -v "$tool" &> /dev/null; then
