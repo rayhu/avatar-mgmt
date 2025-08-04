@@ -30,14 +30,21 @@ cd avatar-mgmt
 | 场景 | 文件 | 常用启动命令 | 说明 |
 | ---- | ----- | ------------- | ---- |
 | 本地开发 | `docker-compose.dev.yml` | `docker compose -f docker-compose.dev.yml up -d --build` | 开发调试用 |
-| 生产/自托管 | `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up -d --build` | 手动 Nginx 配置 |
-| **简化生产** | `docker-compose.prod-simple.yml` | `./deploy-daidai-simple.sh` | **推荐：使用 Nginx Proxy Manager** |
+| **本地测试** | `docker-compose.stage.yml` | `docker compose -f docker-compose.stage.yml up -d --build` | **推荐：本地Docker测试环境** |
+| **生产** | `docker-compose.prod.yml` | `./deploy-daidai-simple.sh` | 生产部署专用 |
 
-> 三套文件均使用同一份 `.env`，差异主要在镜像体积、调试端口映射以及反向代理配置方式。
+**⚠️ 重要提醒**：本地测试Docker时请使用stage环境，避免误操作生产配置：
 
-例如本地调试：
 ```bash
-cp .env.example .env   # 根据需要编辑变量
+# ✅ 推荐：本地测试
+docker compose -f docker-compose.stage.yml up -d --build
+
+# ❌ 避免：本地使用生产配置
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+例如本地开发调试：
+```bash
 docker compose -f docker-compose.dev.yml up -d --build
 ```
 
@@ -46,12 +53,8 @@ docker compose -f docker-compose.dev.yml up -d --build
 docker compose -f docker-compose.dev.yml down -v   # 如需保留数据去掉 -v
 ```
 
-生产服务器部署（推荐简化方案）：
+生产服务器部署：
 ```bash
-# 一键部署（使用 Nginx Proxy Manager）
-./deploy-daidai-simple.sh
-
-# 或手动部署（传统 Nginx 配置）
 docker compose -f docker-compose.prod.yml down
 docker compose -f docker-compose.prod.yml up -d --build
 ```
@@ -72,7 +75,8 @@ yarn dev
 ### 访问地址 (Access URLs)
 
 - 前端开发服务器：http://localhost:5173
-- 后端管理界面：http://localhost:8055
+- 后端API：http://localhost:3000
+- DIRECTUS管理界面：http://localhost:8055
 
 ### 登录信息 (Login Credentials)
 
@@ -106,25 +110,44 @@ yarn dev
 
 ## ✨ 核心功能 (Core Features)
 
-✅ 形象管理：上传、编辑、删除数字人形象
-✅ 元数据管理：形象属性（如名字、用途、风格等）管理
-✅ 预览和展示：可视化预览形象，包括动画或静态图
-✅ 权限和用户管理：不同用户角色权限控制
-✅ API 接口：供前台客服端调用数字人形象数据
+### 🎭 模型管理
+✅ **形象管理**：上传、编辑、删除数字人形象  
+✅ **版本控制**：支持模型版本管理和状态跟踪  
+✅ **元数据管理**：形象属性（名字、用途、风格、版本等）管理  
+✅ **状态管理**：草稿、待审核、处理中、就绪、错误等状态流转  
+
+### 🎬 创作功能
+✅ **语音动画导出**：集成Azure TTS语音合成和动画时间轴  
+✅ **动作表情测试**：实时预览模型动作和表情效果  
+✅ **3D预览渲染**：基于Three.js的高质量3D模型展示  
+
+### 👥 用户体验
+✅ **权限和用户管理**：管理员和普通用户的差异化权限控制  
+✅ **响应式设计**：完美适配桌面端和移动端  
+✅ **集成操作流程**：从模型浏览到功能使用的一体化体验  
+
+### 🔌 技术集成
+✅ **API 接口**：供前台客服端调用数字人形象数据  
+✅ **多语言支持**：中英文国际化  
+✅ **实时日志**：完整的操作日志和错误追踪
 
 ## 🚢 部署 (Deployment)
 
-项目已部署在 Vercel 上：
+CICD的测试项目已部署在 Vercel 上：
 - 主域名：https://amis-avatar-mgmt.vercel.app
-
 ### 部署命令
 ```bash
 npx vercel --prod
 ```
 
+生产服务器部署在Azure上
+- 主域名：https://daidai.amis.hk
+- API域名：https://api.daidai.amis.hk
+- CMS域名：https://directus.daidai.amis.hk
+
 ### 自托管部署选项
 
-#### 🎯 推荐：简化部署（Nginx Proxy Manager）
+#### 🎯 部署（Nginx Proxy Manager）
 
 使用图形化界面管理反向代理和 SSL 证书，大大简化配置复杂度：
 
@@ -182,10 +205,19 @@ docker-compose down      # 停止并清理容器
 
 ## 📚 文档 (Documentation)
 
-- [前端开发文档](./frontend/README.md)
-- [API 文档](https://amis-avatar-mgmt.vercel.app/docs)
-- [API Server 文档](./docs/api-server.md)
-- [SSL 配置文档](./docs/ssl-setup.md)
-- [部署指南](./docs/deployment.md)
-- [**简化部署指南**](./DEPLOY-DAIDAI-SIMPLE.md) - 推荐阅读
+### **主要文档**
+- [📖 **文档中心**](./docs/README.md) - 完整文档导航和索引
+- [🚀 **部署指南**](./DEPLOYMENT.md) - 生产环境部署完整指南  
+- [📝 **更新日志**](./CHANGELOG.md) - 版本变更和新功能记录
+- [🔄 **迁移指南**](./docs/MIGRATION.md) - 从旧架构迁移到新架构
+
+### **技术文档**
+- [💻 **前端开发**](./frontend/README.md) - Vue 3 应用开发指南
+- [🔌 **API Server**](./docs/api-server.md) - 后端 API 接口文档
+- [🎵 **Azure TTS**](./docs/azure-tts/README.md) - 语音服务集成
+- [🏗️ **Azure TTS 部署**](./DEPLOYMENT-AZURE-TTS.md) - Azure 语音服务部署
+
+### **在线资源**
+- [🌐 **API 接口文档**](https://api.daidai.amis.hk/docs) - 在线 API 文档
+- [🧪 **测试环境**](https://amis-avatar-mgmt.vercel.app) - Vercel 测试部署
 

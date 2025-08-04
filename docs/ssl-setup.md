@@ -1,10 +1,28 @@
-# SSL 证书配置
+# SSL 证书配置 (已过时)
 
-该文档说明如何为数字人管理系统配置 Let's Encrypt SSL 证书，实现 HTTPS 安全访问。
+⚠️ **本文档已过时，请查看最新的部署方案**
 
-## 概述
+**新的部署文档**: [`../DEPLOYMENT.md`](../DEPLOYMENT.md)
 
-项目使用 **Nginx + Certbot** 方案实现 SSL 证书的自动获取和续期，支持生产环境的 HTTPS 访问。
+## 当前SSL管理方式
+
+现在使用 **JC21 Nginx Proxy Manager** 自动管理 SSL 证书：
+
+- ✅ **自动获取**: Let's Encrypt 证书自动申请
+- ✅ **自动续期**: 无需手动维护
+- ✅ **多域名支持**: 支持 `daidai.amis.hk`、`api.daidai.amis.hk`、`directus.daidai.amis.hk`
+- ✅ **图形界面**: 通过 Web 界面管理，访问 `http://daidai.amis.hk:81`
+
+## 配置方法
+
+1. 访问 JC21 管理界面: `http://daidai.amis.hk:81`
+2. 登录: `admin@example.com` / `changeme`
+3. 添加 Proxy Host，启用 SSL，选择 "Request a new SSL certificate"
+4. 系统自动处理证书申请和配置
+
+---
+
+## 历史文档内容 (Nginx + Certbot 手动方式)
 
 ## 架构设计
 

@@ -1,6 +1,20 @@
-# 部署指南
+# 部署指南 (已迁移)
 
-本文档详细说明数字人管理系统的部署流程，包括开发环境、生产环境和 SSL 配置。
+⚠️ **本文档已过时，请查看最新版本**
+
+**新的部署文档**: [`../DEPLOYMENT.md`](../DEPLOYMENT.md)
+
+本文档基于旧的单域名 + 路径代理方式，当前生产环境已迁移到多域名架构 + JC21 Nginx Proxy Manager。
+
+## 新架构概述
+
+- **主域名**: `daidai.amis.hk` → 前端应用
+- **API域名**: `api.daidai.amis.hk` → API服务器  
+- **CMS域名**: `directus.daidai.amis.hk` → Directus管理
+
+---
+
+## 历史文档内容 (仅供参考)
 
 ## 部署选项
 

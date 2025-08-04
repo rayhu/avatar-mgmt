@@ -4,7 +4,7 @@
 # ======================================
 
 # 加载通用模块
-source "$(dirname "$0")/common.sh"
+source "$(dirname "$0")/modules/common.sh"
 
 # 检查服务器环境
 check_server_environment() {
@@ -149,15 +149,15 @@ main() {
             ;;
         --restart)
             check_ssh_connection
-            remote_exec "cd $REMOTE_DIR && sudo docker compose -f docker-compose.prod-simple.yml restart"
+            remote_exec "cd $REMOTE_DIR && sudo docker compose -f docker-compose.prod.yml restart"
             ;;
         --stop)
             check_ssh_connection
-            remote_exec "cd $REMOTE_DIR && sudo docker compose -f docker-compose.prod-simple.yml down"
+            remote_exec "cd $REMOTE_DIR && sudo docker compose -f docker-compose.prod.yml down"
             ;;
         --logs)
             check_ssh_connection
-            remote_exec "cd $REMOTE_DIR && sudo docker compose -f docker-compose.prod-simple.yml logs --tail=50"
+            remote_exec "cd $REMOTE_DIR && sudo docker compose -f docker-compose.prod.yml logs --tail=50"
             ;;
         --help|-h)
             show_deploy_help

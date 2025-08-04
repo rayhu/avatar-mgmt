@@ -27,9 +27,14 @@
                 {{ formatDate(model.createTime) }}</span
               >
             </div>
-            <button class="view-btn" @click="viewModel(model)">
-              {{ t('modelManagement.viewModel') }}
-            </button>
+            <div class="model-actions">
+              <button class="action-btn primary" @click="createAnimation(model)">
+                {{ t('animate.title') }}
+              </button>
+              <button class="action-btn secondary" @click="testModel(model)">
+                {{ t('test.title') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -40,11 +45,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../store';
 // ModelGallerySkeleton 和 ModelCard 已自动导入
 import type { Avatar } from '../../types/avatar';
 import { getAvatars } from '../../api/avatars';
 
 const { t } = useI18n();
+const router = useRouter();
+const auth = useAuthStore();
 
 const readyModels = ref<Avatar[]>([]);
 const loading = ref(true);
@@ -54,9 +63,30 @@ function formatDate(date?: string) {
   return new Date(date).toLocaleString();
 }
 
+// 创建语音动画
+function createAnimation(model: Avatar) {
+  console.log('创建动画:', model);
+  // 跳转到动画创建页面，并传递选中的模型信息
+  router.push({
+    name: 'animate',
+    query: { modelId: model.id, modelName: model.name }
+  });
+}
+
+// 测试模型（仅管理员）
+function testModel(model: Avatar) {
+  console.log('测试模型:', model);
+  // 跳转到模型测试页面，并传递选中的模型信息
+  router.push({
+    name: 'test',
+    query: { modelId: model.id, modelName: model.name }
+  });
+}
+
+// 查看模型详情
 function viewModel(model: Avatar) {
-  // TODO: 实现查看模型详情的逻辑
-  console.log('View model:', model);
+  console.log('查看模型:', model);
+  // TODO: 实现模型详情查看功能，可以考虑使用模态框或单独页面
 }
 
 // 获取就绪状态的模型列表
@@ -194,29 +224,65 @@ onMounted(async () => {
   margin-bottom: 16px;
 }
 
-.view-btn {
-  width: 100%;
-  padding: 8px 16px;
-  background: $primary-color;
-  color: white;
+.model-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
+}
+
+.action-btn {
+  padding: 10px 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
   transition: all 0.3s ease;
   min-height: 44px;
-  font-size: 16px;
-
+  font-size: 14px;
+  
   @media (max-width: 768px) {
     padding: 12px 16px;
     font-size: 16px;
+    min-height: 48px;
   }
 
-  &:hover {
-    background: color.adjust($primary-color, $lightness: -10%);
+  &.primary {
+    background: $primary-color;
+    color: white;
+    
+    &:hover {
+      background: color.adjust($primary-color, $lightness: -10%);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.secondary {
+    background: #6c757d;
+    color: white;
+    
+    &:hover {
+      background: color.adjust(#6c757d, $lightness: -10%);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.outline {
+    background: transparent;
+    color: $primary-color;
+    border: 1px solid $primary-color;
+    
+    &:hover {
+      background: $primary-color;
+      color: white;
+      transform: translateY(-1px);
+    }
   }
   
   &:active {
-    background: color.adjust($primary-color, $lightness: -15%);
     transform: scale(0.98);
   }
 }

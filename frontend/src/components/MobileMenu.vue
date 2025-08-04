@@ -48,21 +48,6 @@
               >
                 {{ t('modelManagement.modelGallery') }}
               </router-link>
-              <router-link 
-                to="/animate"
-                class="mobile-nav-link"
-                @click="closeMenu"
-              >
-                {{ t('animate.title') }}
-              </router-link>
-              <router-link 
-                v-if="auth.isAdmin" 
-                to="/test"
-                class="mobile-nav-link"
-                @click="closeMenu"
-              >
-                {{ t('test.title') }}
-              </router-link>
               
               <div class="mobile-nav-divider"></div>
               
