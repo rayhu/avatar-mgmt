@@ -1,8 +1,13 @@
 // api-server/handlers/version.ts
 import { Request, Response } from 'express'
 import { promises as fs } from 'fs'
-import { join } from 'path'
+import { join, dirname } from 'path'
 import { execSync } from 'child_process'
+import { fileURLToPath } from 'url'
+
+// ES 模块中获取 __dirname 的替代方案
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 interface VersionInfo {
   frontend: {

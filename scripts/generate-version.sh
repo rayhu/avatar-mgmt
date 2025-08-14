@@ -1,12 +1,26 @@
 #!/bin/bash
-# scripts/generate-version.sh (简化版)
+# scripts/generate-version.sh (自动检测环境)
 
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# 自动检测环境并设置版本号
+if [ "$1" = "stage" ] || [ "$1" = "staging" ]; then
+  ENVIRONMENT="staging"
+  VERSION="dev-$(git rev-parse --short HEAD)"
+elif [ "$1" = "prod" ] || [ "$1" = "production" ]; then
+  ENVIRONMENT="production"
+  VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
+else
+  ENVIRONMENT="development"
+  VERSION="dev-$(git rev-parse --short HEAD)"
+fi
+
 echo "🔧 生成版本信息..."
+echo "�� 环境: $ENVIRONMENT"
+echo "�� 版本号: $VERSION"
 
 # 获取 Git 信息
 COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -21,14 +35,14 @@ mkdir -p api-server/version
 cat > api-server/version/version.json << EOF
 {
   "frontend": {
-    "version": "1.0.0",
+    "version": "$VERSION",
     "commitHash": "$COMMIT_HASH",
     "buildTime": "$BUILD_TIME",
     "branch": "$BRANCH",
     "commitDate": "$COMMIT_DATE"
   },
   "backend": {
-    "version": "1.0.0",
+    "version": "$VERSION",
     "commitHash": "$COMMIT_HASH",
     "buildTime": "$BUILD_TIME",
     "branch": "$BRANCH",
@@ -36,7 +50,7 @@ cat > api-server/version/version.json << EOF
   },
   "system": {
     "deployTime": "$BUILD_TIME",
-    "environment": "production",
+    "environment": "$ENVIRONMENT",
     "uptime": "0s",
     "lastCheck": "$BUILD_TIME"
   },
@@ -45,5 +59,7 @@ cat > api-server/version/version.json << EOF
 EOF
 
 echo "✅ Version information generated: api-server/version/version.json"
+echo "  - Environment: $ENVIRONMENT"
+echo "  - Version: $VERSION"
 echo "  - Commit: $COMMIT_HASH ($BRANCH)"
 echo "  - Build time: $BUILD_TIME"

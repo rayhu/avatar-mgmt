@@ -61,11 +61,6 @@ jobs:
               echo "✅ Repository updated successfully"
             fi
             
-            # 生成版本信息
-            echo "�� Generating version information..."
-            chmod +x scripts/generate-version.sh
-            ./scripts/generate-version.sh generate
-
             # 检查配置文件
             if [ ! -f ".env.stage.api" ]; then
               echo "❌ Staging config file not found!"
@@ -82,10 +77,14 @@ jobs:
               exit 1
             fi
             
+            # 生成版本信息
+            echo "�� Generating version information..."
+            chmod +x scripts/generate-version.sh
+            ./scripts/generate-version.sh generate
+
             # 部署服务
             echo "🐳 Starting Docker services..."
-            docker-compose -f docker-compose.stage.yml down
-            docker-compose -f docker-compose.stage.yml up -d --build
+            docker compose -f docker-compose.stage.yml up -d --build --force-recreate --remove-orphans
             
             echo "✅ Staging deployment completed!"
             
@@ -105,7 +104,7 @@ jobs:
             
             # 检查 Docker 服务状态
             echo "📊 Docker services status:"
-            docker-compose -f docker-compose.stage.yml ps
+            docker compose -f docker-compose.stage.yml ps
             
             # 检查服务健康状态
             echo "🏥 Checking service health..."
@@ -127,7 +126,7 @@ jobs:
             fi
             
             # 检查数据库服务
-            if docker-compose -f docker-compose.stage.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
+            if docker compose -f docker-compose.stage.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
               echo "✅ Database service is healthy"
             else
               echo "❌ Database service health check failed"

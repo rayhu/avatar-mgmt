@@ -31,21 +31,40 @@ jobs:
             echo "Release: ${{ steps.release.outputs.release_name }}"
             echo "Tag: ${{ steps.release.outputs.tag_name }}"
             echo "Deploy time: $(date)"
-            
+
+            # 确保目录存在
+            sudo mkdir -p /opt/avatar-mgmt
+            sudo chown $USER:$USER /opt/avatar-mgmt
+            sudo chmod 755 /opt/avatar-mgmt
+
             cd /opt/avatar-mgmt
             
-            # 备份当前版本
-            if [ -d ".git" ]; then
-              echo "�� Backing up current version..."
-              git rev-parse HEAD > .backup-commit.txt
-              echo "Backup saved to .backup-commit.txt"
+            # 检查并初始化 Git 仓库
+            if [ ! -d ".git" ]; then
+              echo "�� Git repository not found, cloning..."
+              ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+              git clone git@github.com:${{ github.repository }}.git .
+              if [ $? -ne 0 ]; then
+                echo "❌ Failed to clone repository"
+                exit 1
+              fi
+              echo "✅ Repository cloned successfully"
+            else
+              echo "📥 Git repository found, updating..."
+              # 备份当前版本
+              if git rev-parse HEAD >/dev/null 2>&1; then
+                echo " Backing up current version..."
+                git rev-parse HEAD > .backup-commit.txt
+              fi
+              
+              # 拉取最新代码
+            echo "📥 Pulling latest code..."
+              git fetch origin
+              git reset --hard origin/main
+              git clean -fd
+              echo "✅ Repository updated successfully"
             fi
-            
-            # 拉取最新代码并切换到特定 tag
-            echo "📥 Fetching latest code and switching to tag..."
-            git fetch --tags
-            git fetch origin
-            
+
             # 检查 tag 是否存在
             if ! git tag -l | grep -q "${{ steps.release.outputs.tag_name }}"; then
               echo "❌ Tag ${{ steps.release.outputs.tag_name }} not found!"
@@ -62,18 +81,20 @@ jobs:
               echo "Please create .env.prod.api on the server"
               exit 1
             fi
-            
-            # 停止现有服务
-            echo "🛑 Stopping existing services..."
-            docker-compose -f docker-compose.prod.yml down
-            
-            # 清理旧镜像
-            echo "🧹 Cleaning up old images..."
-            docker image prune -f
-            
+            if [ ! -f ".env.prod.directus" ]; then
+              echo "❌ Production config file not found!"
+              echo "Please create .env.prod.directus on the server"
+              exit 1
+            fi
+
+            # 生成版本信息
+            echo "�� Generating version information..."
+            chmod +x scripts/generate-version.sh
+            ./scripts/generate-version.sh generate
+
             # 部署生产环境
             echo "🐳 Starting production services..."
-            docker-compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
             
             echo "✅ Production deployment completed!"
             
@@ -93,7 +114,7 @@ jobs:
             
             # 检查 Docker 服务状态
             echo "📊 Docker services status:"
-            docker-compose -f docker-compose.prod.yml ps
+            docker compose -f docker-compose.prod.yml ps
             
             # 检查服务健康状态
             echo "🏥 Checking production service health..."
@@ -115,7 +136,7 @@ jobs:
             fi
             
             # 检查数据库服务
-            if docker-compose -f docker-compose.prod.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
+            if docker compose -f docker-compose.prod.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
               echo "✅ Database service is healthy"
             else
               echo "❌ Database service health check failed"

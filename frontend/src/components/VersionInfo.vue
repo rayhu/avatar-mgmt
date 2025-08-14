@@ -1,113 +1,154 @@
 <template>
-  <div class="version-info">
-    <div class="version-header">
-      <h3>{{ t('about.version') }}</h3>
-      <button @click="refreshVersion" :disabled="loading" class="refresh-btn">
-        {{ loading ? t('about.refreshing') : t('about.refresh') }}
-      </button>
+  <div class="version-page">
+    <div class="page-header">
+      <h1>🔧 系统版本信息</h1>
+      <p class="page-description">
+        查看前端、后端和系统的详细版本信息，包括Git提交记录、构建时间和运行状态
+      </p>
     </div>
 
-    <div class="version-grid">
-      <!-- 前端版本 -->
-              <div class="version-card frontend">
+    <div class="version-info">
+      <div class="version-header">
+        <h3>版本信息</h3>
+        <button @click="refreshVersion" :disabled="loading" class="refresh-btn">
+          {{ loading ? '🔄 刷新中...' : '🔄 刷新' }}
+        </button>
+      </div>
+
+      <div class="version-grid">
+        <!-- 前端版本 -->
+        <div class="version-card frontend">
           <div class="card-header">
-            <span class="icon">🌐</span>
-            <h4>{{ t('about.frontend') }}</h4>
+            <span class="icon">��</span>
+            <h4>前端版本</h4>
           </div>
           <div class="card-content">
             <div class="version-item">
-              <span class="label">{{ t('about.versionNumber') }}:</span>
+              <span class="label">版本号:</span>
               <span class="value">{{ versionInfo.frontend?.version || '未知' }}</span>
             </div>
             <div class="version-item">
-              <span class="label">{{ t('about.commitHash') }}:</span>
+              <span class="label">Commit Hash:</span>
               <span class="value hash">{{ versionInfo.frontend?.commitHash || '未知' }}</span>
             </div>
             <div class="version-item">
-              <span class="label">{{ t('about.buildTime') }}:</span>
+              <span class="label">构建时间:</span>
               <span class="value">{{ formatTime(versionInfo.frontend?.buildTime) }}</span>
             </div>
             <div class="version-item">
-              <span class="label">{{ t('about.branch') }}:</span>
+              <span class="label">分支:</span>
               <span class="value branch">{{ versionInfo.frontend?.branch || '未知' }}</span>
             </div>
             <div class="version-item">
-              <span class="label">{{ t('about.commitDate') }}:</span>
+              <span class="label">提交日期:</span>
               <span class="value">{{ formatTime(versionInfo.frontend?.commitDate) }}</span>
             </div>
           </div>
         </div>
 
-      <!-- 后端版本 -->
-      <div class="version-card backend">
-        <div class="card-header">
-          <span class="icon">⚙️</span>
-          <h4>后端版本</h4>
+        <!-- 后端版本 -->
+        <div class="version-card backend">
+          <div class="card-header">
+            <span class="icon">⚙️</span>
+            <h4>后端版本</h4>
+          </div>
+          <div class="card-content">
+            <div class="version-item">
+              <span class="label">版本号:</span>
+              <span class="value">{{ versionInfo.backend?.version || '未知' }}</span>
+            </div>
+            <div class="version-item">
+              <span class="label">Commit Hash:</span>
+              <span class="value hash">{{ versionInfo.backend?.commitHash || '未知' }}</span>
+            </div>
+            <div class="version-item">
+              <span class="label">构建时间:</span>
+              <span class="value">{{ formatTime(versionInfo.backend?.buildTime) }}</span>
+            </div>
+            <div class="version-item">
+              <span class="label">分支:</span>
+              <span class="value branch">{{ versionInfo.backend?.branch || '未知' }}</span>
+            </div>
+          </div>
         </div>
-        <div class="card-content">
-          <div class="version-item">
-            <span class="label">版本号:</span>
-            <span class="value">{{ versionInfo.backend?.version || '未知' }}</span>
+
+        <!-- 系统信息 -->
+        <div class="version-card system">
+          <div class="card-header">
+            <span class="icon">🖥️</span>
+            <h4>系统信息</h4>
           </div>
-          <div class="version-item">
-            <span class="label">Commit Hash:</span>
-            <span class="value hash">{{ versionInfo.backend?.commitHash || '未知' }}</span>
-          </div>
-          <div class="version-item">
-            <span class="label">构建时间:</span>
-            <span class="value">{{ formatTime(versionInfo.backend?.buildTime) }}</span>
-          </div>
-          <div class="version-item">
-            <span class="label">分支:</span>
-            <span class="value branch">{{ versionInfo.backend?.branch || '未知' }}</span>
+          <div class="card-content">
+            <div class="version-item">
+              <span class="label">环境:</span>
+              <span class="value environment">{{ versionInfo.system?.environment || '未知' }}</span>
+            </div>
+            <div class="version-item">
+              <span class="label">部署时间:</span>
+              <span class="value">{{ formatTime(versionInfo.system?.deployTime) }}</span>
+            </div>
+            <div class="version-item">
+              <span class="label">运行时间:</span>
+              <span class="value">{{ versionInfo.system?.uptime || '未知' }}</span>
+            </div>
+            <div class="version-item">
+              <span class="label">最后检查:</span>
+              <span class="value">{{ formatTime(versionInfo.system?.lastCheck) }}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 系统信息 -->
-      <div class="version-card system">
-        <div class="card-header">
-          <span class="icon">🖥️</span>
-          <h4>系统信息</h4>
-        </div>
-        <div class="card-content">
-          <div class="version-item">
-            <span class="label">环境:</span>
-            <span class="value environment">{{ versionInfo.system?.environment || '未知' }}</span>
-          </div>
-          <div class="version-item">
-            <span class="label">部署时间:</span>
-            <span class="value">{{ formatTime(versionInfo.system?.deployTime) }}</span>
-          </div>
-          <div class="version-item">
-            <span class="label">运行时间:</span>
-            <span class="value">{{ versionInfo.system?.uptime || '未知' }}</span>
-          </div>
-          <div class="version-item">
-            <span class="label">最后检查:</span>
-            <span class="value">{{ formatTime(versionInfo.system?.lastCheck) }}</span>
-          </div>
-        </div>
+      <!-- 错误信息 -->
+      <div v-if="error" class="error-message">
+        ❌ {{ error }}
+      </div>
+
+      <!-- 更新时间 -->
+      <div class="update-time">
+        最后更新: {{ formatTime(lastUpdate?.toISOString()) }}
       </div>
     </div>
 
-    <!-- 错误信息 -->
-    <div v-if="error" class="error-message">
-      ❌ {{ error }}
-    </div>
+    <!-- 有用的附加信息 -->
+    <div class="additional-info">
+      <div class="info-section">
+        <h3>📋 版本信息说明</h3>
+        <ul>
+          <li><strong>版本号:</strong> 基于日期和Git提交哈希生成的唯一标识</li>
+          <li><strong>Commit Hash:</strong> Git提交的短哈希值，用于追踪代码变更</li>
+          <li><strong>构建时间:</strong> 代码构建完成的时间戳</li>
+          <li><strong>分支:</strong> 当前部署的Git分支名称</li>
+          <li><strong>环境:</strong> 当前运行的环境（development/staging/production）</li>
+          <li><strong>运行时间:</strong> 系统启动后的运行时长</li>
+        </ul>
+      </div>
 
-    <!-- 更新时间 -->
-    <div class="update-time">
-      最后更新: {{ formatTime(lastUpdate?.toISOString()) }}
+      <div class="info-section">
+        <h3>🚀 如何使用</h3>
+        <ol>
+          <li>点击"刷新"按钮获取最新版本信息</li>
+          <li>对比前后端版本确保一致性</li>
+          <li>使用Commit Hash在Git中查找具体变更</li>
+          <li>监控系统运行时间和部署状态</li>
+        </ol>
+      </div>
+
+      <div class="info-section">
+        <h3>🔍 故障排查</h3>
+        <ul>
+          <li>如果版本信息显示"未知"，请检查网络连接</li>
+          <li>前后端版本不一致可能导致功能异常</li>
+          <li>运行时间异常可能表示系统重启</li>
+          <li>环境标识错误可能影响功能配置</li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
 
 interface VersionInfo {
   frontend?: {
@@ -143,11 +184,18 @@ const loading = ref(false)
 const error = ref('')
 const lastUpdate = ref<Date | null>(null)
 
-// 格式化时间
+// 格式化时间 - 改进版本，避免显示 "Invalid Date"
 const formatTime = (timeStr: string | undefined) => {
-  if (!timeStr) return '未知'
+  if (!timeStr) return '暂无数据'
+  
   try {
     const date = new Date(timeStr)
+    
+    // 检查日期是否有效
+    if (isNaN(date.getTime())) {
+      return '无'
+    }
+    
     return date.toLocaleString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -157,7 +205,7 @@ const formatTime = (timeStr: string | undefined) => {
       second: '2-digit'
     })
   } catch {
-    return timeStr
+    return '日期解析失败'
   }
 }
 
@@ -195,11 +243,37 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.version-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2.5rem;
+}
+
+.page-description {
+  color: #666;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
 .version-info {
   padding: 20px;
   background: #f8f9fa;
   border-radius: 8px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  margin-bottom: 40px;
 }
 
 .version-header {
@@ -334,7 +408,47 @@ onMounted(() => {
   font-style: italic;
 }
 
+.additional-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.info-section {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-section h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 8px;
+}
+
+.info-section ul,
+.info-section ol {
+  color: #555;
+  line-height: 1.8;
+  padding-left: 20px;
+}
+
+.info-section li {
+  margin-bottom: 8px;
+}
+
+.info-section strong {
+  color: #333;
+}
+
 @media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
   .version-grid {
     grid-template-columns: 1fr;
   }
@@ -347,6 +461,10 @@ onMounted(() => {
   
   .version-item .label {
     min-width: auto;
+  }
+  
+  .additional-info {
+    grid-template-columns: 1fr;
   }
 }
 </style>
