@@ -94,6 +94,8 @@ jobs:
               echo "✅ Repository updated to tag: ${{ steps.release.outputs.tag_name }}"
             fi
             
+            sudo chown -R $USER:$USER /opt/avatar-mgmt
+
             # 检查配置文件
             if [ ! -f ".env.prod.api" ]; then
               echo "❌ Production config file not found!"
