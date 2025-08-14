@@ -77,15 +77,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/version',
-    name: 'version',
-    component: () => import('../views/VersionInfo.vue'),
-    meta: {
-      title: '版本信息',
-      public: true, // 公开路由，不需要登录
-    },
-  },
-  {
     path: '/',
     redirect: '/login',
   },
