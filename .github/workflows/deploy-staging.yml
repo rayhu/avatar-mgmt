@@ -131,22 +131,24 @@ jobs:
             yarn --version
             
             # 在服务器上构建前端
-            echo "��️ Building frontend on server..."
+            echo "Building frontend on server..."
             cd frontend
             
-            # 设置 staging 环境变量
-            echo "VITE_API_BASE_URL=https://api.${{ vars.STAGING_HOST }}" > .env.staging
-            echo "VITE_DIRECTUS_BASE_URL=https://directus.${{ vars.STAGING_HOST }}" >> .env.staging
-            # echo "NODE_ENV=staging" >> .env.staging
+            # vite 的 mode 参数仅仅支持 production 和 development 两个值
+            # 设置 staging 环境变量，但是以 production 模式构建
+            echo "VITE_API_BASE_URL=https://api.${{ vars.STAGING_HOST }}" > .env.production
+            echo "VITE_DIRECTUS_BASE_URL=https://directus.${{ vars.STAGING_HOST }}" >> .env.production
+
+            echo "NODE_ENV=production" >> .env.production
             
-            # 安装依赖并构建
+            # 安装依赖并构建 
             yarn install --frozen-lockfile
-            yarn build --mode staging
+            yarn build --mode production
                         
             cd ..
             
             # 在服务器上安装后端依赖
-            echo "�� Installing backend dependencies..."
+            echo "Installing backend dependencies..."
             cd api-server
             yarn install --frozen-lockfile
             cd ..
