@@ -40,7 +40,6 @@ jobs:
         run: |
           cd api-server
           yarn install --frozen-lockfile
-          yarn build
           
       - name: Deploy to Staging
         uses: appleboy/ssh-action@v0.1.5
