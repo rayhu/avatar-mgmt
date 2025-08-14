@@ -106,6 +106,28 @@ jobs:
               exit 1
             fi
 
+            # 确保 Volta 已安装并加载
+            if ! command -v volta &> /dev/null; then
+              echo " Installing Volta..."
+              curl https://get.volta.sh | bash
+              export VOLTA_HOME="$HOME/.volta"
+              export PATH="$VOLTA_HOME/bin:$PATH"
+            fi
+            
+            
+            # 加载 Volta 环境
+            export VOLTA_HOME="$HOME/.volta"
+            export PATH="$VOLTA_HOME/bin:$PATH"
+            
+            # 安装项目指定的 Node.js 和 Yarn 版本
+            echo " Installing Node.js and Yarn via Volta..."
+            volta install node@22.16.0
+            volta install yarn@1.22.22
+            
+            # 验证版本
+            echo " Verifying versions..."
+            node --version
+            yarn --version
 
             # 在服务器上构建前端
             echo "��️ Building frontend on server..."
