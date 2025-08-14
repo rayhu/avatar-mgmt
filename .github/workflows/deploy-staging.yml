@@ -38,6 +38,7 @@ jobs:
             # 检查并初始化 Git 仓库
             if [ ! -d ".git" ]; then
               echo "�� Git repository not found, cloning..."
+              ssh-keyscan -H github.com >> ~/.ssh/known_hosts
               git clone git@github.com:${{ github.repository }}.git .
               if [ $? -ne 0 ]; then
                 echo "❌ Failed to clone repository"
