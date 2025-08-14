@@ -1,5 +1,7 @@
 // API 配置文件
 
+import test from "node:test";
+
 // 从环境变量获取 baseUrl，如果没有则使用默认值
 function getBaseUrls() {
   const env = import.meta.env.MODE || 'development';
@@ -15,8 +17,8 @@ function getBaseUrls() {
       directus: 'http://directus.daidai.localhost:8055'
     },
     stage: {
-      api: 'http://api.daidai.localhost:3000',
-      directus: 'http://directus.daidai.localhost:8055'
+      api: 'https://api.daidai-preview.amis.hk',
+      directus: 'https://directus.daidai-preview.amis.hk'
     },
     production: {
       api: 'https://api.daidai.amis.hk',

@@ -11,6 +11,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'yarn'
+          
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          
+      - name: Build frontend
+        run: |
+          cd frontend
+          # 设置 production 环境变量
+          echo "VITE_API_BASE_URL=https://${{ vars.PRODUCTION_HOST }}" > .env.production
+          echo "VITE_DIRECTUS_BASE_URL=https://${{ vars.PRODUCTION_HOST }}:8055" >> .env.production
+          echo "NODE_ENV=production" >> .env.production
+          
+          # 构建前端
+          yarn build
+          
+      - name: Build backend
+        run: |
+          cd api-server
+          yarn install --frozen-lockfile
+          yarn build
+
       - name: Get release info
         id: release
         run: |
@@ -21,15 +48,17 @@ jobs:
       - name: Deploy to Production
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: ${{ vars.PRODUCTION_HOST }}           # 使用 Variable
-          username: ${{ vars.PRODUCTION_USERNAME }}   # 使用 Variable
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}     # 使用 Secret
+          host: ${{ vars.PRODUCTION_HOST }}
+          username: ${{ vars.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
             echo "🚀 Starting Production deployment..."
             echo "Target: ${{ vars.PRODUCTION_HOST }}"
             echo "User: ${{ vars.PRODUCTION_USERNAME }}"
             echo "Release: ${{ steps.release.outputs.release_name }}"
-            echo "Tag: ${{ steps.release.outputs.tag_name }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Tag: ${{ steps.release.outputs.tag_name }}
+            echo "Commit: ${{ github.sha }}"
             echo "Deploy time: $(date)"
 
             # 确保目录存在
@@ -41,7 +70,7 @@ jobs:
             
             # 检查并初始化 Git 仓库
             if [ ! -d ".git" ]; then
-              echo "�� Git repository not found, cloning..."
+              echo " Git repository not found, cloning..."
               ssh-keyscan -H github.com >> ~/.ssh/known_hosts
               git clone git@github.com:${{ github.repository }}.git .
               if [ $? -ne 0 ]; then
@@ -57,23 +86,13 @@ jobs:
                 git rev-parse HEAD > .backup-commit.txt
               fi
               
-              # 拉取最新代码
-            echo "📥 Pulling latest code..."
-              git fetch origin
-              git reset --hard origin/main
+              # 拉取最新代码和标签
+              echo "📥 Pulling latest code and tags..."
+              git fetch --all --tags
+              git checkout ${{ steps.release.outputs.tag_name }}
               git clean -fd
-              echo "✅ Repository updated successfully"
+              echo "✅ Repository updated to tag: ${{ steps.release.outputs.tag_name }}"
             fi
-
-            # 检查 tag 是否存在
-            if ! git tag -l | grep -q "${{ steps.release.outputs.tag_name }}"; then
-              echo "❌ Tag ${{ steps.release.outputs.tag_name }} not found!"
-              exit 1
-            fi
-            
-            # 切换到特定 tag
-            git checkout "${{ steps.release.outputs.tag_name }}"
-            echo "✅ Switched to tag: ${{ steps.release.outputs.tag_name }}"
             
             # 检查配置文件
             if [ ! -f ".env.prod.api" ]; then
@@ -88,13 +107,13 @@ jobs:
             fi
 
             # 生成版本信息
-            echo "�� Generating version information..."
+            echo " Generating version information..."
             chmod +x scripts/generate-version.sh
-            ./scripts/generate-version.sh generate
+            ./scripts/generate-version.sh prod
 
             # 部署生产环境
             echo "🐳 Starting production services..."
-            docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
+            sudo docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
             
             echo "✅ Production deployment completed!"
             
@@ -114,12 +133,20 @@ jobs:
             
             # 检查 Docker 服务状态
             echo "📊 Docker services status:"
-            docker compose -f docker-compose.prod.yml ps
+            sudo docker compose -f docker-compose.prod.yml ps
             
             # 检查服务健康状态
-            echo "🏥 Checking production service health..."
+            echo "🏥 Checking service health..."
             
-            # 检查 API 服务 (内部)
+            # 检查前端服务
+            if curl -f https://${{ vars.PRODUCTION_HOST }} > /dev/null 2>&1; then
+              echo "✅ Frontend service is healthy"
+            else
+              echo "❌ Frontend service health check failed"
+              exit 1
+            fi
+            
+            # 检查 API 服务
             if curl -f http://localhost:3000/health > /dev/null 2>&1; then
               echo "✅ API service is healthy (internal)"
             else
@@ -136,7 +163,7 @@ jobs:
             fi
             
             # 检查数据库服务
-            if docker compose -f docker-compose.prod.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
+            if sudo docker compose -f docker-compose.prod.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
               echo "✅ Database service is healthy"
             else
               echo "❌ Database service health check failed"
@@ -148,9 +175,10 @@ jobs:
       - name: Notify deployment success
         if: success()
         run: |
-          echo "🎉 Production deployment successful!"
-          echo "Release: ${{ steps.release.outputs.release_name }}"
-          echo "Tag: ${{ steps.release.outputs.tag_name }}"
+          echo "✅ Production deployment successful!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Tag: ${{ steps.release.outputs.tag_name }}
+          echo "Commit: ${{ github.sha }}"
           echo "Deploy time: $(date)"
           echo "Release notes: ${{ steps.release.outputs.release_body }}"
           
@@ -158,7 +186,9 @@ jobs:
         if: failure()
         run: |
           echo "❌ Production deployment failed!"
+          echo "Repository: ${{ github.repository }}"
           echo "Release: ${{ steps.release.outputs.release_name }}"
-          echo "Tag: ${{ steps.release.outputs.tag_name }}"
+          echo "Tag: ${{ steps.release.outputs.tag_name }}
+          echo "Commit: ${{ github.sha }}"
           echo "Deploy time: $(date)"
           echo "Please check the deployment logs and fix the issue."

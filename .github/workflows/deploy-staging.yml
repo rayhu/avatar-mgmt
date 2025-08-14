@@ -12,7 +12,36 @@ jobs:
     
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
         
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'yarn'
+          
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          
+      - name: Build frontend
+        run: |
+          cd frontend
+          # 设置 staging 环境变量
+          echo "VITE_API_BASE_URL=http://${{ vars.STAGING_HOST }}" > .env.staging
+          echo "VITE_DIRECTUS_BASE_URL=http://${{ vars.STAGING_HOST }}:8055" >> .env.staging
+          echo "NODE_ENV=staging" >> .env.staging
+          
+          # 构建前端
+          yarn build
+          
+      - name: Build backend
+        run: |
+          cd api-server
+          yarn install --frozen-lockfile
+          yarn build
+          
       - name: Deploy to Staging
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -37,7 +66,7 @@ jobs:
             
             # 检查并初始化 Git 仓库
             if [ ! -d ".git" ]; then
-              echo "�� Git repository not found, cloning..."
+              echo " Git repository not found, cloning..."
               ssh-keyscan -H github.com >> ~/.ssh/known_hosts
               git clone git@github.com:${{ github.repository }}.git .
               if [ $? -ne 0 ]; then
@@ -54,7 +83,7 @@ jobs:
               fi
               
               # 拉取最新代码
-            echo "📥 Pulling latest code..."
+              echo "📥 Pulling latest code..."
               git fetch origin
               git reset --hard origin/main
               git clean -fd
@@ -78,13 +107,13 @@ jobs:
             fi
             
             # 生成版本信息
-            echo "�� Generating version information..."
+            echo " Generating version information..."
             chmod +x scripts/generate-version.sh
-            ./scripts/generate-version.sh generate
+            ./scripts/generate-version.sh stage
 
             # 部署服务
             echo "🐳 Starting Docker services..."
-            docker compose -f docker-compose.stage.yml up -d --build --force-recreate --remove-orphans
+            sudo docker compose -f docker-compose.stage.yml up -d --build --force-recreate --remove-orphans
             
             echo "✅ Staging deployment completed!"
             
@@ -104,7 +133,7 @@ jobs:
             
             # 检查 Docker 服务状态
             echo "📊 Docker services status:"
-            docker compose -f docker-compose.stage.yml ps
+            sudo docker compose -f docker-compose.stage.yml ps
             
             # 检查服务健康状态
             echo "🏥 Checking service health..."
@@ -126,7 +155,7 @@ jobs:
             fi
             
             # 检查数据库服务
-            if docker compose -f docker-compose.stage.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
+            if sudo docker compose -f docker-compose.stage.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
               echo "✅ Database service is healthy"
             else
               echo "❌ Database service health check failed"
