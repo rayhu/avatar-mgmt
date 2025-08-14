@@ -12,6 +12,8 @@
         <template v-else>
           <router-link to="/login">{{ t('login.title') }}</router-link>
         </template>
+        <!-- 关于链接 - 始终显示 -->
+        <router-link to="/about" class="about-link">{{ t('common.about') }}</router-link>
       </div>
       
       <!-- 移动端菜单按钮 -->

@@ -27,6 +27,7 @@ Avatar Management 部署系统
   status      查看状态
   backup      备份数据
   restore     恢复数据
+  version     版本管理
 
 选项:
   --help, -h   显示帮助信息
@@ -41,11 +42,13 @@ Avatar Management 部署系统
   $0 build --all              # 构建所有组件
   $0 deploy --full            # 完整部署
   $0 test                     # 测试部署
+  $0 version generate         # 生成版本信息
 
 示例:
   $0 build --frontend
   $0 deploy --sync
   $0 test
+  $0 version deploy
 "
 }
 
@@ -147,6 +150,10 @@ main() {
             ;;
         restore)
             restore_data "$action"
+            ;;
+        version)
+            source "$MODULES_DIR/version.sh"
+            main "$@"
             ;;
         --help|-h|"")
             show_main_help

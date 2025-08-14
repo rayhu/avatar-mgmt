@@ -1,0 +1,154 @@
+# .github/workflows/deploy-staging.yml
+name: Deploy to Staging
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-staging:
+    # 只在推送到 main 或 PR 合并到 main 时执行
+    if: github.event_name == 'push' || 
+        (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    runs-on: ubuntu-latest
+    steps:
+        
+      - name: Deploy to Staging
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ vars.STAGING_HOST }}
+          username: ${{ vars.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            echo "🚀 Starting Staging deployment..."
+            echo "Target: ${{ vars.STAGING_HOST }}"
+            echo "User: ${{ vars.STAGING_USERNAME }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Commit: ${{ github.sha }}"
+            echo "Deploy time: $(date)"
+            
+            # 确保目录存在
+            sudo mkdir -p /opt/avatar-mgmt
+            sudo chown $USER:$USER /opt/avatar-mgmt
+            sudo chmod 755 /opt/avatar-mgmt
+            
+            cd /opt/avatar-mgmt
+            
+            # 检查并初始化 Git 仓库
+            if [ ! -d ".git" ]; then
+              echo "�� Git repository not found, cloning..."
+              git clone git@github.com:${{ github.repository }}.git .
+              if [ $? -ne 0 ]; then
+                echo "❌ Failed to clone repository"
+                exit 1
+              fi
+              echo "✅ Repository cloned successfully"
+            else
+              echo "📥 Git repository found, updating..."
+              # 备份当前版本
+              if git rev-parse HEAD >/dev/null 2>&1; then
+                echo " Backing up current version..."
+                git rev-parse HEAD > .backup-commit.txt
+              fi
+              
+              # 拉取最新代码
+            echo "📥 Pulling latest code..."
+              git fetch origin
+              git reset --hard origin/main
+              git clean -fd
+              echo "✅ Repository updated successfully"
+            fi
+            
+            # 生成版本信息
+            echo "�� Generating version information..."
+            chmod +x scripts/generate-version.sh
+            ./scripts/generate-version.sh generate
+
+            # 检查配置文件
+            if [ ! -f ".env.stage.api" ]; then
+              echo "❌ Staging config file not found!"
+              echo "Please create .env.stage.api on the server"
+              echo "You can copy from .env.stage.template if available"
+              exit 1
+            fi
+
+            # 检查配置文件
+            if [ ! -f ".env.stage.directus" ]; then
+              echo "❌ Staging config file not found!"
+              echo "Please create .env.stage.directus on the server"
+              echo "You can copy from .env.stage.template if available"
+              exit 1
+            fi
+            
+            # 部署服务
+            echo "🐳 Starting Docker services..."
+            docker-compose -f docker-compose.stage.yml down
+            docker-compose -f docker-compose.stage.yml up -d --build
+            
+            echo "✅ Staging deployment completed!"
+            
+      - name: Health check
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ vars.STAGING_HOST }}
+          username: ${{ vars.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/avatar-mgmt
+            echo "🔍 Starting health check..."
+            
+            # 等待服务启动
+            echo "⏳ Waiting for services to start..."
+            sleep 30
+            
+            # 检查 Docker 服务状态
+            echo "📊 Docker services status:"
+            docker-compose -f docker-compose.stage.yml ps
+            
+            # 检查服务健康状态
+            echo "🏥 Checking service health..."
+            
+            # 检查 API 服务
+            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+              echo "✅ API service is healthy"
+            else
+              echo "❌ API service health check failed"
+              exit 1
+            fi
+            
+            # 检查 Directus 服务
+            if curl -f http://localhost:8055/ > /dev/null 2>&1; then
+              echo "✅ Directus service is healthy"
+            else
+              echo "❌ Directus service health check failed"
+              exit 1
+            fi
+            
+            # 检查数据库服务
+            if docker-compose -f docker-compose.stage.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
+              echo "✅ Database service is healthy"
+            else
+              echo "❌ Database service health check failed"
+              exit 1
+            fi
+            
+            echo "🎉 All services are healthy!"
+            
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Staging deployment successful!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Deploy time: $(date)"
+          
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Staging deployment failed!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Deploy time: $(date)"

@@ -1,0 +1,143 @@
+# .github/workflows/deploy-production.yml
+name: Deploy to Production
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Get release info
+        id: release
+        run: |
+          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "release_name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
+          echo "release_body=${{ github.event.release.body }}" >> $GITHUB_OUTPUT
+          
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ vars.PRODUCTION_HOST }}           # 使用 Variable
+          username: ${{ vars.PRODUCTION_USERNAME }}   # 使用 Variable
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}     # 使用 Secret
+          script: |
+            echo "🚀 Starting Production deployment..."
+            echo "Target: ${{ vars.PRODUCTION_HOST }}"
+            echo "User: ${{ vars.PRODUCTION_USERNAME }}"
+            echo "Release: ${{ steps.release.outputs.release_name }}"
+            echo "Tag: ${{ steps.release.outputs.tag_name }}"
+            echo "Deploy time: $(date)"
+            
+            cd /opt/avatar-mgmt
+            
+            # 备份当前版本
+            if [ -d ".git" ]; then
+              echo "�� Backing up current version..."
+              git rev-parse HEAD > .backup-commit.txt
+              echo "Backup saved to .backup-commit.txt"
+            fi
+            
+            # 拉取最新代码并切换到特定 tag
+            echo "📥 Fetching latest code and switching to tag..."
+            git fetch --tags
+            git fetch origin
+            
+            # 检查 tag 是否存在
+            if ! git tag -l | grep -q "${{ steps.release.outputs.tag_name }}"; then
+              echo "❌ Tag ${{ steps.release.outputs.tag_name }} not found!"
+              exit 1
+            fi
+            
+            # 切换到特定 tag
+            git checkout "${{ steps.release.outputs.tag_name }}"
+            echo "✅ Switched to tag: ${{ steps.release.outputs.tag_name }}"
+            
+            # 检查配置文件
+            if [ ! -f ".env.prod.api" ]; then
+              echo "❌ Production config file not found!"
+              echo "Please create .env.prod.api on the server"
+              exit 1
+            fi
+            
+            # 停止现有服务
+            echo "🛑 Stopping existing services..."
+            docker-compose -f docker-compose.prod.yml down
+            
+            # 清理旧镜像
+            echo "🧹 Cleaning up old images..."
+            docker image prune -f
+            
+            # 部署生产环境
+            echo "🐳 Starting production services..."
+            docker-compose -f docker-compose.prod.yml up -d --build
+            
+            echo "✅ Production deployment completed!"
+            
+      - name: Production health check
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ vars.PRODUCTION_HOST }}
+          username: ${{ vars.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/avatar-mgmt
+            echo "🔍 Starting production health check..."
+            
+            # 等待服务启动
+            echo "⏳ Waiting for services to start..."
+            sleep 60
+            
+            # 检查 Docker 服务状态
+            echo "📊 Docker services status:"
+            docker-compose -f docker-compose.prod.yml ps
+            
+            # 检查服务健康状态
+            echo "🏥 Checking production service health..."
+            
+            # 检查 API 服务 (内部)
+            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+              echo "✅ API service is healthy (internal)"
+            else
+              echo "❌ API service health check failed (internal)"
+              exit 1
+            fi
+            
+            # 检查 Directus 服务 (内部)
+            if curl -f http://localhost:8055/ > /dev/null 2>&1; then
+              echo "✅ Directus service is healthy (internal)"
+            else
+              echo "❌ Directus service health check failed (internal)"
+              exit 1
+            fi
+            
+            # 检查数据库服务
+            if docker-compose -f docker-compose.prod.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
+              echo "✅ Database service is healthy"
+            else
+              echo "❌ Database service health check failed"
+              exit 1
+            fi
+            
+            echo "🎉 All production services are healthy!"
+            
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "🎉 Production deployment successful!"
+          echo "Release: ${{ steps.release.outputs.release_name }}"
+          echo "Tag: ${{ steps.release.outputs.tag_name }}"
+          echo "Deploy time: $(date)"
+          echo "Release notes: ${{ steps.release.outputs.release_body }}"
+          
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed!"
+          echo "Release: ${{ steps.release.outputs.release_name }}"
+          echo "Tag: ${{ steps.release.outputs.tag_name }}"
+          echo "Deploy time: $(date)"
+          echo "Please check the deployment logs and fix the issue."

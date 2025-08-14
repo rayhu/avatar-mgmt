@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   
   return {
     preview: {
-      allowedHosts: ''
+      allowedHosts: 'all' // 修复类型错误
     },
     plugins: [
       vue(),
@@ -59,6 +59,15 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       host: '0.0.0.0',
       open: true,
+      proxy: {
+        // 代理 API 请求到后端服务器
+        '/api': {
+          target: 'http://localhost:3000', // 你的后端端口
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, '/api')
+        }
+      }
     },
     envDir: '.',
     // 根据模式设置不同的环境变量

@@ -21,5 +21,6 @@ declare module 'vue' {
     ModelViewer: typeof import('./components/ModelViewer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    VersionInfo: typeof import('./components/VersionInfo.vue')['default']
   }
 }

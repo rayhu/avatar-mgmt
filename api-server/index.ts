@@ -8,6 +8,7 @@ import azureTTSHandler from './handlers/azure-tts';
 import avatarsHandler from './handlers/avatars';
 import generateSSMLHandler from './handlers/generate-ssml';
 import avatarManagementHandler from './handlers/avatar-management';
+import versionHandler from './handlers/version';
 
 const app = express();
 
@@ -34,6 +35,9 @@ app.get('/api/avatars', avatarsHandler);
 // Avatar 管理路由
 app.put('/api/avatars/:id', avatarManagementHandler);
 app.patch('/api/avatars/:id', avatarManagementHandler);
+
+// 版本信息路由
+app.get('/api/version', versionHandler);
 
 app.get('/health', (_req, res) => res.send('ok'));
 

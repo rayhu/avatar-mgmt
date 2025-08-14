@@ -8,6 +8,7 @@ import {
 import Login from '../views/Login.vue';
 import TestViewer from '../views/TestViewer.vue';
 import EnvTest from '../views/EnvTest.vue';
+import About from '../views/About.vue';
 import { useAuthStore } from '../store';
 import { logger } from '@/utils/logger';
 
@@ -63,6 +64,24 @@ const routes: RouteRecordRaw[] = [
     component: EnvTest,
     meta: {
       title: '环境测试',
+      public: true, // 公开路由，不需要登录
+    },
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: About,
+    meta: {
+      title: 'about.title',
+      public: true, // 公开路由，不需要登录
+    },
+  },
+  {
+    path: '/version',
+    name: 'version',
+    component: () => import('../views/VersionInfo.vue'),
+    meta: {
+      title: '版本信息',
       public: true, // 公开路由，不需要登录
     },
   },

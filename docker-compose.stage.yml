@@ -1,44 +1,7 @@
-version: "3.9"
+# 测试环境使用，引用 JC21 网络
+name: avatar-mgmt-stage
 
 services:
-  # Nginx Proxy Manager
-  nginx-proxy-manager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
-    ports:
-      - '80:80'        # HTTP (标准端口)
-      - '443:443'      # HTTPS (标准端口)
-      - '81:81'        # Admin UI
-    volumes:
-      - ./jc21/data:/data
-      - ./jc21/letsencrypt:/etc/letsencrypt
-    networks:
-      - internal
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:81"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Database for Nginx Proxy Manager
-  nginx-proxy-manager-db:
-    image: 'jc21/mariadb-aria:latest'
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 'npm'
-      MYSQL_DATABASE: 'npm'
-      MYSQL_USER: 'npm'
-      MYSQL_PASSWORD: 'npm'
-    volumes:
-      - ./jc21/data/mysql:/var/lib/mysql
-    networks:
-      - internal
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # PostgreSQL Database
   db:
     image: postgres:15
@@ -50,7 +13,7 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data
     networks:
-      - internal
+      - jc21-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U directus"]
       interval: 30s
@@ -73,7 +36,7 @@ services:
     ports:
       - "8055:8055"
     networks:
-      - internal
+      - jc21-network
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8055/"]
       interval: 60s
@@ -94,7 +57,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - internal
+      - jc21-network
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
       interval: 30s
@@ -112,8 +75,10 @@ services:
     ports:
       - "4173:80"
     networks:
-      - internal
+      - jc21-network
 
+# 引用 JC21 的网络
 networks:
-  internal:
-    driver: bridge 
+  jc21-network:
+    external: true
+    name: avatar-mgmt-jc21-network 

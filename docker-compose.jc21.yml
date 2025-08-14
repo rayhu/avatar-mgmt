@@ -1,4 +1,5 @@
-version: "3.9"
+# 统一的网络配置，用于Staging和Production服务
+name: avatar-mgmt-jc21
 
 services:
   # Nginx Proxy Manager
@@ -12,6 +13,8 @@ services:
     volumes:
       - ./jc21/data:/data
       - ./jc21/letsencrypt:/etc/letsencrypt
+    networks:
+      - jc21-network   # 添加网络
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:81"]
       interval: 30s
@@ -29,8 +32,16 @@ services:
       MYSQL_PASSWORD: 'npm'
     volumes:
       - ./jc21/data/mysql:/var/lib/mysql
+    networks:
+      - jc21-network   # 添加网络
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+# 添加网络定义
+networks:
+  jc21-network:
+    driver: bridge
+    name: avatar-mgmt-jc21-network  # 固定网络名称

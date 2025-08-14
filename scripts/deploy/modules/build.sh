@@ -41,6 +41,15 @@ build_frontend() {
     
     log_success "前端构建完成"
     cd ..
+    
+    # 生成版本信息
+    log_info "生成版本信息..."
+    if [ -f "scripts/deploy/version.sh" ]; then
+        chmod +x scripts/deploy/version.sh
+        ./scripts/deploy/version.sh deploy
+    else
+        log_warning "版本管理脚本不存在，跳过版本信息生成"
+    fi
 }
 
 # 构建API镜像
