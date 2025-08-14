@@ -3,23 +3,22 @@
     <div class="about-header">
       <h1>{{ t('about.title') }}</h1>
       <p class="about-description">
-        小赢科技数字人管理系统的运行状态、技术特性和版本详情
+        {{ t('about.description') }}
       </p>
     </div>
 
     <div class="about-content">
       <!-- 系统介绍 -->
       <div class="info-section">
-        <h2>系统介绍</h2>
+        <h2>{{ t('about.systemIntro') }}</h2>
         <p>
-          小赢科技数字人管理系统是一个集成了语音合成、动画生成、模型管理等功能的综合平台。
-          系统采用现代化的技术架构，提供稳定可靠的服务。
+          {{ t('about.systemIntroText') }}
         </p>
       </div>
 
       <!-- 技术特性 -->
       <div class="info-section">
-        <h2>技术特性</h2>
+        <h2>{{ t('about.technicalFeatures') }}</h2>
         <ul class="feature-list">
           <li>🎯 现代化的 Vue 3 + TypeScript 前端架构</li>
           <li>🚀 高性能的 Node.js 后端服务</li>
@@ -38,13 +37,13 @@
 
       <!-- 联系方式 -->
       <div class="info-section">
-        <h2>联系我们</h2>
+        <h2>{{ t('about.contactUs') }}</h2>
         <p>
-          如果您在使用过程中遇到任何问题，或有改进建议，请随时联系我们。
+          {{ t('about.contactText') }}
         </p>
         <div class="contact-info">
           <p>
-            <strong>技术支持: </strong> 
+            <strong>{{ t('about.technicalSupport') }}: </strong> 
             <a 
               href="#" 
               @click.prevent="sendEmail"
@@ -72,7 +71,7 @@ const { t } = useI18n()
 const emailData = ref({
   email: '',
   subject: '',
-  displayText: '点击发送邮件'
+  displayText: t('about.clickToSendEmail')
 })
 
 // 生成邮箱信息
@@ -114,11 +113,11 @@ const sendEmail = () => {
     // 打开默认邮件客户端
     window.open(mailtoLink, '_blank')
     
-    console.log('📧 邮件链接已生成:', mailtoLink)
+    console.log('📧', t('about.emailSent'), mailtoLink)
   } catch (error) {
-    console.error('发送邮件失败:', error)
+    console.error(t('about.emailFailed'), error)
     // 降级方案：显示邮箱地址
-    alert(`请手动发送邮件到: ${emailData.value.email}`)
+    alert(`${t('about.manualEmail')}: ${emailData.value.email}`)
   }
 }
 

@@ -1,17 +1,17 @@
 <template>
   <div class="version-page">
     <div class="page-header">
-      <h1>🔧 系统版本信息</h1>
+      <h1>{{ t('about.versionInfo.title') }}</h1>
       <p class="page-description">
-        查看前端、后端和系统的详细版本信息，包括Git提交记录、构建时间和运行状态
+        {{ t('about.versionInfo.description') }}
       </p>
     </div>
 
     <div class="version-info">
       <div class="version-header">
-        <h3>版本信息</h3>
+        <h3>{{ t('about.versionInfo.versionInfo') }}</h3>
         <button @click="refreshVersion" :disabled="loading" class="refresh-btn">
-          {{ loading ? '🔄 刷新中...' : '🔄 刷新' }}
+          {{ loading ? t('about.versionInfo.refreshing') : t('about.versionInfo.refresh') }}
         </button>
       </div>
 
@@ -20,27 +20,27 @@
         <div class="version-card frontend">
           <div class="card-header">
             <span class="icon">��</span>
-            <h4>前端版本</h4>
+            <h4>{{ t('about.versionInfo.frontendVersion') }}</h4>
           </div>
           <div class="card-content">
             <div class="version-item">
-              <span class="label">版本号:</span>
-              <span class="value">{{ versionInfo.frontend?.version || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.versionNumber') }}</span>
+              <span class="value">{{ versionInfo.frontend?.version || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">Commit Hash:</span>
-              <span class="value hash">{{ versionInfo.frontend?.commitHash || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.commitHash') }}</span>
+              <span class="value hash">{{ versionInfo.frontend?.commitHash || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">构建时间:</span>
+              <span class="label">{{ t('about.versionInfo.buildTime') }}</span>
               <span class="value">{{ formatTime(versionInfo.frontend?.buildTime) }}</span>
             </div>
             <div class="version-item">
-              <span class="label">分支:</span>
-              <span class="value branch">{{ versionInfo.frontend?.branch || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.branch') }}</span>
+              <span class="value branch">{{ versionInfo.frontend?.branch || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">提交日期:</span>
+              <span class="label">{{ t('about.versionInfo.commitDate') }}</span>
               <span class="value">{{ formatTime(versionInfo.frontend?.commitDate) }}</span>
             </div>
           </div>
@@ -50,24 +50,24 @@
         <div class="version-card backend">
           <div class="card-header">
             <span class="icon">⚙️</span>
-            <h4>后端版本</h4>
+            <h4>{{ t('about.versionInfo.backendVersion') }}</h4>
           </div>
           <div class="card-content">
             <div class="version-item">
-              <span class="label">版本号:</span>
-              <span class="value">{{ versionInfo.backend?.version || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.versionNumber') }}</span>
+              <span class="value">{{ versionInfo.backend?.version || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">Commit Hash:</span>
-              <span class="value hash">{{ versionInfo.backend?.commitHash || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.commitHash') }}</span>
+              <span class="value hash">{{ versionInfo.backend?.commitHash || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">构建时间:</span>
+              <span class="label">{{ t('about.versionInfo.buildTime') }}</span>
               <span class="value">{{ formatTime(versionInfo.backend?.buildTime) }}</span>
             </div>
             <div class="version-item">
-              <span class="label">分支:</span>
-              <span class="value branch">{{ versionInfo.backend?.branch || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.branch') }}</span>
+              <span class="value branch">{{ versionInfo.backend?.branch || t('about.versionInfo.unknown') }}</span>
             </div>
           </div>
         </div>
@@ -76,23 +76,23 @@
         <div class="version-card system">
           <div class="card-header">
             <span class="icon">🖥️</span>
-            <h4>系统信息</h4>
+            <h4>{{ t('about.versionInfo.systemInfo') }}</h4>
           </div>
           <div class="card-content">
             <div class="version-item">
-              <span class="label">环境:</span>
-              <span class="value environment">{{ versionInfo.system?.environment || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.environment') }}</span>
+              <span class="value environment">{{ versionInfo.system?.environment || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">部署时间:</span>
+              <span class="label">{{ t('about.versionInfo.deployTime') }}</span>
               <span class="value">{{ formatTime(versionInfo.system?.deployTime) }}</span>
             </div>
             <div class="version-item">
-              <span class="label">运行时间:</span>
-              <span class="value">{{ versionInfo.system?.uptime || '未知' }}</span>
+              <span class="label">{{ t('about.versionInfo.uptime') }}</span>
+              <span class="value">{{ versionInfo.system?.uptime || t('about.versionInfo.unknown') }}</span>
             </div>
             <div class="version-item">
-              <span class="label">最后检查:</span>
+              <span class="label">{{ t('about.versionInfo.lastCheck') }}</span>
               <span class="value">{{ formatTime(versionInfo.system?.lastCheck) }}</span>
             </div>
           </div>
@@ -106,41 +106,41 @@
 
       <!-- 更新时间 -->
       <div class="update-time">
-        最后更新: {{ formatTime(lastUpdate?.toISOString()) }}
+        {{ t('about.versionInfo.lastUpdate') }}: {{ formatTime(lastUpdate?.toISOString()) }}
       </div>
     </div>
 
     <!-- 有用的附加信息 -->
     <div class="additional-info">
       <div class="info-section">
-        <h3>📋 版本信息说明</h3>
+        <h3>{{ t('about.versionInfo.versionInfoDesc') }}</h3>
         <ul>
-          <li><strong>版本号:</strong> 基于日期和Git提交哈希生成的唯一标识</li>
-          <li><strong>Commit Hash:</strong> Git提交的短哈希值，用于追踪代码变更</li>
-          <li><strong>构建时间:</strong> 代码构建完成的时间戳</li>
-          <li><strong>分支:</strong> 当前部署的Git分支名称</li>
-          <li><strong>环境:</strong> 当前运行的环境（development/staging/production）</li>
-          <li><strong>运行时间:</strong> 系统启动后的运行时长</li>
+          <li><strong>{{ t('about.versionInfo.versionNumber') }}</strong> {{ t('about.versionInfo.versionNumberDesc') }}</li>
+          <li><strong>{{ t('about.versionInfo.commitHash') }}</strong> {{ t('about.versionInfo.commitHashDesc') }}</li>
+          <li><strong>{{ t('about.versionInfo.buildTime') }}</strong> {{ t('about.versionInfo.buildTimeDesc') }}</li>
+          <li><strong>{{ t('about.versionInfo.branch') }}</strong> {{ t('about.versionInfo.branchDesc') }}</li>
+          <li><strong>{{ t('about.versionInfo.environment') }}</strong> {{ t('about.versionInfo.environmentDesc') }}</li>
+          <li><strong>{{ t('about.versionInfo.uptime') }}</strong> {{ t('about.versionInfo.uptimeDesc') }}</li>
         </ul>
       </div>
 
       <div class="info-section">
-        <h3>🚀 如何使用</h3>
+        <h3>{{ t('about.versionInfo.howToUse') }}</h3>
         <ol>
-          <li>点击"刷新"按钮获取最新版本信息</li>
-          <li>对比前后端版本确保一致性</li>
-          <li>使用Commit Hash在Git中查找具体变更</li>
-          <li>监控系统运行时间和部署状态</li>
+          <li>{{ t('about.versionInfo.refreshButtonTip') }}</li>
+          <li>{{ t('about.versionInfo.versionConsistencyTip') }}</li>
+          <li>{{ t('about.versionInfo.commitHashTip') }}</li>
+          <li>{{ t('about.versionInfo.monitoringTip') }}</li>
         </ol>
       </div>
 
       <div class="info-section">
-        <h3>🔍 故障排查</h3>
+        <h3>{{ t('about.versionInfo.troubleshooting') }}</h3>
         <ul>
-          <li>如果版本信息显示"未知"，请检查网络连接</li>
-          <li>前后端版本不一致可能导致功能异常</li>
-          <li>运行时间异常可能表示系统重启</li>
-          <li>环境标识错误可能影响功能配置</li>
+          <li>{{ t('about.versionInfo.unknownVersionTip') }}</li>
+          <li>{{ t('about.versionInfo.versionMismatchTip') }}</li>
+          <li>{{ t('about.versionInfo.uptimeAbnormalTip') }}</li>
+          <li>{{ t('about.versionInfo.environmentErrorTip') }}</li>
         </ul>
       </div>
     </div>
@@ -149,7 +149,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getApiUrl } from '@/config/api'
+import { useI18n } from 'vue-i18n'
+import { getApiUrl } from '../config/api'
+
+const { t } = useI18n()
 
 interface VersionInfo {
   frontend?: {
@@ -225,7 +228,7 @@ const fetchVersionInfo = async () => {
     versionInfo.value = data
     lastUpdate.value = new Date()
   } catch (err: any) {
-    error.value = `获取版本信息失败: ${err.message}`
+    error.value = `${t('about.versionInfo.error')} ${err.message}`
     console.error('Version info fetch error:', err)
   } finally {
     loading.value = false
