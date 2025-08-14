@@ -32,6 +32,17 @@
           </div>
           
           <div class="mobile-nav-content">
+            <!-- 系统信息链接 - 始终显示 -->
+            <router-link 
+              to="/about"
+              class="mobile-nav-link"
+              @click="closeMenu"
+            >
+              {{ t('common.about') }}
+            </router-link>
+            
+            <div class="mobile-nav-divider"></div>
+            
             <template v-if="auth.isAuthenticated">
               <router-link 
                 v-if="auth.isAdmin" 
