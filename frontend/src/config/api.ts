@@ -1,6 +1,21 @@
 // API 配置文件
 
-import test from "node:test";
+// 公共的 API endpoints 配置
+const COMMON_API_ENDPOINTS = {
+  avatars: '/api/avatars',
+  health: '/health',
+  openaiSSML: '/api/openai-ssml',
+  azureTTS: '/api/azure-tts',
+  generateSSML: '/api/generate-ssml',
+  version: '/api/version',
+} as const;
+
+// 公共的 Directus endpoints 配置
+const COMMON_DIRECTUS_ENDPOINTS = {
+  assets: '/assets',
+  auth: '/auth/login',
+  models: '/items/models',
+} as const;
 
 // 从环境变量获取 baseUrl，如果没有则使用默认值
 function getBaseUrls() {
@@ -39,21 +54,11 @@ export const API_CONFIG = {
   development: {
     api: {
       baseUrl: getBaseUrls().api,
-      endpoints: {
-        avatars: '/api/avatars',
-        health: '/health',
-        openaiSSML: '/api/openai-ssml',
-        azureTTS: '/api/azure-tts',
-        generateSSML: '/api/generate-ssml',
-      }
+      endpoints: COMMON_API_ENDPOINTS
     },
     directus: {
       baseUrl: getBaseUrls().directus,
-      endpoints: {
-        assets: '/assets',
-        auth: '/auth/login',
-        models: '/items/models',
-      }
+      endpoints: COMMON_DIRECTUS_ENDPOINTS
     }
   },
   
@@ -61,21 +66,11 @@ export const API_CONFIG = {
   stage: {
     api: {
       baseUrl: getBaseUrls().api,
-      endpoints: {
-        avatars: '/api/avatars',
-        health: '/health',
-        openaiSSML: '/api/openai-ssml',
-        azureTTS: '/api/azure-tts',
-        generateSSML: '/api/generate-ssml',
-      }
+      endpoints: COMMON_API_ENDPOINTS
     },
     directus: {
       baseUrl: getBaseUrls().directus,
-      endpoints: {
-        assets: '/assets',
-        auth: '/auth/login',
-        models: '/items/models',
-      }
+      endpoints: COMMON_DIRECTUS_ENDPOINTS
     }
   },
   
@@ -83,21 +78,11 @@ export const API_CONFIG = {
   production: {
     api: {
       baseUrl: getBaseUrls().api,
-      endpoints: {
-        avatars: '/api/avatars',
-        health: '/health',
-        openaiSSML: '/api/openai-ssml',
-        azureTTS: '/api/azure-tts',
-        generateSSML: '/api/generate-ssml',
-      }
+      endpoints: COMMON_API_ENDPOINTS
     },
     directus: {
       baseUrl: getBaseUrls().directus,
-      endpoints: {
-        assets: '/assets',
-        auth: '/auth/login',
-        models: '/items/models',
-      }
+      endpoints: COMMON_DIRECTUS_ENDPOINTS
     }
   }
 };

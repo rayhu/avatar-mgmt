@@ -12,34 +12,6 @@ jobs:
     
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.16.0'
-          cache: 'yarn'
-          
-      - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-          
-      - name: Build frontend
-        run: |
-          cd frontend
-          # 设置 staging 环境变量
-          echo "VITE_API_BASE_URL=http://${{ vars.STAGING_HOST }}" > .env.staging
-          echo "VITE_DIRECTUS_BASE_URL=http://${{ vars.STAGING_HOST }}:8055" >> .env.staging
-          echo "NODE_ENV=staging" >> .env.staging
-          
-          # 构建前端
-          yarn build
-          
-      - name: Build backend
-        run: |
-          cd api-server
-          yarn install --frozen-lockfile
           
       - name: Deploy to Staging
         uses: appleboy/ssh-action@v0.1.5
@@ -139,12 +111,11 @@ jobs:
             echo "VITE_API_BASE_URL=https://api.${{ vars.STAGING_HOST }}" > .env.production
             echo "VITE_DIRECTUS_BASE_URL=https://directus.${{ vars.STAGING_HOST }}" >> .env.production
 
-            echo "NODE_ENV=production" >> .env.production
             
             # 安装依赖并构建 
             yarn install --frozen-lockfile
             yarn build --mode production
-                        
+
             cd ..
             
             # 在服务器上安装后端依赖

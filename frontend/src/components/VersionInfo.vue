@@ -149,6 +149,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { getApiUrl } from '@/config/api'
 
 interface VersionInfo {
   frontend?: {
@@ -215,7 +216,7 @@ const fetchVersionInfo = async () => {
   error.value = ''
   
   try {
-    const response = await fetch('/api/version')
+    const response = await fetch(getApiUrl('version'))
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }

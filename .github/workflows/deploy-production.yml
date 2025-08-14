@@ -8,42 +8,6 @@ jobs:
   deploy-production:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.16.0'
-          cache: 'yarn'
-          
-      - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-          
-      - name: Build frontend
-        run: |
-          cd frontend
-          # 设置 production 环境变量
-          echo "VITE_API_BASE_URL=https://${{ vars.PRODUCTION_HOST }}" > .env.production
-          echo "VITE_DIRECTUS_BASE_URL=https://${{ vars.PRODUCTION_HOST }}:8055" >> .env.production
-          echo "NODE_ENV=production" >> .env.production
-          
-          # 构建前端
-          yarn build
-          
-      - name: Build backend
-        run: |
-          cd api-server
-          yarn install --frozen-lockfile
-          yarn build
-
-      - name: Get release info
-        id: release
-        run: |
-          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          echo "release_name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
-          echo "release_body=${{ github.event.release.body }}" >> $GITHUB_OUTPUT
           
       - name: Deploy to Production
         uses: appleboy/ssh-action@v0.1.5
@@ -95,7 +59,7 @@ jobs:
             fi
             
             sudo chown -R $USER:$USER /opt/avatar-mgmt
-
+    
             # 检查配置文件
             if [ ! -f ".env.prod.api" ]; then
               echo "❌ Production config file not found!"
