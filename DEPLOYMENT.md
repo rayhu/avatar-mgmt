@@ -20,6 +20,12 @@ Internal Network (bridge)
     └── All services communicate internally
 ```
 
+### **测试环境域名架构**
+- **主域名**: `daidai-preview.amis.hk` - 前端应用
+- **API域名**: `api.daidai-preview.amis.hk` - API服务器
+- **CMS域名**: `directus.daidai-preview.amis.hk` - Directus管理后台
+
+
 ### **生产环境域名架构**
 - **主域名**: `daidai.amis.hk` - 前端应用
 - **API域名**: `api.daidai.amis.hk` - API服务器
@@ -92,10 +98,10 @@ ports:
   - "443:443"   # HTTPS (JC21) 
   - "81:81"     # Admin UI (JC21)
 
-Azure防火墙阻止以下端口，仅仅本机调试使用
-  - "8055:8055" # Directus (direct access, optional)
-  - "3000:3000" # API (direct access, optional)  
-  - "4173:80"   # Frontend (direct access, optional)
+内部服务端口（Azure防火墙阻止，仅本机调试）：
+  - "8055:8055" # Directus (内部访问)
+  - "3000:3000" # API (内部访问)  
+  - "4173:80"   # Frontend (内部访问)
 ```
 
 #### **高级配置示例**

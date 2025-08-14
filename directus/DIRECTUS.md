@@ -189,7 +189,7 @@ docker compose -f docker-compose.dev.yml exec directus npx directus schema apply
 为了方便前端分享给不特定群体，允许直接查看缩略图。
 
 ```
-npm install node-fetch
+yarn node-fetch
 
 export DIRECTUS_URL=http://localhost:8055
 export DIRECTUS_ADMIN_EMAIL=admin@example.com

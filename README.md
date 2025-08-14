@@ -11,8 +11,8 @@
 ## 🚀 快速开始 (Quick Start)
 
 ### 环境要求 (Requirements)
-- Node.js >= 18.0.0
-- Yarn >= 1.22.0
+- Node.js >= 22.16.0
+- Yarn >= 1.22.22
 - Docker & Docker Compose
 
 ### 本地开发 (Local Development)
@@ -23,47 +23,17 @@ git clone [repository-url]
 cd avatar-mgmt
 ```
 
-2. 启动后端服务（Docker Compose）
-
-本仓库提供三套 Compose 文件：
-
-| 场景 | 文件 | 常用启动命令 | 说明 |
-| ---- | ----- | ------------- | ---- |
-| 本地开发 | `docker-compose.dev.yml` | `docker compose -f docker-compose.dev.yml up -d --build` | 开发调试用 |
-| **本地测试** | `docker-compose.stage.yml` | `docker compose -f docker-compose.stage.yml up -d --build` | **推荐：本地Docker测试环境** |
-| **生产** | `docker-compose.prod.yml` | `./deploy-daidai-simple.sh` | 生产部署专用 |
-
-**⚠️ 重要提醒**：本地测试Docker时请使用stage环境，避免误操作生产配置：
+2. 启动后端服务
 
 ```bash
-# ✅ 推荐：本地测试
+# 推荐：本地测试环境
 docker compose -f docker-compose.stage.yml up -d --build
 
-# ❌ 避免：本地使用生产配置
-docker compose -f docker-compose.prod.yml up -d --build
-```
-
-例如本地开发调试：
-```bash
+# 本地开发环境
 docker compose -f docker-compose.dev.yml up -d --build
 ```
 
-停止并清理：
-```bash
-docker compose -f docker-compose.dev.yml down -v   # 如需保留数据去掉 -v
-```
-
-生产服务器部署：
-```bash
-docker compose -f docker-compose.prod.yml down
-docker compose -f docker-compose.prod.yml up -d --build
-```
-
-先执行 docker compose -f docker-compose.prod.yml build --no-cache
-再执行 docker compose -f docker-compose.prod.yml up -d
-这样的生产环境镜像一定是全新构建的，不会有任何缓存残留。
-
-更多参数与端口说明见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
+详细部署说明请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 
 3. 启动前端开发服务器
 ```bash
@@ -133,61 +103,15 @@ yarn dev
 
 ## 🚢 部署 (Deployment)
 
-CICD的测试项目已部署在 Vercel 上：
-- 主域名：https://amis-avatar-mgmt.vercel.app
-### 部署命令
-```bash
-npx vercel --prod
-```
+### 测试环境
+- 测试部署：https://daidai-preview.amis.hk
 
-生产服务器部署在Azure上
+### 生产环境
 - 主域名：https://daidai.amis.hk
-- API域名：https://api.daidai.amis.hk
+- API域名：https://api.daidai.amis.hk  
 - CMS域名：https://directus.daidai.amis.hk
 
-### 自托管部署选项
-
-#### 🎯 部署（Nginx Proxy Manager）
-
-使用图形化界面管理反向代理和 SSL 证书，大大简化配置复杂度：
-
-```bash
-# 一键部署
-./deploy-daidai-simple.sh
-
-# 访问管理界面：http://你的服务器IP:81
-# 默认账号：admin@example.com / changeme
-```
-
-详细配置请参考 [简化部署指南](./DEPLOY-DAIDAI-SIMPLE.md)。
-
-#### 🔧 传统部署（手动 Nginx 配置）
-
-对于需要精细控制的高级用户：
-
-```bash
-# 配置 SSL 证书
-./init-letsencrypt.sh your-domain.com your-email@domain.com
-
-# 启动生产服务
-docker compose -f docker-compose.prod.yml up -d
-```
-
-详细配置说明请参考 [SSL 配置文档](./docs/ssl-setup.md)。
-
-### SSL 证书配置
-
-对于自托管部署，项目支持 Let's Encrypt SSL 证书自动配置：
-
-```bash
-# 配置 SSL 证书
-./init-letsencrypt.sh your-domain.com your-email@domain.com
-
-# 启动生产服务
-docker compose -f docker-compose.prod.yml up -d
-```
-
-详细配置说明请参考 [SSL 配置文档](./docs/ssl-setup.md)。
+完整部署指南请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 
 ## 🔧 服务管理 (Service Management)
 
@@ -215,7 +139,7 @@ docker-compose down      # 停止并清理容器
 - [💻 **前端开发**](./frontend/README.md) - Vue 3 应用开发指南
 - [🔌 **API Server**](./docs/api-server.md) - 后端 API 接口文档
 - [🎵 **Azure TTS**](./docs/azure-tts/README.md) - 语音服务集成
-- [🏗️ **Azure TTS 部署**](./DEPLOYMENT-AZURE-TTS.md) - Azure 语音服务部署
+- [🏗️ **Azure TTS 部署**](./docs/DEPLOYMENT-AZURE-TTS.md) - Azure 语音服务部署
 
 ### **在线资源**
 - [🌐 **API 接口文档**](https://api.daidai.amis.hk/docs) - 在线 API 文档

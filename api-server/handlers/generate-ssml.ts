@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // 支持的情绪标签映射（与前端保持一致）
 const VOICE_STYLES: Record<string, string[]> = {
@@ -179,6 +179,11 @@ function loadVoiceStyleMap(): Record<string, string[]> {
   return voiceStyleMap;
 }
 
+// 重置缓存，用于测试目的
+export function resetVoiceStyleMapCache() {
+  voiceStyleMap = null;
+}
+
 // POST /api/generate-ssml
 // Body: { text: string, voice?: string }
 // Returns: { ssml: string }
@@ -203,9 +208,9 @@ export default async function handler(req: Request, res: Response) {
     };
 
     console.log('📝 请求参数:', {
-      text: text?.slice(0, 50) + (text && text.length > 50 ? '...' : ''),
+      text: typeof text === 'string' ? (text.slice(0, 50) + (text.length > 50 ? '...' : '')) : text,
       voice,
-      textLength: text?.length || 0
+      textLength: typeof text === 'string' ? text.length : 0
     });
 
     if (!text || typeof text !== 'string' || !text.trim()) {

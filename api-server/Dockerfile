@@ -1,9 +1,9 @@
-FROM node:22-alpine
+FROM node:22.16.0-alpine
 WORKDIR /app
 
 # Copy api-server package.json for dependencies
 COPY api-server/package.json ./package.json
-RUN npm install
+RUN yarn install
 
 # Copy api-server source
 COPY api-server/ .

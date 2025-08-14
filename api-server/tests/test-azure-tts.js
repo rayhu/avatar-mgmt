@@ -82,7 +82,7 @@ async function testBackendAPI() {
     app.use(express.json());
     
     // 导入并注册 handler - 使用 TypeScript 文件
-    const azureTTSHandler = (await import('./handlers/azure-tts.ts')).default;
+    const azureTTSHandler = (await import('../handlers/azure-tts.ts')).default;
     app.post('/api/azure-tts', azureTTSHandler);
     
     const server = app.listen(3001, () => {

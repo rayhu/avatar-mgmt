@@ -63,8 +63,8 @@
     "workbox-window": "^7.3.0"
   },
   "engines": {
-    "node": ">=22.0.0",
-    "yarn": "1.x"
+    "node": "22.16.0",
+    "yarn": "1.22.22"
   },
   "volta": {
     "node": "22.16.0",
