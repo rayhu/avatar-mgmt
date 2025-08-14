@@ -104,7 +104,28 @@ jobs:
               echo "You can copy from .env.stage.template if available"
               exit 1
             fi
+
+            # 在服务器上构建前端
+            echo "��️ Building frontend on server..."
+            cd frontend
             
+            # 设置 staging 环境变量
+            echo "VITE_API_BASE_URL=https://api.${{ vars.STAGING_HOST }}" > .env.staging
+            echo "VITE_DIRECTUS_BASE_URL=https://directus.${{ vars.STAGING_HOST }}" >> .env.staging
+            echo "NODE_ENV=staging" >> .env.staging
+            
+            # 安装依赖并构建
+            yarn install --frozen-lockfile
+            yarn build --mode staging
+                        
+            cd ..
+            
+            # 在服务器上安装后端依赖
+            echo "�� Installing backend dependencies..."
+            cd api-server
+            yarn install --frozen-lockfile
+            cd ..
+
             # 生成版本信息
             echo " Generating version information..."
             chmod +x scripts/generate-version.sh
