@@ -259,6 +259,7 @@ export default {
       versionMismatchTip: 'Inconsistent frontend and backend versions may cause functional abnormalities',
       uptimeAbnormalTip: 'Abnormal running time may indicate system restart',
       environmentErrorTip: 'Environment identification errors may affect functional configuration',
+      envTest: 'Environment Test',
     },
   },
   viseme: {

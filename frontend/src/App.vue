@@ -8,6 +8,8 @@
             t('modelManagement.title')
           }}</router-link>
           <router-link to="/user">{{ t('modelManagement.modelGallery') }}</router-link>
+          <router-link to="/animate">{{ t('animate.title') }}</router-link>
+          <router-link to="/test">{{ t('test.title') }}</router-link>
         </template>
         <template v-else>
           <router-link to="/login">{{ t('login.title') }}</router-link>

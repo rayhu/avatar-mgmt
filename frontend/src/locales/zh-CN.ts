@@ -297,6 +297,7 @@ export default {
       versionMismatchTip: '前后端版本不一致可能导致功能异常',
       uptimeAbnormalTip: '运行时间异常可能表示系统重启',
       environmentErrorTip: '环境标识错误可能影响功能配置',
+      envTest: '环境测试',
     },
   },
 };

@@ -55,7 +55,7 @@ const routes: RouteRecordRaw[] = [
     component: TestViewer,
     meta: {
       title: 'test.title',
-      roles: ['admin'], // 仅管理员可访问
+      roles: ['user', 'admin'], // 用户和管理员都可访问
     },
   },
   {

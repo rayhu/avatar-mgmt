@@ -107,6 +107,10 @@
       <!-- 更新时间 -->
       <div class="update-time">
         {{ t('about.versionInfo.lastUpdate') }}: {{ formatTime(lastUpdate?.toISOString()) }}
+        <span class="separator">, </span>
+            <router-link to="/env-test" class="env-test-link">
+              🔧 {{ t('about.versionInfo.envTest') }}
+            </router-link>
       </div>
     </div>
 
@@ -410,6 +414,29 @@ onMounted(() => {
   color: #666;
   font-size: 12px;
   font-style: italic;
+}
+
+.update-time .separator {
+  color: #6c757d;
+  margin: 0 8px;
+}
+
+.update-time .env-test-link {
+  color: #28a745;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 12px;
+  transition: color 0.2s ease;
+  margin-left: 8px;
+}
+
+.update-time .env-test-link:hover {
+  color: #1e7e34;
+  text-decoration: underline;
+}
+
+.update-time .env-test-link:active {
+  transform: scale(0.98);
 }
 
 .additional-info {
