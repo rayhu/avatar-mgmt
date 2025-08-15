@@ -26,11 +26,11 @@ jobs:
             echo "Deploy time: $(date)"
 
             # 确保目录存在
-            sudo mkdir -p /opt/avatar-mgmt
-            sudo chown $USER:$USER /opt/avatar-mgmt
-            sudo chmod 755 /opt/avatar-mgmt
+            sudo mkdir -p /opt/avatar-mgmt2
+            sudo chown $USER:$USER /opt/avatar-mgmt2
+            sudo chmod 755 /opt/avatar-mgmt2
 
-            cd /opt/avatar-mgmt
+            cd /opt/avatar-mgmt2
             
             # 检查并初始化 Git 仓库
             if [ ! -d ".git" ]; then
@@ -58,7 +58,7 @@ jobs:
               echo "✅ Repository updated to tag: ${{ steps.release.outputs.tag_name }}"
             fi
             
-            sudo chown -R $USER:$USER /opt/avatar-mgmt
+            sudo chown -R $USER:$USER /opt/avatar-mgmt2
     
             # 检查配置文件
             if [ ! -f ".env.prod.api" ]; then
@@ -135,7 +135,7 @@ jobs:
           username: ${{ vars.PRODUCTION_USERNAME }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
-            cd /opt/avatar-mgmt
+            cd /opt/avatar-mgmt2
             echo "🔍 Starting production health check..."
             
             # 等待服务启动
