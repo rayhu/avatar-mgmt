@@ -1,6 +1,22 @@
-const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
+
+// 动态导入 fetch，兼容不同 Node.js 版本
+let fetch;
+try {
+  // Node.js 18+ 内置 fetch
+  if (globalThis.fetch) {
+    fetch = globalThis.fetch;
+    console.log('✅ 使用 Node.js 内置 fetch');
+  } else {
+    // 回退到 node-fetch
+    fetch = require('node-fetch');
+    console.log('✅ 使用 node-fetch 包');
+  }
+} catch (error) {
+  console.error('❌ 无法加载 fetch，请确保 Node.js 版本 >= 18 或已安装 node-fetch');
+  process.exit(1);
+}
 
 // 读取环境变量文件的函数
 function loadEnvFile(envPath) {
