@@ -246,7 +246,8 @@ export function useAnimation(
       while (actionIndex < sortedActionFrames.length) {
         const frame = sortedActionFrames[actionIndex];
         if (currentTime >= frame.time && frame.action && frame.action !== lastAction) {
-          console.log(`🎬 Triggering action keyframe at ${currentTime.toFixed(2)}s: ${frame.action}`);
+          const timeStr = typeof currentTime === 'number' && !isNaN(currentTime) ? currentTime.toFixed(2) : '0.00';
+          console.log(`🎬 Triggering action keyframe at ${timeStr}s: ${frame.action}`);
           currentAction.value = frame.action;
           if (modelViewer.value) {
             modelViewer.value.playAnimation(frame.action);
@@ -264,7 +265,8 @@ export function useAnimation(
       while (emotionIndex < sortedEmotionFrames.length) {
         const frame = sortedEmotionFrames[emotionIndex];
         if (currentTime >= frame.time && frame.emotion && frame.emotion !== lastEmotion) {
-          console.log(`😊 Triggering emotion keyframe at ${currentTime.toFixed(2)}s: ${frame.emotion}`);
+          const timeStr = typeof currentTime === 'number' && !isNaN(currentTime) ? currentTime.toFixed(2) : '0.00';
+          console.log(`😊 Triggering emotion keyframe at ${timeStr}s: ${frame.emotion}`);
           currentEmotion.value = frame.emotion;
           if (modelViewer.value) {
             modelViewer.value.updateEmotion(frame.emotion);
@@ -314,7 +316,8 @@ export function useAnimation(
       const now = audio.currentTime * 1000; // ms
       while (idx < visemeTimeline.length && now >= visemeTimeline[idx].t) {
         const { id, t } = visemeTimeline[idx++];
-        console.log(`[SYNC] ${now.toFixed(0)}ms ▶ viseme ${id} (理想 ${t}ms)`);
+        const timeStr = typeof now === 'number' && !isNaN(now) ? now.toFixed(0) : '0';
+        console.log(`[SYNC] ${timeStr}ms ▶ viseme ${id} (理想 ${t}ms)`);
       }
       if (!audio.paused && idx < visemeTimeline.length) requestAnimationFrame(tick);
     }

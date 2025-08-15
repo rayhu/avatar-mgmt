@@ -171,7 +171,10 @@ export function useTimeline(
     const deltaTime = (deltaX / (rect.width - 4)) * 30;
     const newTime = Math.max(0, Math.min(30, dragStartTime.value + deltaTime));
 
-    selectedKeyframe.value.time = Number(newTime.toFixed(1));
+    // 确保 newTime 是有效的数字
+    if (typeof newTime === 'number' && !isNaN(newTime)) {
+      selectedKeyframe.value.time = Number(newTime.toFixed(1));
+    }
   }
 
   // 停止拖拽

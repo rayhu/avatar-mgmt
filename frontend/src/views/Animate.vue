@@ -254,7 +254,7 @@
           <!-- 距离控制 -->
           <div class="control-group">
             <label class="control-label">
-              📏 距离: {{ backgroundDistance.toFixed(1) }}
+              📏 距离: {{ (backgroundDistance || 0).toFixed(1) }}
             </label>
             <div class="control-row">
               <input
@@ -287,14 +287,14 @@
             <label class="control-label">📍 位置偏移</label>
             <div class="offset-controls">
               <div class="offset-item">
-                <span>X: {{ backgroundOffset.x.toFixed(1) }}</span>
+                <span>X: {{ (backgroundOffset?.x || 0).toFixed(1) }}</span>
                 <div class="offset-buttons">
                   <button @click="adjustOffset('x', -offsetStep)" :disabled="animationProcessing" title="Ctrl+←">←</button>
                   <button @click="adjustOffset('x', offsetStep)" :disabled="animationProcessing" title="Ctrl+→">→</button>
                 </div>
               </div>
               <div class="offset-item">
-                <span>Y: {{ backgroundOffset.y.toFixed(1) }}</span>
+                <span>Y: {{ (backgroundOffset?.y || 0).toFixed(1) }}</span>
                 <div class="offset-buttons">
                   <button @click="adjustOffset('y', -offsetStep)" :disabled="animationProcessing" title="Ctrl+↑">↑</button>
                   <button @click="adjustOffset('y', offsetStep)" :disabled="animationProcessing" title="Ctrl+↓">↓</button>
@@ -305,7 +305,7 @@
           
           <!-- 缩放控制 -->
           <div class="control-group">
-            <label class="control-label">🔍 缩放: {{ backgroundScale.toFixed(2) }}</label>
+            <label class="control-label">🔍 缩放: {{ (backgroundScale || 1).toFixed(2) }}</label>
             <div class="scale-controls">
               <button @click="adjustScale(-scaleStep)" :disabled="animationProcessing" title="Ctrl+-">-</button>
               <input

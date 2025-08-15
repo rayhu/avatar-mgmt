@@ -425,11 +425,14 @@ function setBackgroundImage(imageUrl: string) {
         
         console.log('🖼️ Background image set with user settings:', {
           imageSize: `${texture.image.width}x${texture.image.height}`,
-          imageAspectRatio: imageAspectRatio.toFixed(2),
+          imageAspectRatio: (typeof imageAspectRatio === 'number' && !isNaN(imageAspectRatio)) ? imageAspectRatio.toFixed(2) : '0.00',
           canvasSize: `${canvasWidth}x${canvasHeight}`,
-          canvasAspectRatio: canvasAspectRatio.toFixed(2),
-          baseScale: { x: baseScaleX.toFixed(2), y: baseScaleY.toFixed(2) },
-          userScale: backgroundScale.toFixed(2),
+          canvasAspectRatio: (typeof canvasAspectRatio === 'number' && !isNaN(canvasAspectRatio)) ? canvasAspectRatio.toFixed(2) : '0.00',
+          baseScale: { 
+            x: (typeof baseScaleX === 'number' && !isNaN(baseScaleX)) ? baseScaleX.toFixed(2) : '0.00', 
+            y: (typeof baseScaleY === 'number' && !isNaN(baseScaleY)) ? baseScaleY.toFixed(2) : '0.00' 
+          },
+          userScale: (typeof backgroundScale === 'number' && !isNaN(backgroundScale)) ? backgroundScale.toFixed(2) : '0.00',
           userOffset: backgroundOffset,
           userDistance: backgroundDistance
         });
@@ -544,9 +547,9 @@ function handleResize() {
     backgroundMesh.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
     
     console.log('📐 Background plane resized:', {
-      newSize: `${planeWidth.toFixed(2)}x${planeHeight.toFixed(2)}`,
+      newSize: `${(typeof planeWidth === 'number' && !isNaN(planeWidth)) ? planeWidth.toFixed(2) : '0.00'}x${(typeof planeHeight === 'number' && !isNaN(planeHeight)) ? planeHeight.toFixed(2) : '0.00'}`,
       canvasSize: `${canvasWidth}x${canvasHeight}`,
-      aspectRatio: aspectRatio.toFixed(2)
+      aspectRatio: (typeof aspectRatio === 'number' && !isNaN(aspectRatio)) ? aspectRatio.toFixed(2) : '0.00'
     });
   }
 }

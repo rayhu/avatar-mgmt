@@ -27,9 +27,9 @@ export function useBackground(modelViewer: any, isProcessing?: Ref<boolean>): Ba
   const backgroundImageFile = ref<File | null>(null);
 
   // 背景控制系统
-  const backgroundDistance = ref(-3); // 背景距离，默认 -3
-  const backgroundOffset = ref({ x: 0, y: 0 }); // 背景位置偏移
-  const backgroundScale = ref(1.0); // 背景缩放
+  const backgroundDistance = ref<number>(-3); // 背景距离，默认 -3
+  const backgroundOffset = ref<{ x: number; y: number }>({ x: 0, y: 0 }); // 背景位置偏移
+  const backgroundScale = ref<number>(1.0); // 背景缩放
 
   // 防抖定时器
   let distanceDebounceTimer: number | null = null;
