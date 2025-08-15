@@ -192,7 +192,7 @@ const loading = ref(false)
 const error = ref('')
 const lastUpdate = ref<Date | null>(null)
 
-// 格式化时间 - 改进版本，自动检测服务器时区
+// 格式化时间 - 智能时区转换版本
 const formatTime = (timeStr: string | undefined) => {
   if (!timeStr) return '暂无数据'
   
@@ -204,17 +204,22 @@ const formatTime = (timeStr: string | undefined) => {
       return '无'
     }
     
-    // 获取服务器的时区偏移量（分钟）
-    const serverTimezoneOffset = date.getTimezoneOffset()
+    // 获取服务器当前时区偏移量（分钟）
+    // 注意：getTimezoneOffset() 返回的是本地时区与UTC的差值
+    const serverOffset = new Date().getTimezoneOffset()
     
-    // 计算中国时区与服务器时区的差值（中国是UTC+8，即-480分钟）
-    const chinaTimezoneOffset = -480 // UTC+8
-    const timezoneDiff = chinaTimezoneOffset - serverTimezoneOffset
+    // 中国时区是 UTC+8，即 -480 分钟
+    const chinaOffset = -480
     
-    // 根据时区差值调整时间
-    const adjustedTime = new Date(date.getTime() + (timezoneDiff * 60 * 1000))
+    // 计算时区差异（分钟）
+    // 如果服务器是 UTC+0，那么 timezoneDiff = -480 - 0 = -480
+    // 如果服务器是 UTC-5，那么 timezoneDiff = -480 - 300 = -780
+    const timezoneDiff = chinaOffset - serverOffset
     
-    const formattedTime = adjustedTime.toLocaleString('zh-CN', {
+    // 转换为毫秒并调整时间
+    const chinaTime = new Date(date.getTime() + (timezoneDiff * 60 * 1000))
+    
+    const formattedTime = chinaTime.toLocaleString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -224,12 +229,12 @@ const formatTime = (timeStr: string | undefined) => {
       timeZone: 'Asia/Shanghai'
     })
     
-    // 显示服务器时区信息
-    const serverTimezone = serverTimezoneOffset === 0 ? 'UTC' : 
-      serverTimezoneOffset > 0 ? `UTC-${Math.abs(serverTimezoneOffset) / 60}` : 
-      `UTC+${Math.abs(serverTimezoneOffset) / 60}`
+    // 显示时区信息：显示服务器时区和转换后的中国时区
+    const serverTimezone = serverOffset === 0 ? 'UTC' : 
+      serverOffset > 0 ? `UTC-${Math.abs(serverOffset) / 60}` : 
+      `UTC+${Math.abs(serverOffset) / 60}`
     
-    return `${formattedTime} UTC+8`
+    return `${formattedTime} (${serverTimezone} → UTC+8)`
   } catch {
     return '日期解析失败'
   }
