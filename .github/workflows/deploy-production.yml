@@ -53,15 +53,23 @@ jobs:
               # 拉取最新代码和标签
               echo "📥 Pulling latest code and tags..."
               git fetch --all --tags
-              git checkout ${{ steps.release.outputs.tag_name }}
-
-              # 清除前端和后端生成的代码              
+              
+              # 显示可用标签
+              echo "🏷️ Available tags:"
+              git tag -l | tail -5
+              
+              # 强制切换到指定标签（删除所有本地修改）
+              echo "🔄 Force switching to tag: ${{ steps.release.outputs.tag_name }}"
+              git checkout --force ${{ steps.release.outputs.tag_name }}
+              
+              # 验证当前状态
+              echo "📊 Current git status:"
+              git log --oneline -3
+              echo "🏷️ Current tag: $(git describe --tags --exact-match 2>/dev/null || echo 'Not on exact tag')"
+              
+              # 清理生成的文件（保留配置文件）
+              echo "🧹 Cleaning generated files..."
               git clean -fd frontend/ api-server/ scripts/ || true
-
-              # 安全清理：使用 git reset 替代 git clean
-              echo "🧹 Resetting working directory to clean state...但是不移除未追踪文件"
-              git reset --hard ${{ steps.release.outputs.tag_name }}
-              echo "✅ Repository updated to tag: ${{ steps.release.outputs.tag_name }}"
             fi
             
             sudo chown -R $USER:$USER /opt/avatar-mgmt2

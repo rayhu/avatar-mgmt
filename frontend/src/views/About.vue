@@ -20,12 +20,12 @@
       <div class="info-section">
         <h2>{{ t('about.technicalFeatures') }}</h2>
         <ul class="feature-list">
-          <li>🎯 现代化的 Vue 3 + TypeScript 前端架构</li>
-          <li>🚀 高性能的 Node.js 后端服务</li>
-          <li>🗄️ 可靠的数据库存储和管理</li>
-          <li>🔐 完善的用户认证和权限控制</li>
-          <li>📱 响应式设计，支持多设备访问</li>
-          <li>🌐 国际化支持，多语言界面</li>
+          <li>现代化的 Vue 3 + TypeScript 前端架构</li>
+          <li>高性能的 Node.js 后端服务</li>
+          <li>可靠的数据库存储和管理</li>
+          <li>完善的用户认证和权限控制</li>
+          <li>响应式设计，支持多设备访问</li>
+          <li>国际化支持，多语言界面</li>
         </ul>
       </div>
 

@@ -19,7 +19,7 @@
         <!-- 前端版本 -->
         <div class="version-card frontend">
           <div class="card-header">
-            <span class="icon">��</span>
+            <span class="icon">💻</span>
             <h4>{{ t('about.versionInfo.frontendVersion') }}</h4>
           </div>
           <div class="card-content">
