@@ -398,7 +398,7 @@ const voices = ref<VoiceOption[]>(availableVoices);
 // Only display voices that start with zh-CN
 const filteredVoices = computed(() => voices.value.filter((v) => v.name.startsWith('zh-CN')));
 
-const selectedVoice = ref<string>(filteredVoices.value[0]?.name || 'zh-CN-XiaoxiaoNeural');
+const selectedVoice = ref<string>(filteredVoices.value.find(v => v.name === 'zh-CN-YunxiaNeural')?.name || 'zh-CN-YunxiaNeural');
 
 // 当用户更换语音时，自动清空已生成的 SSML，避免内容与 voice 不匹配
 watch(selectedVoice, () => {

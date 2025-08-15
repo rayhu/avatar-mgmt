@@ -22,10 +22,7 @@
                 >{{ t('modelManagement.modelInfo.version') }}:
                 {{ model.version || 'N/A' }}</span
               >
-              <span
-                >{{ t('modelManagement.modelInfo.createTime') }}:
-                {{ formatDate(model.createTime) }}</span
-              >
+
             </div>
             <div class="model-actions">
               <button class="action-btn primary" @click="createAnimation(model)">
@@ -203,18 +200,50 @@ onMounted(async () => {
 
 .model-info {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 
   h3 {
-    margin: 0 0 8px 0;
-    color: #2c3e50;
-    font-size: 1.1rem;
-  }
-
-  p {
     margin: 0 0 12px 0;
-    color: #6c757d;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}
+
+.model-description {
+  margin-bottom: 16px;
+  
+  p {
+    margin: 0;
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    text-align: justify;
+    word-break: break-word;
+    hyphens: auto;
+    max-height: 120px;
+    overflow-y: auto;
+    
+    // 自定义滚动条样式
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 2px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 2px;
+      
+      &:hover {
+        background: #a8a8a8;
+      }
+    }
   }
 }
 
@@ -222,12 +251,17 @@ onMounted(async () => {
   font-size: 0.85rem;
   color: #6c757d;
   margin-bottom: 16px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid $primary-color;
 }
 
 .model-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: auto;
   
   @media (max-width: 480px) {
     gap: 12px;
