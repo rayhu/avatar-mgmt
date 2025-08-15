@@ -73,10 +73,12 @@ function loadEnvironmentVariables() {
     }
   }
   
-  // 如果环境变量文件中没有找到必要的配置，使用默认值
-  const DIRECTUS_URL = env.DIRECTUS_URL || process.env.DIRECTUS_URL || 'http://localhost:8055';
+  // 如果API环境变量文件中没有找到必要的配置，使用默认值
   const ADMIN_EMAIL = env.DIRECTUS_ADMIN_EMAIL || process.env.DIRECTUS_ADMIN_EMAIL || 'admin@example.com';
   const ADMIN_PASSWORD = env.DIRECTUS_ADMIN_PASSWORD || process.env.DIRECTUS_ADMIN_PASSWORD || 'your_admin_password';
+
+  // API的访问路径是Docker网络，这里是本地网络，所以是localhost
+  const DIRECTUS_URL = 'http://localhost:8055';
   
   console.log('🔧 配置信息:');
   console.log(`   Directus URL: ${DIRECTUS_URL}`);
