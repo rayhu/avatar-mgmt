@@ -36,6 +36,7 @@ jobs:
             cd /opt/avatar-mgmt
             
             # 检查并初始化 Git 仓库
+            IS_FIRST_DEPLOY=false
             if [ ! -d ".git" ]; then
               echo " Git repository not found, cloning..."
               ssh-keyscan -H github.com >> ~/.ssh/known_hosts
@@ -45,6 +46,8 @@ jobs:
                 exit 1
               fi
               echo "✅ Repository cloned successfully"
+              IS_FIRST_DEPLOY=true
+              echo "首次部署，将在最后执行 directus/setup-directus-permissions.js 脚本设置权限和导入数据"
             else
               echo "📥 Git repository found, updating..."
               # 备份当前版本
@@ -140,6 +143,43 @@ jobs:
             sudo docker compose -f docker-compose.stage.yml up -d --build --force-recreate --remove-orphans
             
             echo "✅ Staging deployment completed!"
+            
+            # 如果是首次部署，执行 Directus 权限设置脚本
+            if [ "$IS_FIRST_DEPLOY" = "true" ]; then
+              echo "🚀 首次部署检测到，正在执行 Directus 权限设置脚本..."
+              
+              # 等待服务完全启动
+              echo "⏳ 等待服务完全启动..."
+              sleep 60
+              
+              # 检查 Directus 服务是否就绪
+              echo "🔍 检查 Directus 服务状态..."
+              if curl -f http://localhost:8055/ > /dev/null 2>&1; then
+                echo "✅ Directus 服务已就绪，开始执行权限设置脚本..."
+                
+                # 安装 Node.js 依赖
+                echo "📦 安装 Node.js 依赖..."
+                cd directus
+                npm install node-fetch
+                
+                # 执行权限设置脚本
+                echo "🔧 执行权限设置脚本..."
+                node setup-directus-permissions.js
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Directus 权限设置脚本执行成功！"
+                else
+                  echo "⚠️  Directus 权限设置脚本执行失败，请手动检查"
+                fi
+                
+                cd ..
+              else
+                echo "❌ Directus 服务未就绪，跳过权限设置脚本"
+                echo "⚠️  请手动执行: cd directus && node setup-directus-permissions.js"
+              fi
+            else
+              echo "📝 非首次部署，跳过权限设置脚本"
+            fi
             
       - name: Health check
         uses: appleboy/ssh-action@v0.1.5

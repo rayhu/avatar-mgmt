@@ -15,9 +15,14 @@ const app = express();
 
 // 添加 CORS 支持
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  // 从环境变量获取允许的源，默认为开发环境允许所有源
+  const allowedOrigin = process.env.CORS_ORIGIN || 
+    (process.env.NODE_ENV === 'development' ? '*': 'https://daidai-preview.amis.hk,https://daidai.amis.hk');
+  
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);

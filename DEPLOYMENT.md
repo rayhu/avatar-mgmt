@@ -437,6 +437,13 @@ cd ..
 # 4. 重新构建API镜像
 docker compose -f docker-compose.prod.yml build api --no-cache
 
+如果修改了API的环境变量
+docker compose -f docker-compose.stage.yml up -d --force-recreate api
+
+查看API日志
+sudo docker compose -f docker-compose.stage.yml logs -f api
+
+
 # 5. 启动服务
 docker compose -f docker-compose.prod.yml restart api frontend
 

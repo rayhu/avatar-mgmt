@@ -31,13 +31,21 @@
 ⸻
 
 2. Directus 实现步骤
-	1.	搭建 Directus
-	•	官方文档有详细指引。可本地Docker部署或云主机部署，推荐用 Docker。
-	•	安装示例命令：
+	1.	搭建 Directus (Docker Compose)
+	•	本项目使用 **Docker Compose 部署**，采用 `directus/directus:11.8` 官方镜像
+	•	配置文件：`docker-compose.dev.yml` (开发环境)、`docker-compose.stage.yml` (测试环境)、`docker-compose.prod.yml` (生产环境)
+	•	启动命令：
 
-npx create-directus-project my-digital-human
-cd my-digital-human
-npx directus start
+```bash
+# 开发环境
+docker compose -f docker-compose.dev.yml up -d
+
+# 测试环境  
+docker compose -f docker-compose.stage.yml up -d
+
+# 生产环境
+docker compose -f docker-compose.prod.yml up -d
+```
 
 
 	2.	数据模型设计
@@ -101,8 +109,9 @@ https://docs.directus.io/guides/integrations/react/
 
 5. Directus 11.8.0 数据模型格式要求  
 
-- 字段定义中**不要使用** `display` 和 `display_options` 字段，除非官方文档明确支持（如 `raw`、`boolean`、`datetime` 等）。
-- 普通字符串、文本、下拉选择、文件、标签等字段，只需指定 `interface`、`options`、`required`、`note` 等属性。
+- 字段定义中谨慎使用 `display` 和 `display_options` 字段。Directus 11.8.0 中 display 组件主要用于自定义字段值的展示方式。
+- 普通字符串、文本、下拉选择、文件、标签等字段，优先使用 `interface`、`options`、`required`、`note` 等属性。
+- **注意**: schema apply 操作时，display 相关的变更可能会被误认为是字段删除，建议在应用 schema 前进行 dry-run 测试。
 - 典型字段定义示例（Example）：
 
 ```json
@@ -138,7 +147,7 @@ https://docs.directus.io/guides/integrations/react/
 ```
 
 - textarea、file、tags 类型同理，只需 `interface`，无需 `display`。
-- 如需自定义显示方式，请查阅 [Directus 11.8.0 官方文档](https://docs.directus.io/reference/displays/)，仅使用该版本支持的 display 类型。
+- 如需自定义显示方式，请查阅 [Directus 11.8.0 官方文档](https://docs.directus.io/guides/data-model/fields)，仅使用该版本支持的 display 类型。
 
 /avatar-mgmt
   ├── db_data/         # Postgres 数据库持久化数据（由 Docker 自动管理）
@@ -146,7 +155,9 @@ https://docs.directus.io/guides/integrations/react/
   ├── schemas/         # Directus 官方 schema 快照（snapshot.json/yaml），用于 CLI apply/迁移
   ├── uploads/         # Directus 文件上传目录（图片、视频、3D模型等）
   ├── extensions/      # Directus 扩展（自定义接口、后台小部件等）
-  ├── docker-compose.yml
+  ├── docker-compose.dev.yml    # 开发环境
+  ├── docker-compose.stage.yml   # 测试环境
+  ├── docker-compose.prod.yml    # 生产环境
   ├── DIRECTUS.md
 
 
