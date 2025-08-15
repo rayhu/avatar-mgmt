@@ -204,14 +204,20 @@ const formatTime = (timeStr: string | undefined) => {
       return '无'
     }
     
-    return date.toLocaleString('zh-CN', {
+    // 转换为中国时区 (UTC+8)
+    const chinaTime = new Date(date.getTime() + (8 * 60 * 60 * 1000))
+    
+    const formattedTime = chinaTime.toLocaleString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
+      timeZone: 'Asia/Shanghai'
     })
+    
+    return `${formattedTime} UTC+8`
   } catch {
     return '日期解析失败'
   }
@@ -317,7 +323,7 @@ onMounted(() => {
 
 .version-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
   margin-bottom: 20px;
 }
@@ -374,7 +380,7 @@ onMounted(() => {
 .version-item .label {
   font-weight: 500;
   color: #666;
-  min-width: 80px;
+  min-width: 100px;
 }
 
 .version-item .value {
@@ -441,7 +447,7 @@ onMounted(() => {
 
 .additional-info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 30px;
 }
 
