@@ -192,7 +192,7 @@ const loading = ref(false)
 const error = ref('')
 const lastUpdate = ref<Date | null>(null)
 
-// 格式化时间 - 改进版本，避免显示 "Invalid Date"
+// 格式化时间 - 改进版本，自动检测服务器时区
 const formatTime = (timeStr: string | undefined) => {
   if (!timeStr) return '暂无数据'
   
@@ -204,10 +204,17 @@ const formatTime = (timeStr: string | undefined) => {
       return '无'
     }
     
-    // 转换为中国时区 (UTC+8)
-    const chinaTime = new Date(date.getTime() + (8 * 60 * 60 * 1000))
+    // 获取服务器的时区偏移量（分钟）
+    const serverTimezoneOffset = date.getTimezoneOffset()
     
-    const formattedTime = chinaTime.toLocaleString('zh-CN', {
+    // 计算中国时区与服务器时区的差值（中国是UTC+8，即-480分钟）
+    const chinaTimezoneOffset = -480 // UTC+8
+    const timezoneDiff = chinaTimezoneOffset - serverTimezoneOffset
+    
+    // 根据时区差值调整时间
+    const adjustedTime = new Date(date.getTime() + (timezoneDiff * 60 * 1000))
+    
+    const formattedTime = adjustedTime.toLocaleString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -216,6 +223,11 @@ const formatTime = (timeStr: string | undefined) => {
       second: '2-digit',
       timeZone: 'Asia/Shanghai'
     })
+    
+    // 显示服务器时区信息
+    const serverTimezone = serverTimezoneOffset === 0 ? 'UTC' : 
+      serverTimezoneOffset > 0 ? `UTC-${Math.abs(serverTimezoneOffset) / 60}` : 
+      `UTC+${Math.abs(serverTimezoneOffset) / 60}`
     
     return `${formattedTime} UTC+8`
   } catch {
