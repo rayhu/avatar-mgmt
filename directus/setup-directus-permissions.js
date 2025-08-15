@@ -54,11 +54,11 @@ function loadEnvironmentVariables() {
   // 获取脚本所在目录的上级目录（repo 根目录）
   const repoRoot = path.resolve(__dirname, '..');
   
-  // 尝试加载不同环境的环境变量文件
+  // 尝试加载不同环境的环境变量文件，API 和 Directus 同步
   const envFiles = [
-    path.join(repoRoot, '.env.prod.directus'),
-    path.join(repoRoot, '.env.stage.directus'),
-    path.join(repoRoot, '.env.directus'),
+    path.join(repoRoot, '.env.prod.api'),
+    path.join(repoRoot, '.env.stage.api'),
+    path.join(repoRoot, '.env.api'),
     path.join(repoRoot, '.env')
   ];
   
