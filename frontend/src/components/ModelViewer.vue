@@ -34,6 +34,8 @@ let backgroundTexture: THREE.Texture | null = null;
 let backgroundMesh: THREE.Mesh | null = null;
 let backgroundImageUrl: string | null = null;
 let backgroundDistance = -3; // 背景距离，数值越小越近
+let backgroundOffset = { x: 0, y: 0 }; // 背景位置偏移
+let backgroundScale = 1.0; // 背景缩放
 
 // 初始化场景
 function initScene() {
@@ -405,15 +407,31 @@ function setBackgroundImage(imageUrl: string) {
           scaleY = canvasAspectRatio / imageAspectRatio;
         }
         
-        // 应用缩放，确保背景覆盖整个视野
-        backgroundMesh.scale.set(scaleX, scaleY, 1);
+        // 应用基础缩放，确保背景覆盖整个视野
+        const baseScaleX = scaleX;
+        const baseScaleY = scaleY;
         
-        console.log('🖼️ Background image scaled:', {
+        // 应用用户设置的缩放和偏移
+        backgroundMesh.scale.set(
+          baseScaleX * backgroundScale, 
+          baseScaleY * backgroundScale, 
+          1
+        );
+        backgroundMesh.position.set(
+          backgroundOffset.x, 
+          backgroundOffset.y, 
+          backgroundDistance
+        );
+        
+        console.log('🖼️ Background image set with user settings:', {
           imageSize: `${texture.image.width}x${texture.image.height}`,
           imageAspectRatio: imageAspectRatio.toFixed(2),
           canvasSize: `${canvasWidth}x${canvasHeight}`,
           canvasAspectRatio: canvasAspectRatio.toFixed(2),
-          scale: { x: scaleX.toFixed(2), y: scaleY.toFixed(2) }
+          baseScale: { x: baseScaleX.toFixed(2), y: baseScaleY.toFixed(2) },
+          userScale: backgroundScale.toFixed(2),
+          userOffset: backgroundOffset,
+          userDistance: backgroundDistance
         });
       }
       
@@ -442,13 +460,19 @@ function clearBackgroundImage() {
     backgroundTexture = null;
   }
   
-  // 重置背景平面大小
+  // 重置背景平面大小和用户设置
   if (backgroundMesh) {
     backgroundMesh.scale.set(20, 20, 1);
+    backgroundMesh.position.set(0, 0, -3);
   }
   
+  // 重置用户设置
+  backgroundDistance = -3;
+  backgroundOffset = { x: 0, y: 0 };
+  backgroundScale = 1.0;
+  
   backgroundImageUrl = null;
-  console.log('✅ Background image cleared');
+  console.log('✅ Background image cleared and settings reset');
 }
 
 // 调节背景距离
@@ -457,6 +481,38 @@ function adjustBackgroundDistance(distance: number) {
   if (backgroundMesh) {
     backgroundMesh.position.z = backgroundDistance;
     console.log('📏 Background distance adjusted to:', backgroundDistance);
+  }
+}
+
+// 调节背景位置偏移
+function adjustBackgroundOffset(offset: { x: number; y: number }) {
+  backgroundOffset = offset;
+  if (backgroundMesh) {
+    backgroundMesh.position.x = backgroundOffset.x;
+    backgroundMesh.position.y = backgroundOffset.y;
+    console.log('📍 Background offset adjusted to:', backgroundOffset);
+  }
+}
+
+// 调节背景缩放
+function adjustBackgroundScale(scale: number) {
+  backgroundScale = scale;
+  if (backgroundMesh) {
+    backgroundMesh.scale.set(backgroundScale, backgroundScale, 1);
+    console.log('🔍 Background scale adjusted to:', backgroundScale);
+  }
+}
+
+// 重置背景设置
+function resetBackgroundSettings() {
+  backgroundDistance = -3;
+  backgroundOffset = { x: 0, y: 0 };
+  backgroundScale = 1.0;
+  
+  if (backgroundMesh) {
+    backgroundMesh.position.set(backgroundOffset.x, backgroundOffset.y, backgroundDistance);
+    backgroundMesh.scale.set(backgroundScale, backgroundScale, 1);
+    console.log('🔄 Background settings reset to default');
   }
 }
 
@@ -559,6 +615,9 @@ defineExpose({
   setBackgroundImage,
   clearBackgroundImage,
   adjustBackgroundDistance,
+  adjustBackgroundOffset,
+  adjustBackgroundScale,
+  resetBackgroundSettings,
   getVideoStream: () => {
     if (!renderer || !renderer.domElement) {
       return null;

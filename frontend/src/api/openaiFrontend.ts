@@ -208,5 +208,9 @@ export async function generateSSMLFront(text: string, voice: string) {
     .replace(/^```[\s\S]*?\n/, '')
     .replace(/```$/g, '')
     .trim();
+  
+  // 修复 pitch="0st" 问题 - 0st 是无效的，需要转换为 +0st
+  ssml = ssml.replace(/pitch="0st"/g, 'pitch="+0st"');
+  
   return ssml;
 }
