@@ -95,6 +95,18 @@ router.beforeEach(
   (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     const auth = useAuthStore();
     
+    // 添加更详细的调试信息
+    console.log('🔍 路由守卫检查:', {
+      from: from.path,
+      to: to.path,
+      toName: to.name,
+      toMeta: to.meta,
+      isAuthenticated: auth.isAuthenticated,
+      userRole: auth.user?.role,
+      requiredRoles: to.meta.roles,
+      isPublic: to.meta.public
+    });
+    
     logger.info('路由守卫检查', {
       component: 'Router',
       method: 'beforeEach',
@@ -109,7 +121,7 @@ router.beforeEach(
     // 检查是否是公开路由
     if (to.meta.public) {
       // 如果已登录且访问登录页，重定向到对应角色首页
-      if (auth.isAuthenticated) {
+      if (to.path === '/login' && auth.isAuthenticated) {
         const redirectPath = auth.user?.role === 'admin' ? '/admin' : '/user';
         logger.info('已登录用户访问登录页，重定向', {
           component: 'Router',
@@ -119,10 +131,12 @@ router.beforeEach(
         });
         next(redirectPath);
       } else {
-        logger.info('未登录用户访问公开路由，允许访问', {
+        logger.info('用户访问公开路由，允许访问', {
           component: 'Router',
           method: 'beforeEach',
-          route: to.path
+          route: to.path,
+          isAuthenticated: auth.isAuthenticated,
+          userRole: auth.user?.role
         });
         next();
       }
