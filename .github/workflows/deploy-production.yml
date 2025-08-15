@@ -8,6 +8,12 @@ jobs:
   deploy-production:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Release Info
+        id: release
+        run: |
+          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "release_name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
+          echo "release_body=${{ github.event.release.body }}" >> $GITHUB_OUTPUT
           
       - name: Deploy to Production
         uses: appleboy/ssh-action@v0.1.5

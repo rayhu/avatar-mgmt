@@ -9,6 +9,7 @@ import avatarsHandler from './handlers/avatars';
 import generateSSMLHandler from './handlers/generate-ssml';
 import avatarManagementHandler from './handlers/avatar-management';
 import versionHandler from './handlers/version';
+import authHandler from './handlers/auth';
 
 const app = express();
 
@@ -31,6 +32,9 @@ app.post('/api/openai-ssml', openaiHandler);
 app.post('/api/azure-tts', azureTTSHandler);
 app.post('/api/generate-ssml', generateSSMLHandler);
 app.get('/api/avatars', avatarsHandler);
+
+// 认证路由
+app.post('/api/auth/login', authHandler);
 
 // Avatar 管理路由
 app.put('/api/avatars/:id', avatarManagementHandler);

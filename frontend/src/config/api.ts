@@ -8,6 +8,9 @@ const COMMON_API_ENDPOINTS = {
   azureTTS: '/api/azure-tts',
   generateSSML: '/api/generate-ssml',
   version: '/api/version',
+  auth: {
+    login: '/api/auth/login'
+  }
 } as const;
 
 // 公共的 Directus endpoints 配置

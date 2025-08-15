@@ -44,6 +44,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store';
 import { useI18n } from 'vue-i18n';
+import { getApiConfig } from '../config/api';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -92,41 +93,50 @@ async function onLogin() {
   error.value = '';
 
   try {
-    // 模拟登录验证
-    type UserRole = 'admin' | 'user';
-    const testAccounts: Record<string, { password: string; role: UserRole }> = {
-      admin: { password: 'admin123', role: 'admin' },
-      user: { password: 'user123', role: 'user' },
-    };
+    // 调用后端 API 进行登录验证
+    const apiConfig = getApiConfig();
+    const loginUrl = `${apiConfig.api.baseUrl}${apiConfig.api.endpoints.auth.login}`;
+    
+    const response = await fetch(loginUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+      }),
+    });
 
-    // 在比较时使用小写，但保存原始输入
-    const normalizedUsername = username.value.toLowerCase();
-    const account = testAccounts[normalizedUsername];
-
-    if (!account || account.password !== password.value) {
-      throw new Error('Invalid credentials');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Login failed');
     }
 
-    // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const data = await response.json();
 
-    // 使用原始输入的大小写进行存储和显示
-    auth.setUser(
-      {
-        id: username.value, // 保持原始大小写
-        role: account.role,
-        name: username.value, // 保持原始大小写
-      },
-      'mock-token',
-    );
+    if (data.success) {
+      // 使用 API 返回的用户信息
+      auth.setUser(
+        {
+          id: data.user.id,
+          role: data.user.role,
+          name: data.user.name,
+        },
+        data.token,
+      );
 
-    // 根据用户角色跳转到不同页面
-    if (auth.user?.role === 'admin') {
-      router.push('/admin');
+      // 根据用户角色跳转到不同页面
+      if (data.user.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/user');
+      }
     } else {
-      router.push('/user');
+      throw new Error('Login failed');
     }
   } catch (e) {
+    console.error('Login error:', e);
     error.value = t('login.error');
   } finally {
     loading.value = false;

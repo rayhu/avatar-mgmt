@@ -9,6 +9,7 @@
     "test:azure": "tsx test-azure-tts.js",
     "test:simple": "tsx test-simple.js",
     "test:ssml": "tsx test-generate-ssml.js",
+    "test:auth": "node test-auth.js",
     "test:all": "node test-all-handlers.js",
     "test": "jest",
     "test:watch": "jest --watch",
