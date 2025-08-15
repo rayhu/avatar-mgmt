@@ -29,6 +29,12 @@ let animationLoop: number | null = null;
 let currentAnimationAction: THREE.AnimationAction | null = null;
 let lastVisemeIndex: number | null = null;
 
+// 背景图片相关
+let backgroundTexture: THREE.Texture | null = null;
+let backgroundMesh: THREE.Mesh | null = null;
+let backgroundImageUrl: string | null = null;
+let backgroundDistance = -3; // 背景距离，数值越小越近
+
 // 初始化场景
 function initScene() {
   if (!container.value) return;
@@ -36,6 +42,9 @@ function initScene() {
   // 创建场景
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf0f0f0);
+  
+  // 创建背景平面
+  createBackgroundPlane();
 
   // 创建相机
   camera = new THREE.PerspectiveCamera(
@@ -304,6 +313,153 @@ function updateViseme(id: number) {
   });
 }
 
+// 创建背景平面
+function createBackgroundPlane() {
+  // 根据 canvas 尺寸创建合适大小的背景平面
+  const canvasWidth = container.value?.clientWidth || 800;
+  const canvasHeight = container.value?.clientHeight || 400;
+  
+  // 计算合适的背景平面尺寸，使其覆盖整个视野
+  const aspectRatio = canvasWidth / canvasHeight;
+  let planeWidth, planeHeight;
+  
+  if (aspectRatio > 1) {
+    // 宽屏：宽度更大
+    planeWidth = 20;
+    planeHeight = 20 / aspectRatio;
+  } else {
+    // 高屏：高度更大
+    planeWidth = 20 * aspectRatio;
+    planeHeight = 20;
+  }
+  
+  const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+  const material = new THREE.MeshBasicMaterial({ 
+    color: 0xf0f0f0,
+    transparent: true,
+    opacity: 1
+  });
+  
+  backgroundMesh = new THREE.Mesh(geometry, material);
+  backgroundMesh.position.z = backgroundDistance; // 使用可调节的背景距离
+  backgroundMesh.renderOrder = -1; // 确保在最底层渲染
+  
+  if (scene && backgroundMesh) {
+    scene.add(backgroundMesh);
+  }
+  
+  console.log('📐 Background plane created with dimensions:', {
+    width: planeWidth,
+    height: planeHeight,
+    canvasWidth,
+    canvasHeight,
+    aspectRatio
+  });
+}
+
+// 设置背景图片
+function setBackgroundImage(imageUrl: string) {
+  if (!backgroundMesh) return;
+  
+  // 清理之前的纹理
+  if (backgroundTexture) {
+    backgroundTexture.dispose();
+  }
+  
+  // 创建新的纹理
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.load(
+    imageUrl,
+    (texture) => {
+      backgroundTexture = texture;
+      
+      // 调整纹理参数
+      texture.wrapS = THREE.ClampToEdgeWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      
+      // 更新材质
+      if (backgroundMesh && backgroundMesh.material instanceof THREE.MeshBasicMaterial) {
+        backgroundMesh.material.map = texture;
+        backgroundMesh.material.needsUpdate = true;
+      }
+      
+      // 调整背景平面大小以适应图片比例和 canvas 尺寸
+      if (texture.image && backgroundMesh) {
+        const imageAspectRatio = texture.image.width / texture.image.height;
+        const canvasWidth = container.value?.clientWidth || 800;
+        const canvasHeight = container.value?.clientHeight || 400;
+        const canvasAspectRatio = canvasWidth / canvasHeight;
+        
+        let scaleX, scaleY;
+        
+        // 根据图片和 canvas 的比例计算最佳缩放
+        if (imageAspectRatio > canvasAspectRatio) {
+          // 图片更宽，以高度为准
+          scaleY = 1;
+          scaleX = imageAspectRatio / canvasAspectRatio;
+        } else {
+          // 图片更高，以宽度为准
+          scaleX = 1;
+          scaleY = canvasAspectRatio / imageAspectRatio;
+        }
+        
+        // 应用缩放，确保背景覆盖整个视野
+        backgroundMesh.scale.set(scaleX, scaleY, 1);
+        
+        console.log('🖼️ Background image scaled:', {
+          imageSize: `${texture.image.width}x${texture.image.height}`,
+          imageAspectRatio: imageAspectRatio.toFixed(2),
+          canvasSize: `${canvasWidth}x${canvasHeight}`,
+          canvasAspectRatio: canvasAspectRatio.toFixed(2),
+          scale: { x: scaleX.toFixed(2), y: scaleY.toFixed(2) }
+        });
+      }
+      
+      backgroundImageUrl = imageUrl;
+      console.log('✅ Background image set successfully');
+    },
+    undefined,
+    (error) => {
+      console.error('❌ Error loading background image:', error);
+    }
+  );
+}
+
+// 清除背景图片
+function clearBackgroundImage() {
+  if (backgroundMesh && backgroundMesh.material instanceof THREE.MeshBasicMaterial) {
+    if (backgroundMesh.material.map) {
+      backgroundMesh.material.map.dispose();
+      backgroundMesh.material.map = null;
+    }
+    backgroundMesh.material.needsUpdate = true;
+  }
+  
+  if (backgroundTexture) {
+    backgroundTexture.dispose();
+    backgroundTexture = null;
+  }
+  
+  // 重置背景平面大小
+  if (backgroundMesh) {
+    backgroundMesh.scale.set(20, 20, 1);
+  }
+  
+  backgroundImageUrl = null;
+  console.log('✅ Background image cleared');
+}
+
+// 调节背景距离
+function adjustBackgroundDistance(distance: number) {
+  backgroundDistance = distance;
+  if (backgroundMesh) {
+    backgroundMesh.position.z = backgroundDistance;
+    console.log('📏 Background distance adjusted to:', backgroundDistance);
+  }
+}
+
 // 处理窗口大小变化
 function handleResize() {
   if (!container.value || !camera || !renderer) return;
@@ -311,6 +467,32 @@ function handleResize() {
   camera.aspect = container.value.clientWidth / container.value.clientHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(container.value.clientWidth, container.value.clientHeight);
+  
+  // 重新调整背景平面大小
+  if (backgroundMesh && backgroundMesh.geometry) {
+    const canvasWidth = container.value.clientWidth;
+    const canvasHeight = container.value.clientHeight;
+    const aspectRatio = canvasWidth / canvasHeight;
+    
+    let planeWidth, planeHeight;
+    if (aspectRatio > 1) {
+      planeWidth = 20;
+      planeHeight = 20 / aspectRatio;
+    } else {
+      planeWidth = 20 * aspectRatio;
+      planeHeight = 20;
+    }
+    
+    // 更新几何体
+    backgroundMesh.geometry.dispose();
+    backgroundMesh.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+    
+    console.log('📐 Background plane resized:', {
+      newSize: `${planeWidth.toFixed(2)}x${planeHeight.toFixed(2)}`,
+      canvasSize: `${canvasWidth}x${canvasHeight}`,
+      aspectRatio: aspectRatio.toFixed(2)
+    });
+  }
 }
 
 // 监听属性变化
@@ -374,6 +556,9 @@ defineExpose({
   playAnimation,
   updateEmotion,
   updateViseme,
+  setBackgroundImage,
+  clearBackgroundImage,
+  adjustBackgroundDistance,
   getVideoStream: () => {
     if (!renderer || !renderer.domElement) {
       return null;

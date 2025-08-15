@@ -55,9 +55,15 @@ jobs:
               
               # 拉取最新代码
               echo "📥 Pulling latest code..."
+
               git fetch origin
               git reset --hard origin/main
-              git clean -fd
+
+              # 清除前端和后端生成的代码              
+              git clean -fd frontend/ api-server/ scripts/ || true
+
+              # 安全清理：使用 git reset 替代 git clean
+              echo "🧹 Resetting working directory to clean state...但是不移除未追踪文件"
               echo "✅ Repository updated successfully"
             fi
           

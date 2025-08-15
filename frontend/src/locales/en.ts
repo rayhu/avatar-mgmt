@@ -88,6 +88,13 @@ export default {
       confirmClear: 'Are you sure to clear all keyframes?',
     },
     textPlaceholder: 'Please enter the text to synthesize (max 180 characters, about 30 seconds)',
+    backgroundImage: 'Background Image',
+    selectImage: 'Select Image',
+    clearImage: 'Clear Image',
+    backgroundPreview: 'Background Preview',
+    invalidImageType: 'Please select a valid image file',
+    imageTooLarge: 'Image file is too large, please select an image smaller than 10MB',
+    backgroundDistance: 'Background Distance',
     action: 'Action',
     actions: {
       idle: 'Idle',

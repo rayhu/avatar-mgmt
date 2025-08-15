@@ -54,7 +54,13 @@ jobs:
               echo "📥 Pulling latest code and tags..."
               git fetch --all --tags
               git checkout ${{ steps.release.outputs.tag_name }}
-              git clean -fd
+
+              # 清除前端和后端生成的代码              
+              git clean -fd frontend/ api-server/ scripts/ || true
+
+              # 安全清理：使用 git reset 替代 git clean
+              echo "🧹 Resetting working directory to clean state...但是不移除未追踪文件"
+              git reset --hard ${{ steps.release.outputs.tag_name }}
               echo "✅ Repository updated to tag: ${{ steps.release.outputs.tag_name }}"
             fi
             

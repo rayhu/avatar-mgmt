@@ -2,6 +2,8 @@
   <div class="animate-page">
     <h1>{{ t('animate.title') }}</h1>
 
+
+
     <!-- 模型选择 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
@@ -216,6 +218,56 @@
           :action="currentAction"
         />
         <audio ref="audioPlayer" controls :src="audioUrl"></audio>
+        <!-- 背景图片控制 -->
+        <div class="background-controls">
+          <input
+            ref="imageInput"
+            type="file"
+            accept="image/*"
+            @change="handleImageUpload"
+            class="image-input"
+            :disabled="isProcessing"
+          />
+          <button 
+            class="control-btn secondary" 
+            @click="() => imageInput?.click()"
+            :disabled="isProcessing"
+          >
+            🖼️ {{ t('animate.selectImage') }}
+          </button>
+          <button 
+            v-if="backgroundImage"
+            class="control-btn danger" 
+            @click="clearBackgroundImage"
+            :disabled="isProcessing"
+          >
+            🗑️ {{ t('animate.clearImage') }}
+          </button>
+        </div>
+        
+        <!-- 背景距离调节 -->
+        <div v-if="backgroundImage" class="background-distance-control">
+          <label class="distance-label">
+            📏 {{ t('animate.backgroundDistance') }}: {{ backgroundDistance }}
+          </label>
+          <input
+            type="range"
+            min="-10"
+            max="0"
+            step="0.5"
+            v-model="backgroundDistance"
+            @input="adjustBackgroundDistance"
+            class="distance-slider"
+            :disabled="isProcessing"
+          />
+        </div>
+        
+        <!-- 背景图片预览 -->
+        <div v-if="backgroundImage" class="background-preview">
+          <img :src="backgroundImage" :alt="t('animate.backgroundPreview')" />
+          <span class="background-name">{{ backgroundImageName }}</span>
+        </div>
+
         <div class="preview-controls">
           <button
             v-if="!isRecording"
@@ -299,6 +351,13 @@ const selectedModel = ref<Avatar | null>(null);
 const currentEmotion = ref('');
 const currentAction = ref('Idle');
 const text = ref('你好，我是数字人，这是一个小小的演示，大约持续5秒钟。');
+
+// 背景图片相关
+const imageInput = ref<HTMLInputElement | null>(null);
+const backgroundImage = ref<string>('');
+const backgroundImageName = ref<string>('');
+const backgroundImageFile = ref<File | null>(null);
+const backgroundDistance = ref(-3); // 背景距离，默认 -3
 
 // 从配置文件获取动作和表情数据
 const actionAnimations = getActionAnimations();
@@ -1080,6 +1139,59 @@ function getEmotionDisplayName(emotion: string) {
   const emotionData = emotionAnimations.find(anim => anim.actualName === emotion);
   return emotionData ? emotionData.displayName : emotion;
 }
+
+// 处理图片上传
+function handleImageUpload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  
+  if (!file) return;
+  
+  // 验证文件类型
+  if (!file.type.startsWith('image/')) {
+    alert(t('animate.invalidImageType'));
+    return;
+  }
+  
+  // 验证文件大小 (限制为 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    alert(t('animate.imageTooLarge'));
+    return;
+  }
+  
+  // 创建预览 URL
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    backgroundImage.value = e.target?.result as string;
+    backgroundImageName.value = file.name;
+    backgroundImageFile.value = file;
+    
+    // 通知 ModelViewer 更新背景
+    if (modelViewer.value) {
+      modelViewer.value.setBackgroundImage(backgroundImage.value);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// 清除背景图片
+function clearBackgroundImage() {
+  backgroundImage.value = '';
+  backgroundImageName.value = '';
+  backgroundImageFile.value = null;
+  
+  // 通知 ModelViewer 清除背景
+  if (modelViewer.value) {
+    modelViewer.value.clearBackgroundImage();
+  }
+}
+
+// 调节背景距离
+function adjustBackgroundDistance() {
+  if (modelViewer.value) {
+    modelViewer.value.adjustBackgroundDistance(backgroundDistance.value);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -1135,6 +1247,8 @@ $background-color: #f5f5f5;
     }
   }
 }
+
+
 
 .model-selector {
   background: white;
@@ -1671,6 +1785,114 @@ button:hover {
     
     .control-btn {
       width: 100%;
+    }
+  }
+}
+
+// 背景图片控制样式
+.background-controls {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  
+  .image-input {
+    display: none;
+  }
+  
+  // 移动端适配
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    
+    .control-btn {
+      width: 100%;
+    }
+  }
+}
+
+.background-preview {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  
+  img {
+    max-width: 120px;
+    max-height: 90px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .background-name {
+    font-size: 11px;
+    color: #6c757d;
+    text-align: center;
+    word-break: break-all;
+    max-width: 120px;
+  }
+}
+
+// 添加 secondary 按钮样式
+.control-btn.secondary {
+  background: #6c757d;
+  
+  &:hover:not(:disabled) {
+    background: #5a6268;
+  }
+}
+
+// 背景距离控制器样式
+.background-distance-control {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  
+  .distance-label {
+    font-size: 12px;
+    color: #495057;
+    font-weight: 500;
+  }
+  
+  .distance-slider {
+    width: 100%;
+    max-width: 200px;
+    height: 6px;
+    border-radius: 3px;
+    background: #dee2e6;
+    outline: none;
+    -webkit-appearance: none;
+    
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+    }
+    
+    &::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #007bff;
+      cursor: pointer;
+      border: none;
     }
   }
 }

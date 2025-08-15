@@ -88,6 +88,13 @@ export default {
       confirmClear: '确定清空所有关键帧？',
     },
     textPlaceholder: '请输入要合成的文字（最多180个字符，约30秒）',
+    backgroundImage: '背景图片',
+    selectImage: '选择图片',
+    clearImage: '清除图片',
+    backgroundPreview: '背景预览',
+    invalidImageType: '请选择有效的图片文件',
+    imageTooLarge: '图片文件过大，请选择小于10MB的图片',
+    backgroundDistance: '背景距离',
     action: '动作',
     actions: {
       idle: '待机',

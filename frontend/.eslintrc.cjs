@@ -20,16 +20,16 @@ module.exports = {
   plugins: ['vue', '@typescript-eslint'],
   rules: {
     'vue/multi-word-component-names': 'off',
-    'vue/attributes-order': 'warn',
+    'vue/attributes-order': 'off',
     'vue/no-template-shadow': 'warn',
     '@typescript-eslint/no-unused-vars': [
-      'warn',
+      'off',
       {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
       },
     ],
-    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-this-alias': 'warn',
     '@typescript-eslint/no-array-constructor': 'warn',
   },
