@@ -21,7 +21,7 @@ jobs:
             echo "User: ${{ vars.PRODUCTION_USERNAME }}"
             echo "Release: ${{ steps.release.outputs.release_name }}"
             echo "Repository: ${{ github.repository }}"
-            echo "Tag: ${{ steps.release.outputs.tag_name }}
+            echo "Tag: ${{ steps.release.outputs.tag_name }}"
             echo "Commit: ${{ github.sha }}"
             echo "Deploy time: $(date)"
 
@@ -188,7 +188,7 @@ jobs:
         run: |
           echo "✅ Production deployment successful!"
           echo "Repository: ${{ github.repository }}"
-          echo "Tag: ${{ steps.release.outputs.tag_name }}
+          echo "Tag: ${{ steps.release.outputs.tag_name }}"
           echo "Commit: ${{ github.sha }}"
           echo "Deploy time: $(date)"
           echo "Release notes: ${{ steps.release.outputs.release_body }}"
@@ -199,7 +199,7 @@ jobs:
           echo "❌ Production deployment failed!"
           echo "Repository: ${{ github.repository }}"
           echo "Release: ${{ steps.release.outputs.release_name }}"
-          echo "Tag: ${{ steps.release.outputs.tag_name }}
+          echo "Tag: ${{ steps.release.outputs.tag_name }}"
           echo "Commit: ${{ github.sha }}"
           echo "Deploy time: $(date)"
           echo "Please check the deployment logs and fix the issue."
