@@ -34,10 +34,18 @@ export default defineConfig({
     
     // 覆盖率配置
     coverage: {
-      enabled: false, // 暂时禁用覆盖率以避免配置问题
+      enabled: true,
       provider: 'v8',
       reporter: ['text', 'html'],
       reportsDirectory: './coverage',
+      thresholds: {
+        global: {
+          branches: 80,      // 分支覆盖率至少80%
+          functions: 80,     // 函数覆盖率至少80%
+          lines: 80,         // 行覆盖率至少80%
+          statements: 80     // 语句覆盖率至少80%
+        }
+      },
       include: [
         'handlers/**/*.ts',
         'utils/**/*.ts',
@@ -47,7 +55,11 @@ export default defineConfig({
         'tests/**',
         'node_modules/**',
         '**/*.d.ts',
-        'coverage/**'
+        'coverage/**',
+        '**/*.config.ts',     // 排除配置文件
+        '**/*.config.js',
+        'env.*',              // 排除环境文件
+        'index.ts'            // 排除入口文件（如果需要）
       ]
     },
     

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Logger } from '../utils/logger';
 
 // 支持的情绪标签映射（与前端保持一致）
 const VOICE_STYLES: Record<string, string[]> = {
@@ -167,12 +168,12 @@ function loadVoiceStyleMap(): Record<string, string[]> {
       list.forEach((v) => {
         voiceStyleMap![v.name] = v.styles ?? [];
       });
-      console.log('[generate-ssml] Loaded voice styles from azure-voices-zh.json');
+      Logger.info('Loaded voice styles from azure-voices-zh.json');
     } else {
       throw new Error('azure-voices-zh.json not found in any expected location');
     }
   } catch (err) {
-    console.warn('[generate-ssml] Failed to load azure-voices-zh.json, fallback to static map:', err);
+    Logger.warn('Failed to load azure-voices-zh.json, fallback to static map', { error: err.message });
     voiceStyleMap = VOICE_STYLES;
   }
   
@@ -190,14 +191,10 @@ export function resetVoiceStyleMapCache() {
 // Requires env var: OPENAI_API_KEY
 
 export default async function handler(req: Request, res: Response) {
-  console.log('📝 SSML 生成请求开始:', {
-    method: req.method,
-    url: req.url,
-    bodySize: req.body ? JSON.stringify(req.body).length : 0
-  });
+  Logger.handlerStart('SSML 生成', req);
 
   if (req.method !== 'POST') {
-    console.log('❌ 方法不允许:', req.method);
+    Logger.warn('方法不允许', { method: req.method });
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -207,24 +204,24 @@ export default async function handler(req: Request, res: Response) {
       voice?: string;
     };
 
-    console.log('📝 请求参数:', {
+    Logger.info('请求参数', {
       text: typeof text === 'string' ? (text.slice(0, 50) + (text.length > 50 ? '...' : '')) : text,
       voice,
       textLength: typeof text === 'string' ? text.length : 0
     });
 
     if (!text || typeof text !== 'string' || !text.trim()) {
-      console.log('❌ 文本参数无效');
+      Logger.warn('文本参数无效');
       return res.status(400).json({ error: 'Parameter "text" is required.' });
     }
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_API_KEY) {
-      console.log('❌ OpenAI API 密钥未配置');
+      Logger.error('OpenAI API 密钥未配置');
       return res.status(500).json({ error: 'OPENAI_API_KEY is not configured.' });
     }
 
-    console.log('🤖 调用 OpenAI API 生成 SSML...');
+    Logger.info('调用 OpenAI API 生成 SSML');
 
     // 获取 voice 支持的情绪列表
     const stylesMap = loadVoiceStyleMap();
@@ -265,15 +262,14 @@ export default async function handler(req: Request, res: Response) {
       }),
     });
 
-    console.log('📥 OpenAI 响应:', {
-      status: openaiResponse.status,
+    Logger.apiResponse('OpenAI', openaiResponse.status, {
       statusText: openaiResponse.statusText,
       ok: openaiResponse.ok
     });
 
     if (!openaiResponse.ok) {
       const errorText = await openaiResponse.text();
-      console.error('❌ OpenAI 请求失败:', errorText);
+      Logger.error('OpenAI 请求失败', { error: errorText });
       return res.status(500).json({ error: 'OpenAI request failed', details: errorText });
     }
 
@@ -286,18 +282,14 @@ export default async function handler(req: Request, res: Response) {
       .replace(/```$/g, '')
       .trim();
 
-    console.log('✅ SSML 生成成功:', {
+    Logger.handlerSuccess('SSML 生成', {
       ssmlLength: ssml.length,
       ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : '')
     });
 
-    console.log('generate-ssml handler success for text:', text.slice(0, 100));
     return res.status(200).json({ ssml });
   } catch (error: any) {
-    console.error('❌ SSML 生成 handler 错误:', {
-      error: error.message,
-      stack: error.stack
-    });
+    Logger.handlerError('SSML 生成', error);
     return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 } 

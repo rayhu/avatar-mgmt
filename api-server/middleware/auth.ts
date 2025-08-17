@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { Logger } from '../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
 
@@ -30,7 +31,7 @@ export function authenticateToken(req: AuthenticatedRequest, res: Response, next
     req.user = decoded;
     next();
   } catch (error) {
-    console.error('Token verification error:', error);
+    Logger.error('Token verification error', { error: error.message });
     return res.status(403).json({
       error: 'Invalid token',
       message: 'Token is invalid or expired'
@@ -47,7 +48,7 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
   }
 
   // 添加调试信息
-  console.log('🔍 Admin 权限检查:', {
+  Logger.debug('Admin 权限检查', {
     userId: req.user.id,
     userEmail: req.user.email,
     userRole: req.user.role,
@@ -67,7 +68,7 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
   const isAdmin = adminRoleNames.includes(userRole) || 
                   (typeof userRole === 'object' && userRole?.name && adminRoleNames.includes(userRole.name));
 
-  console.log('🔍 权限检查结果:', {
+  Logger.debug('权限检查结果', {
     userRole,
     isAdmin,
     adminChecks: {
@@ -88,6 +89,6 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
     });
   }
 
-  console.log('✅ 用户具有管理员权限');
+  Logger.info('用户具有管理员权限');
   next();
 }

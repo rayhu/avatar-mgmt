@@ -82,10 +82,7 @@ export async function assetsHandler(req: Request, res: Response) {
       'Content-Type': fileData.type || 'application/octet-stream',
       'Content-Length': fileData.filesize || '',
       'Content-Disposition': `inline; filename="${fileData.filename_download || fileData.filename}"`,
-      'Cache-Control': 'public, max-age=31536000', // 缓存1年
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET',
-      'Access-Control-Allow-Headers': 'Content-Type'
+      'Cache-Control': 'public, max-age=31536000' // 缓存1年
     });
 
     // 流式传输文件

@@ -115,10 +115,7 @@ describe('Assets Handler', () => {
       'Content-Type': 'image/jpeg',
       'Content-Length': 1024,
       'Content-Disposition': 'inline; filename="test.jpg"',
-      'Cache-Control': 'public, max-age=31536000',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET',
-      'Access-Control-Allow-Headers': 'Content-Type'
+      'Cache-Control': 'public, max-age=31536000'
     });
     expect(mockPipe).toHaveBeenCalledWith(mockRes);
   });

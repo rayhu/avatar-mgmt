@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import { Logger } from '../utils/logger';
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
@@ -55,13 +56,13 @@ export default async function authHandler(req: Request, res: Response) {
         const roleData = roleResponse.data.data;
         roleName = roleData.name || 'user';
         
-        console.log('🔍 角色信息获取成功:', {
+        Logger.debug('角色信息获取成功', {
           roleId: userData.role,
           roleName: roleName,
           roleData: roleData
         });
       } catch (roleError) {
-        console.warn('⚠️ 获取角色信息失败，使用默认角色:', roleError.message);
+        Logger.warn('获取角色信息失败，使用默认角色', { error: roleError.message });
         // 如果获取角色信息失败，尝试从用户数据中推断
         if (typeof userData.role === 'string' && userData.role.length > 20) {
           // 这是一个 UUID，可能是管理员角色
@@ -78,7 +79,7 @@ export default async function authHandler(req: Request, res: Response) {
       userRole = 'user';
     }
 
-    console.log('🔍 用户角色信息:', {
+    Logger.debug('用户角色信息', {
       originalRole: userData.role,
       roleName: roleName,
       processedRole: userRole,
@@ -118,7 +119,7 @@ export default async function authHandler(req: Request, res: Response) {
     });
 
   } catch (error: any) {
-    console.error('Authentication error:', error);
+    Logger.error('Authentication error', { error: error.message });
 
     // 处理 Directus 认证错误
     if (error.response?.status === 401) {

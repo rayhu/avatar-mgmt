@@ -352,12 +352,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('🔧 Avatar Management 请求开始:', {
-        method: 'PUT',
-        url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
-        body: { status: 'ready' }
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Avatar Management 请求开始'));
 
       consoleSpy.mockRestore();
     });
@@ -375,13 +370,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('🔄 更新模型状态:', {
-        avatarId: 'test-id',
-        status: 'ready',
-        version: '1.0.0',
-        name: undefined,
-        description: undefined
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('更新模型状态'));
 
       consoleSpy.mockRestore();
     });

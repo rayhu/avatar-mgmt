@@ -4,6 +4,7 @@ import { promises as fs } from 'fs'
 import { join, dirname } from 'path'
 import { execSync } from 'child_process'
 import { fileURLToPath } from 'url'
+import { Logger } from '../utils/logger'
 
 // ES 模块中获取 __dirname 的替代方案
 const __filename = fileURLToPath(import.meta.url)
@@ -42,7 +43,7 @@ function getGitInfo() {
     
     return { commitHash, branch, commitDate }
   } catch (error) {
-    console.warn('Failed to get Git info:', error)
+    Logger.warn('Failed to get Git info', { error: error.message })
     return { commitHash: 'unknown', branch: 'unknown', commitDate: 'unknown' }
   }
 }
@@ -101,7 +102,7 @@ async function versionHandler(req: Request, res: Response) {
         generatedAt: now
       }
       
-      console.log('🔧 Generated real-time version info for development')
+      Logger.info('Generated real-time version info for development')
     } else {
       // 生产环境：从文件读取，并更新动态信息
       try {
@@ -113,9 +114,9 @@ async function versionHandler(req: Request, res: Response) {
         versionInfo.system.uptime = getUptime()
         versionInfo.system.lastCheck = new Date().toISOString()
         
-        console.log('📁 Loaded version info from file and updated dynamic data')
+        Logger.info('Loaded version info from file and updated dynamic data')
       } catch (fileError) {
-        console.warn('Failed to load version file, generating:', fileError)
+        Logger.warn('Failed to load version file, generating', { error: fileError.message })
         const gitInfo = getGitInfo()
         const now = new Date().toISOString()
         

@@ -285,12 +285,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('🖼️ Avatars 请求开始:', {
-        method: 'GET',
-        url: '/api/avatars',
-        headers: { 'user-agent': 'jest-test' },
-        query: {}
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Avatars 请求开始'));
 
       consoleSpy.mockRestore();
     });
@@ -307,11 +302,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('📋 配置检查:', {
-        directusUrl: '已配置',
-        directusToken: '已配置',
-        nodeEnv: 'test'
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('配置检查'));
 
       consoleSpy.mockRestore();
     });
@@ -328,10 +319,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('🌐 调用 Directus API:', {
-        url: 'http://test-directus:8055/items/avatars',
-        tokenLength: 10
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Directus API 调用'));
 
       consoleSpy.mockRestore();
     });
@@ -348,11 +336,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('📥 Directus 响应:', {
-        status: 200,
-        statusText: 'OK',
-        dataCount: 2
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Directus API 响应'));
 
       consoleSpy.mockRestore();
     });
@@ -369,9 +353,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('✅ Avatars 查询成功:', {
-        avatarCount: 2
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Avatars 处理成功'));
 
       consoleSpy.mockRestore();
     });
@@ -391,11 +373,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('❌ Avatars handler 错误:', {
-        error: 'Test error',
-        errorType: 'Error',
-        stack: expect.any(String)
-      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Avatars 处理失败'));
 
       consoleSpy.mockRestore();
       consoleErrorSpy.mockRestore();
@@ -417,7 +395,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('🌐 网络连接错误: Directus 服务器无法访问');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('网络连接错误: Directus 服务器无法访问'));
 
       consoleErrorSpy.mockRestore();
     });
@@ -442,11 +420,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('📥 Directus API 错误:', {
-        status: 500,
-        statusText: 'Internal Server Error',
-        data: '{\n  "message": "Database error"\n}'
-      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Directus API 错误'));
 
       consoleErrorSpy.mockRestore();
     });
@@ -467,11 +441,7 @@ describe('Avatars Handler', () => {
 
       await avatarHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('📋 配置检查:', {
-        directusUrl: '已配置',
-        directusToken: '已配置',
-        nodeEnv: 'production'
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('配置检查'));
 
       consoleSpy.mockRestore();
       delete process.env.NODE_ENV;
