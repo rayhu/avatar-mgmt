@@ -1,41 +1,42 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Request, Response } from 'express';
 import azureTTSHandler from '../../handlers/azure-tts.js';
 
 // 模拟所有依赖模块
-jest.mock('../../utils/debug-logger.js');
-jest.mock('../../utils/ssml-validator.js');
+vi.mock('../../utils/debug-logger.js');
+vi.mock('../../utils/ssml-validator.js');
 
 import { debugLogger } from '../../utils/debug-logger.js';
 import { ssmlValidator } from '../../utils/ssml-validator.js';
 
-const mockDebugLogger = debugLogger as jest.Mocked<typeof debugLogger>;
-const mockSSMLValidator = ssmlValidator as jest.Mocked<typeof ssmlValidator>;
+const mockDebugLogger = debugLogger as any;
+const mockSSMLValidator = ssmlValidator as any;
 
 // 模拟 fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 describe('Azure TTS Handler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockStatus: jest.Mock;
-  let mockJson: jest.Mock;
-  let mockSend: jest.Mock;
-  let mockSetHeader: jest.Mock;
-  let mockFetch: jest.MockedFunction<typeof fetch>;
+  let mockStatus: any;
+  let mockJson: any;
+  let mockSend: any;
+  let mockSetHeader: any;
+  let mockFetch: any;
 
   beforeEach(() => {
     // 重置所有模拟
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // 设置环境变量
     process.env.AZURE_SPEECH_KEY = 'test-azure-key';
     process.env.AZURE_SPEECH_REGION = 'eastus';
     
     // 创建模拟的响应对象
-    mockStatus = jest.fn().mockReturnThis();
-    mockJson = jest.fn().mockReturnThis();
-    mockSend = jest.fn().mockReturnThis();
-    mockSetHeader = jest.fn().mockReturnThis();
+    mockStatus = vi.fn().mockReturnThis();
+    mockJson = vi.fn().mockReturnThis();
+    mockSend = vi.fn().mockReturnThis();
+    mockSetHeader = vi.fn().mockReturnThis();
     
     mockRes = {
       status: mockStatus,
@@ -61,7 +62,7 @@ describe('Azure TTS Handler', () => {
     });
 
     // 设置默认的fetch模拟
-    mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch = global.fetch as any;
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -70,7 +71,7 @@ describe('Azure TTS Handler', () => {
         ['content-type', 'audio/mpeg'],
         ['content-length', '1024']
       ]),
-      arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(1024))
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(1024))
     } as any);
   });
 
@@ -387,7 +388,7 @@ describe('Azure TTS Handler', () => {
           ['content-type', 'audio/mpeg'],
           ['content-length', '2048']
         ]),
-        arrayBuffer: jest.fn().mockResolvedValue(audioBuffer)
+        arrayBuffer: vi.fn().mockResolvedValue(audioBuffer)
       } as any);
 
       mockReq = {
@@ -411,7 +412,7 @@ describe('Azure TTS Handler', () => {
         status: 400,
         statusText: 'Bad Request',
         headers: new Map(),
-        text: jest.fn().mockResolvedValue('Invalid SSML')
+        text: vi.fn().mockResolvedValue('Invalid SSML')
       } as any);
 
       mockReq = {
@@ -451,7 +452,7 @@ describe('Azure TTS Handler', () => {
         status: 400,
         statusText: 'Bad Request',
         headers: new Map(),
-        text: jest.fn().mockResolvedValue(JSON.stringify(errorResponse))
+        text: vi.fn().mockResolvedValue(JSON.stringify(errorResponse))
       } as any);
 
       mockReq = {

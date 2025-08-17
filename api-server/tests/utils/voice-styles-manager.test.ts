@@ -1,20 +1,21 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VoiceStylesManager } from '../../utils/voice-styles-manager.js';
 import fs from 'fs';
 import path from 'path';
 
 // 模拟 fs 模块
-jest.mock('fs');
-jest.mock('path');
+vi.mock('fs');
+vi.mock('path');
 
-const mockFs = fs as jest.Mocked<typeof fs>;
-const mockPath = path as jest.Mocked<typeof path>;
+const mockFs = fs as any;
+const mockPath = path as any;
 
 describe('VoiceStylesManager', () => {
   let manager: VoiceStylesManager;
 
   beforeEach(() => {
     // 重置所有模拟
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     manager = new VoiceStylesManager();
   });
 
@@ -63,9 +64,9 @@ describe('VoiceStylesManager', () => {
 
       const mockPathString = '/test/path/azure-voices-zh.json';
       
-      mockPath.join.mockReturnValue(mockPathString);
-      mockFs.existsSync.mockReturnValue(true);
-      mockFs.readFileSync.mockReturnValue(mockJsonContent);
+      vi.mocked(mockPath.join).mockReturnValue(mockPathString);
+      vi.mocked(mockFs.existsSync).mockReturnValue(true);
+      vi.mocked(mockFs.readFileSync).mockReturnValue(mockJsonContent);
 
       await manager.loadFromFile();
 
@@ -79,8 +80,8 @@ describe('VoiceStylesManager', () => {
     });
 
     it('应该在找不到配置文件时回退到默认配置', async () => {
-      mockPath.join.mockReturnValue('/nonexistent/path.json');
-      mockFs.existsSync.mockReturnValue(false);
+      vi.mocked(mockPath.join).mockReturnValue('/nonexistent/path.json');
+      vi.mocked(mockFs.existsSync).mockReturnValue(false);
 
       // 记录原始样式
       const originalStyles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
@@ -99,12 +100,12 @@ describe('VoiceStylesManager', () => {
         '/path3/azure-voices-zh.json'
       ];
 
-      mockPath.join
+      vi.mocked(mockPath.join)
         .mockReturnValueOnce(possiblePaths[0])
         .mockReturnValueOnce(possiblePaths[1])
         .mockReturnValueOnce(possiblePaths[2]);
 
-      mockFs.existsSync
+      vi.mocked(mockFs.existsSync)
         .mockReturnValueOnce(false)  // 第一个路径不存在
         .mockReturnValueOnce(false)  // 第二个路径不存在
         .mockReturnValueOnce(true);  // 第三个路径存在
@@ -112,19 +113,19 @@ describe('VoiceStylesManager', () => {
       const mockJsonContent = JSON.stringify([
         { name: 'zh-CN-XiaoxiaoNeural', styles: ['test-style'] }
       ]);
-      mockFs.readFileSync.mockReturnValue(mockJsonContent);
+      vi.mocked(mockFs.readFileSync).mockReturnValue(mockJsonContent);
 
       await manager.loadFromFile();
 
       // 验证尝试了所有路径
       expect(mockFs.existsSync).toHaveBeenCalledTimes(3);
-      expect(mockFs.readFileSync).toHaveBeenCalledWith(possiblePaths[2], 'utf-8');
+      expect(vi.mocked(mockFs.readFileSync)).toHaveBeenCalledWith(possiblePaths[2], 'utf-8');
     });
 
     it('应该处理 JSON 解析错误', async () => {
-      mockPath.join.mockReturnValue('/test/path.json');
-      mockFs.existsSync.mockReturnValue(true);
-      mockFs.readFileSync.mockReturnValue('invalid-json');
+      vi.mocked(mockPath.join).mockReturnValue('/test/path.json');
+      vi.mocked(mockFs.existsSync).mockReturnValue(true);
+      vi.mocked(mockFs.readFileSync).mockReturnValue('invalid-json');
 
       // 记录原始样式
       const originalStyles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
@@ -137,9 +138,9 @@ describe('VoiceStylesManager', () => {
     });
 
     it('应该处理文件读取错误', async () => {
-      mockPath.join.mockReturnValue('/test/path.json');
-      mockFs.existsSync.mockReturnValue(true);
-      mockFs.readFileSync.mockImplementation(() => {
+      vi.mocked(mockPath.join).mockReturnValue('/test/path.json');
+      vi.mocked(mockFs.existsSync).mockReturnValue(true);
+      vi.mocked(mockFs.readFileSync).mockImplementation(() => {
         throw new Error('文件读取错误');
       });
 
@@ -158,17 +159,17 @@ describe('VoiceStylesManager', () => {
         { name: 'zh-CN-XiaoxiaoNeural', styles: ['test-style'] }
       ]);
 
-      mockPath.join.mockReturnValue('/test/path.json');
-      mockFs.existsSync.mockReturnValue(true);
-      mockFs.readFileSync.mockReturnValue(mockJsonContent);
+      vi.mocked(mockPath.join).mockReturnValue('/test/path.json');
+      vi.mocked(mockFs.existsSync).mockReturnValue(true);
+      vi.mocked(mockFs.readFileSync).mockReturnValue(mockJsonContent);
 
       // 第一次加载
       await manager.loadFromFile();
-      expect(mockFs.readFileSync).toHaveBeenCalledTimes(1);
+      expect(vi.mocked(mockFs.readFileSync)).toHaveBeenCalledTimes(1);
 
       // 第二次加载
       await manager.loadFromFile();
-      expect(mockFs.readFileSync).toHaveBeenCalledTimes(1); // 不应该再次调用
+      expect(vi.mocked(mockFs.readFileSync)).toHaveBeenCalledTimes(1); // 不应该再次调用
     });
   });
 

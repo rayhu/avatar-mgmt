@@ -237,7 +237,13 @@ export default async function handler(req: Request, res: Response) {
     const prompt = `你是一名语音合成工程师，请将以下中文文本转换为符合 Azure TTS 的 SSML，要求：
   - 使用 <speak> 根元素，声明 version="1.0"、xmlns="http://www.w3.org/2001/10/synthesis" 和 xml:lang="zh-CN"。
   - 使用唯一的 <voice name="${voice}"> 包裹全部正文。
-  - 生成简单、标准的 SSML 格式，避免复杂的 mstts 标签。
+  - 仅可使用以下情绪标签（style）：${styleList}。
+  - 只输出最终 SSML XML，禁止附加说明或 Markdown 代码块。
+  - 为每句话选择一个 style；若需对比度强，可拆分句子并混用不同 style。
+  - 必须添加 styledegree="1" 或 "2"（愤怒、激动等强烈情绪用 2）。
+  - 若情绪不明显，则默认 style="cheerful" 且 styledegree="1"。
+  - 可结合 <prosody> (rate/pitch) 与 <emphasis> 提升表现力；示例：sad → pitch="-2st" rate="slow"；excited → pitch="+3st" rate="fast"。但是 0st 是无效的，请使用 +0st 代替。
+  - 不同情绪之间插入 <break time="500ms"/>。
   - 只输出最终 SSML XML，禁止附加说明或 Markdown 代码块。
 
   文本：

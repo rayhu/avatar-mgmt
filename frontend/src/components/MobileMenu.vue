@@ -77,7 +77,7 @@
               
               <div class="mobile-user-info">
                 <span class="user-name">{{ auth.user?.name }}</span>
-                <span class="user-role">{{ t(auth.user?.role === 'admin' ? 'admin' : 'user') }}</span>
+                <span class="user-role">{{ t(auth.user?.role || 'user') }}</span>
                 <button class="logout-btn" @click="handleLogout">
                   {{ t('logout') }}
                 </button>
@@ -105,6 +105,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../store';
 import { useRouter } from 'vue-router';
+import { logout as apiLogout } from '../api/auth';
 
 const { t } = useI18n();
 const auth = useAuthStore();
@@ -120,7 +121,14 @@ const closeMenu = () => {
   isMenuOpen.value = false;
 };
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  try {
+    // Call API logout with refresh token
+    await apiLogout(auth.refreshToken || undefined);
+  } catch (error) {
+    console.warn('Logout API call failed, but continuing with local logout:', error);
+  }
+  
   auth.clearUser();
   router.push('/login');
   closeMenu();

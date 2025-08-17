@@ -26,7 +26,7 @@
       <div class="nav-right">
         <template v-if="auth.isAuthenticated">
           <span class="user-info desktop-only">
-            {{ auth.user?.name }}（{{ t(auth.user?.role === 'admin' ? 'admin' : 'user') }}）
+                            {{ auth.user?.name }}（{{ t(auth.user?.role || 'user') }}）
             <a href="#" @click.prevent="logout">{{ t('logout') }}</a>
           </span>
         </template>
@@ -44,18 +44,26 @@ import { useI18n } from 'vue-i18n';
 import { inject } from '@vercel/analytics';
 import { onMounted, watch } from 'vue';
 import { logger } from './utils/logger';
+import { logout as apiLogout } from './api/auth';
 
 const auth = useAuthStore();
 const router = useRouter();
 const { t, locale } = useI18n();
 
-function logout() {
+async function logout() {
   logger.userAction('用户登出', {
     component: 'App',
     method: 'logout',
     userRole: auth.user?.role,
     userName: auth.user?.name
   });
+  
+  try {
+    // Call API logout with refresh token
+    await apiLogout(auth.refreshToken || undefined);
+  } catch (error) {
+    console.warn('Logout API call failed, but continuing with local logout:', error);
+  }
   
   auth.clearUser();
   router.push('/login');

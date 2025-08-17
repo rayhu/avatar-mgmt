@@ -8,47 +8,39 @@ const COMMON_API_ENDPOINTS = {
   azureTTS: '/api/azure-tts',
   generateSSML: '/api/generate-ssml',
   version: '/api/version',
+  assets: '/api/assets',
   auth: {
-    login: '/api/auth/login'
+    login: '/api/auth/login',
+    logout: '/api/auth/logout'
   }
-} as const;
-
-// 公共的 Directus endpoints 配置
-const COMMON_DIRECTUS_ENDPOINTS = {
-  assets: '/assets',
-  auth: '/auth/login',
-  models: '/items/models',
 } as const;
 
 // 从环境变量获取 baseUrl，如果没有则使用默认值
 function getBaseUrls() {
   const env = import.meta.env.MODE || 'development';
   
-  // 从环境变量读取，格式：VITE_API_BASE_URL, VITE_DIRECTUS_BASE_URL
+  // 从环境变量读取，格式：VITE_API_BASE_URL
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-  const directusBaseUrl = import.meta.env.VITE_DIRECTUS_BASE_URL;
   
   // 默认值配置
   const defaults = {
     development: {
-      api: 'http://api.daidai.localhost:3000',
-      directus: 'http://directus.daidai.localhost:8055'
+      api: 'http://localhost:3000'
     },
     stage: {
-      api: 'https://api.daidai-preview.amis.hk',
-      directus: 'https://directus.daidai-preview.amis.hk'
+      api: 'https://api.daidai-preview.amis.hk'
     },
     production: {
-      api: 'https://api.daidai.amis.hk',
-      directus: 'https://directus.daidai.amis.hk'
+      api: 'https://api.daidai.amis.hk'
     }
   };
   
   const defaultConfig = defaults[env as keyof typeof defaults] || defaults.development;
   
+  const finalApiBaseUrl = apiBaseUrl || defaultConfig.api;
+  
   return {
-    api: apiBaseUrl || defaultConfig.api,
-    directus: directusBaseUrl || defaultConfig.directus
+    api: finalApiBaseUrl
   };
 }
 
@@ -58,10 +50,6 @@ export const API_CONFIG = {
     api: {
       baseUrl: getBaseUrls().api,
       endpoints: COMMON_API_ENDPOINTS
-    },
-    directus: {
-      baseUrl: getBaseUrls().directus,
-      endpoints: COMMON_DIRECTUS_ENDPOINTS
     }
   },
   
@@ -70,10 +58,6 @@ export const API_CONFIG = {
     api: {
       baseUrl: getBaseUrls().api,
       endpoints: COMMON_API_ENDPOINTS
-    },
-    directus: {
-      baseUrl: getBaseUrls().directus,
-      endpoints: COMMON_DIRECTUS_ENDPOINTS
     }
   },
   
@@ -82,10 +66,6 @@ export const API_CONFIG = {
     api: {
       baseUrl: getBaseUrls().api,
       endpoints: COMMON_API_ENDPOINTS
-    },
-    directus: {
-      baseUrl: getBaseUrls().directus,
-      endpoints: COMMON_DIRECTUS_ENDPOINTS
     }
   }
 };
@@ -101,7 +81,6 @@ export function getApiConfig() {
     PROD: import.meta.env.PROD,
     BASE_URL: import.meta.env.BASE_URL,
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-    VITE_DIRECTUS_BASE_URL: import.meta.env.VITE_DIRECTUS_BASE_URL,
     selectedEnv: env
   });
   
@@ -110,32 +89,47 @@ export function getApiConfig() {
   // 显示最终配置
   console.log('🌍 最终 API 配置:', {
     env: env,
-    apiBaseUrl: config.api.baseUrl,
-    directusBaseUrl: config.directus.baseUrl
+    apiBaseUrl: config.api.baseUrl
   });
   
   return config;
 }
 
-// 便捷的 API URL 构建器 - 直接使用配置中的 endpoints
-export function getApiUrl(endpointKey: keyof typeof API_CONFIG.development.api.endpoints): string {
+// 便捷的 API URL 构建器 - 支持嵌套的 endpoint 结构
+export function getApiUrl(endpointKey: string): string {
   const config = getApiConfig();
-  const url = `${config.api.baseUrl}${config.api.endpoints[endpointKey]}`;
+  
+  // 处理嵌套的 endpoint 结构
+  let endpoint: string;
+  if (endpointKey.includes('.')) {
+    // 处理嵌套结构，如 'auth.login'
+    const [category, subKey] = endpointKey.split('.');
+    endpoint = (config.api.endpoints as any)[category]?.[subKey];
+  } else {
+    // 处理直接的 endpoint
+    endpoint = (config.api.endpoints as any)[endpointKey];
+  }
+  
+  if (!endpoint) {
+    console.error('❌ 无效的 endpoint key:', endpointKey);
+    throw new Error(`Invalid endpoint key: ${endpointKey}`);
+  }
+  
+  const url = `${config.api.baseUrl}${endpoint}`;
   console.log('🔗 API URL:', url);
   return url;
 }
 
-// 便捷的 Directus URL 构建器 - 直接使用配置中的 endpoints
-export function getDirectusUrl(endpointKey: keyof typeof API_CONFIG.development.directus.endpoints): string {
+// 构建资源文件 URL - 通过 API Server 代理
+export function buildAssetUrl(fileId: string): string {
   const config = getApiConfig();
-  const url = `${config.directus.baseUrl}${config.directus.endpoints[endpointKey]}`;
-  console.log('🔗 Directus URL:', url);
-  return url;
-}
-
-// 构建 Directus 资产 URL
-export function buildDirectusAssetUrl(fileId: string): string {
-  const config = getApiConfig();
-  const url = `${config.directus.baseUrl}/assets/${fileId}`;
+  
+  if (!fileId) {
+    console.warn('⚠️ buildAssetUrl: fileId 为空');
+    return '';
+  }
+  
+  const url = `${config.api.baseUrl}${config.api.endpoints.assets}/${fileId}`;
+  console.log('🔗 资源文件 URL:', url);
   return url;
 } 

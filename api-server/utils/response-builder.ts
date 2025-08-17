@@ -50,6 +50,9 @@ export class ResponseBuilder {
         }
       };
       response.debugLogs = debugLogger.getLogsForResponse();
+    } else {
+      // 在非调试模式下，debugLogs 为空数组
+      response.debugLogs = [];
     }
 
     return response;
@@ -69,8 +72,11 @@ export class ResponseBuilder {
       body.details = details;
     }
     
+    // 始终添加 debugLogs 字段，在非调试模式下为空数组
     if (debugLogger.isDebugEnabled()) {
       body.debugLogs = debugLogger.getLogsForResponse();
+    } else {
+      body.debugLogs = [];
     }
 
     return {

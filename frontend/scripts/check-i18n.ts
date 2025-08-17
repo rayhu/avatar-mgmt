@@ -93,9 +93,6 @@ function isValidTranslationKey(key: string): boolean {
   // 排除明显不是翻译键的内容
   const invalidPatterns = [
     /^[a-z]+$/i, // 单个单词
-    /^[a-z]+\.[a-z]+$/i, // 简单路径
-    /^[a-z]+-[a-z]+$/i, // 带连字符的单词
-    /^[a-z]+_[a-z]+$/i, // 带下划线的单词
     /^[a-z]+\([a-z]+\)$/i, // 函数调用
     /^[a-z]+\.[a-z]+\([a-z]+\)$/i, // 对象方法调用
     /^[a-z]+:[a-z]+$/i, // 冒号分隔
@@ -103,7 +100,17 @@ function isValidTranslationKey(key: string): boolean {
     /^[a-z]+\\[a-z]+$/i, // 反斜杠分隔
     /^[a-z]+@[a-z]+$/i, // 邮箱格式
     /^[a-z]+#[a-z]+$/i, // 哈希格式
-    /^[a-z]+\.[a-z]+\.[a-z]+$/i, // 三层路径
+    /^\./, // 以点开头的路径
+    /^\/[^a-z]/i, // 以斜杠开头的路径
+    /^[a-z]+\/[a-z]+/i, // 包含斜杠的路径
+    /^\.\.\//, // 相对路径
+    /^#/, // 以#开头
+    /^vue-router/, // vue-router相关
+    /^\.\//, // 以./开头
+    /^\/api\//, // API路径
+    /^\/health/, // 健康检查路径
+    /^\/login/, // 登录路径
+    /^-$/, // 单独的连字符
   ];
   
   // 检查是否匹配无效模式
@@ -114,9 +121,13 @@ function isValidTranslationKey(key: string): boolean {
   }
   
   // 检查是否包含中文或特殊字符（可能是误判）
-  if (/[\u4e00-\u9fff]/.test(key) || /[^\w.]/.test(key)) {
+  if (/[\u4e00-\u9fff]/.test(key)) {
     return false;
   }
+  
+  // 允许带点号的路径（如 'login.title', 'common.loading'）
+  // 允许带连字符和下划线的键（如 'user-role', 'user_role'）
+  // 允许三层路径（如 'animate.timeline.title'）
   
   return true;
 }

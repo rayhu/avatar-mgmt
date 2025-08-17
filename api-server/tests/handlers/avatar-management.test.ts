@@ -1,28 +1,33 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Request, Response } from 'express';
 import avatarManagementHandler from '../../handlers/avatar-management.js';
 
 // 模拟 axios
-jest.mock('axios');
+vi.mock('axios', () => ({
+  default: {
+    patch: vi.fn()
+  }
+}));
 import axios from 'axios';
-const mockAxios = axios as jest.Mocked<typeof axios>;
+const mockAxios = vi.mocked(axios);
 
 describe('Avatar Management Handler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockStatus: jest.Mock;
-  let mockJson: jest.Mock;
+  let mockStatus: any;
+  let mockJson: any;
 
   beforeEach(() => {
     // 重置所有模拟
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // 设置环境变量
     process.env.DIRECTUS_URL = 'http://test-directus:8055';
     process.env.DIRECTUS_TOKEN = 'test-token';
     
     // 创建模拟的响应对象
-    mockStatus = jest.fn().mockReturnThis();
-    mockJson = jest.fn().mockReturnThis();
+    mockStatus = vi.fn().mockReturnThis();
+    mockJson = vi.fn().mockReturnThis();
     
     mockRes = {
       status: mockStatus,
@@ -30,7 +35,7 @@ describe('Avatar Management Handler', () => {
     };
 
     // 设置默认的模拟返回值
-    mockAxios.patch.mockResolvedValue({
+    vi.mocked(mockAxios.patch).mockResolvedValue({
       status: 200,
       data: { data: { id: 'test-id', name: 'Test Avatar' } }
     });
@@ -104,7 +109,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockAxios.patch).toHaveBeenCalled();
+      expect(vi.mocked(mockAxios.patch)).toHaveBeenCalled();
     });
 
     it('应该支持PATCH方法', async () => {
@@ -118,7 +123,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockAxios.patch).toHaveBeenCalled();
+      expect(vi.mocked(mockAxios.patch)).toHaveBeenCalled();
     });
   });
 
@@ -134,7 +139,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockAxios.patch).toHaveBeenCalledWith(
+      expect(vi.mocked(mockAxios.patch)).toHaveBeenCalledWith(
         'http://test-directus:8055/items/avatars/test-id',
         { status: 'ready', version: '1.0.0' },
         {
@@ -184,7 +189,7 @@ describe('Avatar Management Handler', () => {
 
         await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-        expect(mockAxios.patch).toHaveBeenCalled();
+        expect(vi.mocked(mockAxios.patch)).toHaveBeenCalled();
         expect(mockJson).toHaveBeenCalledWith({
           success: true,
           data: { id: 'test-id', name: 'Test Avatar' },
@@ -205,7 +210,7 @@ describe('Avatar Management Handler', () => {
       // 版本格式验证只是警告，不应该阻止更新
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockAxios.patch).toHaveBeenCalled();
+      expect(vi.mocked(mockAxios.patch)).toHaveBeenCalled();
     });
 
     it('应该接受语义化版本号', async () => {
@@ -222,7 +227,7 @@ describe('Avatar Management Handler', () => {
 
         await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-        expect(mockAxios.patch).toHaveBeenCalled();
+        expect(vi.mocked(mockAxios.patch)).toHaveBeenCalled();
       }
     });
 
@@ -237,7 +242,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockAxios.patch).toHaveBeenCalledWith(
+      expect(vi.mocked(mockAxios.patch)).toHaveBeenCalledWith(
         'http://test-directus:8055/items/avatars/test-id',
         { status: 'ready' },
         expect.any(Object)
@@ -257,7 +262,7 @@ describe('Avatar Management Handler', () => {
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockAxios.patch).toHaveBeenCalledWith(
+      expect(vi.mocked(mockAxios.patch)).toHaveBeenCalledWith(
         'http://test-directus:8055/items/avatars/test-id',
         { name: 'Updated Avatar', description: 'New description' },
         {
@@ -278,7 +283,7 @@ describe('Avatar Management Handler', () => {
 
   describe('错误处理', () => {
     it('应该在Directus API返回404时返回404错误', async () => {
-      mockAxios.patch.mockRejectedValue({
+      vi.mocked(mockAxios.patch).mockRejectedValue({
         response: { status: 404, data: { message: 'Not found' } }
       });
 
@@ -297,7 +302,7 @@ describe('Avatar Management Handler', () => {
     });
 
     it('应该在Directus API错误时返回500错误', async () => {
-      mockAxios.patch.mockRejectedValue({
+      vi.mocked(mockAxios.patch).mockRejectedValue({
         response: { status: 500, data: { message: 'Internal error' } }
       });
 
@@ -316,7 +321,7 @@ describe('Avatar Management Handler', () => {
     });
 
     it('应该在网络错误时返回500错误', async () => {
-      mockAxios.patch.mockRejectedValue(new Error('Network error'));
+      vi.mocked(mockAxios.patch).mockRejectedValue(new Error('Network error'));
 
       mockReq = {
         method: 'PUT',
@@ -335,7 +340,7 @@ describe('Avatar Management Handler', () => {
 
   describe('日志记录', () => {
     it('应该记录请求开始信息', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       mockReq = {
         method: 'PUT',
@@ -358,7 +363,7 @@ describe('Avatar Management Handler', () => {
     });
 
     it('应该记录成功更新信息', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       mockReq = {
         method: 'PUT',

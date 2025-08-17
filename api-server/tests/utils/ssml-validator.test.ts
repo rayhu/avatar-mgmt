@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SSMLValidator, SSMLValidationResult } from '../../utils/ssml-validator.js';
 
 describe('SSMLValidator', () => {
@@ -161,7 +162,7 @@ describe('SSMLValidator', () => {
     it('应该处理异常情况', () => {
       // 模拟一个会导致异常的情况
       const originalMatch = String.prototype.match;
-      String.prototype.match = jest.fn().mockImplementation(() => {
+      String.prototype.match = vi.fn().mockImplementation(() => {
         throw new Error('模拟的异常');
       });
 

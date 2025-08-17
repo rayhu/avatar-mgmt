@@ -171,14 +171,14 @@ export async function fetchVoices(): Promise<VoiceOption[]> {
   if (SPEECH_KEY && SPEECH_REGION) {
     try {
       const endpoint = `https://${SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/voices/list`;
-      const res = await fetch(endpoint, {
+      const response = await fetch(endpoint, {
         headers: {
           'Ocp-Apim-Subscription-Key': SPEECH_KEY,
           'Content-Type': 'application/json',
         },
       });
-      if (res.ok) {
-        const data: AzureVoiceApiItem[] = await res.json();
+      if (response.ok) {
+        const data: AzureVoiceApiItem[] = await response.json();
         return data.map((v) => ({
           name: v.ShortName || v.Name,
           label: `${v.Locale} – ${v.LocalName}`,

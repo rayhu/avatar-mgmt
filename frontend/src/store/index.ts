@@ -5,39 +5,53 @@ interface User {
   id: string;
   role: 'admin' | 'user';
   name: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
 }
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
     token: null,
+    refreshToken: null,
   }),
 
   getters: {
     isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.user?.role === 'admin',
+    isAdmin: (state) => {
+      const role = state.user?.role;
+      return role === 'admin';
+    },
   },
 
   actions: {
-    setUser(user: User, token: string) {
+    setUser(user: User, token: string, refreshToken?: string) {
       logger.store('设置用户信息', {
         component: 'AuthStore',
         method: 'setUser',
         userId: user.id,
         userRole: user.role,
         userName: user.name,
+        userEmail: user.email,
         tokenLength: token.length
       });
       
       this.user = user;
       this.token = token;
+      this.refreshToken = refreshToken || null;
+      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
       
       logger.info('用户信息已保存到本地存储', {
         component: 'AuthStore',
@@ -52,14 +66,17 @@ export const useAuthStore = defineStore('auth', {
         previousUser: this.user ? {
           id: this.user.id,
           role: this.user.role,
-          name: this.user.name
+          name: this.user.name,
+          email: this.user.email
         } : null
       });
       
       this.user = null;
       this.token = null;
+      this.refreshToken = null;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('refreshToken');
       
       logger.info('用户信息已从本地存储清除', {
         component: 'AuthStore',
@@ -75,12 +92,14 @@ export const useAuthStore = defineStore('auth', {
       
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
+      const refreshToken = localStorage.getItem('refreshToken');
 
       if (token && userStr) {
         try {
           const user = JSON.parse(userStr) as User;
           this.token = token;
           this.user = user;
+          this.refreshToken = refreshToken;
           
           logger.info('从本地存储恢复用户信息', {
             component: 'AuthStore',
@@ -88,7 +107,9 @@ export const useAuthStore = defineStore('auth', {
             userId: user.id,
             userRole: user.role,
             userName: user.name,
-            tokenLength: token.length
+            userEmail: user.email,
+            tokenLength: token.length,
+            hasRefreshToken: !!refreshToken
           });
         } catch (error) {
           const err = error as Error;
