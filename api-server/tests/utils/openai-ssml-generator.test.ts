@@ -1,20 +1,23 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { OpenAISSMLGenerator, SSMLGenerationRequest, SSMLGenerationResult } from '../../utils/openai-ssml-generator.js';
 
 // 模拟 voiceStylesManager
-jest.mock('../../utils/voice-styles-manager.js', () => ({
+vi.mock('../../utils/voice-styles-manager.js', () => ({
   voiceStylesManager: {
-    loadFromFile: jest.fn().mockResolvedValue(undefined),
-    getStylesForVoice: jest.fn().mockReturnValue(['cheerful', 'sad', 'angry', 'excited'])
+    loadFromFile: vi.fn().mockResolvedValue(undefined),
+    getStylesForVoice: vi.fn().mockReturnValue(['cheerful', 'sad', 'angry', 'excited']),
+    getAllVoiceStyles: vi.fn().mockReturnValue({}),
+    isStyleSupported: vi.fn().mockReturnValue(true)
   }
 }));
 
 // 模拟 fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 import { voiceStylesManager } from '../../utils/voice-styles-manager.js';
 
-const mockVoiceStylesManager = voiceStylesManager as jest.Mocked<typeof voiceStylesManager>;
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+const mockVoiceStylesManager = voiceStylesManager as any;
+const mockFetch = global.fetch as any;
 
 describe('OpenAISSMLGenerator', () => {
   let generator: OpenAISSMLGenerator;
@@ -26,10 +29,13 @@ describe('OpenAISSMLGenerator', () => {
 
   beforeEach(() => {
     generator = new OpenAISSMLGenerator();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // 设置环境变量
     process.env.OPENAI_API_KEY = 'test-api-key';
+    
+    // 确保模拟方法返回正确的值
+    mockVoiceStylesManager.getStylesForVoice.mockReturnValue(['cheerful', 'sad', 'angry', 'excited']);
   });
 
   afterEach(() => {

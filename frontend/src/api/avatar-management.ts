@@ -1,6 +1,6 @@
 import type { Avatar } from '../types/avatar';
 import { logger } from '@/utils/logger';
-import { getApiUrl } from '@/config/api';
+import apiClient from './axios';
 
 // 更新模型状态
 export async function updateAvatarStatus(
@@ -13,9 +13,8 @@ export async function updateAvatarStatus(
   }
 ): Promise<Avatar> {
   const startTime = Date.now();
-  const url = `${getApiUrl('avatars').replace('/api/avatars', `/api/avatars/${id}`)}`;
   
-  logger.apiCall('UpdateAvatarStatus', url, {
+  logger.apiCall('UpdateAvatarStatus', `/api/avatars/${id}`, {
     component: 'AvatarManagementAPI',
     method: 'updateAvatarStatus',
     avatarId: id,
@@ -23,37 +22,27 @@ export async function updateAvatarStatus(
   });
   
   try {
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    });
+    const response = await apiClient.put(`/api/avatars/${id}`, updates);
     
     const duration = Date.now() - startTime;
     
-    logger.apiResponse('UpdateAvatarStatus', res.status, {
+    logger.apiResponse('UpdateAvatarStatus', response.status, {
       duration,
-      contentType: res.headers.get('content-type'),
-      ok: res.ok
+      contentType: response.headers['content-type'],
+      ok: response.status >= 200 && response.status < 300
     });
     
-    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-      const result = await res.json();
-      
-      logger.info('更新模型状态成功', {
-        component: 'AvatarManagementAPI',
-        method: 'updateAvatarStatus',
-        avatarId: id,
-        updates,
-        duration
-      });
-      
-      return result.data;
-    }
+    const result = response.data;
     
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    logger.info('更新模型状态成功', {
+      component: 'AvatarManagementAPI',
+      method: 'updateAvatarStatus',
+      avatarId: id,
+      updates,
+      duration
+    });
+    
+    return result;
   } catch (e) {
     const duration = Date.now() - startTime;
     const error = e as Error;
@@ -76,9 +65,8 @@ export async function patchAvatarInfo(
   updates: Partial<Avatar>
 ): Promise<Avatar> {
   const startTime = Date.now();
-  const url = `${getApiUrl('avatars').replace('/api/avatars', `/api/avatars/${id}`)}`;
   
-  logger.apiCall('PatchAvatarInfo', url, {
+  logger.apiCall('PatchAvatarInfo', `/api/avatars/${id}`, {
     component: 'AvatarManagementAPI',
     method: 'patchAvatarInfo',
     avatarId: id,
@@ -86,37 +74,27 @@ export async function patchAvatarInfo(
   });
   
   try {
-    const res = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    });
+    const response = await apiClient.patch(`/api/avatars/${id}`, updates);
     
     const duration = Date.now() - startTime;
     
-    logger.apiResponse('PatchAvatarInfo', res.status, {
+    logger.apiResponse('PatchAvatarInfo', response.status, {
       duration,
-      contentType: res.headers.get('content-type'),
-      ok: res.ok
+      contentType: response.headers['content-type'],
+      ok: response.status >= 200 && response.status < 300
     });
     
-    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-      const result = await res.json();
-      
-      logger.info('部分更新模型信息成功', {
-        component: 'AvatarManagementAPI',
-        method: 'patchAvatarInfo',
-        avatarId: id,
-        updates,
-        duration
-      });
-      
-      return result.data;
-    }
+    const result = response.data;
     
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    logger.info('部分更新模型信息成功', {
+      component: 'AvatarManagementAPI',
+      method: 'patchAvatarInfo',
+      avatarId: id,
+      updates,
+      duration
+    });
+    
+    return result;
   } catch (e) {
     const duration = Date.now() - startTime;
     const error = e as Error;

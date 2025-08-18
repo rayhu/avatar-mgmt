@@ -107,7 +107,7 @@ export class VoiceStylesManager {
         list.forEach((v) => {
           this.voiceStyles[v.name] = v.styles ?? [];
         });
-        console.log('[VoiceStylesManager] Loaded voice styles from azure-voices-zh.json');
+        // Logger.info('Loaded voice styles from azure-voices-zh.json');
       } else {
         throw new Error('azure-voices-zh.json not found in any expected location');
       }

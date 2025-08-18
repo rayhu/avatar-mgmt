@@ -1,7 +1,8 @@
 /**
- * Jest 测试设置文件
+ * Vitest 测试设置文件
  * 配置测试环境和全局设置
  */
+import { vi, afterEach } from 'vitest';
 
 // 设置测试环境变量
 process.env.NODE_ENV = 'test';
@@ -20,18 +21,23 @@ if (!process.env.AZURE_SPEECH_REGION) {
   process.env.AZURE_SPEECH_REGION = 'eastus';
 }
 
-// 全局测试超时设置
-jest.setTimeout(10000);
+if (!process.env.DIRECTUS_URL) {
+  process.env.DIRECTUS_URL = 'http://localhost:8055';
+}
+
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'test-jwt-secret';
+}
 
 // 清理函数
 afterEach(() => {
   // 清理所有模拟
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   
   // 清理控制台输出
-  jest.spyOn(console, 'log').mockImplementation(() => {});
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'log').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
 // 全局测试工具函数
@@ -52,11 +58,11 @@ global.testUtils = {
   // 创建模拟的 Express 响应对象
   createMockResponse: () => {
     const res: any = {};
-    res.status = jest.fn().mockReturnValue(res);
-    res.json = jest.fn().mockReturnValue(res);
-    res.send = jest.fn().mockReturnValue(res);
-    res.set = jest.fn().mockReturnValue(res);
-    res.header = jest.fn().mockReturnValue(res);
+    res.status = vi.fn().mockReturnValue(res);
+    res.json = vi.fn().mockReturnValue(res);
+    res.send = vi.fn().mockReturnValue(res);
+    res.set = vi.fn().mockReturnValue(res);
+    res.header = vi.fn().mockReturnValue(res);
     return res;
   },
 

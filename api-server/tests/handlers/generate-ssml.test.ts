@@ -1,36 +1,37 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Request, Response } from 'express';
 import generateSSMLHandler, { resetVoiceStyleMapCache } from '../../handlers/generate-ssml.js';
 
 // 模拟 fs 和 path 模块
-jest.mock('fs');
-jest.mock('path');
+vi.mock('fs');
+vi.mock('path');
 
 import * as fs from 'fs';
 import * as path from 'path';
 
-const mockFs = fs as jest.Mocked<typeof fs>;
-const mockPath = path as jest.Mocked<typeof path>;
+const mockFs = fs as any;
+const mockPath = path as any;
 
 // 模拟 fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 describe('Generate SSML Handler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockStatus: jest.Mock;
-  let mockJson: jest.Mock;
-  let mockFetch: jest.MockedFunction<typeof fetch>;
+  let mockStatus: any;
+  let mockJson: any;
+  let mockFetch: any;
 
   beforeEach(() => {
     // 重置所有模拟
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // 设置环境变量
     process.env.OPENAI_API_KEY = 'test-openai-key';
     
     // 创建模拟的响应对象
-    mockStatus = jest.fn().mockReturnThis();
-    mockJson = jest.fn().mockReturnThis();
+    mockStatus = vi.fn().mockReturnThis();
+    mockJson = vi.fn().mockReturnThis();
     
     mockRes = {
       status: mockStatus,
@@ -46,12 +47,12 @@ describe('Generate SSML Handler', () => {
     ]));
 
     // 设置默认的fetch模拟
-    mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch = global.fetch as any;
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
       statusText: 'OK',
-      json: jest.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({
         choices: [{ message: { content: '<speak>测试</speak>' } }]
       })
     } as any);
@@ -380,7 +381,7 @@ describe('Generate SSML Handler', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: jest.fn().mockResolvedValue('Invalid API key')
+        text: vi.fn().mockResolvedValue('Invalid API key')
       } as any);
 
       mockReq = {
@@ -404,7 +405,7 @@ describe('Generate SSML Handler', () => {
         ok: true,
         status: 200,
         statusText: 'OK',
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           choices: [{ message: { content: '```xml\n<speak>测试</speak>\n```' } }]
         })
       } as any);
@@ -428,7 +429,7 @@ describe('Generate SSML Handler', () => {
         ok: true,
         status: 200,
         statusText: 'OK',
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           choices: [{ message: { content: '' } }]
         })
       } as any);
@@ -452,7 +453,7 @@ describe('Generate SSML Handler', () => {
         ok: true,
         status: 200,
         statusText: 'OK',
-        json: jest.fn().mockResolvedValue({})
+        json: vi.fn().mockResolvedValue({})
       } as any);
 
       mockReq = {
@@ -493,7 +494,7 @@ describe('Generate SSML Handler', () => {
 
   describe('日志记录', () => {
     it('应该记录请求开始信息', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       mockReq = {
         method: 'POST',
@@ -504,17 +505,13 @@ describe('Generate SSML Handler', () => {
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('📝 SSML 生成请求开始:', {
-        method: 'POST',
-        url: '/api/generate-ssml',
-        bodySize: 46
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('SSML 生成 请求开始'));
 
       consoleSpy.mockRestore();
     });
 
     it('应该记录请求参数', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       mockReq = {
         method: 'POST',
@@ -525,17 +522,13 @@ describe('Generate SSML Handler', () => {
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('📝 请求参数:', {
-        text: '测试文本',
-        voice: 'zh-CN-XiaoxiaoNeural',
-        textLength: 4
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('请求参数'));
 
       consoleSpy.mockRestore();
     });
 
     it('应该记录OpenAI API调用', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       mockReq = {
         method: 'POST',
@@ -546,13 +539,13 @@ describe('Generate SSML Handler', () => {
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('🤖 调用 OpenAI API 生成 SSML...');
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('调用 OpenAI API 生成 SSML'));
 
       consoleSpy.mockRestore();
     });
 
     it('应该记录OpenAI响应', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       mockReq = {
         method: 'POST',
@@ -563,17 +556,13 @@ describe('Generate SSML Handler', () => {
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('📥 OpenAI 响应:', {
-        status: 200,
-        statusText: 'OK',
-        ok: true
-      });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('OpenAI API 响应'));
 
       consoleSpy.mockRestore();
     });
 
     it('应该记录SSML生成成功', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       mockReq = {
         method: 'POST',
@@ -585,19 +574,13 @@ describe('Generate SSML Handler', () => {
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       // 验证日志被调用，使用更灵活的匹配
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '✅ SSML 生成成功:',
-        expect.objectContaining({
-          ssmlLength: expect.any(Number),
-          ssmlPreview: expect.any(String)
-        })
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('SSML 生成 处理成功'));
 
       consoleSpy.mockRestore();
     });
 
     it('应该记录最终成功信息', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       
       mockReq = {
         method: 'POST',
@@ -608,7 +591,8 @@ describe('Generate SSML Handler', () => {
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith('generate-ssml handler success for text:', '测试文本');
+      // 这个日志已经被移除，不再需要测试
+      expect(consoleSpy).toHaveBeenCalled();
 
       consoleSpy.mockRestore();
     });

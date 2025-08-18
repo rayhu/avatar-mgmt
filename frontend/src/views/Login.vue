@@ -4,17 +4,18 @@
       <h2>{{ $t('login.title') }}</h2>
       <form class="login-form" @submit.prevent="onLogin">
         <div class="form-group">
-          <label for="username">{{ $t('login.username') }}</label>
+          <label for="email">{{ $t('login.email') }}</label>
           <input
-            id="username"
-            v-model="username"
-            :placeholder="$t('login.usernamePlaceholder')"
+            id="email"
+            v-model="email"
+            type="email"
+            :placeholder="$t('login.emailPlaceholder')"
             :disabled="loading"
             required
           />
         </div>
-        <div v-if="usernameError" class="error-message">
-          {{ usernameError }}
+        <div v-if="emailError" class="error-message">
+          {{ emailError }}
         </div>
         <div class="form-group">
           <label for="password">{{ $t('login.password') }}</label>
@@ -44,38 +45,26 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store';
 import { useI18n } from 'vue-i18n';
-import { getApiConfig } from '../config/api';
+import { login } from '../api/auth';
 
 const router = useRouter();
 const { t } = useI18n();
 const auth = useAuthStore();
 
-const username = ref('');
+const email = ref('');
 const password = ref('');
 const loading = ref(false);
 const error = ref('');
 
-// 用户名验证规则
-const usernameRules = {
-  minLength: 3,
-  maxLength: 20,
-  pattern: /^[a-zA-Z0-9_-]+$/, // 只允许字母、数字、下划线和连字符
-};
+// Email 验证规则
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// 用户名验证状态
-const usernameError = computed(() => {
-  if (!username.value) return '';
+// Email 验证状态
+const emailError = computed(() => {
+  if (!email.value) return '';
 
-  if (username.value.length < usernameRules.minLength) {
-    return t('login.usernameTooShort', { min: usernameRules.minLength });
-  }
-
-  if (username.value.length > usernameRules.maxLength) {
-    return t('login.usernameTooLong', { max: usernameRules.maxLength });
-  }
-
-  if (!usernameRules.pattern.test(username.value)) {
-    return t('login.usernameInvalid');
+  if (!emailPattern.test(email.value)) {
+    return t('login.emailInvalid');
   }
 
   return '';
@@ -83,7 +72,7 @@ const usernameError = computed(() => {
 
 // 表单是否有效
 const isFormValid = computed(() => {
-  return username.value && !usernameError.value && password.value && !loading.value;
+  return email.value && !emailError.value && password.value && !loading.value;
 });
 
 async function onLogin() {
@@ -93,41 +82,61 @@ async function onLogin() {
   error.value = '';
 
   try {
-    // 调用后端 API 进行登录验证
-    const apiConfig = getApiConfig();
-    const loginUrl = `${apiConfig.api.baseUrl}${apiConfig.api.endpoints.auth.login}`;
-    
-    const response = await fetch(loginUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username.value,
-        password: password.value,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Login failed');
-    }
-
-    const data = await response.json();
+    // 调用 Directus 认证 API
+    const data = await login(email.value, password.value);
 
     if (data.success) {
-      // 使用 API 返回的用户信息
+      // 处理用户角色信息
+      let userRole: 'admin' | 'user' = 'user'; // 默认角色
+      
+      // 检查角色信息
+      if (data.user.role) {
+        if (typeof data.user.role === 'string') {
+          // 如果是字符串，检查是否为角色名称
+          const roleStr = data.user.role;
+          if (roleStr === 'Administrator' || roleStr === 'admin' || roleStr === 'Admin') {
+            userRole = 'admin';
+          } else if (roleStr === 'user' || roleStr === 'User') {
+            userRole = 'user';
+          } else {
+            // 可能是角色ID，需要进一步处理
+            console.warn('⚠️ 未知的角色值:', data.user.role);
+            // 暂时设置为 user，后续可以通过 API 获取真实角色
+            userRole = 'user';
+          }
+        } else if (typeof data.user.role === 'object' && data.user.role.name) {
+          // 如果是对象，使用角色名称
+          const roleName = data.user.role.name;
+          if (roleName === 'Administrator' || roleName === 'admin' || roleName === 'Admin') {
+            userRole = 'admin';
+          } else if (roleName === 'user' || roleName === 'User') {
+            userRole = 'user';
+          }
+        }
+      }
+      
+      console.log('🔍 角色处理结果:', {
+        originalRole: data.user.role,
+        processedRole: userRole,
+        roleType: typeof data.user.role
+      });
+
+      // 使用处理后的角色信息
       auth.setUser(
         {
           id: data.user.id,
-          role: data.user.role,
+          role: userRole, // 使用处理后的角色
           name: data.user.name,
+          email: data.user.email,
+          first_name: data.user.first_name,
+          last_name: data.user.last_name,
         },
         data.token,
+        data.refresh_token
       );
 
       // 根据用户角色跳转到不同页面
-      if (data.user.role === 'admin') {
+      if (userRole === 'admin') {
         router.push('/admin');
       } else {
         router.push('/user');
@@ -135,9 +144,16 @@ async function onLogin() {
     } else {
       throw new Error('Login failed');
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error('Login error:', e);
-    error.value = t('login.error');
+    // 显示具体的错误信息
+    if (e.response?.status === 401) {
+      error.value = t('login.invalidCredentials');
+    } else if (e.response?.status === 503) {
+      error.value = t('login.serviceUnavailable');
+    } else {
+      error.value = e.response?.data?.message || e.message || t('login.error');
+    }
   } finally {
     loading.value = false;
   }

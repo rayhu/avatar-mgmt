@@ -1,38 +1,39 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Request, Response } from 'express';
 import openaiSSMLHandler from '../../handlers/openai-ssml.js';
 
 // 模拟所有依赖模块
-jest.mock('../../utils/debug-logger.js');
-jest.mock('../../utils/ssml-validator.js');
-jest.mock('../../utils/openai-ssml-generator.js');
-jest.mock('../../utils/response-builder.js');
+vi.mock('../../utils/debug-logger.js');
+vi.mock('../../utils/ssml-validator.js');
+vi.mock('../../utils/openai-ssml-generator.js');
+vi.mock('../../utils/response-builder.js');
 
 import { debugLogger } from '../../utils/debug-logger.js';
 import { ssmlValidator } from '../../utils/ssml-validator.js';
 import { openaiSSMLGenerator } from '../../utils/openai-ssml-generator.js';
 import { responseBuilder } from '../../utils/response-builder.js';
 
-const mockDebugLogger = debugLogger as jest.Mocked<typeof debugLogger>;
-const mockSSMLValidator = ssmlValidator as jest.Mocked<typeof ssmlValidator>;
-const mockOpenAISSMLGenerator = openaiSSMLGenerator as jest.Mocked<typeof openaiSSMLGenerator>;
-const mockResponseBuilder = responseBuilder as jest.Mocked<typeof responseBuilder>;
+const mockDebugLogger = debugLogger as any;
+const mockSSMLValidator = ssmlValidator as any;
+const mockOpenAISSMLGenerator = openaiSSMLGenerator as any;
+const mockResponseBuilder = responseBuilder as any;
 
 describe('OpenAI SSML Handler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockStatus: jest.Mock;
-  let mockJson: jest.Mock;
+  let mockStatus: any;
+  let mockJson: any;
 
   beforeEach(() => {
     // 重置所有模拟
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // 设置环境变量
     process.env.OPENAI_API_KEY = 'test-api-key';
     
     // 创建模拟的响应对象
-    mockStatus = jest.fn().mockReturnThis();
-    mockJson = jest.fn().mockReturnThis();
+    mockStatus = vi.fn().mockReturnThis();
+    mockJson = vi.fn().mockReturnThis();
     
     mockRes = {
       status: mockStatus,

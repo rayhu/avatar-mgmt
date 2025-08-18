@@ -156,19 +156,47 @@ router.beforeEach(
 
     // 检查角色权限
     const requiredRoles = to.meta.roles as string[] | undefined;
-    if (requiredRoles && !requiredRoles.includes(auth.user?.role || '')) {
-      // 如果没有权限，重定向到对应角色首页
-      const redirectPath = auth.user?.role === 'admin' ? '/admin' : '/user';
-      logger.warn('用户权限不足，重定向', {
-        component: 'Router',
-        method: 'beforeEach',
-        userRole: auth.user?.role,
+    if (requiredRoles && requiredRoles.length > 0) {
+      const userRole = auth.user?.role;
+      
+      // 添加调试信息
+      console.log('🔍 权限检查详情:', {
+        userRole,
         requiredRoles,
-        attemptedRoute: to.path,
-        redirectPath
+        hasPermission: requiredRoles.includes(userRole || ''),
+        route: to.path
       });
-      next(redirectPath);
-      return;
+      
+      if (!requiredRoles.includes(userRole || '')) {
+        // 如果没有权限，重定向到对应角色首页
+        let redirectPath = '/user'; // 默认重定向到用户页面
+        
+        if (userRole === 'admin') {
+          redirectPath = '/admin';
+        } else {
+          // 如果角色不明确，重定向到用户页面
+          redirectPath = '/user';
+        }
+        
+        // 避免无限重定向：如果当前已经在目标页面，则不再重定向
+        if (to.path === redirectPath) {
+          console.warn('⚠️ 检测到可能的无限重定向，停止重定向');
+          next();
+          return;
+        }
+        
+        logger.warn('用户权限不足，重定向', {
+          component: 'Router',
+          method: 'beforeEach',
+          userRole,
+          requiredRoles,
+          attemptedRoute: to.path,
+          redirectPath
+        });
+        
+        next(redirectPath);
+        return;
+      }
     }
 
     logger.info('路由守卫检查通过，允许访问', {

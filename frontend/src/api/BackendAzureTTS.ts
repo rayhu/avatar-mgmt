@@ -4,7 +4,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import { getApiUrl } from '@/config/api';
+import apiClient from './axios';
 
 export interface VoiceOption {
   name: string;
@@ -43,10 +43,9 @@ export async function synthesizeSpeech(
   isSSML: boolean = false,
   onViseme?: (id: number, timeMs: number, animation?: string) => void,
 ): Promise<Blob> {
-  const url = getApiUrl('azureTTS');
   const startTime = Date.now();
   
-  logger.apiCall('Azure TTS', url, {
+  logger.apiCall('Azure TTS', '/api/azure-tts', {
     voice,
     isSSML,
     contentLength: content.length,
@@ -113,34 +112,20 @@ export async function synthesizeSpeech(
       processedContent: processedContent.slice(0, 200) + (processedContent.length > 200 ? '...' : '')
     });
     
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        ssml: processedContent, 
-        voice 
-      }),
+    const response = await apiClient.post('/api/azure-tts', { 
+      ssml: processedContent, 
+      voice 
+    }, {
+      responseType: 'blob'
     });
 
     const duration = Date.now() - startTime;
     logger.apiResponse('Azure TTS', response.status, {
       duration,
-      headers: Object.fromEntries(response.headers.entries())
+      headers: response.headers
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.apiError('Azure TTS', new Error(`HTTP ${response.status}: ${errorData.error || response.statusText}`), {
-        status: response.status,
-        statusText: response.statusText,
-        errorData
-      });
-      throw new Error(`Speech synthesis failed: ${errorData.error || response.statusText}`);
-    }
-
-    const blob = await response.blob();
+    const blob = response.data;
     logger.info('语音合成成功', {
       component: 'BackendAzureTTS',
       method: 'synthesizeSpeech',
@@ -166,7 +151,6 @@ export async function synthesizeSpeech(
       logger.error('网络连接错误，可能的原因:', {
         component: 'BackendAzureTTS',
         method: 'synthesizeSpeech',
-        apiBaseUrl: getApiUrl('azureTTS'),
         possibleCauses: [
           '后端服务器未启动',
           'API_BASE_URL 配置错误',
@@ -194,8 +178,7 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
     method: 'textToSpeech',
     text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
     voice,
-    textLength: text.length,
-    apiBaseUrl: getApiUrl('azureTTS')
+    textLength: text.length
   });
   
   try {
@@ -223,7 +206,6 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
       errorType: err.constructor.name,
       text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
       voice,
-      apiBaseUrl: getApiUrl('azureTTS'),
       duration
     });
     throw error;
@@ -279,8 +261,8 @@ export async function fetchVoices(): Promise<VoiceOption[]> {
  */
 export async function checkBackendAvailability(): Promise<boolean> {
   try {
-    const response = await fetch(getApiUrl('health'));
-    return response.ok;
+    const response = await apiClient.get('/health');
+    return response.status >= 200 && response.status < 300;
   } catch (error) {
     console.warn('Backend Azure TTS not available:', error);
     return false;

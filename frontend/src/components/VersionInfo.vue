@@ -154,7 +154,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getApiUrl } from '../config/api'
+import apiClient from '../api/axios'
 
 const { t } = useI18n()
 
@@ -246,16 +246,11 @@ const fetchVersionInfo = async () => {
   error.value = ''
   
   try {
-    const response = await fetch(getApiUrl('version'))
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    versionInfo.value = data
+    const response = await apiClient.get('/api/version')
+    versionInfo.value = response.data
     lastUpdate.value = new Date()
   } catch (err: any) {
-    error.value = `${t('about.versionInfo.error')} ${err.message}`
+    error.value = `${t('about.versionInfo.error')} ${err.response?.data?.message || err.message}`
     console.error('Version info fetch error:', err)
   } finally {
     loading.value = false

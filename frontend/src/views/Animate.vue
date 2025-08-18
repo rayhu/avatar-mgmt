@@ -418,14 +418,13 @@ import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
 import ModelCard from '@/components/ModelCard.vue';
 import {
-  synthesizeSpeech as synthesizeSpeechFront,
   availableVoices,
   fetchVoices,
   type VoiceOption,
 } from '@/api/azureTTS';
 import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
 import { generateSSMLBackend } from '@/api/openaiBackend';
-import { generateSSMLFront } from '@/api/openaiFrontend';
+
 import { getActionAnimations, getEmotionAnimations } from '@/config/animations';
 
 // 导入组合式函数
@@ -790,13 +789,11 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 const ssml = ref(''); // 存放生成的 SSML
 const isGeneratingSSML = ref(false); // 按钮 loading 状态
 
-// 如果配置了前端 OpenAI KEY，则优先在浏览器直接调用 OpenAI，避免跨域 / 404
-const useFrontendOpenAI = Boolean(import.meta.env.VITE_OPENAI_API_KEY);
-const generateSSML = useFrontendOpenAI ? generateSSMLFront : generateSSMLBackend;
+// 只使用后端 OpenAI 处理
+const generateSSML = generateSSMLBackend;
 
-// Azure 语音合成依旧按构建模式区分：生产默认走后端代理
-const useFrontendAzure = Boolean(import.meta.env.VITE_AZURE_SPEECH_KEY);
-const synthesizeSpeech = useFrontendOpenAI ? synthesizeSpeechFront : synthesizeSpeechBackend;
+// 只使用后端 Azure TTS 处理
+const synthesizeSpeech = synthesizeSpeechBackend;
 
 // 使用动画组合式函数
 const animation = useAnimation(

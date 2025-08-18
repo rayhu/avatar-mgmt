@@ -1,21 +1,17 @@
 import type { Request, Response } from 'express';
 import axios from 'axios';
+import { Logger } from '../utils/logger';
 
 // 模型状态管理 API
 const avatarManagementHandler = async (req: Request, res: Response) => {
-  console.log('🔧 Avatar Management 请求开始:', {
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body
-  });
+  Logger.handlerStart('Avatar Management', req);
 
   try {
     const directusUrl = process.env.DIRECTUS_URL;
     const directusToken = process.env.DIRECTUS_TOKEN;
 
     if (!directusUrl || !directusToken) {
-      console.log('❌ Directus 配置缺失');
+      Logger.error('Directus 配置缺失');
       return res.status(500).json({ error: 'Directus 配置缺失' });
     }
 
@@ -35,10 +31,8 @@ const avatarManagementHandler = async (req: Request, res: Response) => {
         return res.status(405).json({ error: '不支持的HTTP方法' });
     }
   } catch (error: any) {
-    console.error('❌ Avatar Management handler 错误:', {
-      error: error.message,
-      errorType: error.constructor.name,
-      stack: error.stack
+    Logger.handlerError('Avatar Management', error, {
+      errorType: error.constructor.name
     });
     
     res.status(500).json({ error: '模型管理操作失败' });
@@ -66,10 +60,10 @@ async function updateAvatarStatus(
 
   // 验证版本格式（可选）
   if (version && !/^\d+\.\d+\.\d+$/.test(version)) {
-    console.warn('版本号格式建议使用语义化版本（如 1.0.0）:', version);
+    Logger.warn('版本号格式建议使用语义化版本（如 1.0.0）', { version });
   }
 
-  console.log('🔄 更新模型状态:', {
+  Logger.info('更新模型状态', {
     avatarId,
     status,
     version,
@@ -95,7 +89,7 @@ async function updateAvatarStatus(
       }
     );
 
-    console.log('✅ 模型状态更新成功:', {
+    Logger.info('模型状态更新成功', {
       avatarId,
       updatedFields: Object.keys(updateData),
       status: response.status
@@ -107,7 +101,7 @@ async function updateAvatarStatus(
       message: '模型状态更新成功'
     });
   } catch (error: any) {
-    console.error('❌ 更新模型状态失败:', {
+    Logger.error('更新模型状态失败', {
       avatarId,
       error: error.message,
       status: error.response?.status,
@@ -132,7 +126,7 @@ async function patchAvatarInfo(
 ) {
   const updateData = req.body;
 
-  console.log('🔄 部分更新模型信息:', {
+  Logger.info('部分更新模型信息', {
     avatarId,
     fields: Object.keys(updateData)
   });
@@ -149,7 +143,7 @@ async function patchAvatarInfo(
       }
     );
 
-    console.log('✅ 模型信息更新成功:', {
+    Logger.info('模型信息更新成功', {
       avatarId,
       updatedFields: Object.keys(updateData)
     });
@@ -160,7 +154,7 @@ async function patchAvatarInfo(
       message: '模型信息更新成功'
     });
   } catch (error: any) {
-    console.error('❌ 更新模型信息失败:', {
+    Logger.error('更新模型信息失败', {
       avatarId,
       error: error.message,
       status: error.response?.status,

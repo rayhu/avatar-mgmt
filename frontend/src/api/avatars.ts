@@ -1,45 +1,42 @@
 import type { Avatar } from '../types/avatar';
 import { logger } from '@/utils/logger';
-import { getApiUrl, buildDirectusAssetUrl } from '@/config/api';
+import { buildAssetUrl } from '@/config/api';
+import apiClient from './axios';
 
 export async function getAvatars(): Promise<Avatar[]> {
   const startTime = Date.now();
-  const url = getApiUrl('avatars');
   
-  logger.apiCall('Avatars', url, {
+  logger.apiCall('Avatars', '/api/avatars', {
     component: 'AvatarsAPI',
     method: 'getAvatars'
   });
   
   try {
-    const res = await fetch(url);
+    const response = await apiClient.get('/api/avatars');
     const duration = Date.now() - startTime;
     
-    logger.apiResponse('Avatars', res.status, {
+    logger.apiResponse('Avatars', response.status, {
       duration,
-      contentType: res.headers.get('content-type'),
-      ok: res.ok
+      contentType: response.headers['content-type'],
+      ok: response.status >= 200 && response.status < 300
     });
     
-    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
-      const rawAvatars = await res.json();
-      
-      // 为每个avatar构建正确的previewUrl
-      const avatars: Avatar[] = rawAvatars.map((avatar: any) => ({
-        ...avatar,
-        previewUrl: avatar.preview ? buildDirectusAssetUrl(avatar.preview) : undefined,
-      }));
-      
-      logger.info('获取 avatars 成功', {
-        component: 'AvatarsAPI',
-        method: 'getAvatars',
-        avatarCount: avatars.length,
-        duration
-      });
-      return avatars;
-    }
+    const rawAvatars = response.data;
     
-    throw new Error('invalid response');
+    // 为每个avatar构建正确的previewUrl
+    const avatars: Avatar[] = rawAvatars.map((avatar: any) => ({
+      ...avatar,
+      previewUrl: avatar.preview ? buildAssetUrl(avatar.preview) : undefined,
+    }));
+    
+    logger.info('获取 avatars 成功', {
+      component: 'AvatarsAPI',
+      method: 'getAvatars',
+      avatarCount: avatars.length,
+      duration
+    });
+    
+    return avatars;
   } catch (e) {
     const duration = Date.now() - startTime;
     const error = e as Error;
@@ -50,7 +47,7 @@ export async function getAvatars(): Promise<Avatar[]> {
       duration
     });
     
-    logger.warn(`${url} unavailable, returning empty array`, {
+    logger.warn('/api/avatars unavailable, returning empty array', {
       component: 'AvatarsAPI',
       method: 'getAvatars',
       error: error.message

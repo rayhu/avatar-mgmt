@@ -10,7 +10,6 @@
     <div class="api-test">
       <h2>API 测试</h2>
       <button @click="testApi">测试 API 连接</button>
-      <button @click="testDirectus">测试 Directus 连接</button>
       
       <div v-if="apiResult" class="result">
         <h3>API 结果:</h3>
@@ -22,7 +21,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { getApiConfig, getApiUrl, getDirectusUrl } from '@/config/api';
+import { getApiConfig } from '@/config/api';
+import apiClient from '@/api/axios';
 
 const envInfo = ref('');
 const apiResult = ref('');
@@ -33,7 +33,6 @@ onMounted(() => {
   envInfo.value = JSON.stringify({
     mode: import.meta.env.MODE || 'development',
     apiBaseUrl: config.api.baseUrl,
-    directusBaseUrl: config.directus.baseUrl,
     frontendBaseUrl: import.meta.env.BASE_URL || '/',
     viteEnv: {
       MODE: import.meta.env.MODE,
@@ -47,7 +46,6 @@ onMounted(() => {
   console.log('🌍 环境调试信息:', {
     mode: import.meta.env.MODE || 'development',
     apiBaseUrl: config.api.baseUrl,
-    directusBaseUrl: config.directus.baseUrl,
     frontendBaseUrl: import.meta.env.BASE_URL || '/',
     viteEnv: {
       MODE: import.meta.env.MODE,
@@ -60,36 +58,19 @@ onMounted(() => {
 
 async function testApi() {
   try {
-    const url = getApiUrl('health');
-    const response = await fetch(url);
-    const data = await response.text();
+    const response = await apiClient.get('/health');
+    const data = response.data;
     
     apiResult.value = `API 测试结果:
-URL: ${url}
+URL: /health
 Status: ${response.status}
-Response: ${data}`;
-  } catch (error) {
+Response: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
+  } catch (error: any) {
     apiResult.value = `API 测试失败:
-Error: ${error}`;
+Error: ${error.response?.data?.message || error.message}`;
   }
 }
 
-async function testDirectus() {
-  try {
-    const config = getApiConfig();
-    const url = config.directus.baseUrl;
-    const response = await fetch(url);
-    const data = await response.text();
-    
-    apiResult.value = `Directus 测试结果:
-URL: ${url}
-Status: ${response.status}
-Response: ${data.substring(0, 200)}...`;
-  } catch (error) {
-    apiResult.value = `Directus 测试失败:
-Error: ${error}`;
-  }
-}
 </script>
 
 <style scoped>

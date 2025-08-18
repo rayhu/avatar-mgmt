@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Logger } from '../utils/logger';
 
 // 支持的情绪标签映射（与前端保持一致）
 const VOICE_STYLES: Record<string, string[]> = {
@@ -167,12 +168,12 @@ function loadVoiceStyleMap(): Record<string, string[]> {
       list.forEach((v) => {
         voiceStyleMap![v.name] = v.styles ?? [];
       });
-      console.log('[generate-ssml] Loaded voice styles from azure-voices-zh.json');
+      Logger.info('Loaded voice styles from azure-voices-zh.json');
     } else {
       throw new Error('azure-voices-zh.json not found in any expected location');
     }
   } catch (err) {
-    console.warn('[generate-ssml] Failed to load azure-voices-zh.json, fallback to static map:', err);
+    Logger.warn('Failed to load azure-voices-zh.json, fallback to static map', { error: err.message });
     voiceStyleMap = VOICE_STYLES;
   }
   
@@ -190,14 +191,10 @@ export function resetVoiceStyleMapCache() {
 // Requires env var: OPENAI_API_KEY
 
 export default async function handler(req: Request, res: Response) {
-  console.log('📝 SSML 生成请求开始:', {
-    method: req.method,
-    url: req.url,
-    bodySize: req.body ? JSON.stringify(req.body).length : 0
-  });
+  Logger.handlerStart('SSML 生成', req);
 
   if (req.method !== 'POST') {
-    console.log('❌ 方法不允许:', req.method);
+    Logger.warn('方法不允许', { method: req.method });
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -207,24 +204,24 @@ export default async function handler(req: Request, res: Response) {
       voice?: string;
     };
 
-    console.log('📝 请求参数:', {
+    Logger.info('请求参数', {
       text: typeof text === 'string' ? (text.slice(0, 50) + (text.length > 50 ? '...' : '')) : text,
       voice,
       textLength: typeof text === 'string' ? text.length : 0
     });
 
     if (!text || typeof text !== 'string' || !text.trim()) {
-      console.log('❌ 文本参数无效');
+      Logger.warn('文本参数无效');
       return res.status(400).json({ error: 'Parameter "text" is required.' });
     }
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_API_KEY) {
-      console.log('❌ OpenAI API 密钥未配置');
+      Logger.error('OpenAI API 密钥未配置');
       return res.status(500).json({ error: 'OPENAI_API_KEY is not configured.' });
     }
 
-    console.log('🤖 调用 OpenAI API 生成 SSML...');
+    Logger.info('调用 OpenAI API 生成 SSML');
 
     // 获取 voice 支持的情绪列表
     const stylesMap = loadVoiceStyleMap();
@@ -237,7 +234,13 @@ export default async function handler(req: Request, res: Response) {
     const prompt = `你是一名语音合成工程师，请将以下中文文本转换为符合 Azure TTS 的 SSML，要求：
   - 使用 <speak> 根元素，声明 version="1.0"、xmlns="http://www.w3.org/2001/10/synthesis" 和 xml:lang="zh-CN"。
   - 使用唯一的 <voice name="${voice}"> 包裹全部正文。
-  - 生成简单、标准的 SSML 格式，避免复杂的 mstts 标签。
+  - 仅可使用以下情绪标签（style）：${styleList}。
+  - 只输出最终 SSML XML，禁止附加说明或 Markdown 代码块。
+  - 为每句话选择一个 style；若需对比度强，可拆分句子并混用不同 style。
+  - 必须添加 styledegree="1" 或 "2"（愤怒、激动等强烈情绪用 2）。
+  - 若情绪不明显，则默认 style="cheerful" 且 styledegree="1"。
+  - 可结合 <prosody> (rate/pitch) 与 <emphasis> 提升表现力；示例：sad → pitch="-2st" rate="slow"；excited → pitch="+3st" rate="fast"。但是 0st 是无效的，请使用 +0st 代替。
+  - 不同情绪之间插入 <break time="500ms"/>。
   - 只输出最终 SSML XML，禁止附加说明或 Markdown 代码块。
 
   文本：
@@ -259,15 +262,14 @@ export default async function handler(req: Request, res: Response) {
       }),
     });
 
-    console.log('📥 OpenAI 响应:', {
-      status: openaiResponse.status,
+    Logger.apiResponse('OpenAI', openaiResponse.status, {
       statusText: openaiResponse.statusText,
       ok: openaiResponse.ok
     });
 
     if (!openaiResponse.ok) {
       const errorText = await openaiResponse.text();
-      console.error('❌ OpenAI 请求失败:', errorText);
+      Logger.error('OpenAI 请求失败', { error: errorText });
       return res.status(500).json({ error: 'OpenAI request failed', details: errorText });
     }
 
@@ -280,18 +282,14 @@ export default async function handler(req: Request, res: Response) {
       .replace(/```$/g, '')
       .trim();
 
-    console.log('✅ SSML 生成成功:', {
+    Logger.handlerSuccess('SSML 生成', {
       ssmlLength: ssml.length,
       ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : '')
     });
 
-    console.log('generate-ssml handler success for text:', text.slice(0, 100));
     return res.status(200).json({ ssml });
   } catch (error: any) {
-    console.error('❌ SSML 生成 handler 错误:', {
-      error: error.message,
-      stack: error.stack
-    });
+    Logger.handlerError('SSML 生成', error);
     return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 } 
