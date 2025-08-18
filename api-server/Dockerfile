@@ -5,16 +5,17 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++
 
 # Copy package files first for better layer caching
-COPY api-server/package.json api-server/yarn.lock* ./
+COPY package.json yarn.lock ./
 
 # Clear yarn cache and install dependencies
 RUN yarn cache clean && yarn install --frozen-lockfile --production=false
 
 # Copy source code
-COPY api-server/ .
+COPY . .
 
-# Copy azure-voices-zh.json from frontend
-COPY frontend/public/azure-voices-zh.json ./public/azure-voices-zh.json
+# Copy azure-voices-zh.json from frontend (relative to api-server context)
+# Use --ignore-missing to prevent build failure if file doesn't exist
+COPY --ignore-missing ../frontend/public/azure-voices-zh.json ./public/azure-voices-zh.json
 
 # Set environment variables
 ENV NODE_ENV=production

@@ -9,10 +9,6 @@
     "yarn": "1.22.22"
   },
   "packageManager": "yarn@1.22.22",
-  "workspaces": [
-    "frontend",
-    "api-server"
-  ],
   "lint-staged": {
     "frontend/**/*.{js,ts,vue}": [
       "cd frontend && yarn lint",

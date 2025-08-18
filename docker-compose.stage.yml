@@ -47,8 +47,8 @@ services:
   # API Server
   api:
     build:
-      context: .
-      dockerfile: api-server/Dockerfile
+      context: ./api-server
+      dockerfile: Dockerfile
     restart: always
     depends_on:
       - directus
