@@ -6,7 +6,7 @@
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "frontend/dist"
       }
     },
     {
@@ -14,14 +14,18 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api-server/index.ts"
+      "src": "/api/(.*)",
+      "dest": "/api-server/index.ts"
     },
     {
-      "source": "/health",
-      "destination": "/api-server/index.ts"
+      "src": "/health",
+      "dest": "/api-server/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
     }
   ],
   "regions": ["hkg1"]
