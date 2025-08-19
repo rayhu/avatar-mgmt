@@ -28,5 +28,15 @@
       "dest": "/frontend/$1"
     }
   ],
-  "regions": ["hkg1"]
+  "regions": ["hkg1"],
+  "env": {
+    "NODE_ENV": "production",
+    "VITE_API_BASE_URL": ""
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production",
+      "VITE_API_BASE_URL": ""
+    }
+  }
 }
