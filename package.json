@@ -11,10 +11,10 @@
   "packageManager": "yarn@1.22.22",
   "lint-staged": {
     "frontend/**/*.{js,ts,vue}": [
-      "cd frontend && yarn lint",
+      "cd frontend && yarn lint --fix",
       "cd frontend && yarn format"
     ],
-    "frontend/**/*.{json,md}": [
+    "frontend/**/*.{json,md,yml,yaml}": [
       "cd frontend && yarn format"
     ]
   },

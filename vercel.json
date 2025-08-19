@@ -14,10 +14,6 @@
     {
       "src": "/health",
       "dest": "/api-server/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
     }
   ],
   "regions": ["hkg1"]

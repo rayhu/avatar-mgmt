@@ -16,53 +16,9 @@ if [ ! -d "frontend" ]; then
     exit 1
 fi
 
-# Run lint-staged for staged files
-echo "📝 Running lint-staged..."
+# Run lint-staged for staged files only (fast)
+echo "📝 Running lint-staged for staged files..."
 npx --no-install lint-staged
 
-# Run frontend checks
-echo "🔧 Running frontend checks..."
-cd frontend
-
-# Check if yarn is available
-if ! command -v yarn &> /dev/null; then
-    echo "❌ Error: yarn not found. Please install yarn first."
-    exit 1
-fi
-
-# Check if frontend dependencies are installed
-if [ ! -d "node_modules" ]; then
-    echo "⚠️  Warning: frontend node_modules not found. Installing dependencies..."
-    yarn install
-fi
-
-# Check if the check script exists
-if ! yarn run --silent check &> /dev/null; then
-    echo "⚠️  Warning: 'check' script not found, running lint and type-check separately..."
-    echo "✅ Running frontend lint..."
-    yarn lint || {
-        echo "❌ Frontend lint failed"
-        exit 1
-    }
-    
-    echo "✅ Running frontend type check..."
-    yarn type-check || {
-        echo "❌ Frontend type check failed"
-        exit 1
-    }
-else
-    # Run frontend checks using the check script
-    echo "✅ Running frontend check..."
-    yarn run check || {
-        echo "❌ Frontend check failed"
-        exit 1
-    }
-fi
-
-echo "🌐 Running i18n check..."
-yarn i18n:check || {
-    echo "❌ i18n check failed"
-    exit 1
-}
-
-echo "✅ All pre-commit checks passed!"
+echo "✅ Pre-commit checks passed!"
+echo "💡 Note: Full type-check and i18n validation will run in CI"
