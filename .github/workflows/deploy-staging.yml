@@ -58,15 +58,9 @@ jobs:
               
               # 拉取最新代码
               echo "📥 Pulling latest code..."
-
               git fetch origin
               git reset --hard origin/main
-
-              # 清除前端和后端生成的代码              
               git clean -fd frontend/ api-server/ scripts/ || true
-
-              # 安全清理：使用 git reset 替代 git clean
-              echo "🧹 Resetting working directory to clean state...但是不移除未追踪文件"
               echo "✅ Repository updated successfully"
             fi
           
@@ -96,7 +90,6 @@ jobs:
               export PATH="$VOLTA_HOME/bin:$PATH"
             fi
             
-            
             # 加载 Volta 环境
             export VOLTA_HOME="$HOME/.volta"
             export PATH="$VOLTA_HOME/bin:$PATH"
@@ -111,38 +104,17 @@ jobs:
             node --version
             yarn --version
             
-            # 在服务器上构建前端
-            echo "Building frontend on server..."
-            cd frontend
+            # 设置环境变量并执行部署脚本
+            echo "🔧 Setting up environment variables..."
+            export STAGING_HOST="${{ vars.STAGING_HOST }}"
+            export GITHUB_REPOSITORY="${{ github.repository }}"
+            export GITHUB_REF_NAME="${{ github.ref_name }}"
+            export GITHUB_SHA="${{ github.sha }}"
             
-            # vite 的 mode 参数仅仅支持 production 和 development 两个值
-            # 设置 staging 环境变量，但是以 production 模式构建
-            echo "VITE_API_BASE_URL=https://api.${{ vars.STAGING_HOST }}" > .env.production
-            echo "VITE_DIRECTUS_BASE_URL=https://directus.${{ vars.STAGING_HOST }}" >> .env.production
-
-            
-            # 安装依赖并构建 
-            yarn install --frozen-lockfile
-            yarn build --mode production
-
-            cd ..
-            
-            # 在服务器上安装后端依赖
-            echo "Installing backend dependencies..."
-            cd api-server
-            yarn install --frozen-lockfile
-            cd ..
-
-            # 生成版本信息
-            echo " Generating version information..."
-            chmod +x scripts/generate-version.sh
-            ./scripts/generate-version.sh stage
-
-            # 部署服务
-            echo "🐳 Starting Docker services..."
-            sudo docker compose -f docker-compose.stage.yml up -d --build --force-recreate --remove-orphans
-            
-            echo "✅ Staging deployment completed!"
+            # 执行部署脚本
+            echo "🚀 Executing deployment script..."
+            chmod +x .github/scripts/deploy-staging.sh
+            .github/scripts/deploy-staging.sh
             
             # 如果是首次部署，执行 Directus 权限设置脚本
             if [ "$IS_FIRST_DEPLOY" = "true" ]; then
@@ -191,42 +163,10 @@ jobs:
             cd /opt/avatar-mgmt
             echo "🔍 Starting health check..."
             
-            # 等待服务启动
-            echo "⏳ Waiting for services to start..."
-            sleep 30
-            
-            # 检查 Docker 服务状态
-            echo "📊 Docker services status:"
-            sudo docker compose -f docker-compose.stage.yml ps
-            
-            # 检查服务健康状态
-            echo "🏥 Checking service health..."
-            
-            # 检查 API 服务
-            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
-              echo "✅ API service is healthy"
-            else
-              echo "❌ API service health check failed"
-              exit 1
-            fi
-            
-            # 检查 Directus 服务
-            if curl -f http://localhost:8055/ > /dev/null 2>&1; then
-              echo "✅ Directus service is healthy"
-            else
-              echo "❌ Directus service health check failed"
-              exit 1
-            fi
-            
-            # 检查数据库服务
-            if sudo docker compose -f docker-compose.stage.yml exec -T db pg_isready -U directus > /dev/null 2>&1; then
-              echo "✅ Database service is healthy"
-            else
-              echo "❌ Database service health check failed"
-              exit 1
-            fi
-            
-            echo "🎉 All services are healthy!"
+            # 设置环境变量并执行健康检查脚本
+            export DOCKER_COMPOSE_FILE="docker-compose.stage.yml"
+            chmod +x .github/scripts/health-check.sh
+            .github/scripts/health-check.sh
             
       - name: Notify deployment success
         if: success()
