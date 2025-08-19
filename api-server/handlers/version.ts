@@ -37,6 +37,15 @@ interface VersionInfo {
 // 获取 Git 信息
 function getGitInfo() {
   try {
+    // 在 Vercel 上，Git 命令可能不可用
+    if (process.env.VERCEL) {
+      return {
+        commitHash: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'unknown',
+        branch: process.env.VERCEL_GIT_COMMIT_REF || 'unknown',
+        commitDate: new Date().toISOString(),
+      };
+    }
+
     const commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
     const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
     const commitDate = execSync('git log -1 --format=%cd --date=iso', { encoding: 'utf8' }).trim();
