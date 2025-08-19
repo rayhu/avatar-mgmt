@@ -23,8 +23,8 @@
     "download-tts": "node scripts/download-azure-tts-direct.js"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.5.0",
     "@vueuse/core": "^13.3.0",
+    "axios": "^1.11.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.44.1",
     "pinia": "^3.0.3",
     "three": "^0.177.0",
@@ -54,7 +54,6 @@
     "typescript": "^5.0.0",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
-    "vercel": "^42.3.0",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.0.0",
     "vue-eslint-parser": "^10.1.3",

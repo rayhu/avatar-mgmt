@@ -19,7 +19,6 @@
     ]
   },
   "devDependencies": {
-    "@vercel/node": "^3.0.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0"
   },

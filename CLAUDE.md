@@ -234,7 +234,6 @@ yarn sass-check # Check for SASS issues
 - Main site: `https://daidai.amis.hk`
 - API: `https://api.daidai.amis.hk`
 - CMS: `https://directus.daidai.amis.hk`
-- Test deployment: `https://amis-avatar-mgmt.vercel.app`
 
 ### Docker Services
 - **db**: PostgreSQL 15 (internal: 5432, dev external: 54321)

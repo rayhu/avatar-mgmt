@@ -25,7 +25,6 @@ app.use((req, res, next) => {
     'http://localhost:3000',        // API dev server
     'https://daidai.amis.hk',       // Production
     'https://daidai-preview.amis.hk', // Staging
-    'https://amis-avatar-mgmt.vercel.app' // Vercel deployment
   ];
   
   const origin = req.headers.origin;

@@ -1,4 +1,3 @@
-// import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { Request, Response } from 'express';
 import { debugLogger } from '../utils/debug-logger.js';
 import { ssmlValidator } from '../utils/ssml-validator.js';

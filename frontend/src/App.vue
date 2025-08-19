@@ -41,7 +41,6 @@
 import { useAuthStore } from './store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { inject } from '@vercel/analytics';
 import { onMounted, watch } from 'vue';
 import { logger } from './utils/logger';
 import { logout as apiLogout } from './api/auth';
@@ -83,7 +82,6 @@ watch(() => router.currentRoute.value.path, (newPath, oldPath) => {
   });
 });
 
-// 在组件挂载时注入 Vercel Analytics
 onMounted(() => {
   logger.info('App 组件挂载', {
     component: 'App',
@@ -91,15 +89,6 @@ onMounted(() => {
     isAuthenticated: auth.isAuthenticated,
     userRole: auth.user?.role
   });
-  
-  const enableAnalytics = import.meta.env.VITE_ANALYTICS === 'true';
-  if (enableAnalytics) {
-    logger.info('启用 Vercel Analytics', {
-      component: 'App',
-      method: 'onMounted'
-    });
-    inject();
-  }
   
   const savedLocale = localStorage.getItem('preferred-language');
   if (savedLocale) {
