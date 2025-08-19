@@ -131,6 +131,10 @@ install_dependencies() {
   yarn install --frozen-lockfile
   cd ..
   
+  # 安装根目录依赖（包括 prettier）
+  log_info "安装根目录依赖..."
+  yarn install --frozen-lockfile
+  
   # 验证依赖安装后立即测试构建
   log_info "验证依赖安装..."
   cd frontend
