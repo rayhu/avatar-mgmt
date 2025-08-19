@@ -11,7 +11,16 @@
     },
     {
       "src": "api-server/index.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "api-server/**/*.ts",
+          "api-server/**/*.js",
+          "api-server/**/*.json",
+          "api-server/**/*.yml",
+          "api-server/**/*.yaml"
+        ]
+      }
     }
   ],
   "rewrites": [
