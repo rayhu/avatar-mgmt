@@ -1,0 +1,125 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [22.16.0]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Volta (Node 22 & Yarn 1)
+      run: |
+        curl -sSf https://get.volta.sh | bash
+        echo "$HOME/.volta/bin" >> $GITHUB_PATH
+      
+    - name: Install frontend dependencies
+      working-directory: frontend
+      run: yarn install --frozen-lockfile
+        
+    - name: Install API server dependencies
+      working-directory: api-server
+      run: yarn install --frozen-lockfile
+        
+    - name: Run frontend checks
+      working-directory: frontend
+      run: |
+        echo "🔍 Running ESLint..."
+        yarn lint
+        
+        echo "🔍 Running TypeScript type check..."
+        yarn type-check
+        
+        echo "🌐 Running i18n check..."
+        yarn i18n:check
+        
+        echo "🧪 Running tests..."
+        yarn test
+        
+        echo "🏗️ Running build check..."
+        yarn build
+        
+    - name: Check code formatting
+      working-directory: frontend
+      id: format-check
+      run: yarn format:check
+      continue-on-error: true
+      
+    - name: Format files (if needed)
+      working-directory: frontend
+      if: failure()
+      run: yarn format
+      
+    - name: Run API server checks
+      working-directory: api-server
+      run: |
+        echo "🔍 Running API server checks..."
+        echo "🔍 Running API TypeScript check..."
+        yarn type-check
+        
+        echo "🧪 Running API tests..."
+        yarn test
+        
+    - name: Check for security vulnerabilities
+      run: |
+        cd frontend
+        yarn audit --audit-level moderate
+        
+        cd ../api-server
+        yarn audit --audit-level moderate
+        
+    - name: Generate i18n report
+      working-directory: frontend
+      if: always()
+      run: yarn i18n:report
+      
+    - name: Upload i18n report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: i18n-report
+        path: frontend/reports/i18n-report.json
+        retention-days: 30
+        
+    - name: Comment PR on i18n failure
+      if: failure() && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          try {
+            const report = require('./frontend/reports/i18n-report.json');
+            const issues = report.issues.map(issue => 
+              `- ${issue.type}: ${issue.message} (${issue.file}:${issue.line})${issue.suggestion ? `\n  Suggestion: ${issue.suggestion}` : ''}`
+            ).join('\n');
+            
+            const summary = report.summary;
+            const body = `## i18n 检查失败\n\n` +
+              `### 问题统计\n` +
+              `- 总问题数: ${summary.totalIssues}\n` +
+              `- 缺失翻译: ${summary.missingKeys}\n` +
+              `- 未使用翻译: ${summary.unusedKeys}\n` +
+              `- 硬编码文本: ${summary.hardcodedStrings}\n` +
+              `- 格式问题: ${summary.formatIssues}\n\n` +
+              `### 详细问题\n\n${issues}\n\n` +
+              `请修复这些问题后重新提交。\n\n` +
+              `完整报告可在构建产物中下载。`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          } catch (error) {
+            console.log('i18n report not available:', error.message);
+          }
