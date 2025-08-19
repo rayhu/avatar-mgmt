@@ -12,7 +12,7 @@
 
 ### 环境要求 (Requirements)
 - Node.js >= 22.16.0
-- Yarn >= 1.22.22
+- Yarn >= 1.22
 - Docker & Docker Compose
 
 ### 本地开发 (Local Development)
