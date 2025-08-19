@@ -1,19 +1,27 @@
 {
   "version": 2,
   "name": "avatar-mgmt",
-  "functions": {
-    "api-server/index.ts": {
-      "maxDuration": 60
-    }
-  },
-  "routes": [
+  "builds": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api-server/index.ts"
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     },
     {
-      "src": "/health",
-      "dest": "/api-server/index.ts"
+      "src": "api-server/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api-server/index.ts"
+    },
+    {
+      "source": "/health",
+      "destination": "/api-server/index.ts"
     }
   ],
   "regions": ["hkg1"]
