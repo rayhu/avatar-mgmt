@@ -19,7 +19,12 @@ export function useAnimation(
   modelViewer: any,
   currentAction: Ref<string>,
   currentEmotion: Ref<string>,
-  synthesizeSpeech: (content: string, voice: string, isSSML: boolean, handleViseme?: (id: number, t: number, anim?: string) => void) => Promise<Blob>,
+  synthesizeSpeech: (
+    content: string,
+    voice: string,
+    isSSML: boolean,
+    handleViseme?: (id: number, t: number, anim?: string) => void
+  ) => Promise<Blob>,
   t: (key: string) => string,
   actionKeyframes?: Ref<any[]>,
   emotionKeyframes?: Ref<any[]>,
@@ -51,37 +56,38 @@ export function useAnimation(
     try {
       isProcessing.value = true;
       console.log('🎯 isProcessing set to true');
-      
+
       // 清理之前的状态
       if (animationTimer.value) {
         console.log('🧹 Cleaning up previous animation timer');
         clearInterval(animationTimer.value);
         animationTimer.value = null;
       }
-      
+
       // 停止当前音频播放
-      const currentAudio = audioPlayer?.value || document.querySelector('audio') as HTMLAudioElement;
+      const currentAudio =
+        audioPlayer?.value || (document.querySelector('audio') as HTMLAudioElement);
       if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
       }
-      
+
       // 重置模型状态
       if (modelViewer.value) {
         console.log('🔄 Resetting model state');
         modelViewer.value.playAnimation('Idle');
         modelViewer.value.updateEmotion('');
       }
-      
+
       console.log('🔊 Synthesizing speech...');
       const audioBlob = await synthesizeSpeech(
         ssml.value || text.value,
         selectedVoice.value,
         Boolean(ssml.value),
-        handleViseme,
+        handleViseme
       );
       console.log('✅ Speech synthesized successfully');
-      
+
       // 清理之前的音频 URL
       if (audioUrl.value) {
         try {
@@ -90,7 +96,7 @@ export function useAnimation(
           console.warn('⚠️ Failed to revoke previous audio URL:', error);
         }
       }
-      
+
       try {
         audioUrl.value = URL.createObjectURL(audioBlob);
         console.log('✅ Audio URL created successfully:', audioUrl.value);
@@ -101,7 +107,7 @@ export function useAnimation(
 
       // 播放音频并驱动动画
       nextTick(() => {
-        const audio = audioPlayer?.value || document.querySelector('audio') as HTMLAudioElement;
+        const audio = audioPlayer?.value || (document.querySelector('audio') as HTMLAudioElement);
         if (audio) {
           console.log('🎵 Starting audio playback and animation...');
           console.log('🔍 Audio element state:', {
@@ -109,46 +115,53 @@ export function useAnimation(
             readyState: audio.readyState,
             networkState: audio.networkState,
             currentTime: audio.currentTime,
-            duration: audio.duration || 'unknown'
+            duration: audio.duration || 'unknown',
           });
-          
+
           // 确保音频源已设置
           if (!audio.src && audioUrl.value) {
             console.log('🔄 Setting audio src:', audioUrl.value);
             audio.src = audioUrl.value;
           }
-          
+
           // 等待音频准备就绪
           const playAudio = () => {
             audio.currentTime = 0;
-            audio.play().then(() => {
-              console.log('✅ Audio started playing');
-              startTimelineAnimation(audio);
+            audio
+              .play()
+              .then(() => {
+                console.log('✅ Audio started playing');
+                startTimelineAnimation(audio);
 
-              // 开始口型同步
-              visemeTimeline.length = 0; // 清空旧数据
-              syncVisemeWithAudio(audio);
-            }).catch((error) => {
-              console.error('❌ Failed to play audio:', error);
-              console.log('🔍 Audio element debug info:', {
-                src: audio.src,
-                readyState: audio.readyState,
-                networkState: audio.networkState,
-                error: audio.error
+                // 开始口型同步
+                visemeTimeline.length = 0; // 清空旧数据
+                syncVisemeWithAudio(audio);
+              })
+              .catch(error => {
+                console.error('❌ Failed to play audio:', error);
+                console.log('🔍 Audio element debug info:', {
+                  src: audio.src,
+                  readyState: audio.readyState,
+                  networkState: audio.networkState,
+                  error: audio.error,
+                });
               });
-            });
           };
-          
+
           // 如果音频还没有准备好，等待它加载
           if (audio.readyState >= 2) {
             playAudio();
           } else {
             console.log('⏳ Waiting for audio to be ready...');
             audio.addEventListener('canplay', playAudio, { once: true });
-            audio.addEventListener('error', (e) => {
-              console.error('❌ Audio loading error:', e);
-            }, { once: true });
-            
+            audio.addEventListener(
+              'error',
+              e => {
+                console.error('❌ Audio loading error:', e);
+              },
+              { once: true }
+            );
+
             // 触发加载
             audio.load();
           }
@@ -168,7 +181,7 @@ export function useAnimation(
   // 启动时间轴动画
   function startTimelineAnimation(audio: HTMLAudioElement) {
     console.log('🎭 Starting timeline animation...');
-    
+
     let lastAction = currentAction.value;
     let lastEmotion = currentEmotion.value;
 
@@ -182,19 +195,19 @@ export function useAnimation(
     // 获取关键帧数据
     const actionFrames = actionKeyframes?.value || [];
     const emotionFrames = emotionKeyframes?.value || [];
-    
+
     console.log(`📊 Timeline animation data:`, {
       actionKeyframes: actionFrames.length,
       emotionKeyframes: emotionFrames.length,
       actionFramesData: actionFrames,
-      emotionFramesData: emotionFrames
+      emotionFramesData: emotionFrames,
     });
 
     // 如果没有关键帧，使用默认状态
     if (actionFrames.length === 0) {
       console.log('No action keyframes found, using default Idle animation');
     }
-    
+
     if (emotionFrames.length === 0) {
       console.log('No emotion keyframes found, using default emotion');
     }
@@ -202,24 +215,24 @@ export function useAnimation(
     // 应用初始状态
     let initialAction = 'Idle';
     let initialEmotion = '';
-    
+
     // 查找 t=0 时的关键帧或最早的关键帧
-    const initialActionFrame = actionFrames
-      .sort((a, b) => a.time - b.time)
-      .find(frame => frame.time <= 0.1) || actionFrames[0];
-    
-    const initialEmotionFrame = emotionFrames
-      .sort((a, b) => a.time - b.time)
-      .find(frame => frame.time <= 0.1) || emotionFrames[0];
-    
+    const initialActionFrame =
+      actionFrames.sort((a, b) => a.time - b.time).find(frame => frame.time <= 0.1) ||
+      actionFrames[0];
+
+    const initialEmotionFrame =
+      emotionFrames.sort((a, b) => a.time - b.time).find(frame => frame.time <= 0.1) ||
+      emotionFrames[0];
+
     if (initialActionFrame?.action) {
       initialAction = initialActionFrame.action;
     }
-    
+
     if (initialEmotionFrame?.emotion) {
       initialEmotion = initialEmotionFrame.emotion;
     }
-    
+
     console.log(`🎬 Setting initial states - Action: ${initialAction}, Emotion: ${initialEmotion}`);
     currentAction.value = initialAction;
     currentEmotion.value = initialEmotion;
@@ -235,18 +248,21 @@ export function useAnimation(
     // 创建按时间排序的关键帧数组用于检查
     const sortedActionFrames = [...actionFrames].sort((a, b) => a.time - b.time);
     const sortedEmotionFrames = [...emotionFrames].sort((a, b) => a.time - b.time);
-    
+
     let actionIndex = 0;
     let emotionIndex = 0;
 
     animationTimer.value = window.setInterval(() => {
       const currentTime = audio.currentTime;
-      
+
       // 检查动作关键帧
       while (actionIndex < sortedActionFrames.length) {
         const frame = sortedActionFrames[actionIndex];
         if (currentTime >= frame.time && frame.action && frame.action !== lastAction) {
-          const timeStr = typeof currentTime === 'number' && !isNaN(currentTime) ? currentTime.toFixed(2) : '0.00';
+          const timeStr =
+            typeof currentTime === 'number' && !isNaN(currentTime)
+              ? currentTime.toFixed(2)
+              : '0.00';
           console.log(`🎬 Triggering action keyframe at ${timeStr}s: ${frame.action}`);
           currentAction.value = frame.action;
           if (modelViewer.value) {
@@ -260,12 +276,15 @@ export function useAnimation(
           break;
         }
       }
-      
+
       // 检查表情关键帧
       while (emotionIndex < sortedEmotionFrames.length) {
         const frame = sortedEmotionFrames[emotionIndex];
         if (currentTime >= frame.time && frame.emotion && frame.emotion !== lastEmotion) {
-          const timeStr = typeof currentTime === 'number' && !isNaN(currentTime) ? currentTime.toFixed(2) : '0.00';
+          const timeStr =
+            typeof currentTime === 'number' && !isNaN(currentTime)
+              ? currentTime.toFixed(2)
+              : '0.00';
           console.log(`😊 Triggering emotion keyframe at ${timeStr}s: ${frame.emotion}`);
           currentEmotion.value = frame.emotion;
           if (modelViewer.value) {
@@ -279,7 +298,7 @@ export function useAnimation(
           break;
         }
       }
-      
+
       // 音频播放结束，清理定时器并重置为 Idle
       if (audio.ended) {
         console.log('Audio ended, cleaning up animation timer');
@@ -294,7 +313,7 @@ export function useAnimation(
         }
       }
     }, 100); // 每 100ms 检查一次
-    
+
     console.log('✅ Timeline animation started with keyframe data');
   }
 
@@ -332,7 +351,7 @@ export function useAnimation(
       const audioBlob = await synthesizeSpeech(
         ssml.value || text.value,
         selectedVoice.value,
-        Boolean(ssml.value),
+        Boolean(ssml.value)
       );
       audioUrl.value = URL.createObjectURL(audioBlob);
     } catch (error) {
@@ -352,6 +371,6 @@ export function useAnimation(
     startTimelineAnimation,
     handleViseme,
     syncVisemeWithAudio,
-    speak
+    speak,
   };
 }

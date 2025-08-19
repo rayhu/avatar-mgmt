@@ -10,7 +10,8 @@
 
 - ✅ **自动获取**: Let's Encrypt 证书自动申请
 - ✅ **自动续期**: 无需手动维护
-- ✅ **多域名支持**: 支持 `daidai.amis.hk`、`api.daidai.amis.hk`、`directus.daidai.amis.hk`
+- ✅ **多域名支持**: 支持
+  `daidai.amis.hk`、`api.daidai.amis.hk`、`directus.daidai.amis.hk`
 - ✅ **图形界面**: 通过 Web 界面管理，访问 `http://daidai.amis.hk:81`
 
 ## 配置方法
@@ -73,13 +74,13 @@ docker compose -f docker-compose.prod.yml up -d
 
 ### 服务组件
 
-| 服务 | 端口 | 说明 |
-|------|------|------|
-| nginx | 80, 443 | 反向代理，SSL 终止 |
-| certbot | - | 证书自动续期 |
-| api | 3000 | 后端 API 服务 |
-| directus | 8055 | 内容管理系统 |
-| db | 5432 | PostgreSQL 数据库 |
+| 服务     | 端口    | 说明               |
+| -------- | ------- | ------------------ |
+| nginx    | 80, 443 | 反向代理，SSL 终止 |
+| certbot  | -       | 证书自动续期       |
+| api      | 3000    | 后端 API 服务      |
+| directus | 8055    | 内容管理系统       |
+| db       | 5432    | PostgreSQL 数据库  |
 
 ### 文件结构
 
@@ -124,7 +125,7 @@ add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
 limit_req zone=api burst=30 nodelay;
 
-# Directus 端点限制  
+# Directus 端点限制
 limit_req_zone $binary_remote_addr zone=directus:10m rate=5r/s;
 limit_req zone=directus burst=20 nodelay;
 ```
@@ -162,12 +163,12 @@ tar -xzf certbot-backup-20250101.tar.gz
 
 ### HTTPS 路由表
 
-| 路径 | 目标服务 | 说明 |
-|------|----------|------|
-| `/` | 静态文件 | 前端应用 |
-| `/api/*` | API Server | 后端 API |
-| `/directus/*` | Directus | 内容管理 |
-| `/.well-known/acme-challenge/*` | Certbot | 证书验证 |
+| 路径                            | 目标服务   | 说明     |
+| ------------------------------- | ---------- | -------- |
+| `/`                             | 静态文件   | 前端应用 |
+| `/api/*`                        | API Server | 后端 API |
+| `/directus/*`                   | Directus   | 内容管理 |
+| `/.well-known/acme-challenge/*` | Certbot    | 证书验证 |
 
 ### HTTP 重定向
 
@@ -188,6 +189,7 @@ location / {
 **症状**: `Failed to obtain SSL certificate`
 
 **排查步骤**:
+
 ```bash
 # 检查域名解析
 nslookup your-domain.com
@@ -200,6 +202,7 @@ docker compose -f docker-compose.prod.yml logs certbot
 ```
 
 **解决方案**:
+
 - 确认 DNS 记录正确
 - 检查防火墙设置
 - 验证域名拼写
@@ -209,6 +212,7 @@ docker compose -f docker-compose.prod.yml logs certbot
 **症状**: `nginx: [emerg] SSL certificate not found`
 
 **排查步骤**:
+
 ```bash
 # 检查证书文件
 ls -la certbot/conf/live/your-domain.com/
@@ -218,6 +222,7 @@ docker compose -f docker-compose.prod.yml exec nginx nginx -t
 ```
 
 **解决方案**:
+
 - 重新运行初始化脚本
 - 检查证书文件权限
 - 验证配置文件语法
@@ -227,6 +232,7 @@ docker compose -f docker-compose.prod.yml exec nginx nginx -t
 **症状**: 浏览器显示 SSL 错误
 
 **排查步骤**:
+
 ```bash
 # 检查证书有效期
 openssl x509 -in certbot/conf/live/your-domain.com/cert.pem -text -noout
@@ -329,4 +335,4 @@ curl -I https://your-domain.com | grep -i security
 
 - [Let's Encrypt 官方文档](https://letsencrypt.org/docs/)
 - [Certbot 用户指南](https://certbot.eff.org/docs/)
-- [Nginx SSL 配置](https://nginx.org/en/docs/http/configuring_https_servers.html) 
+- [Nginx SSL 配置](https://nginx.org/en/docs/http/configuring_https_servers.html)

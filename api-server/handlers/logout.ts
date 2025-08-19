@@ -1,8 +1,6 @@
-import { Request, Response } from 'express';
-import axios from 'axios';
+import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
-
-const DIRECTUS_URL = process.env.DIRECTUS_URL;
+import { Logger } from '../utils/logger.js';
 
 export default async function logoutHandler(req: AuthenticatedRequest, res: Response) {
   if (req.method !== 'POST') {
@@ -10,32 +8,23 @@ export default async function logoutHandler(req: AuthenticatedRequest, res: Resp
   }
 
   try {
-    // If user is authenticated and has a Directus token, logout from Directus too
-    if (req.user?.directus_token && DIRECTUS_URL) {
-      try {
-        await axios.post(`${DIRECTUS_URL}/auth/logout`, {
-          refresh_token: req.body.refresh_token // Frontend should provide this
-        }, {
-          headers: {
-            Authorization: `Bearer ${req.user.directus_token}`
-          }
-        });
-      } catch (error) {
-        console.warn('Failed to logout from Directus:', error);
-        // Continue with logout even if Directus logout fails
-      }
-    }
+    // JWT 登出逻辑：客户端删除 token 即可
+    // Directus token 是后台服务凭证，与用户登录状态无关
+
+    Logger.info('用户登出', {
+      userId: req.user?.id,
+      userEmail: req.user?.email,
+    });
 
     res.json({
       success: true,
-      message: 'Logout successful'
+      message: 'Logout successful',
     });
-
   } catch (error) {
-    console.error('Logout error:', error);
+    Logger.error('登出错误', { error: error.message });
     res.status(500).json({
       error: 'Internal server error',
-      message: 'An unexpected error occurred during logout'
+      message: 'An unexpected error occurred during logout',
     });
   }
 }

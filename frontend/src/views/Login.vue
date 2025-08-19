@@ -88,7 +88,7 @@ async function onLogin() {
     if (data.success) {
       // 处理用户角色信息
       let userRole: 'admin' | 'user' = 'user'; // 默认角色
-      
+
       // 检查角色信息
       if (data.user.role) {
         if (typeof data.user.role === 'string') {
@@ -114,11 +114,11 @@ async function onLogin() {
           }
         }
       }
-      
+
       console.log('🔍 角色处理结果:', {
         originalRole: data.user.role,
         processedRole: userRole,
-        roleType: typeof data.user.role
+        roleType: typeof data.user.role,
       });
 
       // 使用处理后的角色信息

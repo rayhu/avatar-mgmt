@@ -14,7 +14,7 @@ jobs:
           echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           echo "release_name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
           echo "release_body=${{ github.event.release.body }}" >> $GITHUB_OUTPUT
-          
+
       - name: Deploy to Production
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -37,7 +37,7 @@ jobs:
             sudo chmod 755 /opt/avatar-mgmt2
 
             cd /opt/avatar-mgmt2
-            
+
             # 检查并初始化 Git 仓库
             if [ ! -d ".git" ]; then
               echo " Git repository not found, cloning..."
@@ -77,9 +77,9 @@ jobs:
               echo "🧹 Cleaning generated files..."
               git clean -fd frontend/ api-server/ scripts/ || true
             fi
-            
+
             sudo chown -R $USER:$USER /opt/avatar-mgmt2
-    
+
             # 检查配置文件
             if [ ! -f ".env.prod.api" ]; then
               echo "❌ Production config file not found!"
@@ -99,16 +99,16 @@ jobs:
               export VOLTA_HOME="$HOME/.volta"
               export PATH="$VOLTA_HOME/bin:$PATH"
             fi
-            
+
             # 加载 Volta 环境
             export VOLTA_HOME="$HOME/.volta"
             export PATH="$VOLTA_HOME/bin:$PATH"
-            
+
             # 安装项目指定的 Node.js 和 Yarn 版本
             echo " Installing Node.js and Yarn via Volta..."
             volta install node@22.16.0
             volta install yarn@1.22.22
-            
+
             # 验证版本
             echo " Verifying versions..."
             node --version
@@ -120,14 +120,14 @@ jobs:
             export RELEASE_TAG="${{ steps.release.outputs.tag_name }}"
             export GITHUB_REPOSITORY="${{ github.repository }}"
             export GITHUB_SHA="${{ github.sha }}"
-            
+
             # 执行部署脚本
             echo "🚀 Executing deployment script..."
             chmod +x .github/scripts/deploy-production.sh
             .github/scripts/deploy-production.sh
 
             echo "✅ Production deployment completed!"
-            
+
       - name: Production health check
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -137,12 +137,12 @@ jobs:
           script: |
             cd /opt/avatar-mgmt2
             echo "🔍 Starting production health check..."
-            
+
             # 设置环境变量并执行健康检查脚本
             export DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
             chmod +x .github/scripts/health-check.sh
             .github/scripts/health-check.sh
-            
+
       - name: Notify deployment success
         if: success()
         run: |
@@ -152,7 +152,7 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "Deploy time: $(date)"
           echo "Release notes: ${{ steps.release.outputs.release_body }}"
-          
+
       - name: Notify deployment failure
         if: failure()
         run: |

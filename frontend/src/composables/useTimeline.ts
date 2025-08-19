@@ -51,17 +51,13 @@ export function useTimeline(
   }));
 
   // 提取动作名称数组（用于下拉框）
-  const actions = computed(() => 
-    actionAnimations
-      .filter(anim => anim.enabled)
-      .map(anim => anim.actualName)
+  const actions = computed(() =>
+    actionAnimations.filter(anim => anim.enabled).map(anim => anim.actualName)
   );
 
   // 提取表情名称数组（用于下拉框）
-  const emotions = computed(() => 
-    emotionAnimations
-      .filter(anim => anim.enabled)
-      .map(anim => anim.actualName)
+  const emotions = computed(() =>
+    emotionAnimations.filter(anim => anim.enabled).map(anim => anim.actualName)
   );
 
   // 添加动作关键帧
@@ -116,7 +112,7 @@ export function useTimeline(
   // 更新关键帧
   function updateKeyframe(keyframe: Keyframe) {
     if (keyframe.type === 'action') {
-      const index = actionKeyframes.value.findIndex((k) => k.id === keyframe.id);
+      const index = actionKeyframes.value.findIndex(k => k.id === keyframe.id);
       if (index !== -1) {
         actionKeyframes.value[index] = { ...keyframe };
         // 如果当前选中，立即切换动作
@@ -126,7 +122,7 @@ export function useTimeline(
         }
       }
     } else if (keyframe.type === 'emotion') {
-      const index = emotionKeyframes.value.findIndex((k) => k.id === keyframe.id);
+      const index = emotionKeyframes.value.findIndex(k => k.id === keyframe.id);
       if (index !== -1) {
         emotionKeyframes.value[index] = { ...keyframe };
         // 如果当前选中，立即切换表情
@@ -231,6 +227,6 @@ export function useTimeline(
     stopDrag,
     onTrackClick,
     getActionDisplayName,
-    getEmotionDisplayName
+    getEmotionDisplayName,
   };
 }

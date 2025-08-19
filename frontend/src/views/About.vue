@@ -43,9 +43,9 @@
         </p>
         <div class="contact-info">
           <p>
-            <strong>{{ t('about.technicalSupport') }}: </strong> 
-            <a 
-              href="#" 
+            <strong>{{ t('about.technicalSupport') }}: </strong>
+            <a
+              href="#"
               @click.prevent="sendEmail"
               class="email-link"
               :data-email="emailData.email"
@@ -61,70 +61,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import VersionInfo from '../components/VersionInfo.vue'
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import VersionInfo from '../components/VersionInfo.vue';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 // 邮箱信息 - 动态生成，避免爬虫抓取
 const emailData = ref({
   email: '',
   subject: '',
-  displayText: t('about.clickToSendEmail')
-})
+  displayText: t('about.clickToSendEmail'),
+});
 
 // 生成邮箱信息
 const generateEmailData = () => {
   // 使用简单的编码方式，增加爬虫识别难度
-  const parts = [
-    'support',
-    '@',
-    'amis',
-    '.',
-    'hk'
-  ]
-  
+  const parts = ['support', '@', 'amis', '.', 'hk'];
+
   // 随机打乱顺序，然后重新组合
-  const email = parts.join('')
-  
+  const email = parts.join('');
+
   // 生成邮件主题
   const subjects = [
     'Avatar Management System 技术支持',
     '系统使用问题咨询',
     '功能改进建议',
-    'Bug 报告'
-  ]
-  const subject = subjects[Math.floor(Math.random() * subjects.length)]
-  
+    'Bug 报告',
+  ];
+  const subject = subjects[Math.floor(Math.random() * subjects.length)];
+
   emailData.value = {
     email,
     subject: encodeURIComponent(subject),
-    displayText: 'support@amis.hk'
-  }
-}
+    displayText: 'support@amis.hk',
+  };
+};
 
 // 发送邮件
 const sendEmail = () => {
   try {
     // 构建 mailto 链接
-    const mailtoLink = `mailto:${emailData.value.email}?subject=${emailData.value.subject}`
-    
+    const mailtoLink = `mailto:${emailData.value.email}?subject=${emailData.value.subject}`;
+
     // 打开默认邮件客户端
-    window.open(mailtoLink, '_blank')
-    
-    console.log('📧', t('about.emailSent'), mailtoLink)
+    window.open(mailtoLink, '_blank');
+
+    console.log('📧', t('about.emailSent'), mailtoLink);
   } catch (error) {
-    console.error(t('about.emailFailed'), error)
+    console.error(t('about.emailFailed'), error);
     // 降级方案：显示邮箱地址
-    alert(`${t('about.manualEmail')}: ${emailData.value.email}`)
+    alert(`${t('about.manualEmail')}: ${emailData.value.email}`);
   }
-}
+};
 
 // 组件挂载时生成邮箱信息
 onMounted(() => {
-  generateEmailData()
-})
+  generateEmailData();
+});
 </script>
 
 <style scoped>
@@ -257,7 +251,7 @@ onMounted(() => {
     border-radius: 4px;
     border: 1px solid #e9ecef;
   }
-  
+
   .email-link:hover {
     background: #e9ecef;
   }
@@ -268,19 +262,19 @@ onMounted(() => {
   .about-page {
     padding: 20px 15px;
   }
-  
+
   .about-header h1 {
     font-size: 28px;
   }
-  
+
   .about-description {
     font-size: 16px;
   }
-  
+
   .info-section {
     padding: 20px;
   }
-  
+
   .info-section h2 {
     font-size: 20px;
   }

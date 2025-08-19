@@ -75,6 +75,7 @@ curl -X POST http://localhost:3000/api/azure-tts \
 ## 📞 支持
 
 如果仍有问题，请检查：
+
 - [Azure Speech Service 文档](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)
 - 确保 Azure 账户有足够的配额
-- 检查防火墙设置 
+- 检查防火墙设置

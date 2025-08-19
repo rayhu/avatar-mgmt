@@ -44,7 +44,7 @@ function initScene() {
   // 创建场景
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf0f0f0);
-  
+
   // 创建背景平面
   createBackgroundPlane();
 
@@ -53,7 +53,7 @@ function initScene() {
     75,
     container.value.clientWidth / container.value.clientHeight,
     0.1,
-    1000,
+    1000
   );
   camera.position.z = 5;
 
@@ -123,7 +123,7 @@ async function loadModel(url: string) {
 
       // 检查表情系统
       let morphTargetCount = 0;
-      model.traverse((object) => {
+      model.traverse(object => {
         if (object instanceof THREE.Mesh) {
           const mesh = object as THREE.Mesh;
           if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
@@ -139,7 +139,7 @@ async function loadModel(url: string) {
       availableAnimations = gltf.animations;
       console.log(
         '🎬 Available animations:',
-        availableAnimations.map((a) => a.name),
+        availableAnimations.map(a => a.name)
       );
 
       // 设置动画混合器
@@ -148,14 +148,17 @@ async function loadModel(url: string) {
         console.log('✅ Animation mixer created');
 
         // 默认播放 Idle 动画
-        const idleAnim = availableAnimations.find((a) => a.name === 'Idle');
+        const idleAnim = availableAnimations.find(a => a.name === 'Idle');
         if (idleAnim) {
           currentAnimationAction = mixer.clipAction(idleAnim);
           currentAnimationAction.setLoop(THREE.LoopRepeat, Infinity);
           currentAnimationAction.play();
           console.log('✅ Playing default Idle animation');
         } else {
-          console.warn('⚠️ Idle animation not found, available animations:', availableAnimations.map(a => a.name));
+          console.warn(
+            '⚠️ Idle animation not found, available animations:',
+            availableAnimations.map(a => a.name)
+          );
         }
       } else {
         console.warn('⚠️ No animations found in model');
@@ -193,8 +196,15 @@ async function loadModel(url: string) {
 
 // 播放动画
 function playAnimation(animationName: string, duration?: number, loop: boolean = true) {
-  console.log('🎭 ModelViewer.playAnimation called with:', animationName, 'duration:', duration, 'loop:', loop);
-  
+  console.log(
+    '🎭 ModelViewer.playAnimation called with:',
+    animationName,
+    'duration:',
+    duration,
+    'loop:',
+    loop
+  );
+
   if (!mixer || !model) {
     console.warn('❌ Animation mixer or model not initialized');
     console.log('Mixer:', mixer);
@@ -205,21 +215,24 @@ function playAnimation(animationName: string, duration?: number, loop: boolean =
   console.log('Playing animation:', animationName);
   console.log(
     'Available animations:',
-    availableAnimations.map((a) => a.name),
+    availableAnimations.map(a => a.name)
   );
 
   try {
     // 查找匹配的动画
-    const targetAnim = availableAnimations.find((a) => a.name === animationName);
+    const targetAnim = availableAnimations.find(a => a.name === animationName);
     if (!targetAnim) {
       console.warn(`❌ Animation "${animationName}" not found in available animations`);
-      console.log('Available animations:', availableAnimations.map(a => a.name));
+      console.log(
+        'Available animations:',
+        availableAnimations.map(a => a.name)
+      );
       return;
     }
 
     // 创建新的动画动作
     const newAction = mixer.clipAction(targetAnim);
-    
+
     // 根据参数设置循环模式
     if (loop) {
       newAction.setLoop(THREE.LoopRepeat, Infinity);
@@ -227,10 +240,12 @@ function playAnimation(animationName: string, duration?: number, loop: boolean =
       newAction.setLoop(THREE.LoopOnce, 1);
       newAction.clampWhenFinished = true;
     }
-    
+
     // 如果有当前正在播放的动画，创建平滑过渡
     if (currentAnimationAction && currentAnimationAction.isRunning()) {
-      console.log(`🔄 Cross-fading from ${currentAnimationAction.getClip().name} to ${animationName}`);
+      console.log(
+        `🔄 Cross-fading from ${currentAnimationAction.getClip().name} to ${animationName}`
+      );
       newAction.reset();
       newAction.play();
       newAction.crossFadeFrom(currentAnimationAction, 0.5, true);
@@ -242,7 +257,7 @@ function playAnimation(animationName: string, duration?: number, loop: boolean =
     // 更新当前动画动作
     currentAnimationAction = newAction;
     console.log(`✅ Animation "${animationName}" started successfully`);
-    
+
     // 如果是非循环动画且有 duration，设置定时器回到 idle
     if (!loop && duration && duration > 0) {
       setTimeout(() => {
@@ -265,7 +280,7 @@ function updateEmotion(emotion: string) {
   console.log('Updating emotion to:', emotion);
 
   try {
-    model.traverse((object) => {
+    model.traverse(object => {
       if (object instanceof THREE.Mesh) {
         const mesh = object as THREE.Mesh;
         if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
@@ -292,7 +307,7 @@ function updateEmotion(emotion: string) {
 // 更新音素
 function updateViseme(id: number) {
   if (!model) return;
-  model.traverse((obj) => {
+  model.traverse(obj => {
     if (!(obj instanceof THREE.Mesh)) return;
     const mesh = obj as THREE.Mesh;
     const dict = mesh.morphTargetDictionary;
@@ -320,11 +335,11 @@ function createBackgroundPlane() {
   // 根据 canvas 尺寸创建合适大小的背景平面
   const canvasWidth = container.value?.clientWidth || 800;
   const canvasHeight = container.value?.clientHeight || 400;
-  
+
   // 计算合适的背景平面尺寸，使其覆盖整个视野
   const aspectRatio = canvasWidth / canvasHeight;
   let planeWidth, planeHeight;
-  
+
   if (aspectRatio > 1) {
     // 宽屏：宽度更大
     planeWidth = 20;
@@ -334,68 +349,68 @@ function createBackgroundPlane() {
     planeWidth = 20 * aspectRatio;
     planeHeight = 20;
   }
-  
+
   const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
-  const material = new THREE.MeshBasicMaterial({ 
+  const material = new THREE.MeshBasicMaterial({
     color: 0xf0f0f0,
     transparent: true,
-    opacity: 1
+    opacity: 1,
   });
-  
+
   backgroundMesh = new THREE.Mesh(geometry, material);
   backgroundMesh.position.z = backgroundDistance; // 使用可调节的背景距离
   backgroundMesh.renderOrder = -1; // 确保在最底层渲染
-  
+
   if (scene && backgroundMesh) {
     scene.add(backgroundMesh);
   }
-  
+
   console.log('📐 Background plane created with dimensions:', {
     width: planeWidth,
     height: planeHeight,
     canvasWidth,
     canvasHeight,
-    aspectRatio
+    aspectRatio,
   });
 }
 
 // 设置背景图片
 function setBackgroundImage(imageUrl: string) {
   if (!backgroundMesh) return;
-  
+
   // 清理之前的纹理
   if (backgroundTexture) {
     backgroundTexture.dispose();
   }
-  
+
   // 创建新的纹理
   const textureLoader = new THREE.TextureLoader();
   textureLoader.load(
     imageUrl,
-    (texture) => {
+    texture => {
       backgroundTexture = texture;
-      
+
       // 调整纹理参数
       texture.wrapS = THREE.ClampToEdgeWrapping;
       texture.wrapT = THREE.ClampToEdgeWrapping;
       texture.minFilter = THREE.LinearFilter;
       texture.magFilter = THREE.LinearFilter;
-      
+
       // 更新材质
       if (backgroundMesh && backgroundMesh.material instanceof THREE.MeshBasicMaterial) {
         backgroundMesh.material.map = texture;
         backgroundMesh.material.needsUpdate = true;
       }
-      
+
       // 调整背景平面大小以适应图片比例和 canvas 尺寸
       if (texture.image && backgroundMesh) {
         const imageAspectRatio = texture.image.width / texture.image.height;
         const canvasWidth = container.value?.clientWidth || 800;
         const canvasHeight = container.value?.clientHeight || 400;
         const canvasAspectRatio = canvasWidth / canvasHeight;
-        
+
         let scaleX, scaleY;
-        
+
         // 根据图片和 canvas 的比例计算最佳缩放
         if (imageAspectRatio > canvasAspectRatio) {
           // 图片更宽，以高度为准
@@ -406,43 +421,46 @@ function setBackgroundImage(imageUrl: string) {
           scaleX = 1;
           scaleY = canvasAspectRatio / imageAspectRatio;
         }
-        
+
         // 应用基础缩放，确保背景覆盖整个视野
         const baseScaleX = scaleX;
         const baseScaleY = scaleY;
-        
+
         // 应用用户设置的缩放和偏移
-        backgroundMesh.scale.set(
-          baseScaleX * backgroundScale, 
-          baseScaleY * backgroundScale, 
-          1
-        );
-        backgroundMesh.position.set(
-          backgroundOffset.x, 
-          backgroundOffset.y, 
-          backgroundDistance
-        );
-        
+        backgroundMesh.scale.set(baseScaleX * backgroundScale, baseScaleY * backgroundScale, 1);
+        backgroundMesh.position.set(backgroundOffset.x, backgroundOffset.y, backgroundDistance);
+
         console.log('🖼️ Background image set with user settings:', {
           imageSize: `${texture.image.width}x${texture.image.height}`,
-          imageAspectRatio: (typeof imageAspectRatio === 'number' && !isNaN(imageAspectRatio)) ? imageAspectRatio.toFixed(2) : '0.00',
+          imageAspectRatio:
+            typeof imageAspectRatio === 'number' && !isNaN(imageAspectRatio)
+              ? imageAspectRatio.toFixed(2)
+              : '0.00',
           canvasSize: `${canvasWidth}x${canvasHeight}`,
-          canvasAspectRatio: (typeof canvasAspectRatio === 'number' && !isNaN(canvasAspectRatio)) ? canvasAspectRatio.toFixed(2) : '0.00',
-          baseScale: { 
-            x: (typeof baseScaleX === 'number' && !isNaN(baseScaleX)) ? baseScaleX.toFixed(2) : '0.00', 
-            y: (typeof baseScaleY === 'number' && !isNaN(baseScaleY)) ? baseScaleY.toFixed(2) : '0.00' 
+          canvasAspectRatio:
+            typeof canvasAspectRatio === 'number' && !isNaN(canvasAspectRatio)
+              ? canvasAspectRatio.toFixed(2)
+              : '0.00',
+          baseScale: {
+            x:
+              typeof baseScaleX === 'number' && !isNaN(baseScaleX) ? baseScaleX.toFixed(2) : '0.00',
+            y:
+              typeof baseScaleY === 'number' && !isNaN(baseScaleY) ? baseScaleY.toFixed(2) : '0.00',
           },
-          userScale: (typeof backgroundScale === 'number' && !isNaN(backgroundScale)) ? backgroundScale.toFixed(2) : '0.00',
+          userScale:
+            typeof backgroundScale === 'number' && !isNaN(backgroundScale)
+              ? backgroundScale.toFixed(2)
+              : '0.00',
           userOffset: backgroundOffset,
-          userDistance: backgroundDistance
+          userDistance: backgroundDistance,
         });
       }
-      
+
       backgroundImageUrl = imageUrl;
       console.log('✅ Background image set successfully');
     },
     undefined,
-    (error) => {
+    error => {
       console.error('❌ Error loading background image:', error);
     }
   );
@@ -457,23 +475,23 @@ function clearBackgroundImage() {
     }
     backgroundMesh.material.needsUpdate = true;
   }
-  
+
   if (backgroundTexture) {
     backgroundTexture.dispose();
     backgroundTexture = null;
   }
-  
+
   // 重置背景平面大小和用户设置
   if (backgroundMesh) {
     backgroundMesh.scale.set(20, 20, 1);
     backgroundMesh.position.set(0, 0, -3);
   }
-  
+
   // 重置用户设置
   backgroundDistance = -3;
   backgroundOffset = { x: 0, y: 0 };
   backgroundScale = 1.0;
-  
+
   backgroundImageUrl = null;
   console.log('✅ Background image cleared and settings reset');
 }
@@ -511,7 +529,7 @@ function resetBackgroundSettings() {
   backgroundDistance = -3;
   backgroundOffset = { x: 0, y: 0 };
   backgroundScale = 1.0;
-  
+
   if (backgroundMesh) {
     backgroundMesh.position.set(backgroundOffset.x, backgroundOffset.y, backgroundDistance);
     backgroundMesh.scale.set(backgroundScale, backgroundScale, 1);
@@ -526,13 +544,13 @@ function handleResize() {
   camera.aspect = container.value.clientWidth / container.value.clientHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(container.value.clientWidth, container.value.clientHeight);
-  
+
   // 重新调整背景平面大小
   if (backgroundMesh && backgroundMesh.geometry) {
     const canvasWidth = container.value.clientWidth;
     const canvasHeight = container.value.clientHeight;
     const aspectRatio = canvasWidth / canvasHeight;
-    
+
     let planeWidth, planeHeight;
     if (aspectRatio > 1) {
       planeWidth = 20;
@@ -541,15 +559,16 @@ function handleResize() {
       planeWidth = 20 * aspectRatio;
       planeHeight = 20;
     }
-    
+
     // 更新几何体
     backgroundMesh.geometry.dispose();
     backgroundMesh.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
-    
+
     console.log('📐 Background plane resized:', {
-      newSize: `${(typeof planeWidth === 'number' && !isNaN(planeWidth)) ? planeWidth.toFixed(2) : '0.00'}x${(typeof planeHeight === 'number' && !isNaN(planeHeight)) ? planeHeight.toFixed(2) : '0.00'}`,
+      newSize: `${typeof planeWidth === 'number' && !isNaN(planeWidth) ? planeWidth.toFixed(2) : '0.00'}x${typeof planeHeight === 'number' && !isNaN(planeHeight) ? planeHeight.toFixed(2) : '0.00'}`,
       canvasSize: `${canvasWidth}x${canvasHeight}`,
-      aspectRatio: (typeof aspectRatio === 'number' && !isNaN(aspectRatio)) ? aspectRatio.toFixed(2) : '0.00'
+      aspectRatio:
+        typeof aspectRatio === 'number' && !isNaN(aspectRatio) ? aspectRatio.toFixed(2) : '0.00',
     });
   }
 }
@@ -557,31 +576,31 @@ function handleResize() {
 // 监听属性变化
 watch(
   () => props.modelUrl,
-  (newUrl) => {
+  newUrl => {
     if (newUrl) {
       loadModel(newUrl);
     }
-  },
+  }
 );
 
 watch(
   () => props.emotion,
-  (newEmotion) => {
+  newEmotion => {
     if (newEmotion) {
       console.log('Emotion prop changed:', newEmotion);
       updateEmotion(newEmotion);
     }
-  },
+  }
 );
 
 watch(
   () => props.action,
-  (newAction) => {
+  newAction => {
     if (newAction) {
       console.log('Action prop changed:', newAction);
       playAnimation(newAction, undefined, true);
     }
-  },
+  }
 );
 
 // 组件挂载时初始化

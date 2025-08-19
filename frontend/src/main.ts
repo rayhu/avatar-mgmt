@@ -37,7 +37,7 @@ logger.info('应用启动', {
   savedLocale,
   finalLocale: savedLocale,
   isDevelopment: import.meta.env.DEV,
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
 });
 
 const i18n = createI18n({
@@ -52,7 +52,7 @@ logger.info('i18n 初始化完成', {
   method: 'startup',
   locale: savedLocale,
   fallbackLocale: 'en',
-  availableLocales: Object.keys(messages)
+  availableLocales: Object.keys(messages),
 });
 
 const app = createApp(App);
@@ -64,7 +64,7 @@ app.use(i18n);
 logger.info('Vue 应用插件安装完成', {
   component: 'Main',
   method: 'startup',
-  plugins: ['pinia', 'router', 'i18n']
+  plugins: ['pinia', 'router', 'i18n'],
 });
 
 const auth = useAuthStore();
@@ -74,12 +74,12 @@ logger.info('认证状态初始化完成', {
   component: 'Main',
   method: 'startup',
   isAuthenticated: auth.isAuthenticated,
-  userRole: auth.user?.role
+  userRole: auth.user?.role,
 });
 
 app.mount('#app');
 
 logger.info('应用挂载完成', {
   component: 'Main',
-  method: 'startup'
+  method: 'startup',
 });

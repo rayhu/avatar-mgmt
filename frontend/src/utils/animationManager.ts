@@ -4,27 +4,27 @@
  */
 
 import { logger } from './logger';
-import { 
-  Animation, 
-  AnimationType, 
-  AnimationState, 
-  AnimationEvent, 
+import {
+  Animation,
+  AnimationType,
+  AnimationState,
+  AnimationEvent,
   AnimationManager as IAnimationManager,
   ActionAnimation,
   EmotionAnimation,
-  VisemeAnimation
+  VisemeAnimation,
 } from '@/types/animation';
-import { 
-  getAnimationByCallName, 
-  getAnimationByActualName, 
-  getAnimationsByType 
+import {
+  getAnimationByCallName,
+  getAnimationByActualName,
+  getAnimationsByType,
 } from '@/config/animations';
 
 export class AnimationManager implements IAnimationManager {
   private animations: Animation[] = [];
   private currentState: AnimationState = {
     isPlaying: false,
-    progress: 0
+    progress: 0,
   };
   private eventListeners: Map<string, ((event: AnimationEvent) => void)[]> = new Map();
   private modelViewer: any = null;
@@ -32,7 +32,7 @@ export class AnimationManager implements IAnimationManager {
   constructor() {
     logger.info('动画管理器初始化', {
       component: 'AnimationManager',
-      method: 'constructor'
+      method: 'constructor',
     });
   }
 
@@ -41,7 +41,7 @@ export class AnimationManager implements IAnimationManager {
     this.modelViewer = viewer;
     logger.info('设置模型查看器', {
       component: 'AnimationManager',
-      method: 'setModelViewer'
+      method: 'setModelViewer',
     });
   }
 
@@ -72,18 +72,22 @@ export class AnimationManager implements IAnimationManager {
       logger.error('动画不存在', {
         component: 'AnimationManager',
         method: 'playAnimation',
-        callName
+        callName,
       });
       throw new Error(`Animation not found: ${callName}`);
     }
 
     // 类型收窄，只有 action/emotion 才有 enabled
-    if ((animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) && 'enabled' in animation && !animation.enabled) {
+    if (
+      (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) &&
+      'enabled' in animation &&
+      !animation.enabled
+    ) {
       logger.warn('动画已禁用', {
         component: 'AnimationManager',
         method: 'playAnimation',
         callName,
-        actualName: animation.actualName
+        actualName: animation.actualName,
       });
       return;
     }
@@ -94,7 +98,7 @@ export class AnimationManager implements IAnimationManager {
         method: 'playAnimation',
         callName,
         actualName: animation.actualName,
-        displayName: animation.displayName
+        displayName: animation.displayName,
       });
 
       // 根据动画类型执行不同的播放逻辑
@@ -117,20 +121,20 @@ export class AnimationManager implements IAnimationManager {
       this.emit('start', {
         type: 'start',
         animation,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     } catch (error) {
       logger.error('播放动画失败', {
         component: 'AnimationManager',
         method: 'playAnimation',
         callName,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       this.emit('error', {
         type: 'error',
         animation,
         timestamp: Date.now(),
-        data: error
+        data: error,
       });
       throw error;
     }
@@ -143,13 +147,13 @@ export class AnimationManager implements IAnimationManager {
       // 从动画参数中获取 duration 和 loop 设置
       const duration = animation.parameters?.duration;
       const loop = animation.parameters?.loop ?? true;
-      
+
       await this.modelViewer.playAnimation(animation.actualName, duration, loop);
     } else {
       logger.warn('模型查看器不支持动作动画', {
         component: 'AnimationManager',
         method: 'playActionAnimation',
-        actualName: animation.actualName
+        actualName: animation.actualName,
       });
     }
   }
@@ -163,7 +167,7 @@ export class AnimationManager implements IAnimationManager {
       logger.warn('模型查看器不支持表情动画', {
         component: 'AnimationManager',
         method: 'playEmotionAnimation',
-        actualName: animation.actualName
+        actualName: animation.actualName,
       });
     }
   }
@@ -177,7 +181,7 @@ export class AnimationManager implements IAnimationManager {
       logger.warn('模型查看器不支持口型动画', {
         component: 'AnimationManager',
         method: 'playVisemeAnimation',
-        visemeId: animation.visemeId
+        visemeId: animation.visemeId,
       });
     }
   }
@@ -186,7 +190,7 @@ export class AnimationManager implements IAnimationManager {
   stopAnimation(): void {
     logger.info('停止动画', {
       component: 'AnimationManager',
-      method: 'stopAnimation'
+      method: 'stopAnimation',
     });
 
     this.currentState.isPlaying = false;
@@ -196,7 +200,7 @@ export class AnimationManager implements IAnimationManager {
     this.emit('end', {
       type: 'end',
       animation: {} as Animation, // 空动画对象
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -236,7 +240,7 @@ export class AnimationManager implements IAnimationManager {
             component: 'AnimationManager',
             method: 'emit',
             event,
-            error: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error),
           });
         }
       });
@@ -246,12 +250,12 @@ export class AnimationManager implements IAnimationManager {
   // 更新动画进度
   updateProgress(progress: number): void {
     this.currentState.progress = Math.max(0, Math.min(1, progress));
-    
+
     this.emit('progress', {
       type: 'progress',
       animation: {} as Animation,
       timestamp: Date.now(),
-      data: { progress: this.currentState.progress }
+      data: { progress: this.currentState.progress },
     });
   }
 
@@ -261,7 +265,10 @@ export class AnimationManager implements IAnimationManager {
     if (!animation) {
       return false;
     }
-    return (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) && 'enabled' in animation ? (animation.enabled ?? false) : false;
+    return (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) &&
+      'enabled' in animation
+      ? (animation.enabled ?? false)
+      : false;
   }
 
   // 获取动画信息
@@ -277,7 +284,11 @@ export class AnimationManager implements IAnimationManager {
       displayName: animation.displayName,
       type: animation.type,
       description: animation.description,
-      enabled: (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) && 'enabled' in animation ? animation.enabled : undefined
+      enabled:
+        (animation.type === AnimationType.ACTION || animation.type === AnimationType.EMOTION) &&
+        'enabled' in animation
+          ? animation.enabled
+          : undefined,
     };
   }
 
@@ -286,7 +297,7 @@ export class AnimationManager implements IAnimationManager {
     logger.info('开始播放动画序列', {
       component: 'AnimationManager',
       method: 'playAnimationSequence',
-      sequence
+      sequence,
     });
 
     for (const callName of sequence) {
@@ -299,7 +310,7 @@ export class AnimationManager implements IAnimationManager {
           component: 'AnimationManager',
           method: 'playAnimationSequence',
           callName,
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
         throw error;
       }
@@ -310,17 +321,17 @@ export class AnimationManager implements IAnimationManager {
   dispose(): void {
     logger.info('清理动画管理器', {
       component: 'AnimationManager',
-      method: 'dispose'
+      method: 'dispose',
     });
 
     this.eventListeners.clear();
     this.modelViewer = null;
     this.currentState = {
       isPlaying: false,
-      progress: 0
+      progress: 0,
     };
   }
 }
 
 // 创建全局动画管理器实例
-export const animationManager = new AnimationManager(); 
+export const animationManager = new AnimationManager();

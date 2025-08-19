@@ -2,7 +2,8 @@
 
 ## Azure TTS Configuration
 
-To use Azure TTS through the backend API, you need to configure the following environment variables:
+To use Azure TTS through the backend API, you need to configure the following
+environment variables:
 
 ### Required Environment Variables
 
@@ -61,9 +62,11 @@ By using the backend API:
 
 ## Frontend Configuration
 
-The frontend will automatically use the backend API when `VITE_AZURE_SPEECH_KEY` is not set in the frontend environment.
+The frontend will automatically use the backend API when `VITE_AZURE_SPEECH_KEY`
+is not set in the frontend environment.
 
 To force frontend mode (not recommended for production):
+
 ```env
 VITE_AZURE_SPEECH_KEY=your_key_here
-``` 
+```

@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ResponseBuilder, SSMLResponse, DebugInfo } from '../../utils/response-builder.js';
+import { ResponseBuilder } from '../../utils/response-builder.js';
 import { SSMLValidationResult } from '../../utils/ssml-validator.js';
 
 // 模拟 debugLogger
 vi.mock('../../utils/debug-logger.js', () => ({
   debugLogger: {
     isDebugEnabled: vi.fn(),
-    getLogsForResponse: vi.fn()
-  }
+    getLogsForResponse: vi.fn(),
+  },
 }));
 
 import { debugLogger } from '../../utils/debug-logger.js';
@@ -24,9 +24,9 @@ describe('ResponseBuilder', () => {
       isValid: true,
       errors: [],
       warnings: ['测试警告'],
-      fixedSSML: undefined
+      fixedSSML: undefined,
     };
-    
+
     // 重置模拟并设置默认返回值
     vi.clearAllMocks();
     mockDebugLogger.getLogsForResponse.mockReturnValue(['log1', 'log2']);
@@ -71,12 +71,12 @@ describe('ResponseBuilder', () => {
         expect(response.debugInfo.tokenUsage).toEqual({ total_tokens: 100 });
         expect(response.debugInfo.model).toBe('gpt-4o');
         expect(response.debugInfo.originalSSML).toBe('<speak>原始测试</speak>');
-              // 由于没有 markdown 标记，所以 markdownRemoved 应该是 false
-      // 但实际实现中，如果原始长度和最终长度不同，就会被认为是 markdown 被移除
-      expect(response.debugInfo.processingSteps.markdownRemoved).toBeDefined();
-      // 长度计算可能有差异，我们只验证基本逻辑
-      expect(response.debugInfo.processingSteps.originalLength).toBeGreaterThan(0);
-      expect(response.debugInfo.processingSteps.finalLength).toBeGreaterThan(0);
+        // 由于没有 markdown 标记，所以 markdownRemoved 应该是 false
+        // 但实际实现中，如果原始长度和最终长度不同，就会被认为是 markdown 被移除
+        expect(response.debugInfo.processingSteps.markdownRemoved).toBeDefined();
+        // 长度计算可能有差异，我们只验证基本逻辑
+        expect(response.debugInfo.processingSteps.originalLength).toBeGreaterThan(0);
+        expect(response.debugInfo.processingSteps.finalLength).toBeGreaterThan(0);
       }
     });
 
@@ -94,7 +94,9 @@ describe('ResponseBuilder', () => {
       if (response.debugInfo) {
         expect(response.debugInfo.processingSteps.markdownRemoved).toBe(true);
         // 长度计算可能有差异，我们只验证基本逻辑
-        expect(response.debugInfo.processingSteps.originalLength).toBeGreaterThan(response.debugInfo.processingSteps.finalLength);
+        expect(response.debugInfo.processingSteps.originalLength).toBeGreaterThan(
+          response.debugInfo.processingSteps.finalLength
+        );
       }
     });
 
@@ -122,7 +124,7 @@ describe('ResponseBuilder', () => {
         isValid: false,
         errors: ['错误1', '错误2'],
         warnings: ['警告1', '警告2'],
-        fixedSSML: '<speak>修复后的内容</speak>'
+        fixedSSML: '<speak>修复后的内容</speak>',
       };
 
       const response = builder.buildSuccessResponse(
@@ -222,12 +224,14 @@ describe('ResponseBuilder', () => {
       const complexDetails = {
         errors: ['错误1', '错误2'],
         warnings: ['警告1'],
-        field: 'ssml'
+        field: 'ssml',
       };
       const response = builder.buildValidationErrorResponse('SSML 验证失败', complexDetails);
 
       expect(response.status).toBe(400);
-      expect(response.body.details).toBe('{"errors":["错误1","错误2"],"warnings":["警告1"],"field":"ssml"}');
+      expect(response.body.details).toBe(
+        '{"errors":["错误1","错误2"],"warnings":["警告1"],"field":"ssml"}'
+      );
     });
 
     it('应该处理空验证详情', () => {
@@ -251,10 +255,10 @@ describe('ResponseBuilder', () => {
 
     it('应该处理不同的 HTTP 方法', () => {
       const methods = ['GET', 'POST', 'DELETE', 'PATCH'];
-      
+
       methods.forEach(method => {
         const response = builder.buildMethodNotAllowedResponse(method);
-        
+
         expect(response.status).toBe(405);
         expect(response.body.error).toBe('Method not allowed');
         expect(response.body.details).toBe(`Method ${method} is not supported`);

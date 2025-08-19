@@ -9,4 +9,3 @@ declare module 'three/examples/jsm/loaders/GLTFLoader.js' {
   export { GLTFLoader };
   export default GLTFLoader;
 }
-  

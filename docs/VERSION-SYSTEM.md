@@ -2,7 +2,8 @@
 
 ## 📋 概述
 
-本版本系统为 Avatar Management 项目提供完整的版本追踪功能，包括前端、后端和系统的版本信息、Git 提交记录、构建时间和运行状态。
+本版本系统为 Avatar
+Management 项目提供完整的版本追踪功能，包括前端、后端和系统的版本信息、Git 提交记录、构建时间和运行状态。
 
 ## 🏗️ 系统架构
 
@@ -130,7 +131,7 @@ export DEPLOYMENT_ID=deploy_$(date +%s)
 </template>
 
 <script setup>
-import VersionInfo from '@/components/VersionInfo.vue'
+import VersionInfo from '@/components/VersionInfo.vue';
 </script>
 ```
 
@@ -231,7 +232,7 @@ yarn test
 # 构建完成后自动生成版本信息
 build_frontend() {
     # ... 构建逻辑 ...
-    
+
     # 生成版本信息
     log_info "生成版本信息..."
     if [ -f "scripts/deploy/version.sh" ]; then

@@ -1,186 +1,235 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>后端 TTS 测试</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .success { background-color: #d4edda; border-color: #c3e6cb; }
-        .error { background-color: #f8d7da; border-color: #f5c6cb; }
-        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
-        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        input, select { padding: 5px; margin: 5px; }
-        .log { max-height: 300px; overflow-y: auto; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+      input,
+      select {
+        padding: 5px;
+        margin: 5px;
+      }
+      .log {
+        max-height: 300px;
+        overflow-y: auto;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>🔊 后端 TTS 测试</h1>
-    
+
     <div class="test-section">
-        <h3>🎯 文本转语音测试</h3>
-        <input type="text" id="text-input" value="你好，这是一个后端 TTS 测试。" style="width: 400px;">
-        <select id="voice-select">
-            <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声)</option>
-            <option value="zh-CN-YunxiNeural">云希 (男声)</option>
-            <option value="zh-CN-YunyangNeural">云扬 (男声)</option>
-        </select>
-        <button onclick="testTextToSpeech()">文本转语音</button>
-        <div id="text-result"></div>
-        <audio id="text-audio" controls style="margin-top: 10px;"></audio>
+      <h3>🎯 文本转语音测试</h3>
+      <input
+        type="text"
+        id="text-input"
+        value="你好，这是一个后端 TTS 测试。"
+        style="width: 400px"
+      />
+      <select id="voice-select">
+        <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声)</option>
+        <option value="zh-CN-YunxiNeural">云希 (男声)</option>
+        <option value="zh-CN-YunyangNeural">云扬 (男声)</option>
+      </select>
+      <button onclick="testTextToSpeech()">文本转语音</button>
+      <div id="text-result"></div>
+      <audio id="text-audio" controls style="margin-top: 10px"></audio>
     </div>
-    
+
     <div class="test-section">
-        <h3>📝 SSML 转语音测试</h3>
-        <textarea id="ssml-input" rows="4" style="width: 400px;"><speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
+      <h3>📝 SSML 转语音测试</h3>
+      <textarea id="ssml-input" rows="4" style="width: 400px">
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
   <voice name="zh-CN-XiaoxiaoNeural">
     这是 SSML 格式的测试。
   </voice>
-</speak></textarea>
-        <button onclick="testSSMLToSpeech()">SSML 转语音</button>
-        <div id="ssml-result"></div>
-        <audio id="ssml-audio" controls style="margin-top: 10px;"></audio>
+</speak></textarea
+      >
+      <button onclick="testSSMLToSpeech()">SSML 转语音</button>
+      <div id="ssml-result"></div>
+      <audio id="ssml-audio" controls style="margin-top: 10px"></audio>
     </div>
-    
+
     <div class="test-section">
-        <h3>🔍 调试日志</h3>
-        <button onclick="clearLog()">清空日志</button>
-        <div id="debug-log" class="log"></div>
+      <h3>🔍 调试日志</h3>
+      <button onclick="clearLog()">清空日志</button>
+      <div id="debug-log" class="log"></div>
     </div>
 
     <script type="module">
-        // 模拟 BackendAzureTTS 模块
-        const API_BASE_URL = 'http://localhost:3000';
-        
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('debug-log');
-            const timestamp = new Date().toLocaleTimeString();
-            const className = type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success';
-            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-        
-        function logResult(elementId, message, isError = false) {
-            const element = document.getElementById(elementId);
-            const className = isError ? 'error' : 'success';
-            element.innerHTML = `<div class="${className}"><pre>${message}</pre></div>`;
-        }
-        
-        async function synthesizeSpeech(content, voice = 'zh-CN-XiaoxiaoNeural', isSSML = false) {
-            log(`🔊 开始语音合成: ${isSSML ? 'SSML' : '文本'}, 语音: ${voice}`);
-            
-            try {
-                // 处理 SSML 格式
-                let processedContent = content;
-                if (isSSML) {
-                    // 不可靠的 SSML 直接重构为标准格式
-                    processedContent = content.replace(/pitch="0st"/g, 'pitch="+0st"');
+      // 模拟 BackendAzureTTS 模块
+      const API_BASE_URL = 'http://localhost:3000';
 
-                    const inner = content
-                        .replace(/<speak[\s\S]*?>/, '')
-                        .replace(/<\/speak>/, '')
-                        .trim();
+      function log(message, type = 'info') {
+        const logDiv = document.getElementById('debug-log');
+        const timestamp = new Date().toLocaleTimeString();
+        const className = type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success';
+        logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
 
-                    const hasVoice = /<voice[\s>]/i.test(inner);
-                    let processed = inner;
-                    if (hasVoice) {
-                        const m = inner.match(/<voice[^>]*name=["']([^"']+)["']/i);
-                        const detected = m?.[1];
-                        if (detected && detected !== voice) {
-                            log(`⚠️ LLM returned voice "${detected}" which differs from selected "${voice}"`, 'warning');
-                        }
-                    } else {
-                        processed = `<voice name="${voice}">${inner}</voice>`;
-                    }
-                    const wrapped = processed;
-                    processedContent = `<speak version="1.0" xml:lang="zh-CN" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts">${wrapped}</speak>`;
-                } else {
-                    // 纯文本，包装为简单 SSML
-                    processedContent = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
+      function logResult(elementId, message, isError = false) {
+        const element = document.getElementById(elementId);
+        const className = isError ? 'error' : 'success';
+        element.innerHTML = `<div class="${className}"><pre>${message}</pre></div>`;
+      }
+
+      async function synthesizeSpeech(content, voice = 'zh-CN-XiaoxiaoNeural', isSSML = false) {
+        log(`🔊 开始语音合成: ${isSSML ? 'SSML' : '文本'}, 语音: ${voice}`);
+
+        try {
+          // 处理 SSML 格式
+          let processedContent = content;
+          if (isSSML) {
+            // 不可靠的 SSML 直接重构为标准格式
+            processedContent = content.replace(/pitch="0st"/g, 'pitch="+0st"');
+
+            const inner = content
+              .replace(/<speak[\s\S]*?>/, '')
+              .replace(/<\/speak>/, '')
+              .trim();
+
+            const hasVoice = /<voice[\s>]/i.test(inner);
+            let processed = inner;
+            if (hasVoice) {
+              const m = inner.match(/<voice[^>]*name=["']([^"']+)["']/i);
+              const detected = m?.[1];
+              if (detected && detected !== voice) {
+                log(
+                  `⚠️ LLM returned voice "${detected}" which differs from selected "${voice}"`,
+                  'warning'
+                );
+              }
+            } else {
+              processed = `<voice name="${voice}">${inner}</voice>`;
+            }
+            const wrapped = processed;
+            processedContent = `<speak version="1.0" xml:lang="zh-CN" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts">${wrapped}</speak>`;
+          } else {
+            // 纯文本，包装为简单 SSML
+            processedContent = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
   <voice name="${voice}">
     ${content}
   </voice>
 </speak>`;
-                }
+          }
 
-                log(`📡 发送请求到: ${API_BASE_URL}/api/azure-tts`);
-                log(`📝 处理后的内容: ${processedContent.slice(0, 200)}...`);
-                
-                const response = await fetch(`${API_BASE_URL}/api/azure-tts`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        ssml: processedContent, 
-                        voice 
-                    }),
-                });
+          log(`📡 发送请求到: ${API_BASE_URL}/api/azure-tts`);
+          log(`📝 处理后的内容: ${processedContent.slice(0, 200)}...`);
 
-                log(`📥 收到响应: ${response.status} ${response.statusText}`);
+          const response = await fetch(`${API_BASE_URL}/api/azure-tts`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              ssml: processedContent,
+              voice,
+            }),
+          });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    log(`❌ 语音合成失败: ${errorData.error || response.statusText}`, 'error');
-                    throw new Error(`Speech synthesis failed: ${errorData.error || response.statusText}`);
-                }
+          log(`📥 收到响应: ${response.status} ${response.statusText}`);
 
-                const blob = await response.blob();
-                log(`✅ 语音合成成功: ${(blob.size / 1024).toFixed(2)} KB, 类型: ${blob.type}`);
-                
-                return blob;
-            } catch (error) {
-                log(`❌ 语音合成请求失败: ${error.message}`, 'error');
-                throw error;
-            }
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            log(`❌ 语音合成失败: ${errorData.error || response.statusText}`, 'error');
+            throw new Error(`Speech synthesis failed: ${errorData.error || response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          log(`✅ 语音合成成功: ${(blob.size / 1024).toFixed(2)} KB, 类型: ${blob.type}`);
+
+          return blob;
+        } catch (error) {
+          log(`❌ 语音合成请求失败: ${error.message}`, 'error');
+          throw error;
         }
-        
-        async function testTextToSpeech() {
-            const text = document.getElementById('text-input').value;
-            const voice = document.getElementById('voice-select').value;
-            
-            log(`🎯 开始文本转语音: "${text}"`);
-            
-            try {
-                const audioBlob = await synthesizeSpeech(text, voice, false);
-                const audioUrl = URL.createObjectURL(audioBlob);
-                document.getElementById('text-audio').src = audioUrl;
-                logResult('text-result', `✅ 成功!\n音频大小: ${(audioBlob.size / 1024).toFixed(2)} KB\n音频类型: ${audioBlob.type}`);
-            } catch (error) {
-                logResult('text-result', `❌ 失败: ${error.message}`, true);
-            }
+      }
+
+      async function testTextToSpeech() {
+        const text = document.getElementById('text-input').value;
+        const voice = document.getElementById('voice-select').value;
+
+        log(`🎯 开始文本转语音: "${text}"`);
+
+        try {
+          const audioBlob = await synthesizeSpeech(text, voice, false);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          document.getElementById('text-audio').src = audioUrl;
+          logResult(
+            'text-result',
+            `✅ 成功!\n音频大小: ${(audioBlob.size / 1024).toFixed(2)} KB\n音频类型: ${audioBlob.type}`
+          );
+        } catch (error) {
+          logResult('text-result', `❌ 失败: ${error.message}`, true);
         }
-        
-        async function testSSMLToSpeech() {
-            const ssml = document.getElementById('ssml-input').value;
-            const voice = document.getElementById('voice-select').value;
-            
-            log(`📝 开始 SSML 转语音`);
-            
-            try {
-                const audioBlob = await synthesizeSpeech(ssml, voice, true);
-                const audioUrl = URL.createObjectURL(audioBlob);
-                document.getElementById('ssml-audio').src = audioUrl;
-                logResult('ssml-result', `✅ 成功!\n音频大小: ${(audioBlob.size / 1024).toFixed(2)} KB\n音频类型: ${audioBlob.type}`);
-            } catch (error) {
-                logResult('ssml-result', `❌ 失败: ${error.message}`, true);
-            }
+      }
+
+      async function testSSMLToSpeech() {
+        const ssml = document.getElementById('ssml-input').value;
+        const voice = document.getElementById('voice-select').value;
+
+        log(`📝 开始 SSML 转语音`);
+
+        try {
+          const audioBlob = await synthesizeSpeech(ssml, voice, true);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          document.getElementById('ssml-audio').src = audioUrl;
+          logResult(
+            'ssml-result',
+            `✅ 成功!\n音频大小: ${(audioBlob.size / 1024).toFixed(2)} KB\n音频类型: ${audioBlob.type}`
+          );
+        } catch (error) {
+          logResult('ssml-result', `❌ 失败: ${error.message}`, true);
         }
-        
-        function clearLog() {
-            document.getElementById('debug-log').innerHTML = '';
-        }
-        
-        // 暴露到全局
-        window.testTextToSpeech = testTextToSpeech;
-        window.testSSMLToSpeech = testSSMLToSpeech;
-        window.clearLog = clearLog;
-        
-        // 页面加载时记录
-        log('🚀 后端 TTS 测试页面已加载');
-        log(`📋 API_BASE_URL: ${API_BASE_URL}`);
+      }
+
+      function clearLog() {
+        document.getElementById('debug-log').innerHTML = '';
+      }
+
+      // 暴露到全局
+      window.testTextToSpeech = testTextToSpeech;
+      window.testSSMLToSpeech = testSSMLToSpeech;
+      window.clearLog = clearLog;
+
+      // 页面加载时记录
+      log('🚀 后端 TTS 测试页面已加载');
+      log(`📋 API_BASE_URL: ${API_BASE_URL}`);
     </script>
-</body>
-</html> 
+  </body>
+</html>

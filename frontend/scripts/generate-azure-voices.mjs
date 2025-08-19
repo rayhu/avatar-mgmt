@@ -31,8 +31,8 @@ try {
   });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const data = await res.json();
-  const zhVoices = data.filter((v) => v.Locale === 'zh-CN');
-  const mapped = zhVoices.map((v) => ({
+  const zhVoices = data.filter(v => v.Locale === 'zh-CN');
+  const mapped = zhVoices.map(v => ({
     name: v.ShortName || v.Name,
     label: `${v.Locale} – ${v.LocalName}`,
     styles: v.StyleList ?? [],

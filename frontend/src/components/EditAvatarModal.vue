@@ -3,59 +3,59 @@
     <div class="modal-content" @click.stop>
       <div class="modal-header">
         <h3>{{ t('modelManagement.editModel') }}</h3>
-        <button class="close-btn" aria-label="关闭" @click="$emit('close')">
-          ×
-        </button>
+        <button class="close-btn" aria-label="关闭" @click="$emit('close')">×</button>
       </div>
-      
+
       <div class="modal-body">
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="name">{{ t('modelManagement.modelInfo.name') }}</label>
-            <input 
+            <input
               id="name"
-              v-model="formData.name" 
-              type="text" 
+              v-model="formData.name"
+              type="text"
               required
               :placeholder="t('modelManagement.modelInfo.name')"
             />
           </div>
-          
+
           <div class="form-group">
             <label for="description">{{ t('modelManagement.modelInfo.description') }}</label>
-            <textarea 
+            <textarea
               id="description"
-              v-model="formData.description" 
+              v-model="formData.description"
               rows="3"
               :placeholder="t('modelManagement.modelInfo.description')"
             ></textarea>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label for="version">{{ t('modelManagement.modelInfo.version') }}</label>
-              <input 
+              <input
                 id="version"
-                v-model="formData.version" 
-                type="text" 
+                v-model="formData.version"
+                type="text"
                 pattern="\d+\.\d+\.\d+"
                 placeholder="1.0.0"
                 title="请使用语义化版本格式，如 1.0.0"
               />
             </div>
-            
+
             <div class="form-group">
               <label for="status">{{ t('modelManagement.modelInfo.status') }}</label>
               <select id="status" v-model="formData.status" required>
                 <option value="draft">{{ t('modelManagement.modelStatus.draft') }}</option>
                 <option value="pending">{{ t('modelManagement.modelStatus.pending') }}</option>
-                <option value="processing">{{ t('modelManagement.modelStatus.processing') }}</option>
+                <option value="processing">
+                  {{ t('modelManagement.modelStatus.processing') }}
+                </option>
                 <option value="ready">{{ t('modelManagement.modelStatus.ready') }}</option>
                 <option value="error">{{ t('modelManagement.modelStatus.error') }}</option>
               </select>
             </div>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="btn-cancel" @click="$emit('close')">
               {{ t('common.cancel') }}
@@ -106,56 +106,56 @@ const formData = ref<{
 });
 
 // 监听 avatar 变化，更新表单数据
-watch(() => props.avatar, (newAvatar) => {
-  if (newAvatar) {
-    formData.value = {
-      name: newAvatar.name || '',
-      description: newAvatar.description || '',
-      version: newAvatar.version || '1.0.0',
-      status: newAvatar.status || 'draft',
-    };
-  }
-}, { immediate: true });
+watch(
+  () => props.avatar,
+  newAvatar => {
+    if (newAvatar) {
+      formData.value = {
+        name: newAvatar.name || '',
+        description: newAvatar.description || '',
+        version: newAvatar.version || '1.0.0',
+        status: newAvatar.status || 'draft',
+      };
+    }
+  },
+  { immediate: true }
+);
 
 // 处理表单提交
 async function handleSubmit() {
   if (!props.avatar) return;
-  
+
   try {
     isLoading.value = true;
-    
+
     logger.userAction('编辑模型信息', {
       component: 'EditAvatarModal',
       method: 'handleSubmit',
       avatarId: props.avatar.id,
-      changes: formData.value
+      changes: formData.value,
     });
-    
-    const updatedAvatar = await updateAvatarStatus(
-      props.avatar.id,
-      formData.value
-    );
-    
+
+    const updatedAvatar = await updateAvatarStatus(props.avatar.id, formData.value);
+
     logger.info('模型信息编辑成功', {
       component: 'EditAvatarModal',
       method: 'handleSubmit',
       avatarId: props.avatar.id,
-      updatedAvatar
+      updatedAvatar,
     });
-    
+
     emit('updated', updatedAvatar);
     emit('close');
-    
   } catch (error) {
     console.error('更新模型信息失败:', error);
-    
+
     logger.error('模型信息编辑失败', {
       component: 'EditAvatarModal',
       method: 'handleSubmit',
       avatarId: props.avatar?.id,
-      error: (error as Error).message
+      error: (error as Error).message,
     });
-    
+
     alert(t('common.error') + ': ' + (error as Error).message);
   } finally {
     isLoading.value = false;
@@ -199,7 +199,7 @@ function handleOverlayClick() {
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid #e0e0e0;
-  
+
   h3 {
     margin: 0;
     color: #2c3e50;
@@ -216,7 +216,7 @@ function handleOverlayClick() {
   padding: 4px;
   border-radius: 4px;
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: #f0f0f0;
   }
@@ -228,29 +228,31 @@ function handleOverlayClick() {
 
 .form-group {
   margin-bottom: 20px;
-  
+
   label {
     display: block;
     margin-bottom: 6px;
     font-weight: 500;
     color: #2c3e50;
   }
-  
-  input, textarea, select {
+
+  input,
+  textarea,
+  select {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 14px;
     transition: border-color 0.2s;
-    
+
     &:focus {
       outline: none;
       border-color: #4caf50;
       box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
     }
   }
-  
+
   textarea {
     resize: vertical;
     min-height: 80px;
@@ -261,7 +263,7 @@ function handleOverlayClick() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  
+
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -275,13 +277,14 @@ function handleOverlayClick() {
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid #e0e0e0;
-  
+
   @media (max-width: 480px) {
     flex-direction: column;
   }
 }
 
-.btn-cancel, .btn-save {
+.btn-cancel,
+.btn-save {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -293,7 +296,7 @@ function handleOverlayClick() {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   @media (max-width: 480px) {
     width: 100%;
   }
@@ -302,7 +305,7 @@ function handleOverlayClick() {
 .btn-cancel {
   background: #f5f5f5;
   color: #666;
-  
+
   &:hover {
     background: #e8e8e8;
   }
@@ -311,11 +314,11 @@ function handleOverlayClick() {
 .btn-save {
   background: #4caf50;
   color: white;
-  
+
   &:hover:not(:disabled) {
     background: #45a049;
   }
-  
+
   &:disabled {
     background: #cccccc;
     cursor: not-allowed;

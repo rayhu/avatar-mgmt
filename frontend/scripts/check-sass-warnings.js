@@ -19,56 +19,56 @@ const deprecatedPatterns = [
   {
     name: '@import statements',
     pattern: /@import\s+['"][^'"]*\.scss['"]/g,
-    suggestion: 'Replace with @use'
+    suggestion: 'Replace with @use',
   },
   {
     name: 'darken() function',
     pattern: /darken\(/g,
-    suggestion: 'Replace with color.adjust($color, $lightness: -X%)'
+    suggestion: 'Replace with color.adjust($color, $lightness: -X%)',
   },
   {
     name: 'lighten() function',
     pattern: /lighten\(/g,
-    suggestion: 'Replace with color.adjust($color, $lightness: X%)'
+    suggestion: 'Replace with color.adjust($color, $lightness: X%)',
   },
   {
     name: 'saturate() function',
     pattern: /saturate\(/g,
-    suggestion: 'Replace with color.adjust($color, $saturation: X%)'
+    suggestion: 'Replace with color.adjust($color, $saturation: X%)',
   },
   {
     name: 'desaturate() function',
     pattern: /desaturate\(/g,
-    suggestion: 'Replace with color.adjust($color, $saturation: -X%)'
-  }
+    suggestion: 'Replace with color.adjust($color, $saturation: -X%)',
+  },
 ];
 
 // Check for missing color module imports
 function checkMissingColorImport(content, filePath) {
   const hasColorAdjust = /color\.adjust\(/g.test(content);
   const hasColorImport = /@use\s+['"]sass:color['"]/g.test(content);
-  
+
   if (hasColorAdjust && !hasColorImport) {
     return {
       pattern: 'Missing sass:color import',
       matches: 1,
-      suggestion: 'Add @use "sass:color"; at the top of the file'
+      suggestion: 'Add @use "sass:color"; at the top of the file',
     };
   }
-  
+
   return null;
 }
 
 function findFiles(dir, extensions = ['.vue', '.scss']) {
   const files = [];
-  
+
   function traverse(currentDir) {
     const items = fs.readdirSync(currentDir);
-    
+
     for (const item of items) {
       const fullPath = path.join(currentDir, item);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
         traverse(fullPath);
       } else if (stat.isFile() && extensions.some(ext => item.endsWith(ext))) {
@@ -76,7 +76,7 @@ function findFiles(dir, extensions = ['.vue', '.scss']) {
       }
     }
   }
-  
+
   traverse(dir);
   return files;
 }
@@ -84,7 +84,7 @@ function findFiles(dir, extensions = ['.vue', '.scss']) {
 function checkFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const issues = [];
-  
+
   // Check for deprecated patterns
   for (const pattern of deprecatedPatterns) {
     const matches = content.match(pattern.pattern);
@@ -92,35 +92,35 @@ function checkFile(filePath) {
       issues.push({
         pattern: pattern.name,
         matches: matches.length,
-        suggestion: pattern.suggestion
+        suggestion: pattern.suggestion,
       });
     }
   }
-  
+
   // Check for missing color import
   const colorImportIssue = checkMissingColorImport(content, filePath);
   if (colorImportIssue) {
     issues.push(colorImportIssue);
   }
-  
+
   return issues;
 }
 
 function main() {
   console.log('🔍 Checking for Sass deprecation warnings...\n');
-  
+
   const files = findFiles(srcDir);
   let totalIssues = 0;
   let filesWithIssues = 0;
-  
+
   for (const file of files) {
     const issues = checkFile(file);
-    
+
     if (issues.length > 0) {
       filesWithIssues++;
       const relativePath = path.relative(process.cwd(), file);
       console.log(`📁 ${relativePath}`);
-      
+
       for (const issue of issues) {
         console.log(`   ⚠️  ${issue.pattern}: ${issue.matches} occurrence(s)`);
         console.log(`      💡 ${issue.suggestion}`);
@@ -129,7 +129,7 @@ function main() {
       console.log('');
     }
   }
-  
+
   if (filesWithIssues === 0) {
     console.log('✅ No Sass deprecation warnings found!');
   } else {
@@ -144,4 +144,4 @@ function main() {
   }
 }
 
-main(); 
+main();

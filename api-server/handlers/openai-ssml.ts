@@ -16,7 +16,7 @@ export default async function handler(req: Request, res: Response) {
     userAgent: req.headers['user-agent'],
     contentLength: req.headers['content-length'],
     bodySize: req.body ? JSON.stringify(req.body).length : 0,
-    debugMode: debugLogger.isDebugEnabled()
+    debugMode: debugLogger.isDebugEnabled(),
   });
 
   if (req.method !== 'POST') {
@@ -26,7 +26,11 @@ export default async function handler(req: Request, res: Response) {
   }
 
   try {
-    const { text, voice = 'zh-CN-XiaoxiaoNeural', model = 'gpt-4o' } = req.body as {
+    const {
+      text,
+      voice = 'zh-CN-XiaoxiaoNeural',
+      model = 'gpt-4o',
+    } = req.body as {
       text?: string;
       voice?: string;
       model?: string;
@@ -37,17 +41,19 @@ export default async function handler(req: Request, res: Response) {
       voice,
       model,
       textLength: text?.length || 0,
-      hasText: !!text
+      hasText: !!text,
     });
 
     // 验证必需参数
     if (!text || typeof text !== 'string' || !text.trim()) {
-      debugLogger.error('OPENAI-SSML', '文本参数无效', { 
-        text, 
+      debugLogger.error('OPENAI-SSML', '文本参数无效', {
+        text,
         type: typeof text,
-        isEmpty: !text?.trim() 
+        isEmpty: !text?.trim(),
       });
-      const errorResponse = responseBuilder.buildValidationErrorResponse('Parameter "text" is required.');
+      const errorResponse = responseBuilder.buildValidationErrorResponse(
+        'Parameter "text" is required.'
+      );
       return res.status(errorResponse.status).json(errorResponse.body);
     }
 
@@ -64,7 +70,7 @@ export default async function handler(req: Request, res: Response) {
     const generationResult = await openaiSSMLGenerator.generateSSML({
       text: text.trim(),
       voice,
-      model
+      model,
     });
 
     debugLogger.info('OPENAI-SSML', 'SSML 生成成功', {
@@ -73,7 +79,7 @@ export default async function handler(req: Request, res: Response) {
       voice,
       inputTextLength: text.length,
       tokensUsed: generationResult.tokenUsage?.total_tokens || 'unknown',
-      processingComplete: true
+      processingComplete: true,
     });
 
     // 验证生成的 SSML
@@ -83,7 +89,7 @@ export default async function handler(req: Request, res: Response) {
       errorsCount: validationResult.errors.length,
       warningsCount: validationResult.warnings.length,
       errors: validationResult.errors,
-      warnings: validationResult.warnings
+      warnings: validationResult.warnings,
     });
 
     // 构建响应
@@ -96,20 +102,25 @@ export default async function handler(req: Request, res: Response) {
     );
 
     return res.status(200).json(response);
+  } catch (error: unknown) {
+    const axiosError = error as {
+      message?: string;
+      constructor?: { name: string };
+      stack?: string;
+    };
 
-  } catch (error: any) {
     debugLogger.error('OPENAI-SSML', 'Handler 内部错误', {
-      error: error.message,
-      errorType: error.constructor.name,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
+      error: axiosError.message,
+      errorType: axiosError.constructor?.name || 'Unknown',
+      stack: axiosError.stack,
+      timestamp: new Date().toISOString(),
     });
-    
+
     const errorResponse = responseBuilder.buildErrorResponse(
       'Internal server error',
-      error.message
+      axiosError.message
     );
-    
+
     return res.status(errorResponse.status).json(errorResponse.body);
   }
-} 
+}

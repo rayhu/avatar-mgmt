@@ -2,7 +2,9 @@
   "name": "avatar-mgmt",
   "private": true,
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": "^22.16.0",
@@ -15,11 +17,22 @@
     ],
     "frontend/**/*.{json,md,yml,yaml}": [
       "cd frontend && yarn format"
+    ],
+    "api-server/**/*.{js,ts}": [
+      "cd api-server && yarn lint --fix",
+      "cd api-server && yarn format"
+    ],
+    "api-server/**/*.{json,md,yml,yaml}": [
+      "cd api-server && yarn format"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "yarn format"
     ]
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.0"
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.5.3"
   },
   "volta": {
     "node": "22.16.0",

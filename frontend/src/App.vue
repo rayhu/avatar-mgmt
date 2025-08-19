@@ -17,16 +17,16 @@
         <!-- 关于链接 - 始终显示 -->
         <router-link to="/about" class="about-link">{{ t('common.about') }}</router-link>
       </div>
-      
+
       <!-- 移动端菜单按钮 -->
       <div class="mobile-nav-container">
         <MobileMenu />
       </div>
-      
+
       <div class="nav-right">
         <template v-if="auth.isAuthenticated">
           <span class="user-info desktop-only">
-                            {{ auth.user?.name }}（{{ t(auth.user?.role || 'user') }}）
+            {{ auth.user?.name }}（{{ t(auth.user?.role || 'user') }}）
             <a href="#" @click.prevent="logout">{{ t('logout') }}</a>
           </span>
         </template>
@@ -54,49 +54,52 @@ async function logout() {
     component: 'App',
     method: 'logout',
     userRole: auth.user?.role,
-    userName: auth.user?.name
+    userName: auth.user?.name,
   });
-  
+
   try {
     // Call API logout with refresh token
     await apiLogout(auth.refreshToken || undefined);
   } catch (error) {
     console.warn('Logout API call failed, but continuing with local logout:', error);
   }
-  
+
   auth.clearUser();
   router.push('/login');
-  
+
   logger.info('用户已登出并跳转到登录页', {
     component: 'App',
-    method: 'logout'
+    method: 'logout',
   });
 }
 
 // 监听路由变化
-watch(() => router.currentRoute.value.path, (newPath, oldPath) => {
-  logger.route(oldPath || '/', newPath, {
-    component: 'App',
-    isAuthenticated: auth.isAuthenticated,
-    userRole: auth.user?.role
-  });
-});
+watch(
+  () => router.currentRoute.value.path,
+  (newPath, oldPath) => {
+    logger.route(oldPath || '/', newPath, {
+      component: 'App',
+      isAuthenticated: auth.isAuthenticated,
+      userRole: auth.user?.role,
+    });
+  }
+);
 
 onMounted(() => {
   logger.info('App 组件挂载', {
     component: 'App',
     method: 'onMounted',
     isAuthenticated: auth.isAuthenticated,
-    userRole: auth.user?.role
+    userRole: auth.user?.role,
   });
-  
+
   const savedLocale = localStorage.getItem('preferred-language');
   if (savedLocale) {
     logger.info('恢复用户语言偏好', {
       component: 'App',
       method: 'onMounted',
       savedLocale,
-      currentLocale: locale.value
+      currentLocale: locale.value,
     });
     locale.value = savedLocale;
   }
@@ -125,10 +128,10 @@ body {
     padding: 12px 16px;
     flex-direction: column;
     gap: 12px;
-    
+
     &.mobile-collapsed {
       flex-direction: row;
-      
+
       .nav-left {
         display: none;
       }
@@ -140,21 +143,21 @@ body {
     gap: 24px;
     align-items: center;
   }
-  
+
   .desktop-nav {
     @media (max-width: 768px) {
       display: none;
     }
   }
-  
+
   .mobile-nav-container {
     display: none;
-    
+
     @media (max-width: 768px) {
       display: block;
     }
   }
-  
+
   .desktop-only {
     @media (max-width: 768px) {
       display: none;
@@ -165,7 +168,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-    
+
     @media (max-width: 768px) {
       gap: 12px;
     }
@@ -182,22 +185,22 @@ body {
     align-items: center;
     padding: 8px 12px;
     border-radius: 6px;
-    
+
     @media (max-width: 768px) {
       font-size: 0.95em;
       padding: 6px 10px;
     }
-    
+
     @media (max-width: 480px) {
       font-size: 0.9em;
       padding: 6px 8px;
     }
-    
+
     &:hover {
       color: #42b883;
       background-color: rgba(66, 184, 131, 0.1);
     }
-    
+
     &:active {
       background-color: rgba(66, 184, 131, 0.2);
     }

@@ -7,7 +7,7 @@
 export enum AnimationType {
   ACTION = 'action',
   EMOTION = 'emotion',
-  VISEME = 'viseme'
+  VISEME = 'viseme',
 }
 
 // 动作动画定义
@@ -87,28 +87,28 @@ export interface AnimationEvent {
 export interface AnimationManager {
   // 获取所有动画
   getAllAnimations(): Animation[];
-  
+
   // 根据类型获取动画
   getAnimationsByType(type: AnimationType): Animation[];
-  
+
   // 根据调用名称获取动画
   getAnimationByCallName(callName: string): Animation | undefined;
-  
+
   // 根据实际名称获取动画
   getAnimationByActualName(actualName: string): Animation | undefined;
-  
+
   // 播放动画
   playAnimation(callName: string): Promise<void>;
-  
+
   // 停止动画
   stopAnimation(): void;
-  
+
   // 获取当前状态
   getCurrentState(): AnimationState;
-  
+
   // 监听动画事件
   on(event: string, callback: (event: AnimationEvent) => void): void;
-  
+
   // 移除事件监听
   off(event: string, callback: (event: AnimationEvent) => void): void;
-} 
+}

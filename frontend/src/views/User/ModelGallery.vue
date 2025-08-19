@@ -19,10 +19,8 @@
             <p>{{ model.description }}</p>
             <div class="model-meta">
               <span
-                >{{ t('modelManagement.modelInfo.version') }}:
-                {{ model.version || 'N/A' }}</span
+                >{{ t('modelManagement.modelInfo.version') }}: {{ model.version || 'N/A' }}</span
               >
-
             </div>
             <div class="model-actions">
               <button class="action-btn primary" @click="createAnimation(model)">
@@ -66,7 +64,7 @@ function createAnimation(model: Avatar) {
   // 跳转到动画创建页面，并传递选中的模型信息
   router.push({
     name: 'animate',
-    query: { modelId: model.id, modelName: model.name }
+    query: { modelId: model.id, modelName: model.name },
   });
 }
 
@@ -76,7 +74,7 @@ function testModel(model: Avatar) {
   // 跳转到模型测试页面，并传递选中的模型信息
   router.push({
     name: 'test',
-    query: { modelId: model.id, modelName: model.name }
+    query: { modelId: model.id, modelName: model.name },
   });
 }
 
@@ -91,7 +89,7 @@ async function fetchReadyModels() {
   try {
     const models = await getAvatars();
     if (Array.isArray(models)) {
-      readyModels.value = models.filter((model) => model.status === 'ready');
+      readyModels.value = models.filter(model => model.status === 'ready');
     } else {
       console.error('Invalid models data:', models);
       readyModels.value = [];
@@ -105,7 +103,7 @@ async function fetchReadyModels() {
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     await fetchReadyModels();
   } finally {
     loading.value = false;
@@ -124,14 +122,14 @@ onMounted(async () => {
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     margin: 20px 16px;
     padding: 20px;
     border-radius: 12px;
   }
-  
+
   @media (max-width: 480px) {
     margin: 16px 8px;
     padding: 16px;
@@ -164,14 +162,14 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
   margin-top: 24px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 16px;
     margin-top: 20px;
   }
-  
+
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -214,7 +212,7 @@ onMounted(async () => {
 
 .model-description {
   margin-bottom: 16px;
-  
+
   p {
     margin: 0;
     color: #495057;
@@ -225,21 +223,21 @@ onMounted(async () => {
     hyphens: auto;
     max-height: 120px;
     overflow-y: auto;
-    
+
     // 自定义滚动条样式
     &::-webkit-scrollbar {
       width: 4px;
     }
-    
+
     &::-webkit-scrollbar-track {
       background: #f1f1f1;
       border-radius: 2px;
     }
-    
+
     &::-webkit-scrollbar-thumb {
       background: #c1c1c1;
       border-radius: 2px;
-      
+
       &:hover {
         background: #a8a8a8;
       }
@@ -262,7 +260,7 @@ onMounted(async () => {
   flex-direction: column;
   gap: 8px;
   margin-top: auto;
-  
+
   @media (max-width: 480px) {
     gap: 12px;
   }
@@ -277,7 +275,7 @@ onMounted(async () => {
   transition: all 0.3s ease;
   min-height: 44px;
   font-size: 14px;
-  
+
   @media (max-width: 768px) {
     padding: 12px 16px;
     font-size: 16px;
@@ -287,7 +285,7 @@ onMounted(async () => {
   &.primary {
     background: $primary-color;
     color: white;
-    
+
     &:hover {
       background: color.adjust($primary-color, $lightness: -10%);
       transform: translateY(-1px);
@@ -297,7 +295,7 @@ onMounted(async () => {
   &.secondary {
     background: #6c757d;
     color: white;
-    
+
     &:hover {
       background: color.adjust(#6c757d, $lightness: -10%);
       transform: translateY(-1px);
@@ -308,14 +306,14 @@ onMounted(async () => {
     background: transparent;
     color: $primary-color;
     border: 1px solid $primary-color;
-    
+
     &:hover {
       background: $primary-color;
       color: white;
       transform: translateY(-1px);
     }
   }
-  
+
   &:active {
     transform: scale(0.98);
   }

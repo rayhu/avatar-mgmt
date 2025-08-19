@@ -143,16 +143,16 @@ const VOICE_STYLES: Record<string, string[]> = {
 let voiceStyleMap: Record<string, string[]> | null = null;
 function loadVoiceStyleMap(): Record<string, string[]> {
   if (voiceStyleMap) return voiceStyleMap;
-  
+
   try {
     // 尝试多个可能的路径
     const possiblePaths = [
       path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json'),
       path.join(process.cwd(), 'public', 'azure-voices-zh.json'),
       path.join(process.cwd(), 'azure-voices-zh.json'),
-      '/app/public/azure-voices-zh.json'
+      '/app/public/azure-voices-zh.json',
     ];
-    
+
     let jsonPath = null;
     for (const p of possiblePaths) {
       if (fs.existsSync(p)) {
@@ -160,12 +160,12 @@ function loadVoiceStyleMap(): Record<string, string[]> {
         break;
       }
     }
-    
+
     if (jsonPath) {
       const raw = fs.readFileSync(jsonPath, 'utf-8');
       const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
       voiceStyleMap = {};
-      list.forEach((v) => {
+      list.forEach(v => {
         voiceStyleMap![v.name] = v.styles ?? [];
       });
       Logger.info('Loaded voice styles from azure-voices-zh.json');
@@ -173,10 +173,12 @@ function loadVoiceStyleMap(): Record<string, string[]> {
       throw new Error('azure-voices-zh.json not found in any expected location');
     }
   } catch (err) {
-    Logger.warn('Failed to load azure-voices-zh.json, fallback to static map', { error: err.message });
+    Logger.warn('Failed to load azure-voices-zh.json, fallback to static map', {
+      error: err.message,
+    });
     voiceStyleMap = VOICE_STYLES;
   }
-  
+
   return voiceStyleMap;
 }
 
@@ -205,9 +207,9 @@ export default async function handler(req: Request, res: Response) {
     };
 
     Logger.info('请求参数', {
-      text: typeof text === 'string' ? (text.slice(0, 50) + (text.length > 50 ? '...' : '')) : text,
+      text: typeof text === 'string' ? text.slice(0, 50) + (text.length > 50 ? '...' : '') : text,
       voice,
-      textLength: typeof text === 'string' ? text.length : 0
+      textLength: typeof text === 'string' ? text.length : 0,
     });
 
     if (!text || typeof text !== 'string' || !text.trim()) {
@@ -264,7 +266,7 @@ export default async function handler(req: Request, res: Response) {
 
     Logger.apiResponse('OpenAI', openaiResponse.status, {
       statusText: openaiResponse.statusText,
-      ok: openaiResponse.ok
+      ok: openaiResponse.ok,
     });
 
     if (!openaiResponse.ok) {
@@ -273,7 +275,13 @@ export default async function handler(req: Request, res: Response) {
       return res.status(500).json({ error: 'OpenAI request failed', details: errorText });
     }
 
-    const data = (await openaiResponse.json()) as any;
+    const data = (await openaiResponse.json()) as {
+      choices?: Array<{
+        message?: {
+          content?: string;
+        };
+      }>;
+    };
     let ssml: string = data?.choices?.[0]?.message?.content || '';
 
     // 移除可能的 markdown 代码块
@@ -284,12 +292,13 @@ export default async function handler(req: Request, res: Response) {
 
     Logger.handlerSuccess('SSML 生成', {
       ssmlLength: ssml.length,
-      ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : '')
+      ssmlPreview: ssml.slice(0, 100) + (ssml.length > 100 ? '...' : ''),
     });
 
     return res.status(200).json({ ssml });
-  } catch (error: any) {
-    Logger.handlerError('SSML 生成', error);
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
+  } catch (error: unknown) {
+    const axiosError = error as { message?: string };
+    Logger.handlerError('SSML 生成', axiosError);
+    return res.status(500).json({ error: 'Internal server error', details: axiosError.message });
   }
-} 
+}

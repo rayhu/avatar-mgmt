@@ -25,11 +25,15 @@
           <div class="card-content">
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.versionNumber') }}</span>
-              <span class="value">{{ versionInfo.frontend?.version || t('about.versionInfo.unknown') }}</span>
+              <span class="value">{{
+                versionInfo.frontend?.version || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.commitHash') }}</span>
-              <span class="value hash">{{ versionInfo.frontend?.commitHash || t('about.versionInfo.unknown') }}</span>
+              <span class="value hash">{{
+                versionInfo.frontend?.commitHash || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.buildTime') }}</span>
@@ -37,7 +41,9 @@
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.branch') }}</span>
-              <span class="value branch">{{ versionInfo.frontend?.branch || t('about.versionInfo.unknown') }}</span>
+              <span class="value branch">{{
+                versionInfo.frontend?.branch || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.commitDate') }}</span>
@@ -55,11 +61,15 @@
           <div class="card-content">
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.versionNumber') }}</span>
-              <span class="value">{{ versionInfo.backend?.version || t('about.versionInfo.unknown') }}</span>
+              <span class="value">{{
+                versionInfo.backend?.version || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.commitHash') }}</span>
-              <span class="value hash">{{ versionInfo.backend?.commitHash || t('about.versionInfo.unknown') }}</span>
+              <span class="value hash">{{
+                versionInfo.backend?.commitHash || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.buildTime') }}</span>
@@ -67,7 +77,9 @@
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.branch') }}</span>
-              <span class="value branch">{{ versionInfo.backend?.branch || t('about.versionInfo.unknown') }}</span>
+              <span class="value branch">{{
+                versionInfo.backend?.branch || t('about.versionInfo.unknown')
+              }}</span>
             </div>
           </div>
         </div>
@@ -81,7 +93,9 @@
           <div class="card-content">
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.environment') }}</span>
-              <span class="value environment">{{ versionInfo.system?.environment || t('about.versionInfo.unknown') }}</span>
+              <span class="value environment">{{
+                versionInfo.system?.environment || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.deployTime') }}</span>
@@ -89,7 +103,9 @@
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.uptime') }}</span>
-              <span class="value">{{ versionInfo.system?.uptime || t('about.versionInfo.unknown') }}</span>
+              <span class="value">{{
+                versionInfo.system?.uptime || t('about.versionInfo.unknown')
+              }}</span>
             </div>
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.lastCheck') }}</span>
@@ -100,17 +116,15 @@
       </div>
 
       <!-- 错误信息 -->
-      <div v-if="error" class="error-message">
-        ❌ {{ error }}
-      </div>
+      <div v-if="error" class="error-message">❌ {{ error }}</div>
 
       <!-- 更新时间 -->
       <div class="update-time">
         {{ t('about.versionInfo.lastUpdate') }}: {{ formatTime(lastUpdate?.toISOString()) }}
         <span class="separator">, </span>
-            <router-link to="/env-test" class="env-test-link">
-              🔧 {{ t('about.versionInfo.envTest') }}
-            </router-link>
+        <router-link to="/env-test" class="env-test-link">
+          🔧 {{ t('about.versionInfo.envTest') }}
+        </router-link>
       </div>
     </div>
 
@@ -119,12 +133,30 @@
       <div class="info-section">
         <h3>{{ t('about.versionInfo.versionInfoDesc') }}</h3>
         <ul>
-          <li><strong>{{ t('about.versionInfo.versionNumber') }}</strong> {{ t('about.versionInfo.versionNumberDesc') }}</li>
-          <li><strong>{{ t('about.versionInfo.commitHash') }}</strong> {{ t('about.versionInfo.commitHashDesc') }}</li>
-          <li><strong>{{ t('about.versionInfo.buildTime') }}</strong> {{ t('about.versionInfo.buildTimeDesc') }}</li>
-          <li><strong>{{ t('about.versionInfo.branch') }}</strong> {{ t('about.versionInfo.branchDesc') }}</li>
-          <li><strong>{{ t('about.versionInfo.environment') }}</strong> {{ t('about.versionInfo.environmentDesc') }}</li>
-          <li><strong>{{ t('about.versionInfo.uptime') }}</strong> {{ t('about.versionInfo.uptimeDesc') }}</li>
+          <li>
+            <strong>{{ t('about.versionInfo.versionNumber') }}</strong>
+            {{ t('about.versionInfo.versionNumberDesc') }}
+          </li>
+          <li>
+            <strong>{{ t('about.versionInfo.commitHash') }}</strong>
+            {{ t('about.versionInfo.commitHashDesc') }}
+          </li>
+          <li>
+            <strong>{{ t('about.versionInfo.buildTime') }}</strong>
+            {{ t('about.versionInfo.buildTimeDesc') }}
+          </li>
+          <li>
+            <strong>{{ t('about.versionInfo.branch') }}</strong>
+            {{ t('about.versionInfo.branchDesc') }}
+          </li>
+          <li>
+            <strong>{{ t('about.versionInfo.environment') }}</strong>
+            {{ t('about.versionInfo.environmentDesc') }}
+          </li>
+          <li>
+            <strong>{{ t('about.versionInfo.uptime') }}</strong>
+            {{ t('about.versionInfo.uptimeDesc') }}
+          </li>
         </ul>
       </div>
 
@@ -152,73 +184,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import apiClient from '../api/axios'
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import apiClient from '../api/axios';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 interface VersionInfo {
   frontend?: {
-    version: string
-    commitHash: string
-    buildTime: string
-    branch: string
-    commitDate: string
-  }
+    version: string;
+    commitHash: string;
+    buildTime: string;
+    branch: string;
+    commitDate: string;
+  };
   backend?: {
-    version: string
-    commitHash: string
-    buildTime: string
-    branch: string
-    commitDate: string
-  }
+    version: string;
+    commitHash: string;
+    buildTime: string;
+    branch: string;
+    commitDate: string;
+  };
   system?: {
-    deployTime: string
-    environment: string
-    uptime: string
-    lastCheck?: string
-  }
+    deployTime: string;
+    environment: string;
+    uptime: string;
+    lastCheck?: string;
+  };
   api?: {
-    endpoint: string
-    timestamp: string
-    uptime: string
-  }
-  generatedAt?: string
+    endpoint: string;
+    timestamp: string;
+    uptime: string;
+  };
+  generatedAt?: string;
 }
 
-const versionInfo = ref<VersionInfo>({})
-const loading = ref(false)
-const error = ref('')
-const lastUpdate = ref<Date | null>(null)
+const versionInfo = ref<VersionInfo>({});
+const loading = ref(false);
+const error = ref('');
+const lastUpdate = ref<Date | null>(null);
 
 // 格式化时间 - 智能时区转换版本
 const formatTime = (timeStr: string | undefined) => {
-  if (!timeStr) return '暂无数据'
-  
+  if (!timeStr) return '暂无数据';
+
   try {
-    const date = new Date(timeStr)
-    
+    const date = new Date(timeStr);
+
     // 检查日期是否有效
     if (isNaN(date.getTime())) {
-      return '无'
+      return '无';
     }
-    
+
     // 获取服务器当前时区偏移量（分钟）
     // 注意：getTimezoneOffset() 返回的是本地时区与UTC的差值
-    const serverOffset = new Date().getTimezoneOffset()
-    
+    const serverOffset = new Date().getTimezoneOffset();
+
     // 中国时区是 UTC+8，即 -480 分钟
-    const chinaOffset = -480
-    
+    const chinaOffset = -480;
+
     // 计算时区差异（分钟）
     // 如果服务器是 UTC+0，那么 timezoneDiff = -480 - 0 = -480
     // 如果服务器是 UTC-5，那么 timezoneDiff = -480 - 300 = -780
-    const timezoneDiff = chinaOffset - serverOffset
-    
+    const timezoneDiff = chinaOffset - serverOffset;
+
     // 转换为毫秒并调整时间
-    const chinaTime = new Date(date.getTime() + (timezoneDiff * 60 * 1000))
-    
+    const chinaTime = new Date(date.getTime() + timezoneDiff * 60 * 1000);
+
     const formattedTime = chinaTime.toLocaleString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -226,46 +258,49 @@ const formatTime = (timeStr: string | undefined) => {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      timeZone: 'Asia/Shanghai'
-    })
-    
+      timeZone: 'Asia/Shanghai',
+    });
+
     // 显示时区信息：显示服务器时区和转换后的中国时区
-    const serverTimezone = serverOffset === 0 ? 'UTC' : 
-      serverOffset > 0 ? `UTC-${Math.abs(serverOffset) / 60}` : 
-      `UTC+${Math.abs(serverOffset) / 60}`
-    
-    return `${formattedTime} (${serverTimezone} → UTC+8)`
+    const serverTimezone =
+      serverOffset === 0
+        ? 'UTC'
+        : serverOffset > 0
+          ? `UTC-${Math.abs(serverOffset) / 60}`
+          : `UTC+${Math.abs(serverOffset) / 60}`;
+
+    return `${formattedTime} (${serverTimezone} → UTC+8)`;
   } catch {
-    return '日期解析失败'
+    return '日期解析失败';
   }
-}
+};
 
 // 获取版本信息
 const fetchVersionInfo = async () => {
-  loading.value = true
-  error.value = ''
-  
+  loading.value = true;
+  error.value = '';
+
   try {
-    const response = await apiClient.get('/api/version')
-    versionInfo.value = response.data
-    lastUpdate.value = new Date()
+    const response = await apiClient.get('/api/version');
+    versionInfo.value = response.data;
+    lastUpdate.value = new Date();
   } catch (err: any) {
-    error.value = `${t('about.versionInfo.error')} ${err.response?.data?.message || err.message}`
-    console.error('Version info fetch error:', err)
+    error.value = `${t('about.versionInfo.error')} ${err.response?.data?.message || err.message}`;
+    console.error('Version info fetch error:', err);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 刷新版本信息
 const refreshVersion = () => {
-  fetchVersionInfo()
-}
+  fetchVersionInfo();
+};
 
 // 组件挂载时获取版本信息
 onMounted(() => {
-  fetchVersionInfo()
-})
+  fetchVersionInfo();
+});
 </script>
 
 <style scoped>
@@ -344,7 +379,7 @@ onMounted(() => {
   background: white;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-left: 4px solid;
 }
 
@@ -467,7 +502,7 @@ onMounted(() => {
   background: white;
   padding: 25px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .info-section h3 {
@@ -497,21 +532,21 @@ onMounted(() => {
   .page-header h1 {
     font-size: 2rem;
   }
-  
+
   .version-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .version-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
   }
-  
+
   .version-item .label {
     min-width: auto;
   }
-  
+
   .additional-info {
     grid-template-columns: 1fr;
   }

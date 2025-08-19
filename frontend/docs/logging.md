@@ -15,21 +15,25 @@
 ## 日志级别
 
 ### DEBUG (0)
+
 - 详细的调试信息
 - 仅在开发环境显示
 - 用于追踪内部状态和流程
 
 ### INFO (1)
+
 - 一般信息日志
 - 记录重要的操作和状态变化
 - 开发和生产环境都显示
 
 ### WARN (2)
+
 - 警告信息
 - 表示潜在问题或非关键错误
 - 开发和生产环境都显示
 
 ### ERROR (3)
+
 - 错误信息
 - 表示严重问题或异常
 - 开发和生产环境都显示
@@ -54,19 +58,19 @@ logger.error('错误信息', { context: 'data' });
 // API 调用开始
 logger.apiCall('User API', '/api/users', {
   method: 'GET',
-  params: { id: 123 }
+  params: { id: 123 },
 });
 
 // API 响应
 logger.apiResponse('User API', 200, {
   dataSize: 1024,
-  duration: 150
+  duration: 150,
 });
 
 // API 错误
 logger.apiError('User API', error, {
   url: '/api/users',
-  method: 'GET'
+  method: 'GET',
 });
 ```
 
@@ -76,13 +80,13 @@ logger.apiError('User API', error, {
 // 用户操作
 logger.userAction('点击登录按钮', {
   buttonId: 'login-btn',
-  timestamp: Date.now()
+  timestamp: Date.now(),
 });
 
 // 路由跳转
 logger.route('/home', '/login', {
   userRole: 'admin',
-  isAuthenticated: true
+  isAuthenticated: true,
 });
 ```
 
@@ -92,7 +96,7 @@ logger.route('/home', '/login', {
 // 性能日志
 logger.performance('数据加载完成', 150, {
   operation: 'fetch_users',
-  itemsCount: 100
+  itemsCount: 100,
 });
 ```
 
@@ -102,19 +106,19 @@ logger.performance('数据加载完成', 150, {
 // 组件信息日志
 logger.component('UserProfile', '组件状态更新', {
   method: 'updateProfile',
-  newState: { name: 'John' }
+  newState: { name: 'John' },
 });
 
 // 组件调试日志
 logger.componentDebug('UserProfile', '内部状态', {
   method: 'internalState',
-  state: { mounted: true }
+  state: { mounted: true },
 });
 
 // 组件错误日志
 logger.componentError('UserProfile', '渲染失败', {
   method: 'render',
-  error: 'invalid_props'
+  error: 'invalid_props',
 });
 ```
 
@@ -122,9 +126,13 @@ logger.componentError('UserProfile', '渲染失败', {
 
 ```typescript
 // Store 更新
-logger.store('UPDATE_USER', { name: 'John', role: 'admin' }, {
-  previousState: { name: 'Jane' }
-});
+logger.store(
+  'UPDATE_USER',
+  { name: 'John', role: 'admin' },
+  {
+    previousState: { name: 'Jane' },
+  }
+);
 ```
 
 ## 在 Vue 组件中使用
@@ -139,7 +147,7 @@ import { onMounted, onUnmounted } from 'vue';
 onMounted(() => {
   logger.component('MyComponent', '组件已挂载', {
     props: props,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 });
 
@@ -158,9 +166,9 @@ import { logger } from '@/utils/logger';
 const handleClick = () => {
   logger.userAction('点击按钮', {
     component: 'MyComponent',
-    buttonId: 'action-btn'
+    buttonId: 'action-btn',
   });
-  
+
   // 执行操作...
 };
 </script>
@@ -175,10 +183,10 @@ import { logger, LogLevel } from '@/utils/logger';
 
 // 设置日志级别
 logger.setLevel(LogLevel.DEBUG); // 显示所有日志
-logger.setLevel(LogLevel.INFO);  // 显示 INFO 及以上级别
-logger.setLevel(LogLevel.WARN);  // 显示 WARN 及以上级别
+logger.setLevel(LogLevel.INFO); // 显示 INFO 及以上级别
+logger.setLevel(LogLevel.WARN); // 显示 WARN 及以上级别
 logger.setLevel(LogLevel.ERROR); // 只显示 ERROR
-logger.setLevel(LogLevel.NONE);  // 禁用所有日志
+logger.setLevel(LogLevel.NONE); // 禁用所有日志
 ```
 
 ### 环境变量
@@ -218,7 +226,7 @@ try {
     component: 'MyComponent',
     method: 'performAction',
     error: error.message,
-    errorType: error.constructor.name
+    errorType: error.constructor.name,
   });
 }
 ```
@@ -232,7 +240,7 @@ logger.info('用户登录', {
   userId: user.id,
   userRole: user.role,
   loginMethod: 'password',
-  timestamp: Date.now()
+  timestamp: Date.now(),
 });
 ```
 
@@ -278,6 +286,7 @@ open frontend/test-logging.html
 ### 调试技巧
 
 1. **临时提高日志级别**
+
    ```typescript
    logger.setLevel(LogLevel.DEBUG);
    ```
@@ -291,20 +300,20 @@ open frontend/test-logging.html
    ```typescript
    logger.component('TargetComponent', '状态变化', {
      state: currentState,
-     props: componentProps
+     props: componentProps,
    });
    ```
 
 ## 与后端日志的对比
 
-| 特性 | 前端日志 | 后端日志 |
-|------|----------|----------|
-| 环境 | 浏览器 | 服务器 |
-| 持久化 | 临时 | 文件/数据库 |
-| 级别控制 | 运行时 | 启动时 |
-| 上下文 | 用户交互 | 请求处理 |
-| 性能影响 | 客户端性能 | 服务器性能 |
+| 特性     | 前端日志   | 后端日志    |
+| -------- | ---------- | ----------- |
+| 环境     | 浏览器     | 服务器      |
+| 持久化   | 临时       | 文件/数据库 |
+| 级别控制 | 运行时     | 启动时      |
+| 上下文   | 用户交互   | 请求处理    |
+| 性能影响 | 客户端性能 | 服务器性能  |
 
 ## 总结
 
-前端日志系统为应用提供了全面的监控和调试能力，通过合理使用不同级别的日志和上下文信息，可以有效地追踪应用状态、调试问题和优化性能。 
+前端日志系统为应用提供了全面的监控和调试能力，通过合理使用不同级别的日志和上下文信息，可以有效地追踪应用状态、调试问题和优化性能。

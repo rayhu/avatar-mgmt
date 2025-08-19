@@ -27,17 +27,17 @@ describe('OpenAI SSML Handler', () => {
   beforeEach(() => {
     // 重置所有模拟
     vi.clearAllMocks();
-    
+
     // 设置环境变量
     process.env.OPENAI_API_KEY = 'test-api-key';
-    
+
     // 创建模拟的响应对象
     mockStatus = vi.fn().mockReturnThis();
     mockJson = vi.fn().mockReturnThis();
-    
+
     mockRes = {
       status: mockStatus,
-      json: mockJson
+      json: mockJson,
     };
 
     // 设置默认的模拟返回值
@@ -46,38 +46,38 @@ describe('OpenAI SSML Handler', () => {
     mockDebugLogger.error.mockReturnValue(undefined);
     mockDebugLogger.isDebugEnabled.mockReturnValue(false);
     mockDebugLogger.getLogsForResponse.mockReturnValue([]);
-    
+
     mockSSMLValidator.validate.mockReturnValue({
       isValid: true,
       errors: [],
       warnings: [],
-      fixedSSML: undefined
+      fixedSSML: undefined,
     });
 
     mockOpenAISSMLGenerator.generateSSML.mockResolvedValue({
       ssml: '<speak>测试</speak>',
       rawSSML: '<speak>测试</speak>',
       tokenUsage: { total_tokens: 100 },
-      model: 'gpt-4o'
+      model: 'gpt-4o',
     });
 
     mockResponseBuilder.buildSuccessResponse.mockReturnValue({
-      ssml: '<speak>测试</speak>'
+      ssml: '<speak>测试</speak>',
     });
 
     mockResponseBuilder.buildMethodNotAllowedResponse.mockReturnValue({
       status: 405,
-      body: { error: 'Method not allowed' }
+      body: { error: 'Method not allowed' },
     });
 
     mockResponseBuilder.buildValidationErrorResponse.mockReturnValue({
       status: 400,
-      body: { error: 'Validation error' }
+      body: { error: 'Validation error' },
     });
 
     mockResponseBuilder.buildErrorResponse.mockReturnValue({
       status: 500,
-      body: { error: 'Internal error' }
+      body: { error: 'Internal error' },
     });
   });
 
@@ -91,12 +91,14 @@ describe('OpenAI SSML Handler', () => {
         method: 'GET',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: {}
+        body: {},
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', '方法不允许', { method: 'GET' });
+      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', '方法不允许', {
+        method: 'GET',
+      });
       expect(mockResponseBuilder.buildMethodNotAllowedResponse).toHaveBeenCalledWith('GET');
       expect(mockStatus).toHaveBeenCalledWith(405);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Method not allowed' });
@@ -107,12 +109,16 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).not.toHaveBeenCalledWith('OPENAI-SSML', '方法不允许', expect.any(Object));
+      expect(mockDebugLogger.error).not.toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '方法不允许',
+        expect.any(Object)
+      );
     });
   });
 
@@ -122,13 +128,19 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: {}
+        body: {},
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', '文本参数无效', expect.any(Object));
-      expect(mockResponseBuilder.buildValidationErrorResponse).toHaveBeenCalledWith('Parameter "text" is required.');
+      expect(mockDebugLogger.error).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '文本参数无效',
+        expect.any(Object)
+      );
+      expect(mockResponseBuilder.buildValidationErrorResponse).toHaveBeenCalledWith(
+        'Parameter "text" is required.'
+      );
       expect(mockStatus).toHaveBeenCalledWith(400);
     });
 
@@ -137,12 +149,16 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '' }
+        body: { text: '' },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', '文本参数无效', expect.any(Object));
+      expect(mockDebugLogger.error).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '文本参数无效',
+        expect.any(Object)
+      );
       expect(mockStatus).toHaveBeenCalledWith(400);
     });
 
@@ -151,12 +167,16 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '   ' }
+        body: { text: '   ' },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', '文本参数无效', expect.any(Object));
+      expect(mockDebugLogger.error).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '文本参数无效',
+        expect.any(Object)
+      );
       expect(mockStatus).toHaveBeenCalledWith(400);
     });
 
@@ -165,12 +185,16 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '有效的测试文本' }
+        body: { text: '有效的测试文本' },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).not.toHaveBeenCalledWith('OPENAI-SSML', '文本参数无效', expect.any(Object));
+      expect(mockDebugLogger.error).not.toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '文本参数无效',
+        expect.any(Object)
+      );
     });
   });
 
@@ -182,13 +206,15 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', 'OpenAI API 密钥未配置');
-      expect(mockResponseBuilder.buildErrorResponse).toHaveBeenCalledWith('OPENAI_API_KEY is not configured.');
+      expect(mockResponseBuilder.buildErrorResponse).toHaveBeenCalledWith(
+        'OPENAI_API_KEY is not configured.'
+      );
       expect(mockStatus).toHaveBeenCalledWith(500);
     });
   });
@@ -199,7 +225,7 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural', model: 'gpt-4o' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural', model: 'gpt-4o' },
       };
     });
 
@@ -209,7 +235,7 @@ describe('OpenAI SSML Handler', () => {
       expect(mockOpenAISSMLGenerator.generateSSML).toHaveBeenCalledWith({
         text: '测试文本',
         voice: 'zh-CN-XiaoxiaoNeural',
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       });
 
       expect(mockSSMLValidator.validate).toHaveBeenCalledWith('<speak>测试</speak>');
@@ -232,7 +258,7 @@ describe('OpenAI SSML Handler', () => {
       expect(mockOpenAISSMLGenerator.generateSSML).toHaveBeenCalledWith({
         text: '测试文本',
         voice: 'zh-CN-XiaoxiaoNeural', // 默认值
-        model: 'gpt-4o' // 默认值
+        model: 'gpt-4o', // 默认值
       });
     });
 
@@ -240,17 +266,25 @@ describe('OpenAI SSML Handler', () => {
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
       // 验证记录了成功日志，但具体内容可能因实现而异
-      expect(mockDebugLogger.info).toHaveBeenCalledWith('OPENAI-SSML', 'SSML 生成成功', expect.any(Object));
+      expect(mockDebugLogger.info).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'SSML 生成成功',
+        expect.any(Object)
+      );
     });
 
     it('应该记录验证结果', async () => {
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.info).toHaveBeenCalledWith('OPENAI-SSML', 'SSML 验证结果', expect.objectContaining({
-        isValid: true,
-        errorsCount: 0,
-        warningsCount: 0
-      }));
+      expect(mockDebugLogger.info).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'SSML 验证结果',
+        expect.objectContaining({
+          isValid: true,
+          errorsCount: 0,
+          warningsCount: 0,
+        })
+      );
     });
   });
 
@@ -260,7 +294,7 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
     });
 
@@ -275,14 +309,18 @@ describe('OpenAI SSML Handler', () => {
         isValid: true,
         errors: [],
         warnings: ['警告1', '警告2'],
-        fixedSSML: undefined
+        fixedSSML: undefined,
       });
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.info).toHaveBeenCalledWith('OPENAI-SSML', 'SSML 验证结果', expect.objectContaining({
-        warningsCount: 2
-      }));
+      expect(mockDebugLogger.info).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'SSML 验证结果',
+        expect.objectContaining({
+          warningsCount: 2,
+        })
+      );
     });
 
     it('应该处理验证错误', async () => {
@@ -290,15 +328,19 @@ describe('OpenAI SSML Handler', () => {
         isValid: false,
         errors: ['错误1', '错误2'],
         warnings: [],
-        fixedSSML: undefined
+        fixedSSML: undefined,
       });
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.info).toHaveBeenCalledWith('OPENAI-SSML', 'SSML 验证结果', expect.objectContaining({
-        isValid: false,
-        errorsCount: 2
-      }));
+      expect(mockDebugLogger.info).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'SSML 验证结果',
+        expect.objectContaining({
+          isValid: false,
+          errorsCount: 2,
+        })
+      );
     });
   });
 
@@ -308,7 +350,7 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
     });
 
@@ -318,10 +360,14 @@ describe('OpenAI SSML Handler', () => {
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', 'Handler 内部错误', expect.objectContaining({
-        error: 'OpenAI API 错误',
-        errorType: 'Error'
-      }));
+      expect(mockDebugLogger.error).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'Handler 内部错误',
+        expect.objectContaining({
+          error: 'OpenAI API 错误',
+          errorType: 'Error',
+        })
+      );
 
       expect(mockResponseBuilder.buildErrorResponse).toHaveBeenCalledWith(
         'Internal server error',
@@ -339,7 +385,11 @@ describe('OpenAI SSML Handler', () => {
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', 'Handler 内部错误', expect.any(Object));
+      expect(mockDebugLogger.error).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'Handler 内部错误',
+        expect.any(Object)
+      );
       expect(mockStatus).toHaveBeenCalledWith(500);
     });
   });
@@ -350,7 +400,7 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
     });
 
@@ -359,9 +409,13 @@ describe('OpenAI SSML Handler', () => {
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.info).toHaveBeenCalledWith('OPENAI-SSML', '请求开始', expect.objectContaining({
-        debugMode: true
-      }));
+      expect(mockDebugLogger.info).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '请求开始',
+        expect.objectContaining({
+          debugMode: true,
+        })
+      );
     });
 
     it('应该在非调试模式下不记录详细日志', async () => {
@@ -369,9 +423,13 @@ describe('OpenAI SSML Handler', () => {
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.info).toHaveBeenCalledWith('OPENAI-SSML', '请求开始', expect.objectContaining({
-        debugMode: false
-      }));
+      expect(mockDebugLogger.info).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        '请求开始',
+        expect.objectContaining({
+          debugMode: false,
+        })
+      );
     });
   });
 
@@ -382,7 +440,7 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: longText }
+        body: { text: longText },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
@@ -390,7 +448,7 @@ describe('OpenAI SSML Handler', () => {
       expect(mockOpenAISSMLGenerator.generateSSML).toHaveBeenCalledWith({
         text: longText,
         voice: 'zh-CN-XiaoxiaoNeural',
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       });
     });
 
@@ -400,7 +458,7 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: specialText }
+        body: { text: specialText },
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
@@ -408,7 +466,7 @@ describe('OpenAI SSML Handler', () => {
       expect(mockOpenAISSMLGenerator.generateSSML).toHaveBeenCalledWith({
         text: specialText,
         voice: 'zh-CN-XiaoxiaoNeural',
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       });
     });
 
@@ -417,13 +475,17 @@ describe('OpenAI SSML Handler', () => {
         method: 'POST',
         url: '/api/openai-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: undefined
+        body: undefined,
       };
 
       await openaiSSMLHandler(mockReq as Request, mockRes as Response);
 
       // 空的请求体会导致解构错误，应该记录内部错误
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('OPENAI-SSML', 'Handler 内部错误', expect.any(Object));
+      expect(mockDebugLogger.error).toHaveBeenCalledWith(
+        'OPENAI-SSML',
+        'Handler 内部错误',
+        expect.any(Object)
+      );
       expect(mockStatus).toHaveBeenCalledWith(500);
     });
   });

@@ -13,7 +13,7 @@ const colors = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
-  reset: '\x1b[0m'
+  reset: '\x1b[0m',
 };
 
 function log(message, color = 'reset') {
@@ -35,7 +35,7 @@ function testTranslation() {
     }
 
     const zhCNContent = fs.readFileSync(zhCNPath, 'utf8');
-    
+
     // 2. 检查中文翻译
     if (zhCNContent.includes("download: '下载'")) {
       log('✅ 中文翻译已添加: 下载', 'green');
@@ -52,7 +52,7 @@ function testTranslation() {
     }
 
     const enContent = fs.readFileSync(enPath, 'utf8');
-    
+
     // 4. 检查英文翻译
     if (enContent.includes("download: 'Download'")) {
       log('✅ 英文翻译已添加: Download', 'green');
@@ -88,7 +88,6 @@ function testTranslation() {
     if (enDownloadLine) {
       log(`📝 英文翻译行: ${enDownloadLine.trim()}`, 'blue');
     }
-
   } catch (error) {
     log(`❌ 测试过程中发生错误: ${error.message}`, 'red');
     allTestsPassed = false;
@@ -96,7 +95,7 @@ function testTranslation() {
 
   log('', 'reset');
   log('='.repeat(50), 'blue');
-  
+
   if (allTestsPassed) {
     log('🎉 所有测试通过！animate.download 翻译添加成功', 'green');
     log('', 'reset');
@@ -107,7 +106,7 @@ function testTranslation() {
     log('   - 格式正确: 符合 i18n 标准', 'green');
     log('', 'reset');
     log('💡 使用说明:', 'blue');
-    log('1. 在代码中使用 t(\'animate.download\') 获取翻译', 'blue');
+    log("1. 在代码中使用 t('animate.download') 获取翻译", 'blue');
     log('2. 中文环境下显示: 下载', 'blue');
     log('3. 英文环境下显示: Download', 'blue');
     log('4. 翻译会自动根据当前语言环境切换', 'blue');
@@ -120,4 +119,4 @@ function testTranslation() {
 
 // 运行测试
 const success = testTranslation();
-process.exit(success ? 0 : 1); 
+process.exit(success ? 0 : 1);

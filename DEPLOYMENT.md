@@ -2,7 +2,9 @@
 
 ## 📋 **概述**
 
-本文档描述了如何部署 Avatar Management 系统到生产环境。系统使用 Docker Compose 和 JC21 Nginx Proxy Manager 进行容器化部署，支持多域名配置和自动SSL证书管理。
+本文档描述了如何部署 Avatar Management 系统到生产环境。系统使用 Docker
+Compose 和 JC21 Nginx Proxy
+Manager 进行容器化部署，支持多域名配置和自动SSL证书管理。
 
 ## 🏗️ **系统架构**
 
@@ -11,7 +13,7 @@ Internet
     ↓
 JC21 Nginx Proxy Manager (ports: 80, 443, 81)
     ├── daidai.amis.hk → frontend:80 (nginx:alpine)
-    ├── api.daidai.amis.hk → api:3000 (Node.js + Express)  
+    ├── api.daidai.amis.hk → api:3000 (Node.js + Express)
     └── directus.daidai.amis.hk → directus:8055 (Directus CMS)
              ↓
 Internal Network (bridge)
@@ -21,12 +23,13 @@ Internal Network (bridge)
 ```
 
 ### **测试环境域名架构**
+
 - **主域名**: `daidai-preview.amis.hk` - 前端应用
 - **API域名**: `api.daidai-preview.amis.hk` - API服务器
 - **CMS域名**: `directus.daidai-preview.amis.hk` - Directus管理后台
 
-
 ### **生产环境域名架构**
+
 - **主域名**: `daidai.amis.hk` - 前端应用
 - **API域名**: `api.daidai.amis.hk` - API服务器
 - **CMS域名**: `directus.daidai.amis.hk` - Directus管理后台
@@ -36,6 +39,7 @@ Internal Network (bridge)
 ### **1. 环境准备**
 
 确保本地环境已安装：
+
 - Node.js 22+
 - Yarn 1.22+
 - Docker & Docker Compose
@@ -68,6 +72,7 @@ docker build -t avatar-mgmt-api:latest -f api-server/Dockerfile .
 3. **配置多域名代理**:
 
 #### **域名代理配置（推荐）**
+
 基于实际的docker-compose.prod.yml配置：
 
 ```yaml
@@ -77,34 +82,37 @@ daidai.amis.hk → forward to: frontend:80
 - Block Common Exploits: ✓
 - Websockets Support: ✓
 
-# API域名配置  
+# API域名配置
 api.daidai.amis.hk → forward to: api:3000
 - SSL: Enable (Let's Encrypt)
 - Block Common Exploits: ✓
 - Custom locations: /health, /api/*
 
 # CMS域名配置
-directus.daidai.amis.hk → forward to: directus:8055  
+directus.daidai.amis.hk → forward to: directus:8055
 - SSL: Enable (Let's Encrypt)
 - Block Common Exploits: ✓
 - Websockets Support: ✓ (for real-time features)
 ```
 
 #### **端口映射说明**
+
 根据docker-compose.prod.yml的实际配置：
+
 ```yaml
 ports:
   - "80:80"     # HTTP (JC21)
-  - "443:443"   # HTTPS (JC21) 
+  - "443:443"   # HTTPS (JC21)
   - "81:81"     # Admin UI (JC21)
 
 内部服务端口（Azure防火墙阻止，仅本机调试）：
   - "8055:8055" # Directus (内部访问)
-  - "3000:3000" # API (内部访问)  
+  - "3000:3000" # API (内部访问)
   - "4173:80"   # Frontend (内部访问)
 ```
 
 #### **高级配置示例**
+
 ```nginx
 location /api/ {
     proxy_pass http://api:3000/;
@@ -158,7 +166,7 @@ export DOMAIN="daidai.amis.hk"
 基于实际的 `docker-compose.prod.yml` 文件：
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
   # JC21 Nginx Proxy Manager - 主要的反向代理和SSL管理
@@ -166,16 +174,16 @@ services:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     ports:
-      - '80:80'        # HTTP
-      - '443:443'      # HTTPS  
-      - '81:81'        # Admin UI
+      - '80:80' # HTTP
+      - '443:443' # HTTPS
+      - '81:81' # Admin UI
     volumes:
       - ./jc21/data:/data
       - ./jc21/letsencrypt:/etc/letsencrypt
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:81"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:81']
 
   # JC21的专用MariaDB数据库
   nginx-proxy-manager-db:
@@ -184,7 +192,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 'npm'
       MYSQL_DATABASE: 'npm'
-      MYSQL_USER: 'npm'  
+      MYSQL_USER: 'npm'
       MYSQL_PASSWORD: 'npm'
     volumes:
       - ./jc21/data/mysql:/var/lib/mysql
@@ -200,7 +208,7 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U directus"]
+      test: ['CMD-SHELL', 'pg_isready -U directus']
 
   # Directus CMS
   directus:
@@ -216,9 +224,9 @@ services:
       - ./directus/extensions:/directus/extensions
       - ./directus/schemas:/directus/schemas
     ports:
-      - "8055:8055"  # 可选的直接访问端口
+      - '8055:8055' # 可选的直接访问端口
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8055/"]
+      test: ['CMD', 'wget', '--spider', '-q', 'http://127.0.0.1:8055/']
 
   # API Server (自建)
   api:
@@ -231,9 +239,9 @@ services:
     env_file:
       - .env.prod.api
     ports:
-      - "3000:3000"  # 可选的直接访问端口
+      - '3000:3000' # 可选的直接访问端口
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000/health']
 
   # Frontend (Nginx静态文件服务)
   frontend:
@@ -242,7 +250,7 @@ services:
       - ./frontend/dist:/usr/share/nginx/html:ro
       - ./frontend/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
-      - "4173:80"  # 可选的直接访问端口
+      - '4173:80' # 可选的直接访问端口
 
 networks:
   internal:
@@ -252,17 +260,20 @@ networks:
 ## 🌐 **访问地址**
 
 ### **生产环境 (多域名架构)**
+
 - **前端应用**: https://daidai.amis.hk
 - **API服务**: https://api.daidai.amis.hk
-- **Directus管理**: https://directus.daidai.amis.hk  
+- **Directus管理**: https://directus.daidai.amis.hk
 - **JC21管理**: http://daidai.amis.hk:81
 
 ### **直接访问端口 (仅仅本地)**
+
 - **前端直接访问**: http://daidai.amis.hk:4173
 - **API直接访问**: http://daidai.amis.hk:3000
 - **Directus直接访问**: http://daidai.amis.hk:8055
 
 ### **测试命令**
+
 ```bash
 # 测试前端应用
 curl -s -o /dev/null -w "%{http_code}" https://daidai.amis.hk
@@ -286,11 +297,12 @@ curl -s https://api.daidai.amis.hk/api/avatars
 ```
 
 ### **健康检查端点**
+
 ```bash
 # API健康状态
 curl https://api.daidai.amis.hk/health
 
-# Directus健康状态  
+# Directus健康状态
 curl https://directus.daidai.amis.hk/server/ping
 ```
 
@@ -299,16 +311,18 @@ curl https://directus.daidai.amis.hk/server/ping
 ### **常见问题**
 
 #### **1. 域名解析问题**
+
 ```bash
 # 检查域名DNS解析
 nslookup daidai.amis.hk
-nslookup api.daidai.amis.hk  
+nslookup api.daidai.amis.hk
 nslookup directus.daidai.amis.hk
 
 # 确保所有域名都指向同一服务器IP
 ```
 
 #### **2. JC21配置问题**
+
 ```bash
 # 检查JC21容器状态
 docker compose -f docker-compose.prod.yml ps nginx-proxy-manager
@@ -321,6 +335,7 @@ sudo rm -rf jc21/data && docker compose -f docker-compose.prod.yml restart nginx
 ```
 
 #### **3. 服务连接问题**
+
 ```bash
 # 检查内部网络连通性
 docker compose -f docker-compose.prod.yml exec nginx-proxy-manager ping frontend
@@ -329,11 +344,12 @@ docker compose -f docker-compose.prod.yml exec nginx-proxy-manager ping directus
 
 # 检查服务端口
 docker compose -f docker-compose.prod.yml exec frontend netstat -tlnp
-docker compose -f docker-compose.prod.yml exec api netstat -tlnp  
+docker compose -f docker-compose.prod.yml exec api netstat -tlnp
 docker compose -f docker-compose.prod.yml exec directus netstat -tlnp
 ```
 
 #### **4. SSL证书问题**
+
 ```bash
 # 检查Let's Encrypt证书状态
 docker compose -f docker-compose.prod.yml exec nginx-proxy-manager ls -la /etc/letsencrypt/live/
@@ -344,6 +360,7 @@ docker compose -f docker-compose.prod.yml exec nginx-proxy-manager ls -la /etc/l
 ```
 
 #### **5. 数据库连接问题**
+
 ```bash
 # 检查PostgreSQL状态
 docker compose -f docker-compose.prod.yml exec db pg_isready -U directus
@@ -356,6 +373,7 @@ docker compose -f docker-compose.prod.yml logs directus | grep -i database
 ```
 
 #### **6. 前端构建和缓存问题**
+
 ```bash
 # 清理并重新构建前端
 cd frontend
@@ -376,7 +394,7 @@ docker compose -f docker-compose.prod.yml logs
 # 查看特定服务日志
 docker compose -f docker-compose.prod.yml logs nginx-proxy-manager
 docker compose -f docker-compose.prod.yml logs frontend
-docker compose -f docker-compose.prod.yml logs api  
+docker compose -f docker-compose.prod.yml logs api
 docker compose -f docker-compose.prod.yml logs directus
 docker compose -f docker-compose.prod.yml logs db
 
@@ -390,6 +408,7 @@ docker compose -f docker-compose.prod.yml logs --tail=50 directus | grep -i erro
 ## 🔄 **维护操作**
 
 ### **备份数据**
+
 ```bash
 # 备份数据库架构
 docker compose -f docker-compose.prod.yml exec directus npx directus schema snapshot schemas/backup-$(date +%Y%m%d).yml
@@ -405,6 +424,7 @@ tar -czf backup-jc21-$(date +%Y%m%d).tar.gz jc21/
 ```
 
 ### **重启服务**
+
 ```bash
 # 重启所有服务
 docker compose -f docker-compose.prod.yml restart
@@ -421,6 +441,7 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### **更新部署**
+
 ```bash
 # 1. 停止服务
 docker compose -f docker-compose.prod.yml down
@@ -430,7 +451,7 @@ git pull origin main
 
 # 3. 重新构建前端
 cd frontend
-yarn install  
+yarn install
 yarn build
 cd ..
 
@@ -454,6 +475,7 @@ docker compose -f docker-compose.prod.yml ps
 ```
 
 ### **数据库迁移**
+
 ```bash
 # 应用数据库架构更新
 docker compose -f docker-compose.prod.yml exec directus npx directus schema apply --yes schemas/snapshot.yml
@@ -465,36 +487,42 @@ docker compose -f docker-compose.prod.yml exec directus npx directus schema snap
 ## 📋 **部署检查清单**
 
 ### **基础环境**
+
 - [ ] 服务器环境准备完成
 - [ ] Docker & Docker Compose 已安装
 - [ ] 域名DNS解析配置正确
 - [ ] 防火墙端口开放 (80, 443, 81)
 
 ### **代码和构建**
+
 - [ ] 最新代码已拉取
 - [ ] 前端构建成功 (`yarn build`)
 - [ ] API Docker镜像构建成功
 - [ ] 环境变量文件配置正确
 
 ### **服务部署**
+
 - [ ] 所有Docker容器启动正常
 - [ ] 健康检查全部通过
 - [ ] 数据库连接正常
 - [ ] 内部网络通信正常
 
 ### **JC21代理配置**
+
 - [ ] JC21管理界面可访问 (port 81)
 - [ ] 多域名代理配置完成
 - [ ] SSL证书自动获取成功
 - [ ] 所有域名HTTPS访问正常
 
 ### **功能测试**
+
 - [ ] 前端应用正常访问 (`https://daidai.amis.hk`)
 - [ ] API服务正常响应 (`https://api.daidai.amis.hk/health`)
 - [ ] Directus管理正常访问 (`https://directus.daidai.amis.hk`)
 - [ ] 用户登录和基础功能正常
 
 ### **监控和备份**
+
 - [ ] 日志记录正常
 - [ ] 数据备份计划已设置
 - [ ] 服务监控已配置
@@ -503,18 +531,21 @@ docker compose -f docker-compose.prod.yml exec directus npx directus schema snap
 ## 🎯 **最佳实践**
 
 ### **🔒 安全实践**
+
 1. **域名分离架构** - 清晰的服务边界，便于管理和扩展
 2. **SSL自动化** - JC21自动处理Let's Encrypt证书更新
 3. **内部网络隔离** - 所有服务在内部网络通信
 4. **端口最小化暴露** - 仅必要端口对外开放
 
 ### **🚀 运维实践**
+
 1. **定期备份** - 数据库、文件、配置的定期备份
 2. **监控告警** - 服务状态和性能监控
 3. **版本管理** - 代码和配置的版本控制
 4. **文档维护** - 部署和运维文档的及时更新
 
 ### **📊 性能优化**
+
 1. **生产级前端** - 使用构建版本，启用压缩和缓存
 2. **容器化部署** - 便于维护、扩展和迁移
 3. **健康检查** - 自动故障检测和恢复
@@ -525,13 +556,15 @@ docker compose -f docker-compose.prod.yml exec directus npx directus schema snap
 ## 🌍 **生产环境架构总结**
 
 ### **域名规划**
+
 ```
 daidai.amis.hk      → 前端应用 (Vue.js + Nginx)
-api.daidai.amis.hk  → API服务器 (Node.js + Express)  
+api.daidai.amis.hk  → API服务器 (Node.js + Express)
 directus.daidai.amis.hk → Directus CMS (管理后台)
 ```
 
 ### **技术栈**
+
 - **反向代理**: JC21 Nginx Proxy Manager
 - **SSL证书**: 自动 Let's Encrypt 证书管理
 - **前端**: Vue 3 + Vite 生产构建 + Nginx
@@ -540,6 +573,7 @@ directus.daidai.amis.hk → Directus CMS (管理后台)
 - **容器化**: Docker Compose 多服务编排
 
 ### **架构优势**
+
 - ✅ **域名分离**: 清晰的服务边界和职责划分
 - ✅ **SSL自动化**: 无需手动管理证书更新
 - ✅ **高可用性**: 健康检查和自动重启机制

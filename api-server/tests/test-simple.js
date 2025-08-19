@@ -34,7 +34,7 @@ console.log('\n🌐 测试网络连接...');
 try {
   const testUrl = `https://${AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
   console.log(`   测试 URL: ${testUrl}`);
-  
+
   const response = await fetch(testUrl, {
     method: 'POST',
     headers: {
@@ -42,9 +42,13 @@ try {
       'Content-Type': 'application/ssml+xml',
       'X-MICROSOFT-OUTPUTFORMAT': 'audio-24khz-48kbitrate-mono-mp3',
     },
-    body: `<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">\n  <voice name=\"en-US-JennyNeural\">\n    Hello, this is a test.\n  </voice>\n</speak>`,
+    body: `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+  <voice name="en-US-JennyNeural">
+    Hello, this is a test.
+  </voice>
+</speak>`,
   });
-  
+
   if (response.ok) {
     console.log('✅ 网络连接和认证成功！');
     console.log(`   响应状态: ${response.status}`);
@@ -64,4 +68,4 @@ try {
 console.log('\n📝 下一步:');
 console.log('1. 如果网络连接成功，运行完整测试: yarn test:azure');
 console.log('2. 启动 API 服务器: yarn dev');
-console.log('3. 在前端测试语音合成功能'); 
+console.log('3. 在前端测试语音合成功能');

@@ -20,15 +20,17 @@ const app = express();
 app.use((req, res, next) => {
   // 安全的 CORS 配置 - 明确定义允许的源
   const corsOrigin = process.env.CORS_ORIGIN;
-  const allowedOrigins = corsOrigin ? corsOrigin.split(',') : [
-    'http://localhost:5173',        // Frontend dev server
-    'http://localhost:3000',        // API dev server
-    'https://daidai.amis.hk',       // Production
-    'https://daidai-preview.amis.hk', // Staging
-  ];
-  
+  const allowedOrigins = corsOrigin
+    ? corsOrigin.split(',')
+    : [
+        'http://localhost:5173', // Frontend dev server
+        'http://localhost:3000', // API dev server
+        'https://daidai.amis.hk', // Production
+        'https://daidai-preview.amis.hk', // Staging
+      ];
+
   const origin = req.headers.origin;
-  
+
   // 处理 CORS 策略
   if (corsOrigin === '*' || allowedOrigins.includes('*')) {
     // 允许所有源
@@ -43,11 +45,14 @@ app.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
     }
   }
-  
+
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
   } else {
@@ -95,10 +100,8 @@ function displayEnvironmentConfig() {
   }
 
   // 显示其他相关环境变量
-  const otherEnvs = [
-    'OPENAI_API_KEY', 'AZURE_SPEECH_KEY', 'AZURE_SPEECH_REGION', 'CORS_ORIGIN'
-  ];
-  
+  const otherEnvs = ['OPENAI_API_KEY', 'AZURE_SPEECH_KEY', 'AZURE_SPEECH_REGION', 'CORS_ORIGIN'];
+
   const configuredEnvs = otherEnvs.filter(env => process.env[env]);
   if (configuredEnvs.length > 0) {
     Logger.info('其他配置:');
@@ -111,21 +114,26 @@ function displayEnvironmentConfig() {
       }
     });
   }
-  
+
   Logger.info('=====================================');
 }
 
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+// Vercel 函数入口点
+export default app;
 
-// 启动服务器
-app.listen(port, () => {
-  Logger.info(`Avatar API Server listening on port ${port}`);
-  displayEnvironmentConfig();
-  
-  // 验证关键配置
-  if (!process.env.DIRECTUS_URL || !process.env.DIRECTUS_TOKEN) {
-    Logger.warn('⚠️  警告: Directus 配置不完整，某些功能可能无法正常工作!');
-  } else {
-    Logger.info('✅ 所有关键配置已就绪!');
-  }
-}); 
+// 本地开发服务器
+if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+  app.listen(port, () => {
+    Logger.info(`Avatar API Server listening on port ${port}`);
+    displayEnvironmentConfig();
+
+    // 验证关键配置
+    if (!process.env.DIRECTUS_URL || !process.env.DIRECTUS_TOKEN) {
+      Logger.warn('⚠️  警告: Directus 配置不完整，某些功能可能无法正常工作!');
+    } else {
+      Logger.info('✅ 所有关键配置已就绪!');
+    }
+  });
+}

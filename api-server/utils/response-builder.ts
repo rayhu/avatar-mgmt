@@ -1,9 +1,15 @@
 import { debugLogger } from './debug-logger.js';
 import { SSMLValidationResult } from './ssml-validator.js';
 
+export interface TokenUsage {
+  total_tokens?: number;
+  prompt_tokens?: number;
+  completion_tokens?: number;
+}
+
 export interface DebugInfo {
   validation: SSMLValidationResult;
-  tokenUsage?: any;
+  tokenUsage?: TokenUsage;
   model?: string;
   originalSSML: string;
   processingSteps: {
@@ -16,7 +22,19 @@ export interface DebugInfo {
 export interface SSMLResponse {
   ssml: string;
   debugInfo?: DebugInfo;
-  debugLogs?: any[];
+  debugLogs?: string[];
+}
+
+export interface ErrorResponseBody {
+  error: string;
+  details?: string;
+  debugLogs?: string[];
+  [key: string]: unknown;
+}
+
+export interface ErrorResponse {
+  status: number;
+  body: ErrorResponseBody;
 }
 
 /**
@@ -31,11 +49,11 @@ export class ResponseBuilder {
     ssml: string,
     validationResult: SSMLValidationResult,
     rawSSML: string,
-    tokenUsage?: any,
+    tokenUsage?: TokenUsage,
     model?: string
   ): SSMLResponse {
     const response: SSMLResponse = { ssml };
-    
+
     // 在调试模式下添加详细信息
     if (debugLogger.isDebugEnabled()) {
       response.debugInfo = {
@@ -46,8 +64,8 @@ export class ResponseBuilder {
         processingSteps: {
           markdownRemoved: rawSSML.length !== ssml.length,
           originalLength: rawSSML.length,
-          finalLength: ssml.length
-        }
+          finalLength: ssml.length,
+        },
       };
       response.debugLogs = debugLogger.getLogsForResponse();
     } else {
@@ -61,17 +79,13 @@ export class ResponseBuilder {
   /**
    * 构建错误响应
    */
-  buildErrorResponse(
-    error: string,
-    details?: string,
-    statusCode: number = 500
-  ): { status: number; body: any } {
-    const body: any = { error };
-    
+  buildErrorResponse(error: string, details?: string, statusCode: number = 500): ErrorResponse {
+    const body: ErrorResponseBody = { error };
+
     if (details) {
       body.details = details;
     }
-    
+
     // 始终添加 debugLogs 字段，在非调试模式下为空数组
     if (debugLogger.isDebugEnabled()) {
       body.debugLogs = debugLogger.getLogsForResponse();
@@ -81,24 +95,21 @@ export class ResponseBuilder {
 
     return {
       status: statusCode,
-      body
+      body,
     };
   }
 
   /**
    * 构建参数验证错误响应
    */
-  buildValidationErrorResponse(
-    error: string,
-    details?: any
-  ): { status: number; body: any } {
+  buildValidationErrorResponse(error: string, details?: unknown): ErrorResponse {
     return this.buildErrorResponse(error, details ? JSON.stringify(details) : undefined, 400);
   }
 
   /**
    * 构建方法不允许错误响应
    */
-  buildMethodNotAllowedResponse(method: string): { status: number; body: any } {
+  buildMethodNotAllowedResponse(method: string): ErrorResponse {
     return this.buildErrorResponse('Method not allowed', `Method ${method} is not supported`, 405);
   }
 }

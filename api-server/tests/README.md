@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── setup.ts                    # Jest 测试设置文件
+├── setup.ts                    # 测试设置文件
 ├── run-tests.sh               # 测试运行脚本
 ├── README.md                  # 本文档
 ├── utils/                     # 工具模块测试
@@ -84,7 +84,7 @@ yarn test:coverage
 
 ## 🛠️ 测试工具
 
-### Jest 配置
+### VITEST 配置
 
 - **测试环境**: Node.js
 - **模块系统**: ES Modules
@@ -142,10 +142,10 @@ describe('模块名称', () => {
     it('应该执行预期行为', () => {
       // 准备测试数据
       const input = 'test';
-      
+
       // 执行被测试的方法
       const result = instance.method(input);
-      
+
       // 验证结果
       expect(result).toBe('expected');
     });
@@ -192,21 +192,21 @@ await expect(asyncFunction()).rejects.toThrow('Error');
 
 ```typescript
 // 模拟模块
-jest.mock('../utils/module');
+vi.mock('../utils/module');
 
 // 模拟函数
-const mockFn = jest.fn().mockReturnValue('mocked');
-const mockFn = jest.fn().mockResolvedValue('async mocked');
-const mockFn = jest.fn().mockRejectedValue(new Error('error'));
+const mockFn = vi.fn().mockReturnValue('mocked');
+const mockFn = vi.fn().mockResolvedValue('async mocked');
+const mockFn = vi.fn().mockRejectedValue(new Error('error'));
 
 // 模拟实现
-jest.fn().mockImplementation((arg) => {
+vi.fn().mockImplementation(arg => {
   return arg.toUpperCase();
 });
 
 // 清理模拟
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 ```
 
@@ -214,32 +214,32 @@ beforeEach(() => {
 
 ### 1. 测试失败
 
-**问题**: 测试运行时失败
-**解决**: 
+**问题**: 测试运行时失败 **解决**:
+
 - 检查环境变量设置
 - 验证依赖是否正确安装
 - 查看错误日志
 
 ### 2. 覆盖率不达标
 
-**问题**: 覆盖率低于 90%
-**解决**:
+**问题**: 覆盖率低于 90% **解决**:
+
 - 添加边界情况测试
 - 测试错误处理路径
 - 检查未覆盖的代码分支
 
 ### 3. 模拟不工作
 
-**问题**: 模拟函数没有按预期工作
-**解决**:
+**问题**: 模拟函数没有按预期工作 **解决**:
+
 - 检查模拟设置顺序
 - 验证模拟函数名称
 - 确保在测试前设置模拟
 
 ### 4. 异步测试失败
 
-**问题**: 异步测试超时或失败
-**解决**:
+**问题**: 异步测试超时或失败 **解决**:
+
 - 使用 `async/await`
 - 正确模拟异步函数
 - 设置适当的超时时间
@@ -266,7 +266,7 @@ beforeEach(() => {
 
 ## 🔗 相关链接
 
-- [Jest 官方文档](https://jestjs.io/)
+- [Vitest 官方文档](https://vitest.dev/)
 - [TypeScript 测试指南](https://www.typescriptlang.org/docs/handbook/testing.html)
 - [Node.js 测试最佳实践](https://nodejs.org/en/docs/guides/testing-and-debugging/)
 
@@ -275,7 +275,7 @@ beforeEach(() => {
 如果您在测试过程中遇到问题，请：
 
 1. 查看本文档
-2. 检查 Jest 错误日志
+2. 检查 Vitest 错误日志
 3. 联系开发团队
 
 ---

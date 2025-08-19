@@ -11,36 +11,36 @@ const COMMON_API_ENDPOINTS = {
   assets: '/api/assets',
   auth: {
     login: '/api/auth/login',
-    logout: '/api/auth/logout'
-  }
+    logout: '/api/auth/logout',
+  },
 } as const;
 
 // 从环境变量获取 baseUrl，如果没有则使用默认值
 function getBaseUrls() {
   const env = import.meta.env.MODE || 'development';
-  
+
   // 从环境变量读取，格式：VITE_API_BASE_URL
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-  
+
   // 默认值配置
   const defaults = {
     development: {
-      api: 'http://localhost:3000'
+      api: 'http://localhost:3000',
     },
     stage: {
-      api: 'https://api.daidai-preview.amis.hk'
+      api: 'https://api.daidai-preview.amis.hk',
     },
     production: {
-      api: 'https://api.daidai.amis.hk'
-    }
+      api: 'https://api.daidai.amis.hk',
+    },
   };
-  
+
   const defaultConfig = defaults[env as keyof typeof defaults] || defaults.development;
-  
+
   const finalApiBaseUrl = apiBaseUrl || defaultConfig.api;
-  
+
   return {
-    api: finalApiBaseUrl
+    api: finalApiBaseUrl,
   };
 }
 
@@ -49,31 +49,31 @@ export const API_CONFIG = {
   development: {
     api: {
       baseUrl: getBaseUrls().api,
-      endpoints: COMMON_API_ENDPOINTS
-    }
+      endpoints: COMMON_API_ENDPOINTS,
+    },
   },
-  
+
   // Stage 环境
   stage: {
     api: {
       baseUrl: getBaseUrls().api,
-      endpoints: COMMON_API_ENDPOINTS
-    }
+      endpoints: COMMON_API_ENDPOINTS,
+    },
   },
-  
+
   // 生产环境
   production: {
     api: {
       baseUrl: getBaseUrls().api,
-      endpoints: COMMON_API_ENDPOINTS
-    }
-  }
+      endpoints: COMMON_API_ENDPOINTS,
+    },
+  },
 };
 
 // 获取当前环境配置
 export function getApiConfig() {
   const env = import.meta.env.MODE || 'development';
-  
+
   // 调试信息
   console.log('🌍 当前环境信息:', {
     MODE: import.meta.env.MODE,
@@ -81,24 +81,24 @@ export function getApiConfig() {
     PROD: import.meta.env.PROD,
     BASE_URL: import.meta.env.BASE_URL,
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-    selectedEnv: env
+    selectedEnv: env,
   });
-  
+
   const config = API_CONFIG[env as keyof typeof API_CONFIG] || API_CONFIG.development;
-  
+
   // 显示最终配置
   console.log('🌍 最终 API 配置:', {
     env: env,
-    apiBaseUrl: config.api.baseUrl
+    apiBaseUrl: config.api.baseUrl,
   });
-  
+
   return config;
 }
 
 // 便捷的 API URL 构建器 - 支持嵌套的 endpoint 结构
 export function getApiUrl(endpointKey: string): string {
   const config = getApiConfig();
-  
+
   // 处理嵌套的 endpoint 结构
   let endpoint: string;
   if (endpointKey.includes('.')) {
@@ -109,12 +109,12 @@ export function getApiUrl(endpointKey: string): string {
     // 处理直接的 endpoint
     endpoint = (config.api.endpoints as any)[endpointKey];
   }
-  
+
   if (!endpoint) {
     console.error('❌ 无效的 endpoint key:', endpointKey);
     throw new Error(`Invalid endpoint key: ${endpointKey}`);
   }
-  
+
   const url = `${config.api.baseUrl}${endpoint}`;
   console.log('🔗 API URL:', url);
   return url;
@@ -123,13 +123,13 @@ export function getApiUrl(endpointKey: string): string {
 // 构建资源文件 URL - 通过 API Server 代理
 export function buildAssetUrl(fileId: string): string {
   const config = getApiConfig();
-  
+
   if (!fileId) {
     console.warn('⚠️ buildAssetUrl: fileId 为空');
     return '';
   }
-  
+
   const url = `${config.api.baseUrl}${config.api.endpoints.assets}/${fileId}`;
   console.log('🔗 资源文件 URL:', url);
   return url;
-} 
+}

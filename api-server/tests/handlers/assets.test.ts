@@ -6,7 +6,7 @@ import { assetsHandler } from '../../handlers/assets.js';
 vi.mock('axios', () => ({
   default: {
     get: vi.fn(),
-  }
+  },
 }));
 
 // Import mocked modules
@@ -17,8 +17,8 @@ vi.mock('../utils/logger', () => ({
   Logger: {
     info: vi.fn(),
     error: vi.fn(),
-    warn: vi.fn()
-  }
+    warn: vi.fn(),
+  },
 }));
 
 describe('Assets Handler', () => {
@@ -37,14 +37,14 @@ describe('Assets Handler', () => {
     mockPipe = vi.fn();
 
     mockReq = {
-      params: { fileId: 'test-file-id' }
+      params: { fileId: 'test-file-id' },
     };
 
     mockRes = {
       status: mockStatus,
       json: mockJson,
       set: mockSet,
-      pipe: mockPipe
+      pipe: mockPipe,
     };
 
     // Setup environment variables
@@ -53,7 +53,7 @@ describe('Assets Handler', () => {
 
     // Reset all mocks
     vi.clearAllMocks();
-    
+
     // Ensure environment variables are set after clearing mocks
     process.env.DIRECTUS_URL = 'http://localhost:8055';
     process.env.DIRECTUS_TOKEN = 'test-token';
@@ -86,22 +86,22 @@ describe('Assets Handler', () => {
     // 确保环境变量设置正确
     process.env.DIRECTUS_URL = 'http://localhost:8055';
     process.env.DIRECTUS_TOKEN = 'test-token';
-    
+
     const mockFileData = {
       data: {
         data: {
           id: 'test-file-id',
           filename_download: 'test.jpg',
           filesize: 1024,
-          type: 'image/jpeg'
-        }
-      }
+          type: 'image/jpeg',
+        },
+      },
     };
 
     const mockFileStream = {
       data: {
-        pipe: mockPipe
-      }
+        pipe: mockPipe,
+      },
     };
 
     vi.mocked(axios.get)
@@ -115,7 +115,7 @@ describe('Assets Handler', () => {
       'Content-Type': 'image/jpeg',
       'Content-Length': 1024,
       'Content-Disposition': 'inline; filename="test.jpg"',
-      'Cache-Control': 'public, max-age=31536000'
+      'Cache-Control': 'public, max-age=31536000',
     });
     expect(mockPipe).toHaveBeenCalledWith(mockRes);
   });
@@ -124,9 +124,9 @@ describe('Assets Handler', () => {
     // 确保环境变量设置正确
     process.env.DIRECTUS_URL = 'http://localhost:8055';
     process.env.DIRECTUS_TOKEN = 'test-token';
-    
+
     vi.mocked(axios.get).mockRejectedValueOnce({
-      response: { status: 404, data: { message: 'File not found' } }
+      response: { status: 404, data: { message: 'File not found' } },
     });
 
     await assetsHandler(mockReq as Request, mockRes as Response);
@@ -139,7 +139,7 @@ describe('Assets Handler', () => {
     // 确保环境变量设置正确
     process.env.DIRECTUS_URL = 'http://localhost:8055';
     process.env.DIRECTUS_TOKEN = 'test-token';
-    
+
     vi.mocked(axios.get).mockRejectedValueOnce(new Error('Network error'));
 
     await assetsHandler(mockReq as Request, mockRes as Response);
@@ -147,7 +147,7 @@ describe('Assets Handler', () => {
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       error: 'Failed to proxy file',
-      message: 'Network error'
+      message: 'Network error',
     });
   });
 });

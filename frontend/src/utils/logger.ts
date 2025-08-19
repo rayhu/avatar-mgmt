@@ -18,7 +18,7 @@ export enum LogLevel {
   INFO = 1,
   WARN = 2,
   ERROR = 3,
-  NONE = 4
+  NONE = 4,
 }
 
 class Logger {
@@ -85,7 +85,7 @@ class Logger {
       component: 'API',
       method: 'API_CALL',
       url,
-      ...context
+      ...context,
     });
   }
 
@@ -96,7 +96,7 @@ class Logger {
       component: 'API',
       method: 'API_RESPONSE',
       status,
-      ...context
+      ...context,
     };
 
     if (level === 'error') {
@@ -113,7 +113,7 @@ class Logger {
       error: error.message,
       errorType: error.constructor.name,
       stack: error.stack,
-      ...context
+      ...context,
     });
   }
 
@@ -122,7 +122,7 @@ class Logger {
     this.info(`👤 用户操作: ${action}`, {
       component: 'USER',
       method: 'USER_ACTION',
-      ...context
+      ...context,
     });
   }
 
@@ -132,7 +132,7 @@ class Logger {
       component: 'PERFORMANCE',
       method: 'PERFORMANCE',
       duration,
-      ...context
+      ...context,
     });
   }
 
@@ -143,7 +143,7 @@ class Logger {
       method: 'ROUTE_CHANGE',
       from,
       to,
-      ...context
+      ...context,
     });
   }
 
@@ -154,7 +154,7 @@ class Logger {
       method: 'STORE_UPDATE',
       action,
       state,
-      ...context
+      ...context,
     });
   }
 
@@ -178,4 +178,4 @@ class Logger {
 export const logger = new Logger();
 
 // 导出便捷函数
-export const log = logger; 
+export const log = logger;

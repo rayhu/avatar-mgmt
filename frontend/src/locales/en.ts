@@ -232,12 +232,15 @@ export default {
     refreshing: 'Refreshing...',
     lastUpdate: 'Last Update',
     error: 'Failed to get version information',
-    description: 'Xiaoying Technology Digital Human Management System operation status, technical features and version details',
+    description:
+      'Xiaoying Technology Digital Human Management System operation status, technical features and version details',
     systemIntro: 'System Introduction',
-    systemIntroText: 'Xiaoying Technology Digital Human Management System is a comprehensive platform that integrates voice synthesis, animation generation, model management and other functions. The system adopts a modern technical architecture and provides stable and reliable services.',
+    systemIntroText:
+      'Xiaoying Technology Digital Human Management System is a comprehensive platform that integrates voice synthesis, animation generation, model management and other functions. The system adopts a modern technical architecture and provides stable and reliable services.',
     technicalFeatures: 'Technical Features',
     contactUs: 'Contact Us',
-    contactText: 'If you encounter any problems during use or have improvement suggestions, please feel free to contact us.',
+    contactText:
+      'If you encounter any problems during use or have improvement suggestions, please feel free to contact us.',
     technicalSupport: 'Technical Support',
     clickToSendEmail: 'Click to send email',
     emailSent: 'Email link generated',
@@ -246,7 +249,8 @@ export default {
     // VersionInfo component related translations
     versionInfo: {
       title: '🔧 System Version Information',
-      description: 'View detailed version information for frontend, backend and system, including Git commit records, build time and operation status',
+      description:
+        'View detailed version information for frontend, backend and system, including Git commit records, build time and operation status',
       versionInfo: 'Version Information',
       refresh: '🔄 Refresh',
       refreshing: '🔄 Refreshing...',
@@ -280,7 +284,8 @@ export default {
       commitHashTip: 'Use Commit Hash to find specific changes in Git',
       monitoringTip: 'Monitor system running time and deployment status',
       unknownVersionTip: 'If version information shows "Unknown", please check network connection',
-      versionMismatchTip: 'Inconsistent frontend and backend versions may cause functional abnormalities',
+      versionMismatchTip:
+        'Inconsistent frontend and backend versions may cause functional abnormalities',
       uptimeAbnormalTip: 'Abnormal running time may indicate system restart',
       environmentErrorTip: 'Environment identification errors may affect functional configuration',
       envTest: 'Environment Test',
@@ -323,6 +328,6 @@ export default {
     w: 'Consonant w',
     y: 'Consonant y',
     z: 'Consonant z',
-    zh: 'Consonant zh'
+    zh: 'Consonant zh',
   },
 };

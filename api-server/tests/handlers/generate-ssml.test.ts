@@ -25,26 +25,28 @@ describe('Generate SSML Handler', () => {
   beforeEach(() => {
     // 重置所有模拟
     vi.clearAllMocks();
-    
+
     // 设置环境变量
     process.env.OPENAI_API_KEY = 'test-openai-key';
-    
+
     // 创建模拟的响应对象
     mockStatus = vi.fn().mockReturnThis();
     mockJson = vi.fn().mockReturnThis();
-    
+
     mockRes = {
       status: mockStatus,
-      json: mockJson
+      json: mockJson,
     };
 
     // 设置默认的模拟返回值
     mockPath.join.mockImplementation((...args) => args.join('/'));
     mockFs.existsSync.mockReturnValue(false); // 默认文件不存在，使用静态映射
-    mockFs.readFileSync.mockReturnValue(JSON.stringify([
-      { name: 'zh-CN-XiaoxiaoNeural', styles: ['cheerful', 'sad', 'angry'] },
-      { name: 'zh-CN-XiaohanNeural', styles: ['affectionate', 'calm'] }
-    ]));
+    mockFs.readFileSync.mockReturnValue(
+      JSON.stringify([
+        { name: 'zh-CN-XiaoxiaoNeural', styles: ['cheerful', 'sad', 'angry'] },
+        { name: 'zh-CN-XiaohanNeural', styles: ['affectionate', 'calm'] },
+      ])
+    );
 
     // 设置默认的fetch模拟
     mockFetch = global.fetch as any;
@@ -53,8 +55,8 @@ describe('Generate SSML Handler', () => {
       status: 200,
       statusText: 'OK',
       json: vi.fn().mockResolvedValue({
-        choices: [{ message: { content: '<speak>测试</speak>' } }]
-      })
+        choices: [{ message: { content: '<speak>测试</speak>' } }],
+      }),
     } as any);
   });
 
@@ -68,7 +70,7 @@ describe('Generate SSML Handler', () => {
         method: 'GET',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: {}
+        body: {},
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -82,7 +84,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -97,7 +99,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: {}
+        body: {},
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -111,7 +113,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '' }
+        body: { text: '' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -125,7 +127,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '   ' }
+        body: { text: '   ' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -139,7 +141,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: 123 }
+        body: { text: 123 },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -154,7 +156,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -166,12 +168,12 @@ describe('Generate SSML Handler', () => {
   describe('OpenAI API密钥验证', () => {
     it('应该在OpenAI API密钥缺失时返回500错误', async () => {
       delete process.env.OPENAI_API_KEY;
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -185,17 +187,17 @@ describe('Generate SSML Handler', () => {
     it('应该从JSON文件加载语音样式映射', async () => {
       // 重置缓存，确保文件检查逻辑被执行
       resetVoiceStyleMapCache();
-      
+
       // 模拟文件存在
       mockFs.existsSync.mockImplementation((path: string) => {
         return path.includes('azure-voices-zh.json');
       });
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -206,12 +208,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该在JSON文件不存在时回退到静态映射', async () => {
       mockFs.existsSync.mockReturnValue(false);
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -223,12 +225,12 @@ describe('Generate SSML Handler', () => {
       mockFs.readFileSync.mockImplementation(() => {
         throw new Error('File read error');
       });
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -239,24 +241,29 @@ describe('Generate SSML Handler', () => {
     it('应该尝试多个可能的文件路径', async () => {
       // 重置缓存，确保路径检查逻辑被执行
       resetVoiceStyleMapCache();
-      
+
       // 模拟所有路径都不存在，触发回退逻辑
       mockFs.existsSync.mockReturnValue(false);
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       // 验证尝试了多个路径
-      expect(mockPath.join).toHaveBeenCalledWith(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json');
+      expect(mockPath.join).toHaveBeenCalledWith(
+        process.cwd(),
+        '../frontend',
+        'public',
+        'azure-voices-zh.json'
+      );
       expect(mockPath.join).toHaveBeenCalledWith(process.cwd(), 'public', 'azure-voices-zh.json');
       expect(mockPath.join).toHaveBeenCalledWith(process.cwd(), 'azure-voices-zh.json');
-      
+
       // 验证硬编码路径也被检查了
       expect(mockFs.existsSync).toHaveBeenCalledWith('/app/public/azure-voices-zh.json');
     });
@@ -268,7 +275,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -281,7 +288,7 @@ describe('Generate SSML Handler', () => {
             'Content-Type': 'application/json',
             Authorization: 'Bearer test-openai-key',
           },
-          body: expect.stringContaining('gpt-4o')
+          body: expect.stringContaining('gpt-4o'),
         })
       );
     });
@@ -291,7 +298,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本' }
+        body: { text: '测试文本' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -299,7 +306,7 @@ describe('Generate SSML Handler', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('zh-CN-XiaoxiaoNeural')
+          body: expect.stringContaining('zh-CN-XiaoxiaoNeural'),
         })
       );
     });
@@ -309,7 +316,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaohanNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaohanNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -317,7 +324,7 @@ describe('Generate SSML Handler', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('zh-CN-XiaohanNeural')
+          body: expect.stringContaining('zh-CN-XiaohanNeural'),
         })
       );
     });
@@ -327,7 +334,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -335,7 +342,7 @@ describe('Generate SSML Handler', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('你是一名语音合成工程师')
+          body: expect.stringContaining('你是一名语音合成工程师'),
         })
       );
     });
@@ -345,7 +352,7 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -354,7 +361,7 @@ describe('Generate SSML Handler', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('你是一名语音合成工程师')
+          body: expect.stringContaining('你是一名语音合成工程师'),
         })
       );
     });
@@ -366,13 +373,13 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockJson).toHaveBeenCalledWith({
-        ssml: '<speak>测试</speak>'
+        ssml: '<speak>测试</speak>',
       });
     });
 
@@ -381,22 +388,22 @@ describe('Generate SSML Handler', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: vi.fn().mockResolvedValue('Invalid API key')
+        text: vi.fn().mockResolvedValue('Invalid API key'),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ 
-        error: 'OpenAI request failed', 
-        details: 'Invalid API key' 
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'OpenAI request failed',
+        details: 'Invalid API key',
       });
     });
 
@@ -406,21 +413,21 @@ describe('Generate SSML Handler', () => {
         status: 200,
         statusText: 'OK',
         json: vi.fn().mockResolvedValue({
-          choices: [{ message: { content: '```xml\n<speak>测试</speak>\n```' } }]
-        })
+          choices: [{ message: { content: '```xml\n<speak>测试</speak>\n```' } }],
+        }),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockJson).toHaveBeenCalledWith({
-        ssml: '<speak>测试</speak>'
+        ssml: '<speak>测试</speak>',
       });
     });
 
@@ -430,21 +437,21 @@ describe('Generate SSML Handler', () => {
         status: 200,
         statusText: 'OK',
         json: vi.fn().mockResolvedValue({
-          choices: [{ message: { content: '' } }]
-        })
+          choices: [{ message: { content: '' } }],
+        }),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockJson).toHaveBeenCalledWith({
-        ssml: ''
+        ssml: '',
       });
     });
 
@@ -453,20 +460,20 @@ describe('Generate SSML Handler', () => {
         ok: true,
         status: 200,
         statusText: 'OK',
-        json: vi.fn().mockResolvedValue({})
+        json: vi.fn().mockResolvedValue({}),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockJson).toHaveBeenCalledWith({
-        ssml: ''
+        ssml: '',
       });
     });
   });
@@ -479,15 +486,15 @@ describe('Generate SSML Handler', () => {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
 
       expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ 
-        error: 'Internal server error', 
-        details: 'Network error' 
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Internal server error',
+        details: 'Network error',
       });
     });
   });
@@ -495,12 +502,12 @@ describe('Generate SSML Handler', () => {
   describe('日志记录', () => {
     it('应该记录请求开始信息', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -512,12 +519,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该记录请求参数', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -529,12 +536,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该记录OpenAI API调用', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -546,12 +553,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该记录OpenAI响应', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -563,12 +570,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该记录SSML生成成功', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -581,12 +588,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该记录最终成功信息', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: '测试文本', voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -601,12 +608,12 @@ describe('Generate SSML Handler', () => {
   describe('边界情况', () => {
     it('应该处理长文本', async () => {
       const longText = '这是一个很长的测试文本，用来测试长文本的处理能力。'.repeat(10);
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: longText, voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: longText, voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -616,12 +623,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该处理特殊字符', async () => {
       const specialText = '测试特殊字符：!@#$%^&*()_+-=[]{}|;:,.<>?';
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: specialText, voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: specialText, voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);
@@ -631,12 +638,12 @@ describe('Generate SSML Handler', () => {
 
     it('应该处理Unicode字符', async () => {
       const unicodeText = '测试Unicode字符：🚀🎉🌟💫✨';
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/generate-ssml',
         headers: { 'user-agent': 'jest-test' },
-        body: { text: unicodeText, voice: 'zh-CN-XiaoxiaoNeural' }
+        body: { text: unicodeText, voice: 'zh-CN-XiaoxiaoNeural' },
       };
 
       await generateSSMLHandler(mockReq as Request, mockRes as Response);

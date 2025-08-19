@@ -29,29 +29,27 @@ $background-color: #f5f5f5;
     color: #2c3e50;
     font-size: 1.2em;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 16px;
-    
+
     h1 {
       font-size: 1.6em;
       margin-bottom: 24px;
     }
-    
+
     h3 {
       font-size: 1.2em;
       margin-bottom: 12px;
     }
-    
+
     h4 {
       font-size: 1.1em;
       margin-bottom: 8px;
     }
   }
 }
-
-
 
 .model-selector {
   background: white;
@@ -65,7 +63,7 @@ $background-color: #f5f5f5;
     color: #2c3e50;
     font-size: 1.4em;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 16px;
@@ -78,13 +76,13 @@ $background-color: #f5f5f5;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 16px;
   }
-  
+
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -150,19 +148,19 @@ $background-color: #f5f5f5;
       color: #666;
     }
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
     gap: 16px;
-    
+
     .model-preview {
       width: 150px;
       height: 150px;
       align-self: center;
     }
-    
+
     .model-info {
       width: 100%;
     }
@@ -184,17 +182,17 @@ $background-color: #f5f5f5;
     gap: 12px;
     margin-top: 16px;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 16px;
     margin-bottom: 24px;
     border-radius: 12px;
-    
+
     .timeline-controls {
       flex-direction: column;
       gap: 8px;
-      
+
       .control-btn {
         width: 100%;
         padding: 12px;
@@ -239,14 +237,14 @@ $background-color: #f5f5f5;
   align-items: center;
   justify-content: flex-end;
   height: 30px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     width: 50px;
     font-size: 12px;
     padding: 0 8px;
   }
-  
+
   @media (max-width: 480px) {
     width: 40px;
     font-size: 11px;
@@ -294,7 +292,7 @@ $background-color: #f5f5f5;
 // 移动端只显示主要刻度
 .mobile-marker {
   display: none;
-  
+
   @media (max-width: 768px) {
     display: block;
     font-size: 10px;
@@ -328,7 +326,7 @@ $background-color: #f5f5f5;
   min-width: 60px;
   text-align: left;
   user-select: none;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 6px 10px;
@@ -341,7 +339,7 @@ $background-color: #f5f5f5;
     align-items: center;
     justify-content: center;
   }
-  
+
   @media (max-width: 480px) {
     padding: 8px 12px;
     font-size: 10px;
@@ -365,7 +363,7 @@ $background-color: #f5f5f5;
   padding: 15px;
   border-radius: 4px;
   margin-bottom: 20px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 12px;
@@ -378,17 +376,17 @@ $background-color: #f5f5f5;
   display: flex;
   gap: 15px;
   align-items: flex-end;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-    
+
     .form-group {
       width: 100%;
     }
-    
+
     .delete-btn {
       width: 100%;
       padding: 12px;
@@ -431,18 +429,18 @@ $background-color: #f5f5f5;
     padding: 24px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
-  
+
   // 移动端适配：改为垂直布局
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 24px;
     margin-top: 24px;
-    
+
     .form-section {
       padding: 16px;
       border-radius: 12px;
     }
-    
+
     .preview-section {
       padding: 16px;
       border-radius: 12px;
@@ -457,7 +455,7 @@ textarea {
   border: 1px solid #ddd;
   border-radius: 4px;
   resize: vertical;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     min-height: 120px;
@@ -483,7 +481,7 @@ select {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 12px;
@@ -532,14 +530,14 @@ button:hover {
       background: color.adjust($danger-color, $lightness: -10%);
     }
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 12px 20px;
     font-size: 16px;
     min-height: 44px;
     border-radius: 8px;
-    
+
     &:active {
       transform: scale(0.98);
     }
@@ -576,13 +574,13 @@ button:hover {
   display: flex;
   gap: 10px;
   justify-content: center;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 12px;
     margin-top: 16px;
-    
+
     .control-btn {
       width: 100%;
     }
@@ -596,17 +594,17 @@ button:hover {
   gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
-  
+
   .image-input {
     display: none;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 8px;
     margin-top: 12px;
-    
+
     .control-btn {
       width: 100%;
     }
@@ -623,14 +621,14 @@ button:hover {
   background: #f8f9fa;
   border-radius: 6px;
   border: 1px solid #e9ecef;
-  
+
   img {
     max-width: 120px;
     max-height: 90px;
     border-radius: 4px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   .background-name {
     font-size: 11px;
     color: #6c757d;
@@ -643,7 +641,7 @@ button:hover {
 // 添加 secondary 按钮样式
 .control-btn.secondary {
   background: #6c757d;
-  
+
   &:hover:not(:disabled) {
     background: #5a6268;
   }
@@ -656,7 +654,7 @@ button:hover {
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e9ecef;
-  
+
   h4 {
     margin: 0 0 16px 0;
     color: #2c3e50;
@@ -667,7 +665,7 @@ button:hover {
 
 .control-group {
   margin-bottom: 16px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -703,18 +701,18 @@ button:hover {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: #e9ecef;
     border-color: #adb5bd;
   }
-  
+
   &.active {
     background: $primary-color;
     color: white;
     border-color: $primary-color;
   }
-  
+
   @media (max-width: 768px) {
     padding: 8px 12px;
     font-size: 12px;
@@ -735,7 +733,7 @@ button:hover {
   background: white;
   border-radius: 4px;
   border: 1px solid #dee2e6;
-  
+
   span {
     font-size: 12px;
     color: #495057;
@@ -746,7 +744,7 @@ button:hover {
 .offset-buttons {
   display: flex;
   gap: 4px;
-  
+
   button {
     width: 28px;
     height: 28px;
@@ -758,12 +756,12 @@ button:hover {
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s ease;
-    
+
     &:hover:not(:disabled) {
       background: #e9ecef;
       border-color: #adb5bd;
     }
-    
+
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -775,7 +773,7 @@ button:hover {
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   button {
     width: 32px;
     height: 32px;
@@ -788,12 +786,12 @@ button:hover {
     font-size: 16px;
     font-weight: bold;
     transition: all 0.2s ease;
-    
+
     &:hover:not(:disabled) {
       background: #e9ecef;
       border-color: #adb5bd;
     }
-    
+
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -809,7 +807,7 @@ button:hover {
   outline: none;
   -webkit-appearance: none;
   appearance: none;
-  
+
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -819,7 +817,7 @@ button:hover {
     background: #007bff;
     cursor: pointer;
   }
-  
+
   &::-moz-range-thumb {
     width: 16px;
     height: 16px;
@@ -840,11 +838,11 @@ button:hover {
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
-  
+
   &:hover:not(:disabled) {
     background: #5a6268;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -857,7 +855,7 @@ button:hover {
   background: #e3f2fd;
   border-radius: 4px;
   border-left: 3px solid #2196f3;
-  
+
   small {
     color: #1976d2;
     font-size: 11px;
@@ -874,7 +872,7 @@ button:hover {
   outline: none;
   -webkit-appearance: none;
   appearance: none;
-  
+
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -884,7 +882,7 @@ button:hover {
     background: #007bff;
     cursor: pointer;
   }
-  
+
   &::-moz-range-thumb {
     width: 16px;
     height: 16px;
@@ -929,7 +927,7 @@ button:hover {
 
 .sample-table {
   margin-top: 32px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     margin-top: 24px;
@@ -937,7 +935,7 @@ button:hover {
     border-radius: 12px;
     padding: 16px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    
+
     h3 {
       margin-top: 0;
       text-align: center;
@@ -948,7 +946,7 @@ button:hover {
 .sample-table table {
   width: 100%;
   border-collapse: collapse;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     border: none;
@@ -960,7 +958,7 @@ button:hover {
   border: 1px solid #e0e0e0;
   padding: 8px 12px;
   text-align: left;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 12px 8px;
@@ -972,7 +970,7 @@ button:hover {
 
 .sample-row {
   cursor: pointer;
-  
+
   // 移动端触摸优化
   @media (max-width: 768px) {
     &:active {

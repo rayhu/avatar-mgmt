@@ -8,10 +8,10 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   console.log('🔧 Vite 构建模式:', mode);
-  
+
   return {
     preview: {
-      allowedHosts: 'all' // 修复类型错误
+      allowedHosts: 'all', // 修复类型错误
     },
     plugins: [
       vue(),
@@ -65,9 +65,9 @@ export default defineConfig(({ mode }) => {
           target: 'http://localhost:3000', // 你的后端端口
           changeOrigin: true,
           secure: false,
-          rewrite: (path) => path.replace(/^\/api/, '/api')
-        }
-      }
+          rewrite: path => path.replace(/^\/api/, '/api'),
+        },
+      },
     },
     envDir: '.',
     // 根据模式设置不同的环境变量
