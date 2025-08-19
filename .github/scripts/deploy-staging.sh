@@ -49,8 +49,27 @@ echo "🏷️ Generating version information..."
 chmod +x scripts/generate-version.sh
 ./scripts/generate-version.sh stage
 
-# 部署服务
+# 部署服务 - 使用更干净的部署方式
 echo "🐳 Starting Docker services..."
-sudo docker compose -f docker-compose.stage.yml up -d --force-recreate --remove-orphans
+echo "🧹 Cleaning up old containers and images..."
+
+# 停止并清理所有服务
+sudo docker compose -f docker-compose.stage.yml down --volumes --remove-orphans
+
+# 清理 Docker 系统（更彻底）
+echo "🧹 Cleaning Docker system..."
+sudo docker system prune -f
+
+# 清理所有构建缓存（关键步骤）
+echo "🧹 Cleaning all Docker build cache..."
+sudo docker builder prune -a -f
+
+# 重新构建镜像（不使用缓存）
+echo "🔨 Building fresh Docker images..."
+sudo docker compose -f docker-compose.stage.yml build --no-cache
+
+# 启动服务
+echo "🚀 Starting services with fresh images..."
+sudo docker compose -f docker-compose.stage.yml up -d
 
 echo "✅ Staging deployment completed!"
