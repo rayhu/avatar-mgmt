@@ -2,8 +2,6 @@
   <div class="animate-page">
     <h1>{{ t('animate.title') }}</h1>
 
-
-
     <!-- 模型选择 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
@@ -202,12 +200,21 @@
             </select>
           </div>
         </div>
-        <button class="generate-btn" :disabled="animationProcessing || !text.trim()" @click="() => { debugCurrentState(); onAnimate(); }">
+        <button
+          class="generate-btn"
+          :disabled="animationProcessing || !text.trim()"
+          @click="
+            () => {
+              debugCurrentState();
+              onAnimate();
+            }
+          "
+        >
           <span v-if="animationProcessing" class="loading-spinner"></span>
           <span v-else>{{ t('animate.submit') }}</span>
         </button>
         <!-- 调试按钮 -->
-        <button class="control-btn" @click="debugCurrentState" style="margin-top: 8px; width: 100%;">
+        <button class="control-btn" @click="debugCurrentState" style="margin-top: 8px; width: 100%">
           🔍 调试状态检查
         </button>
       </div>
@@ -230,27 +237,27 @@
             class="image-input"
             :disabled="animationProcessing"
           />
-          <button 
-            class="control-btn secondary" 
+          <button
+            class="control-btn secondary"
             @click="() => imageInput?.click()"
             :disabled="animationProcessing"
           >
             🖼️ {{ t('animate.selectImage') }}
           </button>
-          <button 
+          <button
             v-if="backgroundImage"
-            class="control-btn danger" 
+            class="control-btn danger"
             @click="clearBackgroundImage"
             :disabled="animationProcessing"
           >
             🗑️ {{ t('animate.clearImage') }}
           </button>
         </div>
-        
+
         <!-- 背景控制面板 -->
         <div v-if="backgroundImage" class="background-control-panel">
           <h4>🎨 背景控制</h4>
-          
+
           <!-- 距离控制 -->
           <div class="control-group">
             <label class="control-label">
@@ -268,7 +275,7 @@
                 :disabled="animationProcessing"
               />
               <div class="preset-buttons">
-                <button 
+                <button
                   v-for="(preset, index) in presetDistances"
                   :key="preset.value"
                   @click="setBackgroundDistance(preset.value)"
@@ -281,7 +288,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- 位置偏移控制 -->
           <div class="control-group">
             <label class="control-label">📍 位置偏移</label>
@@ -289,25 +296,55 @@
               <div class="offset-item">
                 <span>X: {{ (backgroundOffset?.x || 0).toFixed(1) }}</span>
                 <div class="offset-buttons">
-                  <button @click="adjustOffset('x', -offsetStep)" :disabled="animationProcessing" title="Ctrl+←">←</button>
-                  <button @click="adjustOffset('x', offsetStep)" :disabled="animationProcessing" title="Ctrl+→">→</button>
+                  <button
+                    @click="adjustOffset('x', -offsetStep)"
+                    :disabled="animationProcessing"
+                    title="Ctrl+←"
+                  >
+                    ←
+                  </button>
+                  <button
+                    @click="adjustOffset('x', offsetStep)"
+                    :disabled="animationProcessing"
+                    title="Ctrl+→"
+                  >
+                    →
+                  </button>
                 </div>
               </div>
               <div class="offset-item">
                 <span>Y: {{ (backgroundOffset?.y || 0).toFixed(1) }}</span>
                 <div class="offset-buttons">
-                  <button @click="adjustOffset('y', -offsetStep)" :disabled="animationProcessing" title="Ctrl+↑">↑</button>
-                  <button @click="adjustOffset('y', offsetStep)" :disabled="animationProcessing" title="Ctrl+↓">↓</button>
+                  <button
+                    @click="adjustOffset('y', -offsetStep)"
+                    :disabled="animationProcessing"
+                    title="Ctrl+↑"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    @click="adjustOffset('y', offsetStep)"
+                    :disabled="animationProcessing"
+                    title="Ctrl+↓"
+                  >
+                    ↓
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <!-- 缩放控制 -->
           <div class="control-group">
             <label class="control-label">🔍 缩放: {{ (backgroundScale || 1).toFixed(2) }}</label>
             <div class="scale-controls">
-              <button @click="adjustScale(-scaleStep)" :disabled="animationProcessing" title="Ctrl+-">-</button>
+              <button
+                @click="adjustScale(-scaleStep)"
+                :disabled="animationProcessing"
+                title="Ctrl+-"
+              >
+                -
+              </button>
               <input
                 type="range"
                 min="0.5"
@@ -318,14 +355,20 @@
                 class="scale-slider"
                 :disabled="animationProcessing"
               />
-              <button @click="adjustScale(scaleStep)" :disabled="animationProcessing" title="Ctrl+=">+</button>
+              <button
+                @click="adjustScale(scaleStep)"
+                :disabled="animationProcessing"
+                title="Ctrl+="
+              >
+                +
+              </button>
             </div>
           </div>
-          
+
           <!-- 重置按钮 -->
           <div class="control-group">
-            <button 
-              class="reset-btn" 
+            <button
+              class="reset-btn"
               @click="resetBackgroundSettings"
               :disabled="animationProcessing"
               title="快捷键: R"
@@ -333,15 +376,13 @@
               🔄 重置设置
             </button>
           </div>
-          
+
           <!-- 快捷键提示 -->
           <div class="shortcut-tips">
-            <small>
-              💡 快捷键: Ctrl+方向键(位置) | Ctrl+/- (缩放) | 1-4(预设距离) | R(重置)
-            </small>
+            <small> 💡 快捷键: Ctrl+方向键(位置) | Ctrl+/- (缩放) | 1-4(预设距离) | R(重置) </small>
           </div>
         </div>
-        
+
         <!-- 背景图片预览 -->
         <div v-if="backgroundImage" class="background-preview">
           <img :src="backgroundImage" :alt="t('animate.backgroundPreview')" />
@@ -353,7 +394,16 @@
             v-if="!isRecording"
             class="control-btn"
             :disabled="animationProcessing || !audioUrl"
-            @click="() => startRecording(modelViewer, audioPlayer, audioUrl, startTimelineAnimation, syncVisemeWithAudio)"
+            @click="
+              () =>
+                startRecording(
+                  modelViewer,
+                  audioPlayer,
+                  audioUrl,
+                  startTimelineAnimation,
+                  syncVisemeWithAudio
+                )
+            "
           >
             {{ t('animate.record') }}
           </button>
@@ -363,16 +413,16 @@
           <button v-if="recordedVideoUrl" class="control-btn" @click="downloadVideo">
             {{ t('animate.download') }}
           </button>
-          <button 
-            v-if="recordedVideoUrl || isRecording" 
-            class="control-btn secondary" 
+          <button
+            v-if="recordedVideoUrl || isRecording"
+            class="control-btn secondary"
             @click="resetRecordingState"
             title="重置录制状态"
           >
             🔄 重置录制
           </button>
-          <button 
-            class="control-btn outline" 
+          <button
+            class="control-btn outline"
             @click="checkRecordingState"
             title="检查录制状态（调试用）"
           >
@@ -417,11 +467,7 @@ import { useI18n } from 'vue-i18n';
 import type { Composer } from 'vue-i18n';
 import ModelViewer from '@/components/ModelViewer.vue';
 import ModelCard from '@/components/ModelCard.vue';
-import {
-  availableVoices,
-  fetchVoices,
-  type VoiceOption,
-} from '@/api/azureTTS';
+import { availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
 import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
 import { generateSSMLBackend } from '@/api/openaiBackend';
 
@@ -448,7 +494,8 @@ const text = ref('你好，我是数字人，这是一个小小的演示，大�
 
 // 使用组合式函数
 const modelSelection = useModelSelection();
-const { readyModels, selectedModel, currentEmotion, currentAction, fetchReadyModels } = modelSelection;
+const { readyModels, selectedModel, currentEmotion, currentAction, fetchReadyModels } =
+  modelSelection;
 
 // 先创建processing状态的ref，稍后会被useAnimation覆盖
 const isProcessing = ref(false);
@@ -471,7 +518,7 @@ const {
   adjustOffset,
   adjustBackgroundScale,
   adjustScale,
-  resetBackgroundSettings
+  resetBackgroundSettings,
 } = background;
 
 // 控制精度常量
@@ -484,17 +531,13 @@ const actionAnimations = getActionAnimations();
 const emotionAnimations = getEmotionAnimations();
 
 // 提取动作名称数组（用于下拉框）
-const actions = computed(() => 
-  actionAnimations
-    .filter(anim => anim.enabled)
-    .map(anim => anim.actualName)
+const actions = computed(() =>
+  actionAnimations.filter(anim => anim.enabled).map(anim => anim.actualName)
 );
 
 // 提取表情名称数组（用于下拉框）
-const emotions = computed(() => 
-  emotionAnimations
-    .filter(anim => anim.enabled)
-    .map(anim => anim.actualName)
+const emotions = computed(() =>
+  emotionAnimations.filter(anim => anim.enabled).map(anim => anim.actualName)
 );
 
 const charCount = computed({
@@ -512,9 +555,11 @@ const charCount = computed({
 const voices = ref<VoiceOption[]>(availableVoices);
 
 // Only display voices that start with zh-CN
-const filteredVoices = computed(() => voices.value.filter((v) => v.name.startsWith('zh-CN')));
+const filteredVoices = computed(() => voices.value.filter(v => v.name.startsWith('zh-CN')));
 
-const selectedVoice = ref<string>(filteredVoices.value.find(v => v.name === 'zh-CN-YunxiaNeural')?.name || 'zh-CN-YunxiaNeural');
+const selectedVoice = ref<string>(
+  filteredVoices.value.find(v => v.name === 'zh-CN-YunxiaNeural')?.name || 'zh-CN-YunxiaNeural'
+);
 
 // 当用户更换语音时，自动清空已生成的 SSML，避免内容与 voice 不匹配
 watch(selectedVoice, () => {
@@ -527,14 +572,14 @@ async function loadVoices() {
     const remote = await fetchVoices();
     if (Array.isArray(remote) && remote.length) {
       // Keep only zh-CN voices for UI
-      const zhVoices = remote.filter((v) => v.name.startsWith('zh-CN'));
+      const zhVoices = remote.filter(v => v.name.startsWith('zh-CN'));
       if (zhVoices.length) {
         voices.value = zhVoices;
       } else {
         voices.value = remote;
       }
       // Ensure selected voice exists
-      if (!filteredVoices.value.find((v) => v.name === selectedVoice.value)) {
+      if (!filteredVoices.value.find(v => v.name === selectedVoice.value)) {
         selectedVoice.value = filteredVoices.value[0]?.name || selectedVoice.value;
       }
     }
@@ -550,7 +595,7 @@ onMounted(() => {
   nextTick(() => {
     /* no-op */
   });
-  
+
   // 添加键盘快捷键监听
   document.addEventListener('keydown', handleKeyDown);
 });
@@ -559,20 +604,21 @@ onMounted(() => {
 function handleKeyDown(event: KeyboardEvent) {
   // 只在有背景图片时启用快捷键
   if (!backgroundImage.value) return;
-  
+
   // 检查是否在输入框中，如果是则不处理快捷键
   const target = event.target as HTMLElement;
-  if (target && (
-    target.tagName === 'INPUT' || 
-    target.tagName === 'TEXTAREA' || 
-    target.tagName === 'SELECT' ||
-    target.contentEditable === 'true'
-  )) {
+  if (
+    target &&
+    (target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.tagName === 'SELECT' ||
+      target.contentEditable === 'true')
+  ) {
     return;
   }
-  
+
   let handled = false;
-  
+
   if (event.ctrlKey || event.metaKey) {
     switch (event.key) {
       case 'ArrowLeft':
@@ -602,7 +648,7 @@ function handleKeyDown(event: KeyboardEvent) {
         break;
     }
   }
-  
+
   // 数字键快速设置预设距离
   if (event.key >= '1' && event.key <= '4') {
     const index = parseInt(event.key) - 1;
@@ -611,13 +657,13 @@ function handleKeyDown(event: KeyboardEvent) {
       handled = true;
     }
   }
-  
+
   // R键重置设置
   if (event.key === 'r' || event.key === 'R') {
     resetBackgroundSettings();
     handled = true;
   }
-  
+
   // 只有在处理了快捷键时才阻止默认行为
   if (handled) {
     event.preventDefault();
@@ -683,7 +729,7 @@ const samples = ref([
   { emotion: '愤怒', text: '这种不公平的待遇让我感到非常愤怒！' },
   { emotion: '惊讶', text: '哇，这个结果真是太出乎我的意料了！' },
   { emotion: '平静', text: '保持内心的平静，是面对困难最好的方式。' },
-  { emotion: '兴奋', text: '终于要实现我的梦想了，我太兴奋了！' }
+  { emotion: '兴奋', text: '终于要实现我的梦想了，我太兴奋了！' },
 ]);
 
 // 应用示例句子
@@ -713,11 +759,11 @@ function debugCurrentState() {
     // 检查音频元素
     audioPlayerExists: !!audioPlayer.value,
     audioPlayerSrc: audioPlayer.value?.src || 'no src',
-    audioPlayerCanPlay: (audioPlayer.value?.readyState ?? 0) >= 2
+    audioPlayerCanPlay: (audioPlayer.value?.readyState ?? 0) >= 2,
   };
-  
+
   console.log('🔍 Current state debug:', state);
-  
+
   // 检查是否有任何异常状态
   if (!state.onAnimateExists) {
     console.error('❌ onAnimate function is missing!');
@@ -734,7 +780,7 @@ function debugCurrentState() {
   if (state.audioUrl && !state.audioPlayerSrc) {
     console.warn('⚠️ Audio URL exists but player has no src!');
   }
-  
+
   return state;
 }
 // isProcessing 和 audioUrl 已移至 useAnimation 组合式函数中
@@ -766,7 +812,7 @@ const {
   stopDrag,
   onTrackClick,
   getActionDisplayName,
-  getEmotionDisplayName
+  getEmotionDisplayName,
 } = timeline;
 
 // 视频录制相关
@@ -780,7 +826,7 @@ const {
   stopRecording,
   resetRecordingState,
   checkRecordingState,
-  downloadVideo
+  downloadVideo,
 } = recording;
 
 // 动画定时器
@@ -818,17 +864,17 @@ const {
   startTimelineAnimation,
   handleViseme,
   syncVisemeWithAudio,
-  speak
+  speak,
 } = animation;
 
 // 同步处理状态
-watch(animationProcessing, (newValue) => {
+watch(animationProcessing, newValue => {
   isProcessing.value = newValue;
 });
 
 onUnmounted(() => {
   // no play listener cleanup needed
-  
+
   // 清理键盘事件监听器
   document.removeEventListener('keydown', handleKeyDown);
 });
@@ -840,10 +886,6 @@ onUnmounted(() => {
 // 录制相关函数已移至 useRecording 组合式函数中
 
 // 启动时间轴动画函数已移至 useAnimation 组合式函数中
-
-
-
-
 
 // 监听文本变化，更新字符计数
 watch(text, (newText: string) => {

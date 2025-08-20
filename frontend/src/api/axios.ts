@@ -13,29 +13,29 @@ export const apiClient = axios.create({
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     const authStore = useAuthStore();
     const token = authStore.token;
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // Response interceptor to handle auth errors
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     const authStore = useAuthStore();
-    
+
     // If token is expired or invalid, logout user
     if (error.response?.status === 401 || error.response?.status === 403) {
       // Only logout if we had a token to begin with
@@ -45,7 +45,7 @@ apiClient.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

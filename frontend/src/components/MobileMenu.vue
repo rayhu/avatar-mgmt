@@ -1,7 +1,7 @@
 <template>
   <div class="mobile-menu">
     <!-- 汉堡菜单按钮 -->
-    <button 
+    <button
       class="menu-toggle"
       @click="toggleMenu"
       :aria-expanded="isMenuOpen"
@@ -14,67 +14,41 @@
 
     <!-- 移动端菜单覆盖层 -->
     <Teleport to="body">
-      <div 
-        v-if="isMenuOpen" 
-        class="menu-overlay"
-        @click="closeMenu"
-      >
+      <div v-if="isMenuOpen" class="menu-overlay" @click="closeMenu">
         <nav class="mobile-nav" @click.stop>
           <div class="mobile-nav-header">
             <h3>{{ t('navigation.menu') }}</h3>
-            <button 
-              class="close-btn"
-              @click="closeMenu"
-              aria-label="Close menu"
-            >
-              ✕
-            </button>
+            <button class="close-btn" @click="closeMenu" aria-label="Close menu">✕</button>
           </div>
-          
+
           <div class="mobile-nav-content">
             <!-- 系统信息链接 - 始终显示 -->
-            <router-link 
-              to="/about"
-              class="mobile-nav-link"
-              @click="closeMenu"
-            >
+            <router-link to="/about" class="mobile-nav-link" @click="closeMenu">
               {{ t('common.about') }}
             </router-link>
-            
+
             <div class="mobile-nav-divider"></div>
-            
+
             <template v-if="auth.isAuthenticated">
-              <router-link 
-                v-if="auth.isAdmin" 
+              <router-link
+                v-if="auth.isAdmin"
                 to="/admin"
                 class="mobile-nav-link"
                 @click="closeMenu"
               >
                 {{ t('modelManagement.title') }}
               </router-link>
-              <router-link 
-                to="/user"
-                class="mobile-nav-link"
-                @click="closeMenu"
-              >
+              <router-link to="/user" class="mobile-nav-link" @click="closeMenu">
                 {{ t('modelManagement.modelGallery') }}
               </router-link>
-              <router-link 
-                to="/animate"
-                class="mobile-nav-link"
-                @click="closeMenu"
-              >
+              <router-link to="/animate" class="mobile-nav-link" @click="closeMenu">
                 {{ t('animate.title') }}
               </router-link>
-              <router-link 
-                to="/test"
-                class="mobile-nav-link"
-                @click="closeMenu"
-              >
+              <router-link to="/test" class="mobile-nav-link" @click="closeMenu">
                 {{ t('test.title') }}
-              </router-link>              
+              </router-link>
               <div class="mobile-nav-divider"></div>
-              
+
               <div class="mobile-user-info">
                 <span class="user-name">{{ auth.user?.name }}</span>
                 <span class="user-role">{{ t(auth.user?.role || 'user') }}</span>
@@ -83,13 +57,9 @@
                 </button>
               </div>
             </template>
-            
+
             <template v-else>
-              <router-link 
-                to="/login"
-                class="mobile-nav-link"
-                @click="closeMenu"
-              >
+              <router-link to="/login" class="mobile-nav-link" @click="closeMenu">
                 {{ t('login.title') }}
               </router-link>
             </template>
@@ -128,7 +98,7 @@ const handleLogout = async () => {
   } catch (error) {
     console.warn('Logout API call failed, but continuing with local logout:', error);
   }
-  
+
   auth.clearUser();
   router.push('/login');
   closeMenu();
@@ -138,7 +108,7 @@ const handleLogout = async () => {
 <style scoped lang="scss">
 .mobile-menu {
   display: none;
-  
+
   @media (max-width: 768px) {
     display: block;
   }
@@ -156,11 +126,11 @@ const handleLogout = async () => {
   padding: 8px;
   border-radius: 6px;
   transition: background-color 0.3s ease;
-  
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
-  
+
   &:active {
     background-color: rgba(0, 0, 0, 0.1);
   }
@@ -172,17 +142,17 @@ const handleLogout = async () => {
   background-color: #2c3e50;
   transition: all 0.3s ease;
   transform-origin: center;
-  
+
   &.active {
     &:nth-child(1) {
       transform: rotate(45deg) translate(6px, 6px);
     }
-    
+
     &:nth-child(2) {
       opacity: 0;
       transform: scaleX(0);
     }
-    
+
     &:nth-child(3) {
       transform: rotate(-45deg) translate(6px, -6px);
     }
@@ -219,7 +189,7 @@ const handleLogout = async () => {
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid #e0e0e0;
-  
+
   h3 {
     margin: 0;
     color: #2c3e50;
@@ -236,7 +206,7 @@ const handleLogout = async () => {
   cursor: pointer;
   border-radius: 6px;
   transition: background-color 0.3s ease;
-  
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
@@ -255,11 +225,11 @@ const handleLogout = async () => {
   font-weight: 500;
   border-bottom: 1px solid #f0f0f0;
   transition: color 0.3s ease;
-  
+
   &:hover {
     color: #42b883;
   }
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -273,7 +243,7 @@ const handleLogout = async () => {
 
 .mobile-user-info {
   text-align: center;
-  
+
   .user-name {
     display: block;
     font-size: 18px;
@@ -281,14 +251,14 @@ const handleLogout = async () => {
     color: #2c3e50;
     margin-bottom: 4px;
   }
-  
+
   .user-role {
     display: block;
     font-size: 14px;
     color: #666;
     margin-bottom: 16px;
   }
-  
+
   .logout-btn {
     width: 100%;
     padding: 12px;
@@ -299,11 +269,11 @@ const handleLogout = async () => {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    
+
     &:hover {
       background: #c0392b;
     }
-    
+
     &:active {
       background: #a93226;
     }
@@ -311,16 +281,20 @@ const handleLogout = async () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInRight {
-  from { 
+  from {
     transform: translateX(100%);
     opacity: 0;
   }
-  to { 
+  to {
     transform: translateX(0);
     opacity: 1;
   }

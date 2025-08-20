@@ -94,7 +94,7 @@ const router = createRouter({
 router.beforeEach(
   (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     const auth = useAuthStore();
-    
+
     // 添加更详细的调试信息
     console.log('🔍 路由守卫检查:', {
       from: from.path,
@@ -104,9 +104,9 @@ router.beforeEach(
       isAuthenticated: auth.isAuthenticated,
       userRole: auth.user?.role,
       requiredRoles: to.meta.roles,
-      isPublic: to.meta.public
+      isPublic: to.meta.public,
     });
-    
+
     logger.info('路由守卫检查', {
       component: 'Router',
       method: 'beforeEach',
@@ -115,7 +115,7 @@ router.beforeEach(
       isAuthenticated: auth.isAuthenticated,
       userRole: auth.user?.role,
       requiredRoles: to.meta.roles,
-      isPublic: to.meta.public
+      isPublic: to.meta.public,
     });
 
     // 检查是否是公开路由
@@ -127,7 +127,7 @@ router.beforeEach(
           component: 'Router',
           method: 'beforeEach',
           redirectPath,
-          userRole: auth.user?.role
+          userRole: auth.user?.role,
         });
         next(redirectPath);
       } else {
@@ -136,7 +136,7 @@ router.beforeEach(
           method: 'beforeEach',
           route: to.path,
           isAuthenticated: auth.isAuthenticated,
-          userRole: auth.user?.role
+          userRole: auth.user?.role,
         });
         next();
       }
@@ -148,7 +148,7 @@ router.beforeEach(
       logger.warn('未登录用户访问受保护路由，重定向到登录页', {
         component: 'Router',
         method: 'beforeEach',
-        attemptedRoute: to.path
+        attemptedRoute: to.path,
       });
       next('/login');
       return;
@@ -158,42 +158,42 @@ router.beforeEach(
     const requiredRoles = to.meta.roles as string[] | undefined;
     if (requiredRoles && requiredRoles.length > 0) {
       const userRole = auth.user?.role;
-      
+
       // 添加调试信息
       console.log('🔍 权限检查详情:', {
         userRole,
         requiredRoles,
         hasPermission: requiredRoles.includes(userRole || ''),
-        route: to.path
+        route: to.path,
       });
-      
+
       if (!requiredRoles.includes(userRole || '')) {
         // 如果没有权限，重定向到对应角色首页
         let redirectPath = '/user'; // 默认重定向到用户页面
-        
+
         if (userRole === 'admin') {
           redirectPath = '/admin';
         } else {
           // 如果角色不明确，重定向到用户页面
           redirectPath = '/user';
         }
-        
+
         // 避免无限重定向：如果当前已经在目标页面，则不再重定向
         if (to.path === redirectPath) {
           console.warn('⚠️ 检测到可能的无限重定向，停止重定向');
           next();
           return;
         }
-        
+
         logger.warn('用户权限不足，重定向', {
           component: 'Router',
           method: 'beforeEach',
           userRole,
           requiredRoles,
           attemptedRoute: to.path,
-          redirectPath
+          redirectPath,
         });
-        
+
         next(redirectPath);
         return;
       }
@@ -203,10 +203,10 @@ router.beforeEach(
       component: 'Router',
       method: 'beforeEach',
       route: to.path,
-      userRole: auth.user?.role
+      userRole: auth.user?.role,
     });
     next();
-  },
+  }
 );
 
 export default router;

@@ -1,0 +1,43 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Volta (Node 22 & Yarn 1)
+        run: |
+          curl -sSf https://get.volta.sh | bash
+          echo "$HOME/.volta/bin" >> $GITHUB_PATH
+
+      - name: Setup Volta environment
+        run: |
+          export VOLTA_HOME="$HOME/.volta"
+          export PATH="$VOLTA_HOME/bin:$PATH"
+          volta install node@22.16.0
+          volta install yarn@1.22.22
+          echo "VOLTA_HOME=$HOME/.volta" >> $GITHUB_ENV
+          echo "$HOME/.volta/bin" >> $GITHUB_PATH
+
+      - name: Run all checks
+        run: |
+          export VOLTA_HOME="$HOME/.volta"
+          export PATH="$VOLTA_HOME/bin:$PATH"
+          .github/scripts/run-checks.sh
+
+      - name: Upload i18n report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-report
+          path: frontend/reports/i18n-report.json
+          retention-days: 30

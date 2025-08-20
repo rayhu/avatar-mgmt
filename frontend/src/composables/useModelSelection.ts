@@ -23,7 +23,7 @@ export function useModelSelection(): ModelSelectionState {
     try {
       const models = await getAvatars();
       if (Array.isArray(models)) {
-        readyModels.value = models.filter((model) => model.status === 'ready');
+        readyModels.value = models.filter(model => model.status === 'ready');
       } else {
         console.error('Invalid models data:', models);
         readyModels.value = [];
@@ -52,7 +52,7 @@ export function useModelSelection(): ModelSelectionState {
   onMounted(async () => {
     try {
       // 模拟API调用延迟
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       await fetchReadyModels();
     } catch (error) {
       console.error('Failed to fetch models on mount:', error);
@@ -66,6 +66,6 @@ export function useModelSelection(): ModelSelectionState {
     currentAction,
     fetchReadyModels,
     selectModel,
-    changeModel
+    changeModel,
   };
 }

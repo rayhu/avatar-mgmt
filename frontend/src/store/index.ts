@@ -24,8 +24,8 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => {
+    isAuthenticated: state => !!state.token,
+    isAdmin: state => {
       const role = state.user?.role;
       return role === 'admin';
     },
@@ -40,22 +40,22 @@ export const useAuthStore = defineStore('auth', {
         userRole: user.role,
         userName: user.name,
         userEmail: user.email,
-        tokenLength: token.length
+        tokenLength: token.length,
       });
-      
+
       this.user = user;
       this.token = token;
       this.refreshToken = refreshToken || null;
-      
+
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
       }
-      
+
       logger.info('用户信息已保存到本地存储', {
         component: 'AuthStore',
-        method: 'setUser'
+        method: 'setUser',
       });
     },
 
@@ -63,33 +63,35 @@ export const useAuthStore = defineStore('auth', {
       logger.store('清除用户信息', {
         component: 'AuthStore',
         method: 'clearUser',
-        previousUser: this.user ? {
-          id: this.user.id,
-          role: this.user.role,
-          name: this.user.name,
-          email: this.user.email
-        } : null
+        previousUser: this.user
+          ? {
+              id: this.user.id,
+              role: this.user.role,
+              name: this.user.name,
+              email: this.user.email,
+            }
+          : null,
       });
-      
+
       this.user = null;
       this.token = null;
       this.refreshToken = null;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('refreshToken');
-      
+
       logger.info('用户信息已从本地存储清除', {
         component: 'AuthStore',
-        method: 'clearUser'
+        method: 'clearUser',
       });
     },
 
     initAuth() {
       logger.info('初始化认证状态', {
         component: 'AuthStore',
-        method: 'initAuth'
+        method: 'initAuth',
       });
-      
+
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
       const refreshToken = localStorage.getItem('refreshToken');
@@ -100,7 +102,7 @@ export const useAuthStore = defineStore('auth', {
           this.token = token;
           this.user = user;
           this.refreshToken = refreshToken;
-          
+
           logger.info('从本地存储恢复用户信息', {
             component: 'AuthStore',
             method: 'initAuth',
@@ -109,7 +111,7 @@ export const useAuthStore = defineStore('auth', {
             userName: user.name,
             userEmail: user.email,
             tokenLength: token.length,
-            hasRefreshToken: !!refreshToken
+            hasRefreshToken: !!refreshToken,
           });
         } catch (error) {
           const err = error as Error;
@@ -117,7 +119,7 @@ export const useAuthStore = defineStore('auth', {
             component: 'AuthStore',
             method: 'initAuth',
             error: err.message,
-            errorType: err.constructor.name
+            errorType: err.constructor.name,
           });
           this.clearUser();
         }
@@ -126,7 +128,7 @@ export const useAuthStore = defineStore('auth', {
           component: 'AuthStore',
           method: 'initAuth',
           hasToken: !!token,
-          hasUserStr: !!userStr
+          hasUserStr: !!userStr,
         });
         this.clearUser();
       }

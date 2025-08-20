@@ -1,11 +1,6 @@
 <template>
   <div class="model-card">
-    <img
-      v-if="previewUrl"
-      :src="previewUrl"
-      alt="模型缩略图"
-      class="model-thumbnail"
-    />
+    <img v-if="previewUrl" :src="previewUrl" alt="模型缩略图" class="model-thumbnail" />
     <div v-else class="no-preview">无缩略图</div>
   </div>
 </template>

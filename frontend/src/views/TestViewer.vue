@@ -86,7 +86,11 @@ import ModelViewer from '../components/ModelViewer.vue';
 import { getAvatars } from '../api/avatars';
 import type { Avatar } from '../types/avatar';
 import ModelCard from '../components/ModelCard.vue';
-import { getActionAnimations, getEmotionAnimations, getAnimationByCallName } from '@/config/animations';
+import {
+  getActionAnimations,
+  getEmotionAnimations,
+  getAnimationByCallName,
+} from '@/config/animations';
 import { logger } from '@/utils/logger';
 
 const { t } = useI18n();
@@ -116,7 +120,7 @@ function getAnimationTooltip(callName: string): string {
     const duration = animation.parameters?.duration;
     const loop = animation.parameters?.loop;
     const description = animation.description || '';
-    
+
     let tooltip = description;
     if (duration) {
       tooltip += `\n⏱️ 时长: ${duration}秒`;
@@ -143,24 +147,24 @@ async function fetchReadyAvatars(): Promise<void> {
   try {
     logger.info('获取就绪状态的模型列表', {
       component: 'TestViewer',
-      method: 'fetchReadyAvatars'
+      method: 'fetchReadyAvatars',
     });
-    
+
     const avatars = await getAvatars();
     console.log('Fetched avatars:', avatars);
-    readyModels.value = avatars.filter((model) => model.status === 'ready');
+    readyModels.value = avatars.filter(model => model.status === 'ready');
     console.log('Ready models:', readyModels.value);
-    
+
     logger.info('模型列表获取成功', {
       component: 'TestViewer',
       method: 'fetchReadyAvatars',
-      count: readyModels.value.length
+      count: readyModels.value.length,
     });
   } catch (error) {
     logger.error('获取模型列表失败', {
       component: 'TestViewer',
       method: 'fetchReadyAvatars',
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
     console.error('Failed to fetch models:', error);
   }
@@ -172,9 +176,9 @@ function selectModel(model: Avatar): void {
     component: 'TestViewer',
     method: 'selectModel',
     modelId: model.id,
-    modelName: model.name
+    modelName: model.name,
   });
-  
+
   selectedModel.value = model;
   currentAnimation.value = '';
   currentEmotion.value = '';
@@ -185,9 +189,9 @@ function playAnimation(animation: string): void {
     logger.info('播放动画', {
       component: 'TestViewer',
       method: 'playAnimation',
-      animation
+      animation,
     });
-    
+
     // 获取动画配置，使用实际名称播放
     const animationConfig = getAnimationByCallName(animation);
     if (animationConfig) {
@@ -206,7 +210,7 @@ function playAnimation(animation: string): void {
       logger.warn('动画配置未找到', {
         component: 'TestViewer',
         method: 'playAnimation',
-        animation
+        animation,
       });
     }
   }
@@ -217,9 +221,9 @@ function updateEmotion(emotion: string): void {
     logger.info('更新表情', {
       component: 'TestViewer',
       method: 'updateEmotion',
-      emotion
+      emotion,
     });
-    
+
     // 获取表情配置，使用实际名称更新
     const emotionConfig = getAnimationByCallName(emotion);
     if (emotionConfig) {
@@ -229,7 +233,7 @@ function updateEmotion(emotion: string): void {
       logger.warn('表情配置未找到', {
         component: 'TestViewer',
         method: 'updateEmotion',
-        emotion
+        emotion,
       });
     }
   }
@@ -238,9 +242,9 @@ function updateEmotion(emotion: string): void {
 onMounted(() => {
   logger.info('TestViewer 组件挂载', {
     component: 'TestViewer',
-    method: 'onMounted'
+    method: 'onMounted',
   });
-  
+
   fetchReadyAvatars();
 });
 </script>

@@ -11,11 +11,11 @@ const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
 
 async function testFrontendConnection() {
   console.log('🔍 调试前端连接问题...\n');
-  
+
   console.log('📋 配置信息:');
   console.log(`   API_BASE_URL: ${API_BASE_URL}`);
   console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
-  
+
   // 测试健康检查
   console.log('\n🏥 测试健康检查...');
   try {
@@ -25,7 +25,7 @@ async function testFrontendConnection() {
   } catch (error) {
     console.error('❌ 健康检查失败:', error.message);
   }
-  
+
   // 测试 SSML 生成
   console.log('\n📝 测试 SSML 生成...');
   try {
@@ -39,13 +39,13 @@ async function testFrontendConnection() {
         voice: 'zh-CN-XiaoxiaoNeural',
       }),
     });
-    
+
     console.log(`   状态: ${ssmlResponse.status}`);
     if (ssmlResponse.ok) {
       const data = await ssmlResponse.json();
       console.log(`   SSML 长度: ${data.ssml.length}`);
       console.log(`   SSML 预览: ${data.ssml.slice(0, 100)}...`);
-      
+
       // 测试语音合成
       console.log('\n🔊 测试语音合成...');
       const ttsResponse = await fetch(`${API_BASE_URL}/api/azure-tts`, {
@@ -58,7 +58,7 @@ async function testFrontendConnection() {
           voice: 'zh-CN-XiaoxiaoNeural',
         }),
       });
-      
+
       console.log(`   状态: ${ttsResponse.status}`);
       if (ttsResponse.ok) {
         const blob = await ttsResponse.blob();
@@ -75,19 +75,19 @@ async function testFrontendConnection() {
   } catch (error) {
     console.error('❌ SSML 生成失败:', error.message);
   }
-  
+
   // 测试 CORS
   console.log('\n🌐 测试 CORS...');
   try {
     const corsResponse = await fetch(`${API_BASE_URL}/api/generate-ssml`, {
       method: 'OPTIONS',
       headers: {
-        'Origin': 'http://localhost:5173',
+        Origin: 'http://localhost:5173',
         'Access-Control-Request-Method': 'POST',
         'Access-Control-Request-Headers': 'Content-Type',
       },
     });
-    
+
     console.log(`   状态: ${corsResponse.status}`);
     console.log(`   CORS 头:`, Object.fromEntries(corsResponse.headers.entries()));
   } catch (error) {
@@ -105,4 +105,4 @@ async function main() {
   }
 }
 
-main(); 
+main();

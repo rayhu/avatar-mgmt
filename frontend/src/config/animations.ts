@@ -18,8 +18,8 @@ const actionAnimations = [
     parameters: {
       loop: true,
       duration: 2.0,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'Walking',
@@ -32,8 +32,8 @@ const actionAnimations = [
     parameters: {
       loop: true,
       duration: 1.5,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'Running',
@@ -46,8 +46,8 @@ const actionAnimations = [
     parameters: {
       loop: true,
       duration: 1.0,
-      speed: 1.2
-    }
+      speed: 1.2,
+    },
   },
   {
     actualName: 'Jump',
@@ -60,8 +60,8 @@ const actionAnimations = [
     parameters: {
       loop: false,
       duration: 1.5,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'Wave',
@@ -74,8 +74,8 @@ const actionAnimations = [
     parameters: {
       loop: false,
       duration: 2.0,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'Dance',
@@ -88,8 +88,8 @@ const actionAnimations = [
     parameters: {
       loop: true,
       duration: 3.0,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   // {
   //   actualName: 'Death',
@@ -116,8 +116,8 @@ const actionAnimations = [
     parameters: {
       loop: false,
       duration: 1.5,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'Punch',
@@ -130,8 +130,8 @@ const actionAnimations = [
     parameters: {
       loop: false,
       duration: 2.0,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   // {
   //   actualName: 'Sitting',
@@ -172,8 +172,8 @@ const actionAnimations = [
     parameters: {
       loop: false,
       duration: 2.0,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'WalkJump',
@@ -186,8 +186,8 @@ const actionAnimations = [
     parameters: {
       loop: true,
       duration: 2.0,
-      speed: 1.0
-    }
+      speed: 1.0,
+    },
   },
   {
     actualName: 'Yes',
@@ -200,9 +200,9 @@ const actionAnimations = [
     parameters: {
       loop: false,
       duration: 1.5,
-      speed: 1.0
-    }
-  }
+      speed: 1.0,
+    },
+  },
 ];
 
 // 表情动画配置
@@ -215,7 +215,7 @@ const emotionAnimations = [
     description: '生气表情，角色表现出愤怒',
     intensity: 1.0,
     enabled: true,
-    morphTargets: ['angry']
+    morphTargets: ['angry'],
   },
   {
     actualName: 'Surprised',
@@ -225,7 +225,7 @@ const emotionAnimations = [
     description: '惊讶表情，角色表现出惊讶',
     intensity: 1.0,
     enabled: true,
-    morphTargets: ['surprised']
+    morphTargets: ['surprised'],
   },
   {
     actualName: 'Sad',
@@ -235,42 +235,203 @@ const emotionAnimations = [
     description: '悲伤表情，角色表现出悲伤',
     intensity: 1.0,
     enabled: true,
-    morphTargets: ['sad']
-  }
+    morphTargets: ['sad'],
+  },
 ];
 
 // 口型动画配置（Azure TTS Viseme 映射）
 const visemeAnimations = [
-  { actualName: 'viseme_0', callName: 'viseme_0', displayName: 'viseme.silence', type: AnimationType.VISEME, visemeId: 0, description: '静音' },
-  { actualName: 'viseme_1', callName: 'viseme_1', displayName: 'viseme.aa', type: AnimationType.VISEME, visemeId: 1, description: '元音 aa' },
-  { actualName: 'viseme_2', callName: 'viseme_2', displayName: 'viseme.aa', type: AnimationType.VISEME, visemeId: 2, description: '元音 aa' },
-  { actualName: 'viseme_3', callName: 'viseme_3', displayName: 'viseme.ao', type: AnimationType.VISEME, visemeId: 3, description: '元音 ao' },
-  { actualName: 'viseme_4', callName: 'viseme_4', displayName: 'viseme.ao', type: AnimationType.VISEME, visemeId: 4, description: '元音 ao' },
-  { actualName: 'viseme_5', callName: 'viseme_5', displayName: 'viseme.ao', type: AnimationType.VISEME, visemeId: 5, description: '元音 ao' },
-  { actualName: 'viseme_6', callName: 'viseme_6', displayName: 'viseme.ax', type: AnimationType.VISEME, visemeId: 6, description: '元音 ax' },
-  { actualName: 'viseme_7', callName: 'viseme_7', displayName: 'viseme.ax', type: AnimationType.VISEME, visemeId: 7, description: '元音 ax' },
-  { actualName: 'viseme_8', callName: 'viseme_8', displayName: 'viseme.ax', type: AnimationType.VISEME, visemeId: 8, description: '元音 ax' },
-  { actualName: 'viseme_9', callName: 'viseme_9', displayName: 'viseme.ay', type: AnimationType.VISEME, visemeId: 9, description: '元音 ay' },
-  { actualName: 'viseme_10', callName: 'viseme_10', displayName: 'viseme.ay', type: AnimationType.VISEME, visemeId: 10, description: '元音 ay' },
-  { actualName: 'viseme_11', callName: 'viseme_11', displayName: 'viseme.ay', type: AnimationType.VISEME, visemeId: 11, description: '元音 ay' },
-  { actualName: 'viseme_12', callName: 'viseme_12', displayName: 'viseme.b', type: AnimationType.VISEME, visemeId: 12, description: '辅音 b' },
-  { actualName: 'viseme_13', callName: 'viseme_13', displayName: 'viseme.ch', type: AnimationType.VISEME, visemeId: 13, description: '辅音 ch' },
-  { actualName: 'viseme_14', callName: 'viseme_14', displayName: 'viseme.d', type: AnimationType.VISEME, visemeId: 14, description: '辅音 d' },
-  { actualName: 'viseme_15', callName: 'viseme_15', displayName: 'viseme.dh', type: AnimationType.VISEME, visemeId: 15, description: '辅音 dh' },
-  { actualName: 'viseme_16', callName: 'viseme_16', displayName: 'viseme.er', type: AnimationType.VISEME, visemeId: 16, description: '元音 er' },
-  { actualName: 'viseme_17', callName: 'viseme_17', displayName: 'viseme.er', type: AnimationType.VISEME, visemeId: 17, description: '元音 er' },
-  { actualName: 'viseme_18', callName: 'viseme_18', displayName: 'viseme.er', type: AnimationType.VISEME, visemeId: 18, description: '元音 er' },
-  { actualName: 'viseme_19', callName: 'viseme_19', displayName: 'viseme.ey', type: AnimationType.VISEME, visemeId: 19, description: '元音 ey' },
-  { actualName: 'viseme_20', callName: 'viseme_20', displayName: 'viseme.ey', type: AnimationType.VISEME, visemeId: 20, description: '元音 ey' },
-  { actualName: 'viseme_21', callName: 'viseme_21', displayName: 'viseme.ey', type: AnimationType.VISEME, visemeId: 21, description: '元音 ey' },
-  { actualName: 'viseme_22', callName: 'viseme_22', displayName: 'viseme.f', type: AnimationType.VISEME, visemeId: 22, description: '辅音 f' }
+  {
+    actualName: 'viseme_0',
+    callName: 'viseme_0',
+    displayName: 'viseme.silence',
+    type: AnimationType.VISEME,
+    visemeId: 0,
+    description: '静音',
+  },
+  {
+    actualName: 'viseme_1',
+    callName: 'viseme_1',
+    displayName: 'viseme.aa',
+    type: AnimationType.VISEME,
+    visemeId: 1,
+    description: '元音 aa',
+  },
+  {
+    actualName: 'viseme_2',
+    callName: 'viseme_2',
+    displayName: 'viseme.aa',
+    type: AnimationType.VISEME,
+    visemeId: 2,
+    description: '元音 aa',
+  },
+  {
+    actualName: 'viseme_3',
+    callName: 'viseme_3',
+    displayName: 'viseme.ao',
+    type: AnimationType.VISEME,
+    visemeId: 3,
+    description: '元音 ao',
+  },
+  {
+    actualName: 'viseme_4',
+    callName: 'viseme_4',
+    displayName: 'viseme.ao',
+    type: AnimationType.VISEME,
+    visemeId: 4,
+    description: '元音 ao',
+  },
+  {
+    actualName: 'viseme_5',
+    callName: 'viseme_5',
+    displayName: 'viseme.ao',
+    type: AnimationType.VISEME,
+    visemeId: 5,
+    description: '元音 ao',
+  },
+  {
+    actualName: 'viseme_6',
+    callName: 'viseme_6',
+    displayName: 'viseme.ax',
+    type: AnimationType.VISEME,
+    visemeId: 6,
+    description: '元音 ax',
+  },
+  {
+    actualName: 'viseme_7',
+    callName: 'viseme_7',
+    displayName: 'viseme.ax',
+    type: AnimationType.VISEME,
+    visemeId: 7,
+    description: '元音 ax',
+  },
+  {
+    actualName: 'viseme_8',
+    callName: 'viseme_8',
+    displayName: 'viseme.ax',
+    type: AnimationType.VISEME,
+    visemeId: 8,
+    description: '元音 ax',
+  },
+  {
+    actualName: 'viseme_9',
+    callName: 'viseme_9',
+    displayName: 'viseme.ay',
+    type: AnimationType.VISEME,
+    visemeId: 9,
+    description: '元音 ay',
+  },
+  {
+    actualName: 'viseme_10',
+    callName: 'viseme_10',
+    displayName: 'viseme.ay',
+    type: AnimationType.VISEME,
+    visemeId: 10,
+    description: '元音 ay',
+  },
+  {
+    actualName: 'viseme_11',
+    callName: 'viseme_11',
+    displayName: 'viseme.ay',
+    type: AnimationType.VISEME,
+    visemeId: 11,
+    description: '元音 ay',
+  },
+  {
+    actualName: 'viseme_12',
+    callName: 'viseme_12',
+    displayName: 'viseme.b',
+    type: AnimationType.VISEME,
+    visemeId: 12,
+    description: '辅音 b',
+  },
+  {
+    actualName: 'viseme_13',
+    callName: 'viseme_13',
+    displayName: 'viseme.ch',
+    type: AnimationType.VISEME,
+    visemeId: 13,
+    description: '辅音 ch',
+  },
+  {
+    actualName: 'viseme_14',
+    callName: 'viseme_14',
+    displayName: 'viseme.d',
+    type: AnimationType.VISEME,
+    visemeId: 14,
+    description: '辅音 d',
+  },
+  {
+    actualName: 'viseme_15',
+    callName: 'viseme_15',
+    displayName: 'viseme.dh',
+    type: AnimationType.VISEME,
+    visemeId: 15,
+    description: '辅音 dh',
+  },
+  {
+    actualName: 'viseme_16',
+    callName: 'viseme_16',
+    displayName: 'viseme.er',
+    type: AnimationType.VISEME,
+    visemeId: 16,
+    description: '元音 er',
+  },
+  {
+    actualName: 'viseme_17',
+    callName: 'viseme_17',
+    displayName: 'viseme.er',
+    type: AnimationType.VISEME,
+    visemeId: 17,
+    description: '元音 er',
+  },
+  {
+    actualName: 'viseme_18',
+    callName: 'viseme_18',
+    displayName: 'viseme.er',
+    type: AnimationType.VISEME,
+    visemeId: 18,
+    description: '元音 er',
+  },
+  {
+    actualName: 'viseme_19',
+    callName: 'viseme_19',
+    displayName: 'viseme.ey',
+    type: AnimationType.VISEME,
+    visemeId: 19,
+    description: '元音 ey',
+  },
+  {
+    actualName: 'viseme_20',
+    callName: 'viseme_20',
+    displayName: 'viseme.ey',
+    type: AnimationType.VISEME,
+    visemeId: 20,
+    description: '元音 ey',
+  },
+  {
+    actualName: 'viseme_21',
+    callName: 'viseme_21',
+    displayName: 'viseme.ey',
+    type: AnimationType.VISEME,
+    visemeId: 21,
+    description: '元音 ey',
+  },
+  {
+    actualName: 'viseme_22',
+    callName: 'viseme_22',
+    displayName: 'viseme.f',
+    type: AnimationType.VISEME,
+    visemeId: 22,
+    description: '辅音 f',
+  },
 ];
 
 // 导出动画配置
 export const animationConfig: AnimationConfig = {
   actions: actionAnimations,
   emotions: emotionAnimations,
-  visemes: visemeAnimations
+  visemes: visemeAnimations,
 };
 
 // 工具函数：根据调用名称获取动画
@@ -312,4 +473,4 @@ export function getAnimationsByType(type: AnimationType) {
     default:
       return [];
   }
-} 
+}

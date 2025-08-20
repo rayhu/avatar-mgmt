@@ -18,7 +18,7 @@ export class SSMLValidator {
     const result: SSMLValidationResult = {
       isValid: true,
       errors: [],
-      warnings: []
+      warnings: [],
     };
 
     let fixedSSML = ssml;
@@ -26,21 +26,20 @@ export class SSMLValidator {
     try {
       // 基本结构验证
       this.validateBasicStructure(ssml, result);
-      
+
       // XML 格式验证
       this.validateXMLFormat(ssml, result);
-      
+
       // SSML 特定元素验证
       this.validateSSMLElements(ssml, result);
-      
+
       // 前端验证逻辑
       fixedSSML = this.applyFrontendValidationLogic(ssml, result);
-      
+
       // 如果有修复，则添加到结果中
       if (fixedSSML !== ssml) {
         result.fixedSSML = fixedSSML;
       }
-
     } catch (error) {
       result.errors.push(`SSML 验证异常: ${error.message}`);
       result.isValid = false;
@@ -76,7 +75,7 @@ export class SSMLValidator {
 
     // 检查标签闭合性
     this.validateTagClosure(ssml, result);
-    
+
     // 检查特殊字符转义
     this.validateCharacterEscaping(ssml, result);
   }
@@ -88,7 +87,7 @@ export class SSMLValidator {
     const openTags = ssml.match(/<[^/][^>]*>/g) || [];
     const closeTags = ssml.match(/<\/[^>]+>/g) || [];
     const selfClosingTags = ssml.match(/<[^>]+\/>/g) || [];
-    
+
     if (openTags.length !== closeTags.length + selfClosingTags.length) {
       result.errors.push('可能存在未闭合的 XML 标签');
       result.isValid = false;
@@ -121,7 +120,7 @@ export class SSMLValidator {
 
     // 检查 voice 元素
     this.validateVoiceElement(ssml, result);
-    
+
     // 检查 mstts 扩展
     this.validateMSTTSExtension(ssml, result);
   }
@@ -144,7 +143,7 @@ export class SSMLValidator {
         result.errors.push('使用了 mstts:express-as 但缺少 mstts 命名空间');
         result.isValid = false;
       }
-      
+
       // 检查 style 属性
       const expressAsMatches = ssml.match(/<mstts:express-as[^>]*>/g) || [];
       for (const match of expressAsMatches) {
@@ -163,13 +162,13 @@ export class SSMLValidator {
 
     // 检查 pitch="0st" 问题
     fixedSSML = this.fixPitchValue(fixedSSML, result);
-    
+
     // 检查 voice 元素存在性
     this.validateVoiceElementExistence(fixedSSML, result);
-    
+
     // 检查 voice 元素 name 属性格式
     this.validateVoiceNameFormat(fixedSSML, result);
-    
+
     // 检查 SSML 标准属性
     this.validateStandardAttributes(fixedSSML, result);
 
@@ -195,7 +194,7 @@ export class SSMLValidator {
       .replace(/<speak[\s\S]*?>/, '')
       .replace(/<\/speak>/, '')
       .trim();
-    
+
     const hasVoiceElement = /<voice[\s>]/i.test(innerContent);
     if (!hasVoiceElement) {
       result.warnings.push('SSML 内容中缺少 <voice> 元素，建议添加 voice 元素包装内容');
@@ -228,7 +227,7 @@ export class SSMLValidator {
     if (!ssml.includes('version="1.0"')) {
       result.warnings.push('建议添加 SSML 版本属性: version="1.0"');
     }
-    
+
     if (!ssml.includes('xml:lang=')) {
       result.warnings.push('建议添加语言属性: xml:lang="zh-CN"');
     }

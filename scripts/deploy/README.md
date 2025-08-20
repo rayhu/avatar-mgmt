@@ -7,6 +7,7 @@
 ## 🏗️ **架构设计**
 
 ### **模块化结构**
+
 ```
 scripts/deploy/
 ├── main.sh              # 主入口脚本
@@ -18,6 +19,7 @@ scripts/deploy/
 ```
 
 ### **设计原则**
+
 1. **单一职责** - 每个模块只负责一个功能
 2. **可复用性** - 通用功能抽象到common模块
 3. **错误处理** - 统一的错误处理和日志记录
@@ -26,6 +28,7 @@ scripts/deploy/
 ## 🚀 **使用方法**
 
 ### **基本用法**
+
 ```bash
 # 查看帮助
 ./scripts/deploy/main.sh --help
@@ -41,6 +44,7 @@ scripts/deploy/
 ```
 
 ### **环境变量**
+
 ```bash
 export SERVER_HOST="daidai-singapore"
 export REMOTE_DIR="/opt/avatar-mgmt"
@@ -50,11 +54,13 @@ export DOMAIN="daidai.amis.hk"
 ## 📦 **模块说明**
 
 ### **1. Common Module (`common.sh`)**
+
 - **功能**: 基础功能和配置
 - **包含**: 日志函数、错误处理、SSH连接、文件同步
 - **特点**: 被其他所有模块引用
 
 ### **2. Build Module (`build.sh`)**
+
 - **功能**: 构建前端和API镜像
 - **选项**:
   - `--frontend`: 只构建前端
@@ -62,6 +68,7 @@ export DOMAIN="daidai.amis.hk"
   - `--all`: 构建所有组件
 
 ### **3. Deploy Module (`deploy.sh`)**
+
 - **功能**: 服务器部署管理
 - **选项**:
   - `--full`: 完整部署流程
@@ -69,11 +76,10 @@ export DOMAIN="daidai.amis.hk"
   - `--start`: 只启动服务
   - `--status`: 检查服务状态
 
-
-
 ## 🔧 **快速命令**
 
 ### **完整部署流程**
+
 ```bash
 # 1. 构建所有组件
 ./scripts/deploy/main.sh build --all
@@ -86,6 +92,7 @@ export DOMAIN="daidai.amis.hk"
 ```
 
 ### **日常维护**
+
 ```bash
 # 查看服务状态
 ./scripts/deploy/main.sh status
@@ -105,12 +112,14 @@ export DOMAIN="daidai.amis.hk"
 ### **常见问题**
 
 1. **SSH连接失败**
+
    ```bash
    # 检查SSH配置
    ssh daidai-singapore "echo 'test'"
    ```
 
 2. **构建失败**
+
    ```bash
    # 检查Node.js版本
    node --version
@@ -124,17 +133,17 @@ export DOMAIN="daidai.amis.hk"
    docker compose version
    ```
 
-
-
 ## 📈 **优势对比**
 
 ### **旧脚本问题**
+
 - ❌ 功能混杂，难以维护
 - ❌ 错误处理不统一
 - ❌ 配置分散
 - ❌ 难以扩展
 
 ### **新系统优势**
+
 - ✅ **模块化设计** - 功能分离，易于维护
 - ✅ **统一错误处理** - 一致的日志和错误处理
 - ✅ **配置集中管理** - 环境变量统一管理
@@ -144,7 +153,9 @@ export DOMAIN="daidai.amis.hk"
 ## 🔄 **迁移指南**
 
 ### **从旧脚本迁移**
+
 1. **备份现有脚本**
+
    ```bash
    cp scripts/deploy-to-singapore.sh scripts/deploy-to-singapore.sh.backup
    ```
@@ -152,16 +163,19 @@ export DOMAIN="daidai.amis.hk"
 2. **使用新系统**
    ```bash
    # 替换旧命令
-   # 旧: ./scripts/deploy-to-singapore.sh --deploy  
-# 新: ./scripts/deploy/main.sh deploy --full
+   # 旧: ./scripts/deploy-to-singapore.sh --deploy
    ```
 
+# 新: ./scripts/deploy/main.sh deploy --full
+
+````
+
 3. **更新CI/CD**
-   ```bash
-   # 在CI/CD中使用新命令
-   ./scripts/deploy/main.sh build --all
-   ./scripts/deploy/main.sh deploy --full
-   ```
+```bash
+# 在CI/CD中使用新命令
+./scripts/deploy/main.sh build --all
+./scripts/deploy/main.sh deploy --full
+````
 
 ## 🎯 **最佳实践**
 
@@ -174,12 +188,14 @@ export DOMAIN="daidai.amis.hk"
 ## 📝 **扩展指南**
 
 ### **添加新模块**
+
 1. 在`modules/`目录创建新脚本
 2. 继承`common.sh`的功能
 3. 在`main.sh`中添加模块入口
 4. 更新文档
 
 ### **添加新功能**
+
 1. 在相应模块中添加函数
 2. 更新帮助信息
 3. 添加错误处理
@@ -187,7 +203,4 @@ export DOMAIN="daidai.amis.hk"
 
 ---
 
-**这个新的部署系统提供了更好的可维护性、可扩展性和错误处理能力！** 🚀 
-
-
-
+**这个新的部署系统提供了更好的可维护性、可扩展性和错误处理能力！** 🚀

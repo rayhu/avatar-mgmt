@@ -1,154 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>API 连接测试</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .success { background-color: #d4edda; border-color: #c3e6cb; }
-        .error { background-color: #f8d7da; border-color: #f5c6cb; }
-        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>🔍 API 连接测试</h1>
-    
+
     <div class="test-section">
-        <h3>🏥 健康检查</h3>
-        <button onclick="testHealth()">测试健康检查</button>
-        <div id="health-result"></div>
+      <h3>🏥 健康检查</h3>
+      <button onclick="testHealth()">测试健康检查</button>
+      <div id="health-result"></div>
     </div>
-    
+
     <div class="test-section">
-        <h3>📝 SSML 生成测试</h3>
-        <input type="text" id="test-text" value="你好，这是一个测试。" style="width: 300px; padding: 5px;">
-        <button onclick="testSSML()">生成 SSML</button>
-        <div id="ssml-result"></div>
+      <h3>📝 SSML 生成测试</h3>
+      <input
+        type="text"
+        id="test-text"
+        value="你好，这是一个测试。"
+        style="width: 300px; padding: 5px"
+      />
+      <button onclick="testSSML()">生成 SSML</button>
+      <div id="ssml-result"></div>
     </div>
-    
+
     <div class="test-section">
-        <h3>🔊 语音合成测试</h3>
-        <button onclick="testTTS()">测试语音合成</button>
-        <div id="tts-result"></div>
-        <audio id="audio-player" controls style="margin-top: 10px;"></audio>
+      <h3>🔊 语音合成测试</h3>
+      <button onclick="testTTS()">测试语音合成</button>
+      <div id="tts-result"></div>
+      <audio id="audio-player" controls style="margin-top: 10px"></audio>
     </div>
-    
+
     <div class="test-section">
-        <h3>🎯 一键文本转语音</h3>
-        <input type="text" id="text-to-speech" value="欢迎使用语音合成系统！" style="width: 300px; padding: 5px;">
-        <button onclick="testTextToSpeech()">文本转语音</button>
-        <div id="text-to-speech-result"></div>
-        <audio id="text-to-speech-audio" controls style="margin-top: 10px;"></audio>
+      <h3>🎯 一键文本转语音</h3>
+      <input
+        type="text"
+        id="text-to-speech"
+        value="欢迎使用语音合成系统！"
+        style="width: 300px; padding: 5px"
+      />
+      <button onclick="testTextToSpeech()">文本转语音</button>
+      <div id="text-to-speech-result"></div>
+      <audio id="text-to-speech-audio" controls style="margin-top: 10px"></audio>
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:3000';
-        
-        function log(elementId, message, isError = false) {
-            const element = document.getElementById(elementId);
-            const className = isError ? 'error' : 'success';
-            element.innerHTML = `<div class="${className}"><pre>${message}</pre></div>`;
+      const API_BASE_URL = 'http://localhost:3000';
+
+      function log(elementId, message, isError = false) {
+        const element = document.getElementById(elementId);
+        const className = isError ? 'error' : 'success';
+        element.innerHTML = `<div class="${className}"><pre>${message}</pre></div>`;
+      }
+
+      async function testHealth() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/health`);
+          const text = await response.text();
+          log('health-result', `状态: ${response.status}\n响应: ${text}`);
+        } catch (error) {
+          log('health-result', `错误: ${error.message}`, true);
         }
-        
-        async function testHealth() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/health`);
-                const text = await response.text();
-                log('health-result', `状态: ${response.status}\n响应: ${text}`);
-            } catch (error) {
-                log('health-result', `错误: ${error.message}`, true);
-            }
+      }
+
+      async function testSSML() {
+        try {
+          const text = document.getElementById('test-text').value;
+          const response = await fetch(`${API_BASE_URL}/api/generate-ssml`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, voice: 'zh-CN-XiaoxiaoNeural' }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            log('ssml-result', `成功!\nSSML 长度: ${data.ssml.length}\nSSML 内容:\n${data.ssml}`);
+          } else {
+            const error = await response.text();
+            log('ssml-result', `错误: ${response.status} - ${error}`, true);
+          }
+        } catch (error) {
+          log('ssml-result', `网络错误: ${error.message}`, true);
         }
-        
-        async function testSSML() {
-            try {
-                const text = document.getElementById('test-text').value;
-                const response = await fetch(`${API_BASE_URL}/api/generate-ssml`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, voice: 'zh-CN-XiaoxiaoNeural' })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    log('ssml-result', `成功!\nSSML 长度: ${data.ssml.length}\nSSML 内容:\n${data.ssml}`);
-                } else {
-                    const error = await response.text();
-                    log('ssml-result', `错误: ${response.status} - ${error}`, true);
-                }
-            } catch (error) {
-                log('ssml-result', `网络错误: ${error.message}`, true);
-            }
+      }
+
+      async function testTTS() {
+        try {
+          const ssml =
+            '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN"><voice name="zh-CN-XiaoxiaoNeural">你好，这是一个测试。</voice></speak>';
+          const response = await fetch(`${API_BASE_URL}/api/azure-tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ssml, voice: 'zh-CN-XiaoxiaoNeural' }),
+          });
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const audioUrl = URL.createObjectURL(blob);
+            document.getElementById('audio-player').src = audioUrl;
+            log(
+              'tts-result',
+              `成功!\n音频大小: ${(blob.size / 1024).toFixed(2)} KB\n音频类型: ${blob.type}`
+            );
+          } else {
+            const error = await response.text();
+            log('tts-result', `错误: ${response.status} - ${error}`, true);
+          }
+        } catch (error) {
+          log('tts-result', `网络错误: ${error.message}`, true);
         }
-        
-        async function testTTS() {
-            try {
-                const ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN"><voice name="zh-CN-XiaoxiaoNeural">你好，这是一个测试。</voice></speak>';
-                const response = await fetch(`${API_BASE_URL}/api/azure-tts`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ssml, voice: 'zh-CN-XiaoxiaoNeural' })
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const audioUrl = URL.createObjectURL(blob);
-                    document.getElementById('audio-player').src = audioUrl;
-                    log('tts-result', `成功!\n音频大小: ${(blob.size / 1024).toFixed(2)} KB\n音频类型: ${blob.type}`);
-                } else {
-                    const error = await response.text();
-                    log('tts-result', `错误: ${response.status} - ${error}`, true);
-                }
-            } catch (error) {
-                log('tts-result', `网络错误: ${error.message}`, true);
-            }
+      }
+
+      async function testTextToSpeech() {
+        try {
+          const text = document.getElementById('text-to-speech').value;
+
+          // 1. 生成 SSML
+          const ssmlResponse = await fetch(`${API_BASE_URL}/api/generate-ssml`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, voice: 'zh-CN-XiaoxiaoNeural' }),
+          });
+
+          if (!ssmlResponse.ok) {
+            const error = await ssmlResponse.text();
+            log('text-to-speech-result', `SSML 生成失败: ${ssmlResponse.status} - ${error}`, true);
+            return;
+          }
+
+          const ssmlData = await ssmlResponse.json();
+
+          // 2. 合成语音
+          const ttsResponse = await fetch(`${API_BASE_URL}/api/azure-tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ssml: ssmlData.ssml, voice: 'zh-CN-XiaoxiaoNeural' }),
+          });
+
+          if (ttsResponse.ok) {
+            const blob = await ttsResponse.blob();
+            const audioUrl = URL.createObjectURL(blob);
+            document.getElementById('text-to-speech-audio').src = audioUrl;
+            log(
+              'text-to-speech-result',
+              `成功!\nSSML 长度: ${ssmlData.ssml.length}\n音频大小: ${(blob.size / 1024).toFixed(2)} KB`
+            );
+          } else {
+            const error = await ttsResponse.text();
+            log('text-to-speech-result', `语音合成失败: ${ttsResponse.status} - ${error}`, true);
+          }
+        } catch (error) {
+          log('text-to-speech-result', `网络错误: ${error.message}`, true);
         }
-        
-        async function testTextToSpeech() {
-            try {
-                const text = document.getElementById('text-to-speech').value;
-                
-                // 1. 生成 SSML
-                const ssmlResponse = await fetch(`${API_BASE_URL}/api/generate-ssml`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, voice: 'zh-CN-XiaoxiaoNeural' })
-                });
-                
-                if (!ssmlResponse.ok) {
-                    const error = await ssmlResponse.text();
-                    log('text-to-speech-result', `SSML 生成失败: ${ssmlResponse.status} - ${error}`, true);
-                    return;
-                }
-                
-                const ssmlData = await ssmlResponse.json();
-                
-                // 2. 合成语音
-                const ttsResponse = await fetch(`${API_BASE_URL}/api/azure-tts`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ssml: ssmlData.ssml, voice: 'zh-CN-XiaoxiaoNeural' })
-                });
-                
-                if (ttsResponse.ok) {
-                    const blob = await ttsResponse.blob();
-                    const audioUrl = URL.createObjectURL(blob);
-                    document.getElementById('text-to-speech-audio').src = audioUrl;
-                    log('text-to-speech-result', `成功!\nSSML 长度: ${ssmlData.ssml.length}\n音频大小: ${(blob.size / 1024).toFixed(2)} KB`);
-                } else {
-                    const error = await ttsResponse.text();
-                    log('text-to-speech-result', `语音合成失败: ${ttsResponse.status} - ${error}`, true);
-                }
-            } catch (error) {
-                log('text-to-speech-result', `网络错误: ${error.message}`, true);
-            }
-        }
-        
-        // 页面加载时自动测试健康检查
-        window.onload = testHealth;
+      }
+
+      // 页面加载时自动测试健康检查
+      window.onload = testHealth;
     </script>
-</body>
-</html> 
+  </body>
+</html>

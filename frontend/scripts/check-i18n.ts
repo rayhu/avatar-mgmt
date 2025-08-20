@@ -19,12 +19,10 @@ const enPath = path.join(__dirname, '../src/locales/en.ts');
 // 加载翻译文件并解析为对象
 function loadTranslations(filePath: string): any {
   const content = fs.readFileSync(filePath, 'utf8');
-  
+
   // 移除 export default 和最后的 ;
-  const cleanContent = content
-    .replace(/export\s+default\s*/, '')
-    .replace(/;?\s*$/, '');
-  
+  const cleanContent = content.replace(/export\s+default\s*/, '').replace(/;?\s*$/, '');
+
   try {
     // 使用 eval 来解析对象（在生产环境中应该使用更安全的方法）
     return eval(`(${cleanContent})`);
@@ -37,12 +35,12 @@ function loadTranslations(filePath: string): any {
 // 递归获取对象的所有键路径
 function getAllKeys(obj: any, prefix = ''): string[] {
   const keys: string[] = [];
-  
+
   for (const key in obj) {
     // 使用 Object.prototype.hasOwnProperty.call 来安全地检查属性
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const fullKey = prefix ? `${prefix}.${key}` : key;
-      
+
       if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
         keys.push(...getAllKeys(obj[key], fullKey));
       } else {
@@ -50,7 +48,7 @@ function getAllKeys(obj: any, prefix = ''): string[] {
       }
     }
   }
-  
+
   return keys;
 }
 
@@ -60,26 +58,26 @@ function extractUsedKeys(dir: string): string[] {
   const vueFiles = findFiles(dir, ['.vue']);
   const tsFiles = findFiles(dir, ['.ts']);
   const jsFiles = findFiles(dir, ['.js']);
-  
+
   const allFiles = [...vueFiles, ...tsFiles, ...jsFiles];
-  
+
   for (const file of allFiles) {
     const content = fs.readFileSync(file, 'utf8');
-    
+
     // 匹配 t('key') 或 t("key") 模式，但排除模板字符串和变量
     const tFunctionRegex = /t\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g;
     let match;
-    
+
     while ((match = tFunctionRegex.exec(content)) !== null) {
       const key = match[1];
-      
+
       // 过滤掉明显不是翻译键的内容
       if (isValidTranslationKey(key)) {
         usedKeys.push(key);
       }
     }
   }
-  
+
   return [...new Set(usedKeys)]; // 去重
 }
 
@@ -89,7 +87,7 @@ function isValidTranslationKey(key: string): boolean {
   if (key.includes('${') || key.includes('$')) {
     return false;
   }
-  
+
   // 排除明显不是翻译键的内容
   const invalidPatterns = [
     /^[a-z]+$/i, // 单个单词
@@ -112,37 +110,37 @@ function isValidTranslationKey(key: string): boolean {
     /^\/login/, // 登录路径
     /^-$/, // 单独的连字符
   ];
-  
+
   // 检查是否匹配无效模式
   for (const pattern of invalidPatterns) {
     if (pattern.test(key)) {
       return false;
     }
   }
-  
+
   // 检查是否包含中文或特殊字符（可能是误判）
   if (/[\u4e00-\u9fff]/.test(key)) {
     return false;
   }
-  
+
   // 允许带点号的路径（如 'login.title', 'common.loading'）
   // 允许带连字符和下划线的键（如 'user-role', 'user_role'）
   // 允许三层路径（如 'animate.timeline.title'）
-  
+
   return true;
 }
 
 // 查找文件
 function findFiles(dir: string, extensions: string[]): string[] {
   const files: string[] = [];
-  
+
   function traverse(currentDir: string) {
     const items = fs.readdirSync(currentDir);
-    
+
     for (const item of items) {
       const fullPath = path.join(currentDir, item);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
         traverse(fullPath);
       } else if (stat.isFile() && extensions.some(ext => item.endsWith(ext))) {
@@ -150,7 +148,7 @@ function findFiles(dir: string, extensions: string[]): string[] {
       }
     }
   }
-  
+
   traverse(dir);
   return files;
 }
@@ -158,30 +156,30 @@ function findFiles(dir: string, extensions: string[]): string[] {
 // 检查翻译完整性
 function checkTranslations() {
   console.log('🔍 检查国际化翻译完整性...\n');
-  
+
   // 加载翻译文件
   const zhCNTranslations = loadTranslations(zhCNPath);
   const enTranslations = loadTranslations(enPath);
-  
+
   // 获取所有翻译键
   const zhCNKeys = getAllKeys(zhCNTranslations);
   const enKeys = getAllKeys(enTranslations);
-  
+
   // 从代码中提取使用的键
   const srcDir = path.join(__dirname, '../src');
   const usedKeys = extractUsedKeys(srcDir);
-  
+
   console.log(`📊 统计信息:`);
   console.log(`   中文翻译键: ${zhCNKeys.length}`);
   console.log(`   英文翻译键: ${enKeys.length}`);
   console.log(`   代码中使用的键: ${usedKeys.length}\n`);
-  
+
   // 检查缺失的翻译
   const missingInZhCN = usedKeys.filter(key => !zhCNKeys.includes(key));
   const missingInEn = usedKeys.filter(key => !enKeys.includes(key));
-  
+
   let hasIssues = false;
-  
+
   if (missingInZhCN.length > 0) {
     hasIssues = true;
     console.log('❌ 中文翻译缺失:');
@@ -190,7 +188,7 @@ function checkTranslations() {
     });
     console.log('');
   }
-  
+
   if (missingInEn.length > 0) {
     hasIssues = true;
     console.log('❌ 英文翻译缺失:');
@@ -199,14 +197,15 @@ function checkTranslations() {
     });
     console.log('');
   }
-  
+
   // 检查未使用的翻译键（只显示明显的未使用键）
   const unusedZhCN = zhCNKeys.filter(key => !usedKeys.includes(key) && key.includes('.'));
   const unusedEn = enKeys.filter(key => !usedKeys.includes(key) && key.includes('.'));
-  
+
   if (unusedZhCN.length > 0) {
     console.log('⚠️  可能未使用的中文翻译键:');
-    unusedZhCN.slice(0, 10).forEach(key => { // 只显示前10个
+    unusedZhCN.slice(0, 10).forEach(key => {
+      // 只显示前10个
       console.log(`   - ${key}`);
     });
     if (unusedZhCN.length > 10) {
@@ -214,10 +213,11 @@ function checkTranslations() {
     }
     console.log('');
   }
-  
+
   if (unusedEn.length > 0) {
     console.log('⚠️  可能未使用的英文翻译键:');
-    unusedEn.slice(0, 10).forEach(key => { // 只显示前10个
+    unusedEn.slice(0, 10).forEach(key => {
+      // 只显示前10个
       console.log(`   - ${key}`);
     });
     if (unusedEn.length > 10) {
@@ -225,7 +225,7 @@ function checkTranslations() {
     }
     console.log('');
   }
-  
+
   if (!hasIssues) {
     console.log('✅ 所有翻译键都已完整！');
     process.exit(0);
@@ -245,4 +245,4 @@ function main() {
   }
 }
 
-main(); 
+main();

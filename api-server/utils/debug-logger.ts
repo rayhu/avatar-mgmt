@@ -3,7 +3,7 @@ interface DebugLog {
   level: 'info' | 'warn' | 'error' | 'debug';
   module: string;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 class DebugLogger {
@@ -15,17 +15,17 @@ class DebugLogger {
     this.isDebugMode = process.env.DEBUG_MODE === 'true';
   }
 
-  log(level: 'info' | 'warn' | 'error' | 'debug', module: string, message: string, data?: any) {
+  log(level: 'info' | 'warn' | 'error' | 'debug', module: string, message: string, data?: unknown) {
     const logEntry: DebugLog = {
       timestamp: new Date().toISOString(),
       level,
       module,
       message,
-      data
+      data,
     };
 
     this.logs.push(logEntry);
-    
+
     // 限制日志数量
     if (this.logs.length > this.maxLogs) {
       this.logs = this.logs.slice(-this.maxLogs);
@@ -36,19 +36,19 @@ class DebugLogger {
     console.log(`${emoji} [${module}] ${message}`, data ? JSON.stringify(data, null, 2) : '');
   }
 
-  info(module: string, message: string, data?: any) {
+  info(module: string, message: string, data?: unknown) {
     this.log('info', module, message, data);
   }
 
-  warn(module: string, message: string, data?: any) {
+  warn(module: string, message: string, data?: unknown) {
     this.log('warn', module, message, data);
   }
 
-  error(module: string, message: string, data?: any) {
+  error(module: string, message: string, data?: unknown) {
     this.log('error', module, message, data);
   }
 
-  debug(module: string, message: string, data?: any) {
+  debug(module: string, message: string, data?: unknown) {
     this.log('debug', module, message, data);
   }
 
@@ -57,7 +57,7 @@ class DebugLogger {
       info: '📝',
       warn: '⚠️',
       error: '❌',
-      debug: '🔍'
+      debug: '🔍',
     };
     return emojis[level] || '📝';
   }

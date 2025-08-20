@@ -18,7 +18,7 @@ export default async function authHandler(req: Request, res: Response) {
     if (!email || !password) {
       return res.status(400).json({
         error: 'Missing required fields',
-        message: 'Email and password are required'
+        message: 'Email and password are required',
       });
     }
 
@@ -29,7 +29,7 @@ export default async function authHandler(req: Request, res: Response) {
     // 调用 Directus 认证 API
     const directusResponse = await axios.post(`${DIRECTUS_URL}/auth/login`, {
       email,
-      password
+      password,
     });
 
     const { access_token, expires, refresh_token } = directusResponse.data.data;
@@ -37,8 +37,8 @@ export default async function authHandler(req: Request, res: Response) {
     // 使用 Directus 返回的 access_token 获取用户信息
     const userResponse = await axios.get(`${DIRECTUS_URL}/users/me`, {
       headers: {
-        Authorization: `Bearer ${access_token}`
-      }
+        Authorization: `Bearer ${access_token}`,
+      },
     });
 
     const userData = userResponse.data.data;
@@ -49,17 +49,17 @@ export default async function authHandler(req: Request, res: Response) {
       try {
         const roleResponse = await axios.get(`${DIRECTUS_URL}/roles/${userData.role}`, {
           headers: {
-            Authorization: `Bearer ${access_token}`
-          }
+            Authorization: `Bearer ${access_token}`,
+          },
         });
-        
+
         const roleData = roleResponse.data.data;
         roleName = roleData.name || 'user';
-        
+
         Logger.debug('角色信息获取成功', {
           roleId: userData.role,
           roleName: roleName,
-          roleData: roleData
+          roleData: roleData,
         });
       } catch (roleError) {
         Logger.warn('获取角色信息失败，使用默认角色', { error: roleError.message });
@@ -83,7 +83,7 @@ export default async function authHandler(req: Request, res: Response) {
       originalRole: userData.role,
       roleName: roleName,
       processedRole: userRole,
-      roleType: typeof userData.role
+      roleType: typeof userData.role,
     });
 
     // 生成我们自己的 JWT token，包含用户信息
@@ -96,7 +96,7 @@ export default async function authHandler(req: Request, res: Response) {
         role: userRole, // 使用处理后的角色名称
         roleId: userData.role, // 保存原始角色ID
         directus_token: access_token, // 保存 Directus token 用于后续 API 调用
-        exp: Math.floor(Date.now() / 1000) + expires
+        exp: Math.floor(Date.now() / 1000) + expires,
       },
       JWT_SECRET
     );
@@ -110,36 +110,41 @@ export default async function authHandler(req: Request, res: Response) {
         name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || userData.email,
         role: userRole, // 使用处理后的角色名称
         first_name: userData.first_name,
-        last_name: userData.last_name
+        last_name: userData.last_name,
       },
       token: customToken,
       refresh_token,
       expires_in: expires,
-      message: 'Login successful'
+      message: 'Login successful',
     });
+  } catch (error: unknown) {
+    const axiosError = error as {
+      message?: string;
+      response?: { status?: number };
+      code?: string;
+    };
 
-  } catch (error: any) {
-    Logger.error('Authentication error', { error: error.message });
+    Logger.error('Authentication error', { error: axiosError.message });
 
     // 处理 Directus 认证错误
-    if (error.response?.status === 401) {
+    if (axiosError.response?.status === 401) {
       return res.status(401).json({
         error: 'Authentication failed',
-        message: 'Invalid email or password'
+        message: 'Invalid email or password',
       });
     }
 
     // 处理网络或其他错误
-    if (error.code === 'ECONNREFUSED') {
+    if (axiosError.code === 'ECONNREFUSED') {
       return res.status(503).json({
         error: 'Service unavailable',
-        message: 'Unable to connect to authentication service'
+        message: 'Unable to connect to authentication service',
       });
     }
 
     res.status(500).json({
       error: 'Internal server error',
-      message: 'An unexpected error occurred during authentication'
+      message: 'An unexpected error occurred during authentication',
     });
   }
 }

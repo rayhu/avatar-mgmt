@@ -26,8 +26,7 @@
                 {{ t(`modelManagement.modelStatus.${model.status.toLowerCase()}`) }}</span
               >
               <span
-                >{{ t('modelManagement.modelInfo.version') }}:
-                {{ model.version || 'N/A' }}</span
+                >{{ t('modelManagement.modelInfo.version') }}: {{ model.version || 'N/A' }}</span
               >
               <span
                 >{{ t('modelManagement.modelInfo.createTime') }}:
@@ -43,7 +42,7 @@
         </div>
       </div>
     </template>
-    
+
     <!-- 编辑模型对话框 -->
     <EditAvatarModal
       :is-visible="isEditModalVisible"
@@ -120,7 +119,7 @@ function handleAvatarUpdated(updatedAvatar: Avatar) {
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500));
     await fetchAllModels();
   } finally {
     loading.value = false;
@@ -139,14 +138,14 @@ onMounted(async () => {
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     margin: 20px 16px;
     padding: 20px;
     border-radius: 12px;
   }
-  
+
   @media (max-width: 480px) {
     margin: 16px 8px;
     padding: 16px;
@@ -172,7 +171,7 @@ onMounted(async () => {
   .tip-icon {
     font-style: normal;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     flex-direction: column;
@@ -187,11 +186,11 @@ onMounted(async () => {
   margin-bottom: 20px;
   display: flex;
   gap: 12px;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     margin-bottom: 16px;
-    
+
     .action-btn {
       flex: 1;
     }
@@ -219,7 +218,7 @@ onMounted(async () => {
       background: color.adjust(#dc3545, $lightness: -10%);
     }
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     padding: 12px 20px;
@@ -227,7 +226,7 @@ onMounted(async () => {
     min-height: 48px;
     flex: 1;
   }
-  
+
   &:active {
     transform: scale(0.98);
   }
@@ -251,7 +250,7 @@ onMounted(async () => {
   &:hover {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
-  
+
   // 移动端垂直布局
   @media (max-width: 768px) {
     flex-direction: column;
@@ -273,14 +272,14 @@ onMounted(async () => {
     width: 100%;
     height: 100%;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     align-self: center;
     margin-right: 0;
     margin-bottom: 0;
   }
-  
+
   @media (max-width: 480px) {
     width: 100px;
     height: 100px;
@@ -299,16 +298,16 @@ onMounted(async () => {
     margin: 0 0 12px 0;
     color: #6c757d;
   }
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     text-align: center;
-    
+
     h3 {
       font-size: 1.2rem;
       margin-bottom: 8px;
     }
-    
+
     p {
       font-size: 0.95rem;
       line-height: 1.4;
@@ -321,7 +320,7 @@ onMounted(async () => {
   gap: 20px;
   font-size: 0.9rem;
   color: #6c757d;
-  
+
   // 移动端适配
   @media (max-width: 768px) {
     flex-direction: column;
@@ -329,7 +328,7 @@ onMounted(async () => {
     text-align: center;
     font-size: 0.85rem;
   }
-  
+
   @media (max-width: 480px) {
     gap: 6px;
   }
@@ -342,16 +341,16 @@ onMounted(async () => {
     gap: 12px;
     width: 100%;
     margin-top: 8px;
-    
+
     .action-btn {
       flex: 1;
       text-align: center;
     }
   }
-  
+
   @media (max-width: 480px) {
     gap: 8px;
-    
+
     .action-btn {
       padding: 10px 16px;
       font-size: 15px;

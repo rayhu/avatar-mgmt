@@ -1,190 +1,42 @@
-for obj in bpy.data.objects:
-...     if obj.type == 'ARMATURE':
-...         print(f"🦴 {obj.name} bones:")
-...         for bone in obj.data.bones:
-...             if "DEF-" in bone.name:
-...                 print(" ", bone.name)
-...                 
-🦴 blender file_metarig bones:
-🦴 blender file_Rigify bones:
-   DEF-spine
-   DEF-spine.001
-   DEF-spine.002
-   DEF-spine.003
-   DEF-spine.004
-   DEF-spine.005
-   DEF-spine.006
-   DEF-pelvis
-   DEF-thigh.L
-   DEF-thigh.L.001
-   DEF-shin.L
-   DEF-shin.L.001
-   DEF-foot.L
-   DEF-toe.L
-   DEF-toe_big.L
-   DEF-toe_index.L
-   DEF-toe_mid.L
-   DEF-toe_ring.L
-   DEF-toe_pinky.L
-   DEF-knee_share.L
-   DEF-thigh.R
-   DEF-thigh.R.001
-   DEF-shin.R
-   DEF-shin.R.001
-   DEF-foot.R
-   DEF-toe.R
-   DEF-toe_big.R
-   DEF-toe_index.R
-   DEF-toe_mid.R
-   DEF-toe_ring.R
-   DEF-toe_pinky.R
-   DEF-knee_share.R
-   DEF-teeth.T
-   DEF-teeth.B
-   DEF-forehead.L
-   DEF-forehead.R
-   DEF-forehead.L.001
-   DEF-forehead.R.001
-   DEF-forehead.L.002
-   DEF-forehead.R.002
-   DEF-temple.L
-   DEF-temple.R
- DEF-brow.B.L
-   DEF-brow.B.L.001
-   DEF-brow.B.L.002
-   DEF-brow.B.L.003
-   DEF-eye.L
-   DEF-lid.B.L
-   DEF-lid.B.L.001
-   DEF-lid.B.L.002
-   DEF-lid.B.L.003
-   DEF-lid.T.L
-   DEF-lid.T.L.001
-   DEF-lid.T.L.002
-   DEF-lid.T.L.003
-   DEF-brow.B.R
-   DEF-brow.B.R.001
-   DEF-brow.B.R.002
-   DEF-brow.B.R.003
-   DEF-eye.R
-   DEF-lid.B.R
-   DEF-lid.B.R.001
-   DEF-lid.B.R.002
-   DEF-lid.B.R.003
-   DEF-lid.T.R
-   DEF-lid.T.R.001
-   DEF-lid.T.R.002
-   DEF-lid.T.R.003
-   DEF-ear.L
-   DEF-ear.L.001
-   DEF-ear.L.002
-   DEF-ear.L.003
-   DEF-ear.L.004
-  DEF-ear.R
-   DEF-ear.R.001
-   DEF-ear.R.002
-   DEF-ear.R.003
-   DEF-ear.R.004
-   DEF-tongue
-   DEF-chin
-   DEF-chin.001
-   DEF-chin.L
-   DEF-chin.R
-   DEF-jaw
-   DEF-jaw.L.001
-   DEF-jaw.R.001
-   DEF-tongue.001
-   DEF-tongue.002
-   DEF-cheek.T.L
-   DEF-brow.T.L
-   DEF-brow.T.L.001
-   DEF-brow.T.L.002
-   DEF-brow.T.L.003
-   DEF-cheek.T.R
-   DEF-brow.T.R
-   DEF-brow.T.R.001
-   DEF-brow.T.R.002
-   DEF-brow.T.R.003
-   DEF-jaw.L
-   DEF-jaw.R
-   DEF-nose
-   DEF-nose.L
-   DEF-nose.R
-   DEF-lip.B.L
-   DEF-lip.B.R
-   DEF-lip.B.L.001
-   DEF-lip.B.R.001
-   DEF-cheek.B.L.001
-   DEF-cheek.B.R.001
-   DEF-cheek.B.L
-   DEF-cheek.B.R
-   DEF-lip.T.L.001
-   DEF-lip.T.R.001
-   DEF-lip.T.L
-   DEF-lip.T.R
-   DEF-nose.002
-   DEF-nose.001
-   DEF-nose.003
-   DEF-nose.004
-   DEF-nose.L.001
-   DEF-nose.R.001
-   DEF-cheek.T.L.001
-   DEF-cheek.T.R.001
-   DEF-shoulder.L
-   DEF-upper_arm.L
-   DEF-upper_arm.L.001
-   DEF-forearm.L
-   DEF-forearm.L.001
-   DEF-hand.L
-   DEF-f_index.01.L
-   DEF-f_index.02.L
-   DEF-f_index.03.L
-   DEF-thumb.01.L
- DEF-thumb.02.L
-   DEF-thumb.03.L
-   DEF-palm.01.L
-   DEF-f_middle.01.L
-   DEF-f_middle.02.L
-   DEF-f_middle.03.L
-   DEF-palm.02.L
-   DEF-f_ring.01.L
-   DEF-f_ring.02.L
-   DEF-f_ring.03.L
-   DEF-palm.03.L
-   DEF-f_pinky.01.L
-   DEF-f_pinky.02.L
-   DEF-f_pinky.03.L
-   DEF-palm.04.L
-   DEF-elbow_share.L
-   DEF-shoulder.R
-   DEF-upper_arm.R
-   DEF-upper_arm.R.001
-   DEF-forearm.R
-   DEF-forearm.R.001
-   DEF-hand.R
-   DEF-f_index.01.R
-   DEF-f_index.02.R
-   DEF-f_index.03.R
-   DEF-thumb.01.R
-   DEF-thumb.02.R
-   DEF-thumb.03.R
-   DEF-palm.01.R
-   DEF-f_middle.01.R
-   DEF-f_middle.02.R
-   DEF-f_middle.03.R
-   DEF-palm.02.R
-   DEF-f_ring.01.R
-   DEF-f_ring.02.R
-   DEF-f_ring.03.R
-   DEF-palm.03.R
-   DEF-f_pinky.01.R
-   DEF-f_pinky.02.R
-   DEF-f_pinky.03.R
-   DEF-palm.04.R
-   DEF-elbow_share.R
-   DEF-breast_twist.L
-   DEF-breast.L
-   DEF-breast_twist.R
-   DEF-breast.R
+for obj in bpy.data.objects: ... if obj.type == 'ARMATURE': ... print(f"🦴
+{obj.name} bones:") ... for bone in obj.data.bones: ... if "DEF-" in bone.name:
+... print(" ", bone.name) ...  
+🦴 blender file_metarig bones: 🦴 blender file_Rigify bones: DEF-spine
+DEF-spine.001 DEF-spine.002 DEF-spine.003 DEF-spine.004 DEF-spine.005
+DEF-spine.006 DEF-pelvis DEF-thigh.L DEF-thigh.L.001 DEF-shin.L DEF-shin.L.001
+DEF-foot.L DEF-toe.L DEF-toe_big.L DEF-toe_index.L DEF-toe_mid.L DEF-toe_ring.L
+DEF-toe_pinky.L DEF-knee_share.L DEF-thigh.R DEF-thigh.R.001 DEF-shin.R
+DEF-shin.R.001 DEF-foot.R DEF-toe.R DEF-toe_big.R DEF-toe_index.R DEF-toe_mid.R
+DEF-toe_ring.R DEF-toe_pinky.R DEF-knee_share.R DEF-teeth.T DEF-teeth.B
+DEF-forehead.L DEF-forehead.R DEF-forehead.L.001 DEF-forehead.R.001
+DEF-forehead.L.002 DEF-forehead.R.002 DEF-temple.L DEF-temple.R DEF-brow.B.L
+DEF-brow.B.L.001 DEF-brow.B.L.002 DEF-brow.B.L.003 DEF-eye.L DEF-lid.B.L
+DEF-lid.B.L.001 DEF-lid.B.L.002 DEF-lid.B.L.003 DEF-lid.T.L DEF-lid.T.L.001
+DEF-lid.T.L.002 DEF-lid.T.L.003 DEF-brow.B.R DEF-brow.B.R.001 DEF-brow.B.R.002
+DEF-brow.B.R.003 DEF-eye.R DEF-lid.B.R DEF-lid.B.R.001 DEF-lid.B.R.002
+DEF-lid.B.R.003 DEF-lid.T.R DEF-lid.T.R.001 DEF-lid.T.R.002 DEF-lid.T.R.003
+DEF-ear.L DEF-ear.L.001 DEF-ear.L.002 DEF-ear.L.003 DEF-ear.L.004 DEF-ear.R
+DEF-ear.R.001 DEF-ear.R.002 DEF-ear.R.003 DEF-ear.R.004 DEF-tongue DEF-chin
+DEF-chin.001 DEF-chin.L DEF-chin.R DEF-jaw DEF-jaw.L.001 DEF-jaw.R.001
+DEF-tongue.001 DEF-tongue.002 DEF-cheek.T.L DEF-brow.T.L DEF-brow.T.L.001
+DEF-brow.T.L.002 DEF-brow.T.L.003 DEF-cheek.T.R DEF-brow.T.R DEF-brow.T.R.001
+DEF-brow.T.R.002 DEF-brow.T.R.003 DEF-jaw.L DEF-jaw.R DEF-nose DEF-nose.L
+DEF-nose.R DEF-lip.B.L DEF-lip.B.R DEF-lip.B.L.001 DEF-lip.B.R.001
+DEF-cheek.B.L.001 DEF-cheek.B.R.001 DEF-cheek.B.L DEF-cheek.B.R DEF-lip.T.L.001
+DEF-lip.T.R.001 DEF-lip.T.L DEF-lip.T.R DEF-nose.002 DEF-nose.001 DEF-nose.003
+DEF-nose.004 DEF-nose.L.001 DEF-nose.R.001 DEF-cheek.T.L.001 DEF-cheek.T.R.001
+DEF-shoulder.L DEF-upper_arm.L DEF-upper_arm.L.001 DEF-forearm.L
+DEF-forearm.L.001 DEF-hand.L DEF-f_index.01.L DEF-f_index.02.L DEF-f_index.03.L
+DEF-thumb.01.L DEF-thumb.02.L DEF-thumb.03.L DEF-palm.01.L DEF-f_middle.01.L
+DEF-f_middle.02.L DEF-f_middle.03.L DEF-palm.02.L DEF-f_ring.01.L
+DEF-f_ring.02.L DEF-f_ring.03.L DEF-palm.03.L DEF-f_pinky.01.L DEF-f_pinky.02.L
+DEF-f_pinky.03.L DEF-palm.04.L DEF-elbow_share.L DEF-shoulder.R DEF-upper_arm.R
+DEF-upper_arm.R.001 DEF-forearm.R DEF-forearm.R.001 DEF-hand.R DEF-f_index.01.R
+DEF-f_index.02.R DEF-f_index.03.R DEF-thumb.01.R DEF-thumb.02.R DEF-thumb.03.R
+DEF-palm.01.R DEF-f_middle.01.R DEF-f_middle.02.R DEF-f_middle.03.R
+DEF-palm.02.R DEF-f_ring.01.R DEF-f_ring.02.R DEF-f_ring.03.R DEF-palm.03.R
+DEF-f_pinky.01.R DEF-f_pinky.02.R DEF-f_pinky.03.R DEF-palm.04.R
+DEF-elbow_share.R DEF-breast_twist.L DEF-breast.L DEF-breast_twist.R
+DEF-breast.R
 
 有这些DEF开头的骨骼

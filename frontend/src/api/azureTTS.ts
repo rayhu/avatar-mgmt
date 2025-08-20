@@ -44,7 +44,7 @@ export async function synthesizeSpeech(
   content: string,
   voice: string = 'zh-CN-XiaoxiaoNeural',
   isSSML: boolean = false,
-  onViseme?: (id: number, timeMs: number, animation?: string) => void,
+  onViseme?: (id: number, timeMs: number, animation?: string) => void
 ): Promise<Blob> {
   if (!SPEECH_KEY || !SPEECH_REGION) {
     throw new Error('Azure Speech credentials not configured');
@@ -94,7 +94,7 @@ export async function synthesizeSpeech(
       const detected = m?.[1];
       if (detected && detected !== voice) {
         console.warn(
-          `[azureTTS] LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`,
+          `[azureTTS] LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`
         );
       }
     } else {
@@ -111,7 +111,7 @@ export async function synthesizeSpeech(
   return new Promise((resolve, reject) => {
     speakFn(
       content,
-      (result) => {
+      result => {
         if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
           const audioData = result.audioData;
           const blob = new Blob([audioData], { type: 'audio/wav' });
@@ -121,10 +121,10 @@ export async function synthesizeSpeech(
         }
         synthesizer.close();
       },
-      (error) => {
+      error => {
         synthesizer.close();
         reject(error);
-      },
+      }
     );
   });
 }
@@ -161,7 +161,7 @@ export async function fetchVoices(): Promise<VoiceOption[]> {
     const local = await fetch('/azure-voices-zh.json');
     if (local.ok) {
       const json: { name: string; label: string; styles?: string[] }[] = await local.json();
-      return json.map((v) => ({ name: v.name, label: v.label, styles: v.styles }));
+      return json.map(v => ({ name: v.name, label: v.label, styles: v.styles }));
     }
   } catch (e) {
     /* ignore – will fallback */
@@ -179,7 +179,7 @@ export async function fetchVoices(): Promise<VoiceOption[]> {
       });
       if (response.ok) {
         const data: AzureVoiceApiItem[] = await response.json();
-        return data.map((v) => ({
+        return data.map(v => ({
           name: v.ShortName || v.Name,
           label: `${v.Locale} – ${v.LocalName}`,
         }));

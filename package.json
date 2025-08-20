@@ -2,25 +2,61 @@
   "name": "avatar-mgmt",
   "private": true,
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "dev": "yarn dev:frontend & yarn dev:api-server",
+    "dev:frontend": "cd frontend && yarn dev",
+    "dev:api-server": "cd api-server && yarn dev",
+    "build": "yarn build:frontend && yarn build:api-server",
+    "build:frontend": "cd frontend && yarn build",
+    "build:api-server": "cd api-server && yarn build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "yarn lint:frontend && yarn lint:api-server",
+    "lint:frontend": "cd frontend && yarn lint",
+    "lint:api-server": "cd api-server && yarn lint",
+    "lint:fix": "yarn lint:frontend && yarn lint:api-server",
+    "lint:fix:frontend": "cd frontend && yarn lint:fix",
+    "lint:fix:api-server": "cd api-server && yarn lint:fix",
+    "type-check": "yarn type-check:frontend && yarn type-check:api-server",
+    "type-check:frontend": "cd frontend && yarn type-check",
+    "type-check:api-server": "cd api-server && yarn type-check",
+    "test": "yarn test:frontend && yarn test:api-server",
+    "test:frontend": "cd frontend && yarn test",
+    "test:api-server": "cd api-server && yarn test",
+    "test:coverage": "yarn test:coverage:frontend && yarn test:coverage:api-server",
+    "test:coverage:frontend": "cd frontend && yarn test:coverage",
+    "test:coverage:api-server": "cd api-server && yarn test:coverage",
+    "i18n:check": "cd frontend && yarn i18n:check",
+    "i18n:report": "cd frontend && yarn i18n:report"
   },
   "engines": {
-    "node": "22.16.0",
-    "yarn": "1.22.22"
+    "node": "^22.16.0",
+    "yarn": "^1.22.0"
   },
-  "packageManager": "yarn@1.22.22",
   "lint-staged": {
     "frontend/**/*.{js,ts,vue}": [
-      "cd frontend && yarn lint",
+      "cd frontend && yarn lint --fix",
       "cd frontend && yarn format"
     ],
-    "frontend/**/*.{json,md}": [
+    "frontend/**/*.{json,md,yml,yaml}": [
       "cd frontend && yarn format"
+    ],
+    "api-server/**/*.{js,ts}": [
+      "cd api-server && yarn lint --fix",
+      "cd api-server && yarn format"
+    ],
+    "api-server/**/*.{json,md,yml,yaml}": [
+      "cd api-server && yarn format"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "yarn format"
     ]
   },
   "devDependencies": {
+    "esbuild": "^0.25.9",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.0"
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.5.3"
   },
   "volta": {
     "node": "22.16.0",

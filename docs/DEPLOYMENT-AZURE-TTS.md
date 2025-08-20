@@ -10,7 +10,7 @@
 ✅ **更好的安全性** - 敏感凭据保留在服务器上  
 ✅ **可以实现速率限制**  
 ✅ **可以实现缓存** - 提高性能  
-✅ **集中式日志记录和监控**  
+✅ **集中式日志记录和监控**
 
 ## 配置步骤
 
@@ -57,6 +57,7 @@ yarn test:azure
 ```
 
 如果测试通过，你会看到：
+
 - ✅ 直接 Azure TTS 测试通过
 - ✅ 后端 API 测试通过
 - 生成的测试音频文件
@@ -76,6 +77,7 @@ yarn start
 ### POST /api/azure-tts
 
 **请求体：**
+
 ```json
 {
   "ssml": "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"zh-CN\"><voice name=\"zh-CN-XiaoxiaoNeural\">你好世界</voice></speak>",
@@ -84,6 +86,7 @@ yarn start
 ```
 
 **响应：**
+
 - 成功：`audio/mpeg` 二进制数据
 - 失败：JSON 错误信息
 
@@ -93,7 +96,8 @@ yarn start
 
 ### 强制前端模式（不推荐）
 
-如果需要在前端直接使用 Azure TTS（不推荐用于生产环境），在 `frontend/.env` 中设置：
+如果需要在前端直接使用 Azure TTS（不推荐用于生产环境），在 `frontend/.env`
+中设置：
 
 ```env
 VITE_AZURE_SPEECH_KEY=your_key_here
@@ -126,6 +130,7 @@ VITE_AZURE_SPEECH_KEY=your_key_here
 ### 缓存策略
 
 后端 API 已配置缓存头：
+
 ```
 Cache-Control: public, max-age=3600
 ```
@@ -142,6 +147,7 @@ Cache-Control: public, max-age=3600
 ### 日志记录
 
 API 服务器会记录：
+
 - 请求/响应状态
 - 错误详情
 - 处理时间
@@ -149,6 +155,7 @@ API 服务器会记录：
 ### 监控指标
 
 建议监控：
+
 - API 调用次数
 - 错误率
 - 响应时间
@@ -173,6 +180,7 @@ docker run -d \
 ### 环境变量管理
 
 生产环境建议使用：
+
 - Docker secrets
 - Kubernetes secrets
 - 云服务商的密钥管理服务
@@ -189,6 +197,7 @@ docker run -d \
 ## 支持
 
 如果遇到问题，请检查：
+
 1. [Azure Speech Service 文档](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/)
 2. API 服务器日志
-3. 测试脚本输出 
+3. 测试脚本输出

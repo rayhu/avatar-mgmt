@@ -12,7 +12,7 @@ import path from 'path';
 const testConfig = {
   animateVuePath: 'src/views/Animate.vue',
   animationsConfigPath: 'src/config/animations.ts',
-  localesPath: 'src/locales'
+  localesPath: 'src/locales',
 };
 
 // 颜色输出
@@ -21,7 +21,7 @@ const colors = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
-  reset: '\x1b[0m'
+  reset: '\x1b[0m',
 };
 
 function log(message, color = 'reset') {
@@ -51,10 +51,12 @@ function testAnimateVueMigration() {
 
     // 3. 读取 Animate.vue 内容
     const animateVueContent = fs.readFileSync(testConfig.animateVuePath, 'utf8');
-    
+
     // 4. 检查是否导入了配置文件
-    if (!animateVueContent.includes('getActionAnimations') || 
-        !animateVueContent.includes('getEmotionAnimations')) {
+    if (
+      !animateVueContent.includes('getActionAnimations') ||
+      !animateVueContent.includes('getEmotionAnimations')
+    ) {
       log('❌ 未找到配置文件导入', 'red');
       allTestsPassed = false;
     } else {
@@ -62,9 +64,11 @@ function testAnimateVueMigration() {
     }
 
     // 5. 检查是否移除了硬编码的动作数组
-    if (animateVueContent.includes("'Idle',") && 
-        animateVueContent.includes("'Walking',") && 
-        animateVueContent.includes("'Running',")) {
+    if (
+      animateVueContent.includes("'Idle',") &&
+      animateVueContent.includes("'Walking',") &&
+      animateVueContent.includes("'Running',")
+    ) {
       log('❌ 仍存在硬编码的动作数组', 'red');
       allTestsPassed = false;
     } else {
@@ -72,9 +76,11 @@ function testAnimateVueMigration() {
     }
 
     // 6. 检查是否移除了硬编码的表情数组
-    if (animateVueContent.includes("'Angry',") && 
-        animateVueContent.includes("'Surprised',") && 
-        animateVueContent.includes("'Sad',")) {
+    if (
+      animateVueContent.includes("'Angry',") &&
+      animateVueContent.includes("'Surprised',") &&
+      animateVueContent.includes("'Sad',")
+    ) {
       log('❌ 仍存在硬编码的表情数组', 'red');
       allTestsPassed = false;
     } else {
@@ -82,8 +88,10 @@ function testAnimateVueMigration() {
     }
 
     // 7. 检查是否使用了 computed 属性
-    if (!animateVueContent.includes('const actions = computed') || 
-        !animateVueContent.includes('const emotions = computed')) {
+    if (
+      !animateVueContent.includes('const actions = computed') ||
+      !animateVueContent.includes('const emotions = computed')
+    ) {
       log('❌ 未使用 computed 属性获取动作和表情', 'red');
       allTestsPassed = false;
     } else {
@@ -91,8 +99,10 @@ function testAnimateVueMigration() {
     }
 
     // 8. 检查是否添加了显示名称函数
-    if (!animateVueContent.includes('getActionDisplayName') || 
-        !animateVueContent.includes('getEmotionDisplayName')) {
+    if (
+      !animateVueContent.includes('getActionDisplayName') ||
+      !animateVueContent.includes('getEmotionDisplayName')
+    ) {
       log('❌ 未找到显示名称函数', 'red');
       allTestsPassed = false;
     } else {
@@ -100,8 +110,10 @@ function testAnimateVueMigration() {
     }
 
     // 9. 检查模板中是否使用了显示名称函数
-    if (!animateVueContent.includes('getActionDisplayName(action)') || 
-        !animateVueContent.includes('getEmotionDisplayName(emotion)')) {
+    if (
+      !animateVueContent.includes('getActionDisplayName(action)') ||
+      !animateVueContent.includes('getEmotionDisplayName(emotion)')
+    ) {
       log('❌ 模板中未使用显示名称函数', 'red');
       allTestsPassed = false;
     } else {
@@ -109,8 +121,10 @@ function testAnimateVueMigration() {
     }
 
     // 10. 检查时间轴显示是否正确
-    if (!animateVueContent.includes('getActionDisplayName(keyframe.action') || 
-        !animateVueContent.includes('getEmotionDisplayName(keyframe.emotion')) {
+    if (
+      !animateVueContent.includes('getActionDisplayName(keyframe.action') ||
+      !animateVueContent.includes('getEmotionDisplayName(keyframe.emotion')
+    ) {
       log('❌ 时间轴显示未使用显示名称函数', 'red');
       allTestsPassed = false;
     } else {
@@ -118,8 +132,10 @@ function testAnimateVueMigration() {
     }
 
     // 11. 检查处理函数是否正确更新
-    if (!animateVueContent.includes('actions.value.includes(value)') || 
-        !animateVueContent.includes('emotions.value.includes(value)')) {
+    if (
+      !animateVueContent.includes('actions.value.includes(value)') ||
+      !animateVueContent.includes('emotions.value.includes(value)')
+    ) {
       log('❌ 处理函数未正确更新', 'red');
       allTestsPassed = false;
     } else {
@@ -128,19 +144,21 @@ function testAnimateVueMigration() {
 
     // 12. 读取配置文件内容
     const configContent = fs.readFileSync(testConfig.animationsConfigPath, 'utf8');
-    
+
     // 13. 检查配置文件中的动作数量
     const actionCount = (configContent.match(/actualName: '/g) || []).length;
     const enabledActionCount = (configContent.match(/enabled: true/g) || []).length;
-    
+
     log(`📊 配置文件统计:`, 'blue');
     log(`   - 总动作数量: ${actionCount}`, 'blue');
     log(`   - 启用动作数量: ${enabledActionCount}`, 'blue');
 
     // 14. 检查表情配置
-    if (configContent.includes('Angry') && 
-        configContent.includes('Surprised') && 
-        configContent.includes('Sad')) {
+    if (
+      configContent.includes('Angry') &&
+      configContent.includes('Surprised') &&
+      configContent.includes('Sad')
+    ) {
       log('✅ 表情配置正确 (Angry, Surprised, Sad)', 'green');
     } else {
       log('❌ 表情配置不正确', 'red');
@@ -154,7 +172,6 @@ function testAnimateVueMigration() {
     } else {
       log('✅ 已移除不存在的 Neutral 表情', 'green');
     }
-
   } catch (error) {
     log(`❌ 测试过程中发生错误: ${error.message}`, 'red');
     allTestsPassed = false;
@@ -162,7 +179,7 @@ function testAnimateVueMigration() {
 
   log('', 'reset');
   log('='.repeat(50), 'blue');
-  
+
   if (allTestsPassed) {
     log('🎉 所有测试通过！Animate.vue 迁移成功', 'green');
     log('', 'reset');
@@ -183,4 +200,4 @@ function testAnimateVueMigration() {
 
 // 运行测试
 const success = testAnimateVueMigration();
-process.exit(success ? 0 : 1); 
+process.exit(success ? 0 : 1);

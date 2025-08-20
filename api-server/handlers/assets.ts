@@ -4,25 +4,25 @@ import { Logger } from '../utils/logger';
 
 export async function assetsHandler(req: Request, res: Response) {
   const fileId = req.params.fileId;
-  
+
   if (!fileId) {
     Logger.error('Assets handler: 缺少文件ID', {
       component: 'AssetsHandler',
       method: 'GET',
-      error: 'Missing fileId parameter'
+      error: 'Missing fileId parameter',
     });
     return res.status(400).json({ error: 'Missing fileId parameter' });
   }
 
   const DIRECTUS_URL = process.env.DIRECTUS_URL;
   const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN;
-  
+
   if (!DIRECTUS_URL || !DIRECTUS_TOKEN) {
     Logger.error('Assets handler: Directus配置缺失', {
       component: 'AssetsHandler',
       method: 'GET',
       fileId,
-      error: 'Directus configuration missing'
+      error: 'Directus configuration missing',
     });
     return res.status(500).json({ error: 'Directus configuration missing' });
   }
@@ -32,15 +32,15 @@ export async function assetsHandler(req: Request, res: Response) {
       component: 'AssetsHandler',
       method: 'GET',
       fileId,
-      directusUrl: DIRECTUS_URL
+      directusUrl: DIRECTUS_URL,
     });
 
     // 通过Directus API获取文件信息
     const fileResponse = await axios.get(`${DIRECTUS_URL}/files/${fileId}`, {
       headers: {
-        'Authorization': `Bearer ${DIRECTUS_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${DIRECTUS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!fileResponse.data) {
@@ -48,13 +48,13 @@ export async function assetsHandler(req: Request, res: Response) {
         component: 'AssetsHandler',
         method: 'GET',
         fileId,
-        status: fileResponse.status
+        status: fileResponse.status,
       });
       return res.status(404).json({ error: 'File not found' });
     }
 
     const fileData = fileResponse.data.data;
-    
+
     // Directus文件下载URL格式：/assets/{fileId}
     const fileUrl = `/assets/${fileId}`;
     const fullFileUrl = `${DIRECTUS_URL}${fileUrl}`;
@@ -66,15 +66,15 @@ export async function assetsHandler(req: Request, res: Response) {
       fileUrl: fullFileUrl,
       fileName: fileData.filename_download || fileData.filename,
       fileSize: fileData.filesize,
-      mimeType: fileData.type
+      mimeType: fileData.type,
     });
 
     // 代理文件内容
     const fileResponse2 = await axios.get(fullFileUrl, {
       headers: {
-        'Authorization': `Bearer ${DIRECTUS_TOKEN}`
+        Authorization: `Bearer ${DIRECTUS_TOKEN}`,
       },
-      responseType: 'stream'
+      responseType: 'stream',
     });
 
     // 设置响应头
@@ -82,7 +82,7 @@ export async function assetsHandler(req: Request, res: Response) {
       'Content-Type': fileData.type || 'application/octet-stream',
       'Content-Length': fileData.filesize || '',
       'Content-Disposition': `inline; filename="${fileData.filename_download || fileData.filename}"`,
-      'Cache-Control': 'public, max-age=31536000' // 缓存1年
+      'Cache-Control': 'public, max-age=31536000', // 缓存1年
     });
 
     // 流式传输文件
@@ -94,25 +94,29 @@ export async function assetsHandler(req: Request, res: Response) {
       fileId,
       fileName: fileData.filename_download || fileData.filename,
       fileSize: fileData.filesize,
-      mimeType: fileData.type
+      mimeType: fileData.type,
     });
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: { data?: { message?: string }; status?: number };
+      message?: string;
+    };
 
-  } catch (error: any) {
     Logger.error('Assets handler: 文件代理失败', {
       component: 'AssetsHandler',
       method: 'GET',
       fileId,
-      error: error.response?.data?.message || error.message,
-      status: error.response?.status
+      error: axiosError.response?.data?.message || axiosError.message,
+      status: axiosError.response?.status,
     });
 
-    if (error.response?.status === 404) {
+    if (axiosError.response?.status === 404) {
       return res.status(404).json({ error: 'File not found' });
     }
 
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to proxy file',
-      message: error.response?.data?.message || error.message
+      message: axiosError.response?.data?.message || axiosError.message,
     });
   }
 }

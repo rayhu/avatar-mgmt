@@ -172,7 +172,7 @@ export default {
     w: '辅音 w',
     y: '辅音 y',
     z: '辅音 z',
-    zh: '辅音 zh'
+    zh: '辅音 zh',
   },
   language: {
     selectLanguage: '选择语言',
@@ -272,7 +272,8 @@ export default {
     error: '获取版本信息失败',
     description: '小赢科技数字人管理系统的运行状态、技术特性和版本详情',
     systemIntro: '系统介绍',
-    systemIntroText: '小赢科技数字人管理系统是一个集成了语音合成、动画生成、模型管理等功能的综合平台。系统采用现代化的技术架构，提供稳定可靠的服务。',
+    systemIntroText:
+      '小赢科技数字人管理系统是一个集成了语音合成、动画生成、模型管理等功能的综合平台。系统采用现代化的技术架构，提供稳定可靠的服务。',
     technicalFeatures: '技术特性',
     contactUs: '联系我们',
     contactText: '如果您在使用过程中遇到任何问题，或有改进建议，请随时联系我们。',

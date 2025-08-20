@@ -7,11 +7,13 @@
 ## 日志格式
 
 ### 标准日志格式
+
 ```
 [时间戳] 级别 消息 | 上下文信息
 ```
 
 ### 示例
+
 ```
 [2024-01-15T10:30:45.123Z] INFO 🖼️ Avatars 请求开始 | {"method":"GET","url":"/api/avatars","bodySize":0}
 [2024-01-15T10:30:45.456Z] INFO ✅ Avatars 查询成功 | {"avatarCount":5,"baseUrl":"http://localhost:5173"}
@@ -20,6 +22,7 @@
 ## Handlers 日志详情
 
 ### 1. Avatars Handler (`/api/avatars`)
+
 - **开始日志**: 请求方法、URL、请求头、查询参数
 - **配置检查**: Directus URL 和 Token 配置状态
 - **API 调用**: Directus API 调用信息
@@ -28,6 +31,7 @@
 - **错误日志**: 详细的错误信息和类型
 
 ### 2. Azure TTS Handler (`/api/azure-tts`)
+
 - **开始日志**: 请求参数、语音配置
 - **配置检查**: Azure 区域和密钥配置
 - **API 调用**: Azure TTS API 调用信息
@@ -36,6 +40,7 @@
 - **错误日志**: 详细的错误信息和响应内容
 
 ### 3. Generate SSML Handler (`/api/generate-ssml`)
+
 - **开始日志**: 请求参数、文本长度
 - **配置检查**: OpenAI API 密钥配置
 - **语音样式**: 支持的语音样式列表
@@ -45,6 +50,7 @@
 - **错误日志**: 详细的错误信息和堆栈
 
 ### 4. OpenAI SSML Handler (`/api/openai-ssml`)
+
 - **开始日志**: 请求参数、模型配置
 - **配置检查**: OpenAI API 密钥配置
 - **语音样式**: 支持的语音样式配置
@@ -56,21 +62,25 @@
 ## 日志级别
 
 ### INFO (信息)
+
 - 请求开始和结束
 - 配置检查结果
 - API 调用成功
 - 处理结果
 
 ### WARN (警告)
+
 - 配置缺失但使用默认值
 - 非关键错误
 
 ### ERROR (错误)
+
 - API 调用失败
 - 配置错误
 - 处理异常
 
 ### DEBUG (调试)
+
 - 仅在开发环境显示
 - 详细的调试信息
 
@@ -89,6 +99,7 @@ yarn test:all
 ## 日志工具
 
 ### Logger 类
+
 提供了统一的日志方法：
 
 ```typescript
@@ -131,4 +142,4 @@ Logger.apiResponse('API Name', 200, { response: 'data' });
 1. 使用 `yarn test:all` 测试所有 handlers
 2. 检查控制台输出的日志格式
 3. 验证错误处理是否正确记录
-4. 确认配置检查是否正常工作 
+4. 确认配置检查是否正常工作

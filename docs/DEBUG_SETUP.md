@@ -44,7 +44,7 @@ DEBUG_MODE=false
 
 调试模式下的响应格式：
 
-```json
+````json
 {
   "ssml": "<speak>...</speak>",
   "debugInfo": {
@@ -76,7 +76,7 @@ DEBUG_MODE=false
     }
   ]
 }
-```
+````
 
 ### Azure TTS 接口 (`/api/azure-tts`)
 
@@ -112,6 +112,7 @@ X-Debug-Info: {"ssmlLength":300,"voice":"zh-CN-XiaoxiaoNeural","region":"eastus"
 ### SSML 验证失败
 
 查看 `debugLogs` 中 `SSML-VALIDATOR` 模块的错误信息：
+
 - `缺少 <speak> 根元素`
 - `可能存在未闭合的 XML 标签`
 - `使用了 mstts:express-as 但缺少 mstts 命名空间`
@@ -119,6 +120,7 @@ X-Debug-Info: {"ssmlLength":300,"voice":"zh-CN-XiaoxiaoNeural","region":"eastus"
 ### Azure TTS 400 错误
 
 查看错误响应中的 `details` 和 `requestInfo` 字段：
+
 - 检查 SSML 格式是否正确
 - 确认 voice 是否支持使用的样式
 - 查看 Azure 返回的具体错误信息

@@ -12,9 +12,9 @@ async function testAuth() {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'admin123' })
+      body: JSON.stringify({ username: 'admin', password: 'admin123' }),
     });
-    
+
     const data = await response.json();
     console.log('状态码:', response.status);
     console.log('响应:', JSON.stringify(data, null, 2));
@@ -29,9 +29,9 @@ async function testAuth() {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'user', password: 'user123' })
+      body: JSON.stringify({ username: 'user', password: 'user123' }),
     });
-    
+
     const data = await response.json();
     console.log('状态码:', response.status);
     console.log('响应:', JSON.stringify(data, null, 2));
@@ -46,9 +46,9 @@ async function testAuth() {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'wrongpassword' })
+      body: JSON.stringify({ username: 'admin', password: 'wrongpassword' }),
     });
-    
+
     const data = await response.json();
     console.log('状态码:', response.status);
     console.log('响应:', JSON.stringify(data, null, 2));
@@ -63,9 +63,9 @@ async function testAuth() {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'nonexistent', password: 'anypassword' })
+      body: JSON.stringify({ username: 'nonexistent', password: 'anypassword' }),
     });
-    
+
     const data = await response.json();
     console.log('状态码:', response.status);
     console.log('响应:', JSON.stringify(data, null, 2));
@@ -80,9 +80,9 @@ async function testAuth() {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin' })
+      body: JSON.stringify({ username: 'admin' }),
     });
-    
+
     const data = await response.json();
     console.log('状态码:', response.status);
     console.log('响应:', JSON.stringify(data, null, 2));

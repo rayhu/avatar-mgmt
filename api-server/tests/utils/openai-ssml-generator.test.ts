@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { OpenAISSMLGenerator, SSMLGenerationRequest, SSMLGenerationResult } from '../../utils/openai-ssml-generator.js';
+import { OpenAISSMLGenerator, SSMLGenerationRequest } from '../../utils/openai-ssml-generator.js';
 
 // 模拟 voiceStylesManager
 vi.mock('../../utils/voice-styles-manager.js', () => ({
@@ -7,8 +7,8 @@ vi.mock('../../utils/voice-styles-manager.js', () => ({
     loadFromFile: vi.fn().mockResolvedValue(undefined),
     getStylesForVoice: vi.fn().mockReturnValue(['cheerful', 'sad', 'angry', 'excited']),
     getAllVoiceStyles: vi.fn().mockReturnValue({}),
-    isStyleSupported: vi.fn().mockReturnValue(true)
-  }
+    isStyleSupported: vi.fn().mockReturnValue(true),
+  },
 }));
 
 // 模拟 fetch
@@ -24,18 +24,23 @@ describe('OpenAISSMLGenerator', () => {
   const mockRequest: SSMLGenerationRequest = {
     text: '你好世界',
     voice: 'zh-CN-XiaoxiaoNeural',
-    model: 'gpt-4o'
+    model: 'gpt-4o',
   };
 
   beforeEach(() => {
     generator = new OpenAISSMLGenerator();
     vi.clearAllMocks();
-    
+
     // 设置环境变量
     process.env.OPENAI_API_KEY = 'test-api-key';
-    
+
     // 确保模拟方法返回正确的值
-    mockVoiceStylesManager.getStylesForVoice.mockReturnValue(['cheerful', 'sad', 'angry', 'excited']);
+    mockVoiceStylesManager.getStylesForVoice.mockReturnValue([
+      'cheerful',
+      'sad',
+      'angry',
+      'excited',
+    ]);
   });
 
   afterEach(() => {
@@ -55,27 +60,32 @@ describe('OpenAISSMLGenerator', () => {
   });
 
   describe('generateSSML', () => {
-
     it('应该成功生成 SSML', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak><voice name="zh-CN-XiaoxiaoNeural">你好世界</voice></speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak><voice name="zh-CN-XiaoxiaoNeural">你好世界</voice></speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 100 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
 
-      expect(result.ssml).toBe('<speak><voice name="zh-CN-XiaoxiaoNeural">你好世界</voice></speak>');
-      expect(result.rawSSML).toBe('<speak><voice name="zh-CN-XiaoxiaoNeural">你好世界</voice></speak>');
+      expect(result.ssml).toBe(
+        '<speak><voice name="zh-CN-XiaoxiaoNeural">你好世界</voice></speak>'
+      );
+      expect(result.rawSSML).toBe(
+        '<speak><voice name="zh-CN-XiaoxiaoNeural">你好世界</voice></speak>'
+      );
       expect(result.tokenUsage).toEqual({ total_tokens: 100 });
       expect(result.model).toBe('gpt-4o');
     });
@@ -83,22 +93,24 @@ describe('OpenAISSMLGenerator', () => {
     it('应该使用默认模型', async () => {
       const requestWithoutModel: SSMLGenerationRequest = {
         text: '测试文本',
-        voice: 'zh-CN-XiaoxiaoNeural'
+        voice: 'zh-CN-XiaoxiaoNeural',
       };
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(requestWithoutModel);
@@ -110,18 +122,20 @@ describe('OpenAISSMLGenerator', () => {
       mockVoiceStylesManager.getStylesForVoice.mockReturnValue(['cheerful', 'sad', 'angry']);
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       await generator.generateSSML(mockRequest);
@@ -131,18 +145,20 @@ describe('OpenAISSMLGenerator', () => {
 
     it('应该清理 markdown 标记', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '```xml\n<speak>测试内容</speak>\n```'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '```xml\n<speak>测试内容</speak>\n```',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -155,12 +171,12 @@ describe('OpenAISSMLGenerator', () => {
       const mockResponse = {
         choices: [],
         usage: { total_tokens: 0 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -174,7 +190,7 @@ describe('OpenAISSMLGenerator', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: () => Promise.resolve('Invalid API key')
+        text: () => Promise.resolve('Invalid API key'),
       } as any);
 
       await expect(generator.generateSSML(mockRequest)).rejects.toThrow(
@@ -198,18 +214,20 @@ describe('OpenAISSMLGenerator', () => {
 
     it('应该处理复杂的 markdown 清理', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '```\n<speak>内容1</speak>\n```\n```xml\n<speak>内容2</speak>\n```'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '```\n<speak>内容1</speak>\n```\n```xml\n<speak>内容2</speak>\n```',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -225,18 +243,20 @@ describe('OpenAISSMLGenerator', () => {
       mockVoiceStylesManager.getStylesForVoice.mockReturnValue(['cheerful', 'sad', 'angry']);
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       await generator.generateSSML(mockRequest);
@@ -245,25 +265,29 @@ describe('OpenAISSMLGenerator', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('Allowed styles for zh-CN-XiaoxiaoNeural: cheerful, sad, angry')
+          body: expect.stringContaining(
+            'Allowed styles for zh-CN-XiaoxiaoNeural: cheerful, sad, angry'
+          ),
         })
       );
     });
 
     it('应该包含正确的语音名称', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       await generator.generateSSML(mockRequest);
@@ -277,18 +301,20 @@ describe('OpenAISSMLGenerator', () => {
   describe('callOpenAIAPI', () => {
     it('应该使用正确的请求头和参数', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       await generator.generateSSML(mockRequest);
@@ -299,9 +325,9 @@ describe('OpenAISSMLGenerator', () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-api-key'
+            Authorization: 'Bearer test-api-key',
           },
-          body: expect.stringContaining('"temperature":0.2')
+          body: expect.stringContaining('"temperature":0.2'),
         })
       );
     });
@@ -311,7 +337,7 @@ describe('OpenAISSMLGenerator', () => {
         ok: false,
         status: 429,
         statusText: 'Too Many Requests',
-        text: () => Promise.resolve('Rate limit exceeded')
+        text: () => Promise.resolve('Rate limit exceeded'),
       } as any);
 
       await expect(generator.generateSSML(mockRequest)).rejects.toThrow(
@@ -323,18 +349,20 @@ describe('OpenAISSMLGenerator', () => {
   describe('cleanSSML', () => {
     it('应该移除开头的 markdown 代码块', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '```xml\n<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '```xml\n<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -344,18 +372,20 @@ describe('OpenAISSMLGenerator', () => {
 
     it('应该移除结尾的 markdown 代码块', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>\n```'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>\n```',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -365,18 +395,20 @@ describe('OpenAISSMLGenerator', () => {
 
     it('应该处理没有 markdown 的内容', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>测试</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>测试</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -386,18 +418,20 @@ describe('OpenAISSMLGenerator', () => {
 
     it('应该处理只有 markdown 标记的内容', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '```\n```'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '```\n```',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(mockRequest);
@@ -411,22 +445,24 @@ describe('OpenAISSMLGenerator', () => {
       const longText = '测试文本'.repeat(1000);
       const requestWithLongText: SSMLGenerationRequest = {
         text: longText,
-        voice: 'zh-CN-XiaoxiaoNeural'
+        voice: 'zh-CN-XiaoxiaoNeural',
       };
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>长文本</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>长文本</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 1000 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(requestWithLongText);
@@ -437,22 +473,24 @@ describe('OpenAISSMLGenerator', () => {
     it('应该处理空文本', async () => {
       const requestWithEmptyText: SSMLGenerationRequest = {
         text: '',
-        voice: 'zh-CN-XiaoxiaoNeural'
+        voice: 'zh-CN-XiaoxiaoNeural',
       };
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak></speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak></speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 10 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(requestWithEmptyText);
@@ -464,22 +502,24 @@ describe('OpenAISSMLGenerator', () => {
       const specialText = '测试文本包含特殊字符: !@#$%^&*()_+-=[]{}|;:,.<>?';
       const requestWithSpecialChars: SSMLGenerationRequest = {
         text: specialText,
-        voice: 'zh-CN-XiaoxiaoNeural'
+        voice: 'zh-CN-XiaoxiaoNeural',
       };
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: '<speak>特殊字符</speak>'
-          }
-        }],
+        choices: [
+          {
+            message: {
+              content: '<speak>特殊字符</speak>',
+            },
+          },
+        ],
         usage: { total_tokens: 50 },
-        model: 'gpt-4o'
+        model: 'gpt-4o',
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockResponse)
+        json: () => Promise.resolve(mockResponse),
       } as any);
 
       const result = await generator.generateSSML(requestWithSpecialChars);

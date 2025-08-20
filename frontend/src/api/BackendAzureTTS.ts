@@ -41,25 +41,25 @@ export async function synthesizeSpeech(
   content: string,
   voice: string = 'zh-CN-XiaoxiaoNeural',
   isSSML: boolean = false,
-  onViseme?: (id: number, timeMs: number, animation?: string) => void,
+  onViseme?: (id: number, timeMs: number, animation?: string) => void
 ): Promise<Blob> {
   const startTime = Date.now();
-  
+
   logger.apiCall('Azure TTS', '/api/azure-tts', {
     voice,
     isSSML,
     contentLength: content.length,
-    contentPreview: content.slice(0, 100) + (content.length > 100 ? '...' : '')
+    contentPreview: content.slice(0, 100) + (content.length > 100 ? '...' : ''),
   });
-  
+
   // 后端暂不支持 viseme，返回空实现
   if (onViseme) {
     logger.warn('Viseme callback is not supported in backend mode', {
       component: 'BackendAzureTTS',
-      method: 'synthesizeSpeech'
+      method: 'synthesizeSpeech',
     });
   }
-  
+
   try {
     // 处理 SSML 格式，参考前端 azureTTS.ts 的逻辑
     let processedContent = content;
@@ -67,7 +67,7 @@ export async function synthesizeSpeech(
       logger.debug('处理 SSML 格式', {
         component: 'BackendAzureTTS',
         method: 'synthesizeSpeech',
-        originalContent: content.slice(0, 200) + (content.length > 200 ? '...' : '')
+        originalContent: content.slice(0, 200) + (content.length > 200 ? '...' : ''),
       });
 
       // 不可靠的 SSML 直接重构为标准格式
@@ -85,12 +85,15 @@ export async function synthesizeSpeech(
         const m = inner.match(/<voice[^>]*name=["']([^"']+)["']/i);
         const detected = m?.[1];
         if (detected && detected !== voice) {
-          logger.warn(`LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`, {
-            component: 'BackendAzureTTS',
-            method: 'synthesizeSpeech',
-            selectedVoice: voice,
-            detectedVoice: detected
-          });
+          logger.warn(
+            `LLM returned voice "${detected}" which differs from selected "${voice}". Using LLM-specified voice.`,
+            {
+              component: 'BackendAzureTTS',
+              method: 'synthesizeSpeech',
+              selectedVoice: voice,
+              detectedVoice: detected,
+            }
+          );
         }
       } else {
         processed = `<voice name="${voice}">${inner}</voice>`;
@@ -109,20 +112,25 @@ export async function synthesizeSpeech(
     logger.debug('发送请求', {
       component: 'BackendAzureTTS',
       method: 'synthesizeSpeech',
-      processedContent: processedContent.slice(0, 200) + (processedContent.length > 200 ? '...' : '')
+      processedContent:
+        processedContent.slice(0, 200) + (processedContent.length > 200 ? '...' : ''),
     });
-    
-    const response = await apiClient.post('/api/azure-tts', { 
-      ssml: processedContent, 
-      voice 
-    }, {
-      responseType: 'blob'
-    });
+
+    const response = await apiClient.post(
+      '/api/azure-tts',
+      {
+        ssml: processedContent,
+        voice,
+      },
+      {
+        responseType: 'blob',
+      }
+    );
 
     const duration = Date.now() - startTime;
     logger.apiResponse('Azure TTS', response.status, {
       duration,
-      headers: response.headers
+      headers: response.headers,
     });
 
     const blob = response.data;
@@ -131,21 +139,21 @@ export async function synthesizeSpeech(
       method: 'synthesizeSpeech',
       blobSize: blob.size,
       blobType: blob.type,
-      duration
+      duration,
     });
-    
+
     return blob;
   } catch (error) {
     const err = error as Error;
     const duration = Date.now() - startTime;
-    
+
     logger.apiError('Azure TTS', err, {
       duration,
       voice,
       contentLength: content.length,
-      isSSML
+      isSSML,
     });
-    
+
     // 检查是否是网络错误
     if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
       logger.error('网络连接错误，可能的原因:', {
@@ -155,11 +163,11 @@ export async function synthesizeSpeech(
           '后端服务器未启动',
           'API_BASE_URL 配置错误',
           'CORS 配置问题',
-          '网络连接问题'
-        ]
+          '网络连接问题',
+        ],
       });
     }
-    
+
     throw error;
   }
 }
@@ -170,35 +178,38 @@ export async function synthesizeSpeech(
  * @param voice 语音名称
  * @returns 音频 Blob
  */
-export async function textToSpeech(text: string, voice: string = 'zh-CN-XiaoxiaoNeural'): Promise<Blob> {
+export async function textToSpeech(
+  text: string,
+  voice: string = 'zh-CN-XiaoxiaoNeural'
+): Promise<Blob> {
   const startTime = Date.now();
-  
+
   logger.info('开始文本转语音', {
     component: 'BackendAzureTTS',
     method: 'textToSpeech',
     text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
     voice,
-    textLength: text.length
+    textLength: text.length,
   });
-  
+
   try {
     // 直接调用 synthesizeSpeech，传入纯文本
     const audioBlob = await synthesizeSpeech(text, voice, false);
-    
+
     const duration = Date.now() - startTime;
     logger.info('文本转语音完成', {
       component: 'BackendAzureTTS',
       method: 'textToSpeech',
       blobSize: audioBlob.size,
       blobType: audioBlob.type,
-      duration
+      duration,
     });
-    
+
     return audioBlob;
   } catch (error) {
     const err = error as Error;
     const duration = Date.now() - startTime;
-    
+
     logger.error('文本转语音失败', {
       component: 'BackendAzureTTS',
       method: 'textToSpeech',
@@ -206,7 +217,7 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
       errorType: err.constructor.name,
       text: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
       voice,
-      duration
+      duration,
     });
     throw error;
   }
@@ -219,11 +230,11 @@ export async function textToSpeech(text: string, voice: string = 'zh-CN-Xiaoxiao
 export function playAudio(audioBlob: Blob): void {
   const audioUrl = URL.createObjectURL(audioBlob);
   const audio = new Audio(audioUrl);
-  
+
   audio.onended = () => {
     URL.revokeObjectURL(audioUrl); // 清理内存
   };
-  
+
   audio.play().catch(error => {
     console.error('Audio playback error:', error);
     URL.revokeObjectURL(audioUrl);

@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "name": "avatar-mgmt",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "api-server/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "api-server/**/*.ts",
+          "api-server/**/*.js",
+          "api-server/**/*.json",
+          "api-server/**/*.yml",
+          "api-server/**/*.yaml"
+        ]
+      }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api-server/index.ts"
+    },
+    {
+      "source": "/health",
+      "destination": "/api-server/index.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
+  ],
+  "regions": ["hkg1"],
+  "env": {
+    "NODE_ENV": "production",
+    "VITE_API_BASE_URL": ""
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production",
+      "VITE_API_BASE_URL": ""
+    }
+  }
+}

@@ -1,18 +1,22 @@
 # Sass Migration Guide
 
 ## Overview
-This document explains the migration from deprecated Sass syntax to modern syntax to eliminate deprecation warnings.
+
+This document explains the migration from deprecated Sass syntax to modern
+syntax to eliminate deprecation warnings.
 
 ## Changes Made
 
 ### 1. Replaced `@import` with `@use`
 
 **Before:**
+
 ```scss
 @import '@/assets/styles/variables.scss';
 ```
 
 **After:**
+
 ```scss
 @use '@/assets/styles/variables.scss' as *;
 ```
@@ -20,11 +24,13 @@ This document explains the migration from deprecated Sass syntax to modern synta
 ### 2. Updated Color Functions
 
 **Before:**
+
 ```scss
 background: darken($primary-color, 10%);
 ```
 
 **After:**
+
 ```scss
 @use 'sass:color';
 background: color.adjust($primary-color, $lightness: -10%);
@@ -43,7 +49,8 @@ When using `color.adjust()`, you **must** import the Sass color module:
 @use 'sass:color';
 ```
 
-This import is required at the top of any file that uses `color.adjust()` or other color functions.
+This import is required at the top of any file that uses `color.adjust()` or
+other color functions.
 
 ## Benefits
 
@@ -64,18 +71,18 @@ yarn sass-check
 
 ### Color Adjustments
 
-| Old Function | New Function |
-|-------------|-------------|
-| `darken($color, 10%)` | `color.adjust($color, $lightness: -10%)` |
-| `lighten($color, 10%)` | `color.adjust($color, $lightness: 10%)` |
-| `saturate($color, 10%)` | `color.adjust($color, $saturation: 10%)` |
+| Old Function              | New Function                              |
+| ------------------------- | ----------------------------------------- |
+| `darken($color, 10%)`     | `color.adjust($color, $lightness: -10%)`  |
+| `lighten($color, 10%)`    | `color.adjust($color, $lightness: 10%)`   |
+| `saturate($color, 10%)`   | `color.adjust($color, $saturation: 10%)`  |
 | `desaturate($color, 10%)` | `color.adjust($color, $saturation: -10%)` |
 
 ### Import Statements
 
-| Old | New |
-|-----|-----|
-| `@import 'variables';` | `@use 'variables' as *;` |
+| Old                         | New                      |
+| --------------------------- | ------------------------ |
+| `@import 'variables';`      | `@use 'variables' as *;` |
 | `@import 'variables' as v;` | `@use 'variables' as v;` |
 
 ## Complete Example
@@ -86,7 +93,7 @@ yarn sass-check
 
 .my-component {
   background: $primary-color;
-  
+
   &:hover {
     background: color.adjust($primary-color, $lightness: -10%);
   }
@@ -105,4 +112,4 @@ yarn sass-check
 
 - [Sass @use Documentation](https://sass-lang.com/documentation/at-rules/use/)
 - [Sass Color Functions](https://sass-lang.com/documentation/modules/color/)
-- [Dart Sass Migration Guide](https://sass-lang.com/d/import) 
+- [Dart Sass Migration Guide](https://sass-lang.com/d/import)

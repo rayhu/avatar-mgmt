@@ -27,22 +27,22 @@ describe('Azure TTS Handler', () => {
   beforeEach(() => {
     // 重置所有模拟
     vi.clearAllMocks();
-    
+
     // 设置环境变量
     process.env.AZURE_SPEECH_KEY = 'test-azure-key';
     process.env.AZURE_SPEECH_REGION = 'eastus';
-    
+
     // 创建模拟的响应对象
     mockStatus = vi.fn().mockReturnThis();
     mockJson = vi.fn().mockReturnThis();
     mockSend = vi.fn().mockReturnThis();
     mockSetHeader = vi.fn().mockReturnThis();
-    
+
     mockRes = {
       status: mockStatus,
       json: mockJson,
       send: mockSend,
-      setHeader: mockSetHeader
+      setHeader: mockSetHeader,
     };
 
     // 设置默认的模拟返回值
@@ -53,12 +53,12 @@ describe('Azure TTS Handler', () => {
     mockDebugLogger.debug.mockReturnValue(undefined);
     mockDebugLogger.isDebugEnabled.mockReturnValue(false);
     mockDebugLogger.getLogsForResponse.mockReturnValue([]);
-    
+
     mockSSMLValidator.validate.mockReturnValue({
       isValid: true,
       errors: [],
       warnings: [],
-      fixedSSML: undefined
+      fixedSSML: undefined,
     });
 
     // 设置默认的fetch模拟
@@ -69,9 +69,9 @@ describe('Azure TTS Handler', () => {
       statusText: 'OK',
       headers: new Map([
         ['content-type', 'audio/mpeg'],
-        ['content-length', '1024']
+        ['content-length', '1024'],
       ]),
-      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(1024))
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(1024)),
     } as any);
   });
 
@@ -86,16 +86,18 @@ describe('Azure TTS Handler', () => {
         method: 'GET',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: {}
+        body: {},
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', '方法不允许', { method: 'GET' });
+      expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', '方法不允许', {
+        method: 'GET',
+      });
       expect(mockStatus).toHaveBeenCalledWith(405);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Method not allowed',
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
@@ -104,7 +106,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -119,20 +121,20 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: {}
+        body: {},
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', 'SSML 参数无效', { 
-        ssml: undefined, 
+      expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', 'SSML 参数无效', {
+        ssml: undefined,
         type: 'undefined',
-        isEmpty: true 
+        isEmpty: true,
       });
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Parameter "ssml" is required.',
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
@@ -141,15 +143,15 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '' }
+        body: { ssml: '' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Parameter "ssml" is required.',
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
@@ -158,15 +160,15 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '   ' }
+        body: { ssml: '   ' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Parameter "ssml" is required.',
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
@@ -174,22 +176,22 @@ describe('Azure TTS Handler', () => {
       // 确保环境变量已设置
       process.env.AZURE_SPEECH_KEY = 'test-azure-key';
       process.env.AZURE_SPEECH_REGION = 'eastus';
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: 123 }
+        body: { ssml: 123 },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Parameter "ssml" is required.',
-        debugLogs: []
+        debugLogs: [],
       });
-      
+
       // 验证SSML验证器没有被调用，因为参数验证应该提前返回
       expect(mockSSMLValidator.validate).not.toHaveBeenCalled();
     });
@@ -199,7 +201,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -214,14 +216,14 @@ describe('Azure TTS Handler', () => {
         isValid: false,
         errors: ['Invalid SSML format'],
         warnings: [],
-        fixedSSML: undefined
+        fixedSSML: undefined,
       });
 
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -229,14 +231,14 @@ describe('Azure TTS Handler', () => {
       expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', 'SSML 验证失败', {
         errors: ['Invalid SSML format'],
         warnings: [],
-        ssml: '<speak>测试</speak>'
+        ssml: '<speak>测试</speak>',
       });
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Invalid SSML format',
         details: ['Invalid SSML format'],
         warnings: [],
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
@@ -245,20 +247,20 @@ describe('Azure TTS Handler', () => {
         isValid: true,
         errors: [],
         warnings: ['Minor warning'],
-        fixedSSML: undefined
+        fixedSSML: undefined,
       });
 
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
       expect(mockDebugLogger.warn).toHaveBeenCalledWith('AZURE-TTS', 'SSML 验证警告', {
-        warnings: ['Minor warning']
+        warnings: ['Minor warning'],
       });
       expect(mockStatus).toHaveBeenCalledWith(200);
     });
@@ -267,12 +269,12 @@ describe('Azure TTS Handler', () => {
   describe('Azure凭据验证', () => {
     it('应该在Azure密钥缺失时返回500错误', async () => {
       delete process.env.AZURE_SPEECH_KEY;
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -280,23 +282,23 @@ describe('Azure TTS Handler', () => {
       expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', 'Azure 凭据未配置', {
         hasKey: false,
         hasRegion: true,
-        keyLength: 0
+        keyLength: 0,
       });
       expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Azure Speech credentials are not configured.',
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
     it('应该在Azure区域缺失时返回500错误', async () => {
       delete process.env.AZURE_SPEECH_REGION;
-      
+
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -304,12 +306,12 @@ describe('Azure TTS Handler', () => {
       expect(mockDebugLogger.error).toHaveBeenCalledWith('AZURE-TTS', 'Azure 凭据未配置', {
         hasKey: true,
         hasRegion: false,
-        keyLength: 14
+        keyLength: 14,
       });
       expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ 
+      expect(mockJson).toHaveBeenCalledWith({
         error: 'Azure Speech credentials are not configured.',
-        debugLogs: []
+        debugLogs: [],
       });
     });
   });
@@ -320,7 +322,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -333,9 +335,9 @@ describe('Azure TTS Handler', () => {
             'Ocp-Apim-Subscription-Key': 'test-azure-key',
             'Content-Type': 'application/ssml+xml',
             'X-MICROSOFT-OUTPUTFORMAT': 'audio-24khz-48kbitrate-mono-mp3',
-            'User-Agent': 'avatar-mgmt-v1'
+            'User-Agent': 'avatar-mgmt-v1',
           }),
-          body: '<speak>测试</speak>'
+          body: '<speak>测试</speak>',
         })
       );
     });
@@ -345,7 +347,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -354,7 +356,7 @@ describe('Azure TTS Handler', () => {
         voice: 'zh-CN-XiaoxiaoNeural',
         ssmlLength: 17,
         ssmlPreview: '<speak>测试</speak>',
-        hasSSML: true
+        hasSSML: true,
       });
     });
 
@@ -363,7 +365,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>', voice: 'en-US-JennyNeural' }
+        body: { ssml: '<speak>测试</speak>', voice: 'en-US-JennyNeural' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -372,7 +374,7 @@ describe('Azure TTS Handler', () => {
         voice: 'en-US-JennyNeural',
         ssmlLength: 17,
         ssmlPreview: '<speak>测试</speak>',
-        hasSSML: true
+        hasSSML: true,
       });
     });
   });
@@ -386,16 +388,16 @@ describe('Azure TTS Handler', () => {
         statusText: 'OK',
         headers: new Map([
           ['content-type', 'audio/mpeg'],
-          ['content-length', '2048']
+          ['content-length', '2048'],
         ]),
-        arrayBuffer: vi.fn().mockResolvedValue(audioBuffer)
+        arrayBuffer: vi.fn().mockResolvedValue(audioBuffer),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -412,14 +414,14 @@ describe('Azure TTS Handler', () => {
         status: 400,
         statusText: 'Bad Request',
         headers: new Map(),
-        text: vi.fn().mockResolvedValue('Invalid SSML')
+        text: vi.fn().mockResolvedValue('Invalid SSML'),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -430,18 +432,18 @@ describe('Azure TTS Handler', () => {
         errorBody: 'Invalid SSML',
         headers: {},
         requestSSML: '<speak>测试</speak>',
-        voice: 'zh-CN-XiaoxiaoNeural'
+        voice: 'zh-CN-XiaoxiaoNeural',
       });
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ 
-        error: 'Azure TTS request failed', 
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Azure TTS request failed',
         details: 'Invalid SSML',
         requestInfo: {
           voice: 'zh-CN-XiaoxiaoNeural',
           ssmlLength: 17,
-          region: 'eastus'
+          region: 'eastus',
         },
-        debugLogs: []
+        debugLogs: [],
       });
     });
 
@@ -452,27 +454,27 @@ describe('Azure TTS Handler', () => {
         status: 400,
         statusText: 'Bad Request',
         headers: new Map(),
-        text: vi.fn().mockResolvedValue(JSON.stringify(errorResponse))
+        text: vi.fn().mockResolvedValue(JSON.stringify(errorResponse)),
       } as any);
 
       mockReq = {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockJson).toHaveBeenCalledWith({ 
-        error: 'Azure TTS request failed', 
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Azure TTS request failed',
         details: errorResponse,
         requestInfo: {
           voice: 'zh-CN-XiaoxiaoNeural',
           ssmlLength: 17,
-          region: 'eastus'
+          region: 'eastus',
         },
-        debugLogs: []
+        debugLogs: [],
       });
     });
   });
@@ -485,17 +487,20 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockSetHeader).toHaveBeenCalledWith('X-Debug-Info', JSON.stringify({
-        ssmlLength: 17,
-        voice: 'zh-CN-XiaoxiaoNeural',
-        region: 'eastus',
-        audioSize: 1024
-      }));
+      expect(mockSetHeader).toHaveBeenCalledWith(
+        'X-Debug-Info',
+        JSON.stringify({
+          ssmlLength: 17,
+          voice: 'zh-CN-XiaoxiaoNeural',
+          region: 'eastus',
+          audioSize: 1024,
+        })
+      );
     });
 
     it('应该在非调试模式下不添加调试响应头', async () => {
@@ -505,7 +510,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -522,7 +527,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -531,14 +536,14 @@ describe('Azure TTS Handler', () => {
         error: 'Network error',
         errorType: 'Error',
         stack: expect.any(String),
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
       expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ 
-        error: 'Internal server error', 
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Internal server error',
         details: 'Network error',
         timestamp: expect.any(String),
-        debugLogs: []
+        debugLogs: [],
       });
     });
   });
@@ -549,7 +554,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test', 'content-length': '100' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -560,7 +565,7 @@ describe('Azure TTS Handler', () => {
         userAgent: 'jest-test',
         contentLength: '100',
         bodySize: 28, // 实际计算的值：{"ssml":"<speak>测试</speak>"} 的长度
-        debugMode: false
+        debugMode: false,
       });
     });
 
@@ -569,7 +574,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -579,7 +584,7 @@ describe('Azure TTS Handler', () => {
         voice: 'zh-CN-XiaoxiaoNeural',
         keyLength: 14,
         ssmlLength: 17,
-        endpoint: 'https://eastus.tts.speech.microsoft.com/cognitiveservices/v1'
+        endpoint: 'https://eastus.tts.speech.microsoft.com/cognitiveservices/v1',
       });
     });
 
@@ -588,7 +593,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -598,7 +603,7 @@ describe('Azure TTS Handler', () => {
         audioSizeKB: '1.00',
         audioSizeMB: '0.001',
         contentType: 'audio/mpeg',
-        durationEstimate: '~0.1s'
+        durationEstimate: '~0.1s',
       });
     });
 
@@ -607,7 +612,7 @@ describe('Azure TTS Handler', () => {
         method: 'POST',
         url: '/api/azure-tts',
         headers: { 'user-agent': 'jest-test' },
-        body: { ssml: '<speak>测试</speak>' }
+        body: { ssml: '<speak>测试</speak>' },
       };
 
       await azureTTSHandler(mockReq as Request, mockRes as Response);
@@ -615,7 +620,7 @@ describe('Azure TTS Handler', () => {
       expect(mockDebugLogger.info).toHaveBeenCalledWith('AZURE-TTS', '请求处理完成', {
         success: true,
         responseSize: 1024,
-        processingComplete: true
+        processingComplete: true,
       });
     });
   });

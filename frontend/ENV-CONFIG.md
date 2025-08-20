@@ -2,7 +2,8 @@
 
 ## 概述
 
-本项目使用环境变量来配置不同环境的 API 端点。前端不再直接访问 Directus，而是通过 API Server 进行所有数据交互。
+本项目使用环境变量来配置不同环境的 API 端点。前端不再直接访问 Directus，而是通过 API
+Server 进行所有数据交互。
 
 ## 环境变量
 
@@ -11,16 +12,19 @@
 API Server 的基础 URL，用于所有 API 请求。
 
 **开发环境**
+
 ```bash
 VITE_API_BASE_URL=http://localhost:3000
 ```
 
 **生产环境**
+
 ```bash
 VITE_API_BASE_URL=https://api.daidai.amis.hk
 ```
 
 **Staging 环境**
+
 ```bash
 VITE_API_BASE_URL=https://api.daidai-preview.amis.hk
 ```

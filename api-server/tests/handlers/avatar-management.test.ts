@@ -5,8 +5,8 @@ import avatarManagementHandler from '../../handlers/avatar-management.js';
 // 模拟 axios
 vi.mock('axios', () => ({
   default: {
-    patch: vi.fn()
-  }
+    patch: vi.fn(),
+  },
 }));
 import axios from 'axios';
 const mockAxios = vi.mocked(axios);
@@ -20,24 +20,24 @@ describe('Avatar Management Handler', () => {
   beforeEach(() => {
     // 重置所有模拟
     vi.clearAllMocks();
-    
+
     // 设置环境变量
     process.env.DIRECTUS_URL = 'http://test-directus:8055';
     process.env.DIRECTUS_TOKEN = 'test-token';
-    
+
     // 创建模拟的响应对象
     mockStatus = vi.fn().mockReturnThis();
     mockJson = vi.fn().mockReturnThis();
-    
+
     mockRes = {
       status: mockStatus,
-      json: mockJson
+      json: mockJson,
     };
 
     // 设置默认的模拟返回值
     vi.mocked(mockAxios.patch).mockResolvedValue({
       status: 200,
-      data: { data: { id: 'test-id', name: 'Test Avatar' } }
+      data: { data: { id: 'test-id', name: 'Test Avatar' } },
     });
   });
 
@@ -49,13 +49,13 @@ describe('Avatar Management Handler', () => {
   describe('配置验证', () => {
     it('应该在Directus配置缺失时返回500错误', async () => {
       delete process.env.DIRECTUS_URL;
-      
+
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: {},
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -66,13 +66,13 @@ describe('Avatar Management Handler', () => {
 
     it('应该在Directus Token缺失时返回500错误', async () => {
       delete process.env.DIRECTUS_TOKEN;
-      
+
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: {},
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -87,9 +87,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'GET',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: {},
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -102,9 +102,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready', version: '1.0.0' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -116,9 +116,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PATCH',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { name: 'Updated Avatar' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -132,9 +132,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready', version: '1.0.0' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -153,7 +153,7 @@ describe('Avatar Management Handler', () => {
       expect(mockJson).toHaveBeenCalledWith({
         success: true,
         data: { id: 'test-id', name: 'Test Avatar' },
-        message: '模型状态更新成功'
+        message: '模型状态更新成功',
       });
     });
 
@@ -161,9 +161,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'invalid-status' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -171,20 +171,20 @@ describe('Avatar Management Handler', () => {
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({
         error: '无效的状态值',
-        validStatuses: ['draft', 'pending', 'processing', 'ready', 'error']
+        validStatuses: ['draft', 'pending', 'processing', 'ready', 'error'],
       });
     });
 
     it('应该接受有效的状态值', async () => {
       const validStatuses = ['draft', 'pending', 'processing', 'ready', 'error'];
-      
+
       for (const status of validStatuses) {
         mockReq = {
           method: 'PUT',
           url: '/api/avatars/test-id',
-          headers: { 'user-agent': 'jest-test' },
+          headers: { 'user-agent': 'vitest-test' },
           body: { status },
-          params: { id: 'test-id' }
+          params: { id: 'test-id' },
         };
 
         await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -193,7 +193,7 @@ describe('Avatar Management Handler', () => {
         expect(mockJson).toHaveBeenCalledWith({
           success: true,
           data: { id: 'test-id', name: 'Test Avatar' },
-          message: '模型状态更新成功'
+          message: '模型状态更新成功',
         });
       }
     });
@@ -202,9 +202,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { version: 'invalid-version' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       // 版本格式验证只是警告，不应该阻止更新
@@ -215,14 +215,14 @@ describe('Avatar Management Handler', () => {
 
     it('应该接受语义化版本号', async () => {
       const validVersions = ['1.0.0', '2.1.3', '10.5.2'];
-      
+
       for (const version of validVersions) {
         mockReq = {
           method: 'PUT',
           url: '/api/avatars/test-id',
-          headers: { 'user-agent': 'jest-test' },
+          headers: { 'user-agent': 'vitest-test' },
           body: { version },
-          params: { id: 'test-id' }
+          params: { id: 'test-id' },
         };
 
         await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -235,9 +235,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -255,9 +255,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PATCH',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { name: 'Updated Avatar', description: 'New description' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -276,7 +276,7 @@ describe('Avatar Management Handler', () => {
       expect(mockJson).toHaveBeenCalledWith({
         success: true,
         data: { id: 'test-id', name: 'Test Avatar' },
-        message: '模型信息更新成功'
+        message: '模型信息更新成功',
       });
     });
   });
@@ -284,15 +284,15 @@ describe('Avatar Management Handler', () => {
   describe('错误处理', () => {
     it('应该在Directus API返回404时返回404错误', async () => {
       vi.mocked(mockAxios.patch).mockRejectedValue({
-        response: { status: 404, data: { message: 'Not found' } }
+        response: { status: 404, data: { message: 'Not found' } },
       });
 
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -303,15 +303,15 @@ describe('Avatar Management Handler', () => {
 
     it('应该在Directus API错误时返回500错误', async () => {
       vi.mocked(mockAxios.patch).mockRejectedValue({
-        response: { status: 500, data: { message: 'Internal error' } }
+        response: { status: 500, data: { message: 'Internal error' } },
       });
 
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -326,9 +326,9 @@ describe('Avatar Management Handler', () => {
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
@@ -341,31 +341,33 @@ describe('Avatar Management Handler', () => {
   describe('日志记录', () => {
     it('应该记录请求开始信息', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-      
+
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Avatar Management 请求开始'));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Avatar Management 请求开始')
+      );
 
       consoleSpy.mockRestore();
     });
 
     it('应该记录成功更新信息', async () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-      
+
       mockReq = {
         method: 'PUT',
         url: '/api/avatars/test-id',
-        headers: { 'user-agent': 'jest-test' },
+        headers: { 'user-agent': 'vitest-test' },
         body: { status: 'ready', version: '1.0.0' },
-        params: { id: 'test-id' }
+        params: { id: 'test-id' },
       };
 
       await avatarManagementHandler(mockReq as Request, mockRes as Response);

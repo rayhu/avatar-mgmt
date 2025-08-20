@@ -64,14 +64,14 @@ const isOpen = ref(false);
 const highlightedIndex = ref(0);
 
 const currentFlag = computed(() => {
-  const lang = languages.find((l) => l.code === currentLocale.value);
+  const lang = languages.find(l => l.code === currentLocale.value);
   return lang?.flag || languages[0].flag;
 });
 
 function toggleDropdown() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    highlightedIndex.value = languages.findIndex((l) => l.code === currentLocale.value);
+    highlightedIndex.value = languages.findIndex(l => l.code === currentLocale.value);
   }
 }
 
@@ -105,7 +105,7 @@ function selectHighlightedLanguage() {
 const vClickOutside = {
   mounted(
     el: HTMLElement & { clickOutsideEvent?: (event: Event) => void },
-    binding: { value: () => void },
+    binding: { value: () => void }
   ) {
     el.clickOutsideEvent = function (event: Event) {
       if (!(el === event.target || el.contains(event.target as Node))) {

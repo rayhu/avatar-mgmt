@@ -6,10 +6,23 @@
 export interface LogContext {
   method?: string;
   url?: string;
-  headers?: any;
+  headers?: Record<string, string | string[] | undefined>;
   bodySize?: number;
-  query?: any;
-  [key: string]: any;
+  query?: Record<string, unknown>; // 放宽类型约束，与 RequestInfo 保持一致
+  [key: string]: unknown;
+}
+
+export interface RequestInfo {
+  method: string;
+  url: string;
+  body?: unknown;
+  query?: Record<string, unknown>; // 放宽类型约束，允许任何类型的查询参数
+}
+
+export interface ErrorInfo {
+  message?: string;
+  constructor?: { name: string };
+  stack?: string;
 }
 
 export class Logger {
@@ -38,12 +51,12 @@ export class Logger {
   }
 
   // 特定于 handler 的日志方法
-  static handlerStart(handlerName: string, req: any): void {
+  static handlerStart(handlerName: string, req: RequestInfo): void {
     this.info(`${handlerName} 请求开始`, {
       method: req.method,
       url: req.url,
       bodySize: req.body ? JSON.stringify(req.body).length : 0,
-      query: req.query
+      query: req.query,
     });
   }
 
@@ -51,12 +64,12 @@ export class Logger {
     this.info(`${handlerName} 处理成功`, context);
   }
 
-  static handlerError(handlerName: string, error: any, context?: LogContext): void {
+  static handlerError(handlerName: string, error: ErrorInfo, context?: LogContext): void {
     this.error(`${handlerName} 处理失败`, {
       error: error.message,
-      errorType: error.constructor.name,
+      errorType: error.constructor?.name || 'Unknown',
       stack: error.stack,
-      ...context
+      ...context,
     });
   }
 
@@ -64,7 +77,7 @@ export class Logger {
   static apiCall(apiName: string, url: string, context?: LogContext): void {
     this.info(`${apiName} API 调用`, {
       url,
-      ...context
+      ...context,
     });
   }
 
@@ -73,7 +86,7 @@ export class Logger {
     const message = `${apiName} API 响应`;
     const logContext = {
       status,
-      ...context
+      ...context,
     };
 
     if (level === 'error') {
@@ -85,4 +98,4 @@ export class Logger {
 }
 
 // 导出便捷函数
-export const log = Logger; 
+export const log = Logger;

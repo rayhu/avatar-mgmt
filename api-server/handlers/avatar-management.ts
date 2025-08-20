@@ -22,29 +22,35 @@ const avatarManagementHandler = async (req: Request, res: Response) => {
       case 'PUT':
         // 更新模型状态和版本
         return await updateAvatarStatus(req, res, directusUrl, directusToken, avatarId);
-      
+
       case 'PATCH':
         // 部分更新模型信息
         return await patchAvatarInfo(req, res, directusUrl, directusToken, avatarId);
-      
+
       default:
         return res.status(405).json({ error: '不支持的HTTP方法' });
     }
-  } catch (error: any) {
-    Logger.handlerError('Avatar Management', error, {
-      errorType: error.constructor.name
+  } catch (error: unknown) {
+    const axiosError = error as {
+      constructor: { name: string };
+      message?: string;
+      response?: { status?: number; data?: unknown };
+    };
+
+    Logger.handlerError('Avatar Management', axiosError, {
+      errorType: axiosError.constructor.name,
     });
-    
+
     res.status(500).json({ error: '模型管理操作失败' });
   }
 };
 
 // 更新模型状态
 async function updateAvatarStatus(
-  req: Request, 
-  res: Response, 
-  directusUrl: string, 
-  directusToken: string, 
+  req: Request,
+  res: Response,
+  directusUrl: string,
+  directusToken: string,
   avatarId: string
 ) {
   const { status, version, name, description } = req.body;
@@ -52,9 +58,9 @@ async function updateAvatarStatus(
   // 验证状态值
   const validStatuses = ['draft', 'pending', 'processing', 'ready', 'error'];
   if (status && !validStatuses.includes(status)) {
-    return res.status(400).json({ 
-      error: '无效的状态值', 
-      validStatuses 
+    return res.status(400).json({
+      error: '无效的状态值',
+      validStatuses,
     });
   }
 
@@ -68,47 +74,56 @@ async function updateAvatarStatus(
     status,
     version,
     name,
-    description
+    description,
   });
 
   try {
-    const updateData: any = {};
+    interface AvatarUpdateData {
+      status?: string;
+      version?: string;
+      name?: string;
+      description?: string;
+    }
+
+    const updateData: AvatarUpdateData = {};
     if (status !== undefined) updateData.status = status;
     if (version !== undefined) updateData.version = version;
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
 
-    const response = await axios.patch(
-      `${directusUrl}/items/avatars/${avatarId}`,
-      updateData,
-      {
-        headers: {
-          Authorization: `Bearer ${directusToken}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const response = await axios.patch(`${directusUrl}/items/avatars/${avatarId}`, updateData, {
+      headers: {
+        Authorization: `Bearer ${directusToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
     Logger.info('模型状态更新成功', {
       avatarId,
       updatedFields: Object.keys(updateData),
-      status: response.status
+      status: response.status,
     });
 
     res.json({
       success: true,
       data: response.data.data,
-      message: '模型状态更新成功'
+      message: '模型状态更新成功',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const axiosError = error as {
+      constructor: { name: string };
+      message?: string;
+      response?: { status?: number; data?: unknown };
+    };
+
     Logger.error('更新模型状态失败', {
       avatarId,
-      error: error.message,
-      status: error.response?.status,
-      data: error.response?.data
+      error: axiosError.message,
+      status: axiosError.response?.status,
+      data: axiosError.response?.data,
     });
 
-    if (error.response?.status === 404) {
+    if (axiosError.response?.status === 404) {
       return res.status(404).json({ error: '模型不存在' });
     }
 
@@ -118,50 +133,52 @@ async function updateAvatarStatus(
 
 // 部分更新模型信息
 async function patchAvatarInfo(
-  req: Request, 
-  res: Response, 
-  directusUrl: string, 
-  directusToken: string, 
+  req: Request,
+  res: Response,
+  directusUrl: string,
+  directusToken: string,
   avatarId: string
 ) {
   const updateData = req.body;
 
   Logger.info('部分更新模型信息', {
     avatarId,
-    fields: Object.keys(updateData)
+    fields: Object.keys(updateData),
   });
 
   try {
-    const response = await axios.patch(
-      `${directusUrl}/items/avatars/${avatarId}`,
-      updateData,
-      {
-        headers: {
-          Authorization: `Bearer ${directusToken}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const response = await axios.patch(`${directusUrl}/items/avatars/${avatarId}`, updateData, {
+      headers: {
+        Authorization: `Bearer ${directusToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
     Logger.info('模型信息更新成功', {
       avatarId,
-      updatedFields: Object.keys(updateData)
+      updatedFields: Object.keys(updateData),
     });
 
     res.json({
       success: true,
       data: response.data.data,
-      message: '模型信息更新成功'
+      message: '模型信息更新成功',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const axiosError = error as {
+      constructor: { name: string };
+      message?: string;
+      response?: { status?: number; data?: unknown };
+    };
+
     Logger.error('更新模型信息失败', {
       avatarId,
-      error: error.message,
-      status: error.response?.status,
-      data: error.response?.data
+      error: axiosError.message,
+      status: axiosError.response?.status,
+      data: axiosError.response?.data,
     });
 
-    if (error.response?.status === 404) {
+    if (axiosError.response?.status === 404) {
       return res.status(404).json({ error: '模型不存在' });
     }
 

@@ -7,10 +7,10 @@
         <button
           v-for="action in actionAnimations"
           :key="action.callName"
-          :class="{ 
-            'animation-btn': true, 
-            'active': currentAction === action.callName,
-            'disabled': !action.enabled 
+          :class="{
+            'animation-btn': true,
+            active: currentAction === action.callName,
+            disabled: !action.enabled,
           }"
           :disabled="!action.enabled"
           @click="selectAction(action.callName)"
@@ -29,10 +29,10 @@
         <button
           v-for="emotion in emotionAnimations"
           :key="emotion.callName"
-          :class="{ 
-            'animation-btn': true, 
-            'active': currentEmotion === emotion.callName,
-            'disabled': !emotion.enabled 
+          :class="{
+            'animation-btn': true,
+            active: currentEmotion === emotion.callName,
+            disabled: !emotion.enabled,
           }"
           :disabled="!emotion.enabled"
           @click="selectEmotion(emotion.callName)"
@@ -71,12 +71,16 @@
         <div class="info-item">
           <label>{{ t('animation.enabled') }}:</label>
           <span>
-            <template v-if="selectedAnimation.type === 'action' || selectedAnimation.type === 'emotion'">
-              {{ 'enabled' in selectedAnimation && selectedAnimation.enabled ? t('common.yes') : t('common.no') }}
+            <template
+              v-if="selectedAnimation.type === 'action' || selectedAnimation.type === 'emotion'"
+            >
+              {{
+                'enabled' in selectedAnimation && selectedAnimation.enabled
+                  ? t('common.yes')
+                  : t('common.no')
+              }}
             </template>
-            <template v-else>
-              -
-            </template>
+            <template v-else> - </template>
           </span>
         </div>
       </div>
@@ -110,15 +114,15 @@ async function selectAction(callName: string) {
     logger.info('选择动作动画', {
       component: 'AnimationSelector',
       method: 'selectAction',
-      callName
+      callName,
     });
 
     currentAction.value = callName;
     selectedAnimation.value = animationManager.getAnimationByCallName(callName) || null;
-    
+
     // 播放动画
     await animationManager.playAnimation(callName);
-    
+
     // 触发事件
     emit('action-selected', callName);
   } catch (error) {
@@ -126,7 +130,7 @@ async function selectAction(callName: string) {
       component: 'AnimationSelector',
       method: 'selectAction',
       callName,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -137,15 +141,15 @@ async function selectEmotion(callName: string) {
     logger.info('选择表情动画', {
       component: 'AnimationSelector',
       method: 'selectEmotion',
-      callName
+      callName,
     });
 
     currentEmotion.value = callName;
     selectedAnimation.value = animationManager.getAnimationByCallName(callName) || null;
-    
+
     // 播放动画
     await animationManager.playAnimation(callName);
-    
+
     // 触发事件
     emit('emotion-selected', callName);
   } catch (error) {
@@ -153,7 +157,7 @@ async function selectEmotion(callName: string) {
       component: 'AnimationSelector',
       method: 'selectEmotion',
       callName,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -168,7 +172,7 @@ const emit = defineEmits<{
 onMounted(() => {
   logger.info('动画选择器组件挂载', {
     component: 'AnimationSelector',
-    method: 'onMounted'
+    method: 'onMounted',
   });
 });
 
@@ -178,7 +182,7 @@ defineExpose({
   selectEmotion,
   getCurrentAction: () => currentAction.value,
   getCurrentEmotion: () => currentEmotion.value,
-  getSelectedAnimation: () => selectedAnimation.value
+  getSelectedAnimation: () => selectedAnimation.value,
 });
 </script>
 
@@ -285,4 +289,4 @@ defineExpose({
     }
   }
 }
-</style> 
+</style>

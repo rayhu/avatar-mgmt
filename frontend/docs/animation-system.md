@@ -217,6 +217,7 @@ function handleEmotionSelected(callName: string) {
 ### 从旧系统迁移
 
 #### 旧代码
+
 ```typescript
 // 旧的方式
 const actions = ['Idle', 'Walking', 'Running'];
@@ -228,6 +229,7 @@ function playAnimation(name: string) {
 ```
 
 #### 新代码
+
 ```typescript
 // 新的方式
 import { animationManager } from '@/utils/animationManager';
@@ -237,7 +239,7 @@ async function playAnimation(callName: string) {
 }
 
 // 使用调用名称
-await playAnimation('walking');  // 而不是 'Walking'
+await playAnimation('walking'); // 而不是 'Walking'
 ```
 
 ### 更新现有组件
@@ -247,9 +249,20 @@ await playAnimation('walking');  // 而不是 'Walking'
 ```typescript
 // 替换硬编码的动画数组
 const actions = [
-  'Idle', 'Walking', 'Running', 'Jump', 'Wave', 'Dance',
-  'Death', 'No', 'Punch', 'Sitting', 'Standing', 'ThumbsUp',
-  'WalkJump', 'Yes'
+  'Idle',
+  'Walking',
+  'Running',
+  'Jump',
+  'Wave',
+  'Dance',
+  'Death',
+  'No',
+  'Punch',
+  'Sitting',
+  'Standing',
+  'ThumbsUp',
+  'WalkJump',
+  'Yes',
 ] as const;
 
 // 使用动画配置
@@ -262,9 +275,20 @@ const actions = getActionAnimations().map(anim => anim.callName);
 ```typescript
 // 替换硬编码的动画数组
 const animations: string[] = [
-  'Idle', 'Walking', 'Running', 'Jump', 'Wave', 'Dance',
-  'Death', 'No', 'Punch', 'Sitting', 'Standing', 'ThumbsUp',
-  'WalkJump', 'Yes'
+  'Idle',
+  'Walking',
+  'Running',
+  'Jump',
+  'Wave',
+  'Dance',
+  'Death',
+  'No',
+  'Punch',
+  'Sitting',
+  'Standing',
+  'ThumbsUp',
+  'WalkJump',
+  'Yes',
 ];
 
 // 使用动画配置
@@ -301,7 +325,7 @@ const animations = getActionAnimations().map(anim => anim.callName);
 {
   animate: {
     actions: {
-      newAnimation: '新动画'
+      newAnimation: '新动画';
     }
   }
 }
@@ -313,7 +337,7 @@ const animations = getActionAnimations().map(anim => anim.callName);
 {
   animate: {
     actions: {
-      newAnimation: 'New Animation'
+      newAnimation: 'New Animation';
     }
   }
 }
@@ -328,7 +352,7 @@ export enum AnimationType {
   ACTION = 'action',
   EMOTION = 'emotion',
   VISEME = 'viseme',
-  CUSTOM = 'custom'  // 新增类型
+  CUSTOM = 'custom', // 新增类型
 }
 
 export interface CustomAnimation {
@@ -385,17 +409,17 @@ console.log('动画是否可用:', enabled);
 
 ```typescript
 // 监听动画开始事件
-animationManager.on('start', (event) => {
+animationManager.on('start', event => {
   console.log('动画开始:', event.animation.displayName);
 });
 
 // 监听动画结束事件
-animationManager.on('end', (event) => {
+animationManager.on('end', event => {
   console.log('动画结束');
 });
 
 // 监听动画错误事件
-animationManager.on('error', (event) => {
+animationManager.on('error', event => {
   console.error('动画错误:', event.data);
 });
 ```
@@ -408,7 +432,7 @@ await animationManager.playAnimationSequence([
   'idle',
   'walking',
   'running',
-  'idle'
+  'idle',
 ]);
 ```
 
@@ -436,4 +460,4 @@ await animationManager.playAnimationSequence([
 
 ## 🎯 总结
 
-通过实现显示名称、调用名称和实际名称的解耦，我们创建了一个更加灵活、可维护和可扩展的动画系统。这个设计不仅解决了当前的问题，还为未来的功能扩展奠定了坚实的基础。 
+通过实现显示名称、调用名称和实际名称的解耦，我们创建了一个更加灵活、可维护和可扩展的动画系统。这个设计不仅解决了当前的问题，还为未来的功能扩展奠定了坚实的基础。

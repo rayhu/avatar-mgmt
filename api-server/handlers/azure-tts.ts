@@ -15,14 +15,14 @@ export default async function handler(req: Request, res: Response) {
     userAgent: req.headers['user-agent'],
     contentLength: req.headers['content-length'],
     bodySize: req.body ? JSON.stringify(req.body).length : 0,
-    debugMode: debugLogger.isDebugEnabled()
+    debugMode: debugLogger.isDebugEnabled(),
   });
 
   if (req.method !== 'POST') {
     debugLogger.error('AZURE-TTS', '方法不允许', { method: req.method });
-    return res.status(405).json({ 
+    return res.status(405).json({
       error: 'Method not allowed',
-      debugLogs: debugLogger.getLogsForResponse() 
+      debugLogs: debugLogger.getLogsForResponse(),
     });
   }
 
@@ -32,19 +32,22 @@ export default async function handler(req: Request, res: Response) {
     debugLogger.info('AZURE-TTS', '请求参数解析', {
       voice,
       ssmlLength: ssml?.length || 0,
-      ssmlPreview: typeof ssml === 'string' ? (ssml.slice(0, 200) + (ssml.length > 200 ? '...' : '')) : String(ssml),
-      hasSSML: !!ssml
+      ssmlPreview:
+        typeof ssml === 'string'
+          ? ssml.slice(0, 200) + (ssml.length > 200 ? '...' : '')
+          : String(ssml),
+      hasSSML: !!ssml,
     });
 
     if (!ssml || typeof ssml !== 'string' || (typeof ssml === 'string' && !ssml.trim())) {
-      debugLogger.error('AZURE-TTS', 'SSML 参数无效', { 
-        ssml, 
+      debugLogger.error('AZURE-TTS', 'SSML 参数无效', {
+        ssml,
         type: typeof ssml,
-        isEmpty: typeof ssml === 'string' ? !ssml.trim() : true
+        isEmpty: typeof ssml === 'string' ? !ssml.trim() : true,
       });
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Parameter "ssml" is required.',
-        debugLogs: debugLogger.getLogsForResponse() 
+        debugLogs: debugLogger.getLogsForResponse(),
       });
     }
 
@@ -54,19 +57,19 @@ export default async function handler(req: Request, res: Response) {
       debugLogger.error('AZURE-TTS', 'SSML 验证失败', {
         errors: validationResult.errors,
         warnings: validationResult.warnings,
-        ssml: ssml
+        ssml: ssml,
       });
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid SSML format',
         details: validationResult.errors,
         warnings: validationResult.warnings,
-        debugLogs: debugLogger.getLogsForResponse() 
+        debugLogs: debugLogger.getLogsForResponse(),
       });
     }
 
     if (validationResult.warnings.length > 0) {
       debugLogger.warn('AZURE-TTS', 'SSML 验证警告', {
-        warnings: validationResult.warnings
+        warnings: validationResult.warnings,
       });
     }
 
@@ -76,11 +79,11 @@ export default async function handler(req: Request, res: Response) {
       debugLogger.error('AZURE-TTS', 'Azure 凭据未配置', {
         hasKey: !!key,
         hasRegion: !!region,
-        keyLength: key?.length || 0
+        keyLength: key?.length || 0,
       });
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Azure Speech credentials are not configured.',
-        debugLogs: debugLogger.getLogsForResponse() 
+        debugLogs: debugLogger.getLogsForResponse(),
       });
     }
 
@@ -89,7 +92,7 @@ export default async function handler(req: Request, res: Response) {
       voice,
       keyLength: key.length,
       ssmlLength: ssml.length,
-      endpoint: `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`
+      endpoint: `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
     });
 
     const url = `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`;
@@ -104,7 +107,7 @@ export default async function handler(req: Request, res: Response) {
       url,
       headers: { ...requestHeaders, 'Ocp-Apim-Subscription-Key': '[REDACTED]' },
       bodyLength: ssml.length,
-      bodyStart: ssml.substring(0, 300)
+      bodyStart: ssml.substring(0, 300),
     });
 
     const azureRes = await fetch(url, {
@@ -120,7 +123,7 @@ export default async function handler(req: Request, res: Response) {
       ok: azureRes.ok,
       headers: responseHeaders,
       contentType: azureRes.headers.get('content-type'),
-      contentLength: azureRes.headers.get('content-length')
+      contentLength: azureRes.headers.get('content-length'),
     });
 
     if (!azureRes.ok) {
@@ -131,9 +134,9 @@ export default async function handler(req: Request, res: Response) {
         errorBody: errTxt,
         headers: responseHeaders,
         requestSSML: ssml,
-        voice: voice
+        voice: voice,
       });
-      
+
       // 尝试解析 Azure 错误详情
       let azureErrorDetail = null;
       try {
@@ -141,16 +144,16 @@ export default async function handler(req: Request, res: Response) {
       } catch {
         azureErrorDetail = errTxt;
       }
-      
-      return res.status(azureRes.status).json({ 
-        error: 'Azure TTS request failed', 
+
+      return res.status(azureRes.status).json({
+        error: 'Azure TTS request failed',
         details: azureErrorDetail,
         requestInfo: {
           voice,
           ssmlLength: ssml.length,
-          region
+          region,
         },
-        debugLogs: debugLogger.getLogsForResponse()
+        debugLogs: debugLogger.getLogsForResponse(),
       });
     }
 
@@ -162,43 +165,52 @@ export default async function handler(req: Request, res: Response) {
       audioSizeKB: (buffer.length / 1024).toFixed(2),
       audioSizeMB: (buffer.length / (1024 * 1024)).toFixed(3),
       contentType: azureRes.headers.get('content-type'),
-      durationEstimate: `~${(buffer.length / 16000).toFixed(1)}s` // 粗略估算
+      durationEstimate: `~${(buffer.length / 16000).toFixed(1)}s`, // 粗略估算
     });
 
     // 如果是调试模式，在响应头中添加调试信息
     if (debugLogger.isDebugEnabled()) {
-      res.setHeader('X-Debug-Info', JSON.stringify({
-        ssmlLength: ssml.length,
-        voice: voice,
-        region: region,
-        audioSize: buffer.length
-      }));
+      res.setHeader(
+        'X-Debug-Info',
+        JSON.stringify({
+          ssmlLength: ssml.length,
+          voice: voice,
+          region: region,
+          audioSize: buffer.length,
+        })
+      );
     }
 
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Content-Length', buffer.length.toString());
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    
+
     debugLogger.info('AZURE-TTS', '请求处理完成', {
       success: true,
       responseSize: buffer.length,
-      processingComplete: true
+      processingComplete: true,
     });
-    
+
     return res.status(200).send(buffer);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const axiosError = error as {
+      message?: string;
+      constructor?: { name: string };
+      stack?: string;
+    };
+
     debugLogger.error('AZURE-TTS', 'Handler 内部错误', {
-      error: error.message,
-      errorType: error.constructor.name,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    });
-    
-    return res.status(500).json({ 
-      error: 'Internal server error', 
-      details: error.message,
+      error: axiosError.message,
+      errorType: axiosError.constructor?.name || 'Unknown',
+      stack: axiosError.stack,
       timestamp: new Date().toISOString(),
-      debugLogs: debugLogger.getLogsForResponse()
+    });
+
+    return res.status(500).json({
+      error: 'Internal server error',
+      details: axiosError.message,
+      timestamp: new Date().toISOString(),
+      debugLogs: debugLogger.getLogsForResponse(),
     });
   }
-} 
+}

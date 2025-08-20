@@ -9,7 +9,30 @@ export interface SSMLGenerationRequest {
 export interface SSMLGenerationResult {
   ssml: string;
   rawSSML: string;
-  tokenUsage?: any;
+  tokenUsage?: {
+    total_tokens?: number;
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
+  model?: string;
+}
+
+interface OpenAIMessage {
+  role: string; // 放松类型约束，允许任何字符串
+  content: string;
+}
+
+interface OpenAIResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+  usage?: {
+    total_tokens?: number;
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
   model?: string;
 }
 
@@ -31,14 +54,14 @@ export class OpenAISSMLGenerator {
    */
   async generateSSML(request: SSMLGenerationRequest): Promise<SSMLGenerationResult> {
     const { text, voice, model = this.defaultModel } = request;
-    
+
     // 获取语音支持的样式
     const allowedStyles = voiceStylesManager.getStylesForVoice(voice);
     const styleList = allowedStyles.join(', ');
 
     // 构建系统提示词
     const systemPrompt = this.buildSystemPrompt(voice, styleList);
-    
+
     // 构建消息
     const messages = [
       { role: 'system', content: systemPrompt },
@@ -50,7 +73,7 @@ export class OpenAISSMLGenerator {
 
     // 调用 OpenAI API
     const response = await this.callOpenAIAPI(model, messages);
-    
+
     // 处理响应
     const rawSSML = response?.choices?.[0]?.message?.content || '';
     const ssml = this.cleanSSML(rawSSML);
@@ -59,7 +82,7 @@ export class OpenAISSMLGenerator {
       ssml,
       rawSSML,
       tokenUsage: response?.usage,
-      model: response?.model
+      model: response?.model,
     };
   }
 
@@ -97,7 +120,10 @@ Example:
   /**
    * 调用 OpenAI API
    */
-  private async callOpenAIAPI(model: string, messages: any[]): Promise<any> {
+  private async callOpenAIAPI(
+    model: string,
+    messages: OpenAIMessage[]
+  ): Promise<OpenAIResponse | undefined> {
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY is not configured');
@@ -120,7 +146,9 @@ Example:
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`OpenAI API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `OpenAI API request failed: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
 
     return await response.json();
@@ -131,8 +159,8 @@ Example:
    */
   private cleanSSML(rawSSML: string): string {
     return rawSSML
-      .replace(/^```[\s\S]*?\n/, '')  // 移除开头的 markdown 代码块
-      .replace(/```$/g, '')           // 移除结尾的 markdown 代码块
+      .replace(/^```[\s\S]*?\n/, '') // 移除开头的 markdown 代码块
+      .replace(/```$/g, '') // 移除结尾的 markdown 代码块
       .trim();
   }
 }

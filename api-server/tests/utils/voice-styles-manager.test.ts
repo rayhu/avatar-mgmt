@@ -22,7 +22,7 @@ describe('VoiceStylesManager', () => {
   describe('构造函数和默认样式', () => {
     it('应该加载默认语音样式配置', () => {
       const styles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
-      
+
       expect(styles).toContain('cheerful');
       expect(styles).toContain('sad');
       expect(styles).toContain('angry');
@@ -32,7 +32,7 @@ describe('VoiceStylesManager', () => {
 
     it('应该为未知语音提供默认样式', () => {
       const styles = manager.getStylesForVoice('unknown-voice');
-      
+
       expect(styles).toContain('cheerful');
       expect(styles).toContain('sad');
       expect(styles).toContain('angry');
@@ -45,7 +45,7 @@ describe('VoiceStylesManager', () => {
     it('应该正确配置特定语音的样式', () => {
       const xiaochenStyles = manager.getStylesForVoice('zh-CN-XiaochenNeural');
       const yunyangStyles = manager.getStylesForVoice('zh-CN-YunyangNeural');
-      
+
       expect(xiaochenStyles).toEqual(['livecommercial']);
       expect(yunyangStyles).toEqual([
         'customerservice',
@@ -59,11 +59,11 @@ describe('VoiceStylesManager', () => {
     it('应该成功加载外部配置文件', async () => {
       const mockJsonContent = JSON.stringify([
         { name: 'zh-CN-XiaoxiaoNeural', styles: ['custom-style-1', 'custom-style-2'] },
-        { name: 'zh-CN-YunjianNeural', styles: ['new-style'] }
+        { name: 'zh-CN-YunjianNeural', styles: ['new-style'] },
       ]);
 
       const mockPathString = '/test/path/azure-voices-zh.json';
-      
+
       vi.mocked(mockPath.join).mockReturnValue(mockPathString);
       vi.mocked(mockFs.existsSync).mockReturnValue(true);
       vi.mocked(mockFs.readFileSync).mockReturnValue(mockJsonContent);
@@ -73,7 +73,7 @@ describe('VoiceStylesManager', () => {
       // 验证外部配置已加载
       const xiaoxiaoStyles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
       const yunjianStyles = manager.getStylesForVoice('zh-CN-YunjianNeural');
-      
+
       expect(xiaoxiaoStyles).toContain('custom-style-1');
       expect(xiaoxiaoStyles).toContain('custom-style-2');
       expect(yunjianStyles).toContain('new-style');
@@ -97,7 +97,7 @@ describe('VoiceStylesManager', () => {
       const possiblePaths = [
         '/path1/azure-voices-zh.json',
         '/path2/azure-voices-zh.json',
-        '/path3/azure-voices-zh.json'
+        '/path3/azure-voices-zh.json',
       ];
 
       vi.mocked(mockPath.join)
@@ -106,12 +106,12 @@ describe('VoiceStylesManager', () => {
         .mockReturnValueOnce(possiblePaths[2]);
 
       vi.mocked(mockFs.existsSync)
-        .mockReturnValueOnce(false)  // 第一个路径不存在
-        .mockReturnValueOnce(false)  // 第二个路径不存在
-        .mockReturnValueOnce(true);  // 第三个路径存在
+        .mockReturnValueOnce(false) // 第一个路径不存在
+        .mockReturnValueOnce(false) // 第二个路径不存在
+        .mockReturnValueOnce(true); // 第三个路径存在
 
       const mockJsonContent = JSON.stringify([
-        { name: 'zh-CN-XiaoxiaoNeural', styles: ['test-style'] }
+        { name: 'zh-CN-XiaoxiaoNeural', styles: ['test-style'] },
       ]);
       vi.mocked(mockFs.readFileSync).mockReturnValue(mockJsonContent);
 
@@ -156,7 +156,7 @@ describe('VoiceStylesManager', () => {
 
     it('应该只加载一次配置文件', async () => {
       const mockJsonContent = JSON.stringify([
-        { name: 'zh-CN-XiaoxiaoNeural', styles: ['test-style'] }
+        { name: 'zh-CN-XiaoxiaoNeural', styles: ['test-style'] },
       ]);
 
       vi.mocked(mockPath.join).mockReturnValue('/test/path.json');
@@ -176,7 +176,7 @@ describe('VoiceStylesManager', () => {
   describe('getStylesForVoice', () => {
     it('应该返回指定语音的样式列表', () => {
       const styles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
-      
+
       expect(Array.isArray(styles)).toBe(true);
       expect(styles.length).toBeGreaterThan(0);
       expect(styles).toContain('cheerful');
@@ -184,7 +184,7 @@ describe('VoiceStylesManager', () => {
 
     it('应该为未知语音返回默认样式', () => {
       const styles = manager.getStylesForVoice('unknown-voice-name');
-      
+
       expect(Array.isArray(styles)).toBe(true);
       expect(styles).toContain('cheerful');
       expect(styles).toContain('sad');
@@ -194,9 +194,9 @@ describe('VoiceStylesManager', () => {
     it('应该返回样式的副本，避免外部修改', () => {
       const styles1 = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
       const styles2 = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
-      
+
       // 由于实现可能返回相同的引用，我们测试内容一致性
-      expect(styles1).toEqual(styles2);   // 内容应该相同
+      expect(styles1).toEqual(styles2); // 内容应该相同
       expect(Array.isArray(styles1)).toBe(true);
       expect(Array.isArray(styles2)).toBe(true);
     });
@@ -205,15 +205,15 @@ describe('VoiceStylesManager', () => {
   describe('getAllVoiceStyles', () => {
     it('应该返回所有语音样式配置的副本', () => {
       const allStyles = manager.getAllVoiceStyles();
-      
+
       expect(typeof allStyles).toBe('object');
       expect(allStyles).toHaveProperty('zh-CN-XiaoxiaoNeural');
       expect(allStyles).toHaveProperty('zh-CN-YunjianNeural');
-      
+
       // 验证返回的内容一致性
       const originalStyles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural');
       const returnedStyles = allStyles['zh-CN-XiaoxiaoNeural'];
-      
+
       expect(originalStyles).toEqual(returnedStyles);
       expect(Array.isArray(returnedStyles)).toBe(true);
     });
@@ -239,7 +239,7 @@ describe('VoiceStylesManager', () => {
   describe('边界情况', () => {
     it('应该处理空语音名称', () => {
       const styles = manager.getStylesForVoice('');
-      
+
       expect(Array.isArray(styles)).toBe(true);
       expect(styles).toContain('cheerful');
     });
@@ -247,7 +247,7 @@ describe('VoiceStylesManager', () => {
     it('应该处理 null 和 undefined 语音名称', () => {
       const styles1 = manager.getStylesForVoice(null as any);
       const styles2 = manager.getStylesForVoice(undefined as any);
-      
+
       expect(Array.isArray(styles1)).toBe(true);
       expect(Array.isArray(styles2)).toBe(true);
       expect(styles1).toContain('cheerful');
@@ -256,7 +256,7 @@ describe('VoiceStylesManager', () => {
 
     it('应该处理包含特殊字符的语音名称', () => {
       const styles = manager.getStylesForVoice('zh-CN-XiaoxiaoNeural!@#$%');
-      
+
       expect(Array.isArray(styles)).toBe(true);
       expect(styles).toContain('cheerful');
     });

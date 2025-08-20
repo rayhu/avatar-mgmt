@@ -1,0 +1,96 @@
+# 依赖目录
+node_modules/
+**/node_modules/
+
+# 构建输出
+dist/
+build/
+**/dist/
+**/build/
+
+# mypy 缓存目录
+.mypy_cache/
+**/mypy_cache/
+
+# 缓存目录
+.cache/
+.parcel-cache/
+**/.cache/
+**/.parcel-cache/
+
+# 日志文件
+*.log
+logs/
+
+# 环境变量文件
+.env*
+!.env.example
+
+# 数据库文件
+*.db
+*.sqlite
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+
+# 二进制文件
+*.exe
+*.dmg
+*.deb
+*.rpm
+
+# 图片和媒体文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.mp4
+*.mp3
+*.wav
+
+# 字体文件
+*.ttf
+*.otf
+*.woff
+*.woff2
+
+# 文档生成文件
+docs/_site/
+docs/.vuepress/
+
+# 测试覆盖率
+coverage/
+**/coverage/
+
+# 临时文件
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git 相关
+.git/
+.gitignore
+
+# Docker 相关
+Dockerfile*
+docker-compose*.yml
+
+# 自动生成的文件 - 这些文件不应该被格式化
+**/auto-imports.d.ts
+**/components.d.ts
+**/setup.d.ts
+
+# 其他
+*.log
+.env*

@@ -5,25 +5,25 @@ import versionHandler from '../../handlers/version.js';
 // Mock fs 模块
 vi.mock('fs', () => ({
   promises: {
-    readFile: vi.fn()
-  }
+    readFile: vi.fn(),
+  },
 }));
 
 // Mock path 模块
 vi.mock('path', () => ({
   join: vi.fn(),
-  dirname: vi.fn()
+  dirname: vi.fn(),
 }));
 
 // Mock child_process 模块
 vi.mock('child_process', () => ({
-  execSync: vi.fn()
+  execSync: vi.fn(),
 }));
 
 // Mock url 模块
 vi.mock('url', () => ({
   fileURLToPath: vi.fn(),
-  dirname: vi.fn()
+  dirname: vi.fn(),
 }));
 
 // Mock console 方法
@@ -54,28 +54,28 @@ describe('Version Handler', () => {
   beforeEach(() => {
     // 重置所有模拟
     vi.clearAllMocks();
-    
+
     // 设置console mock
     consoleSpy = {
       log: vi.spyOn(console, 'log').mockImplementation(),
       warn: vi.spyOn(console, 'warn').mockImplementation(),
-      error: vi.spyOn(console, 'error').mockImplementation()
+      error: vi.spyOn(console, 'error').mockImplementation(),
     };
-    
+
     // 创建模拟的响应对象
     mockJson = vi.fn();
     mockStatus = vi.fn().mockReturnValue({ json: mockJson });
-    
+
     mockRes = {
       status: mockStatus,
-      json: mockJson
+      json: mockJson,
     };
 
     // 设置默认的模拟返回值
     mockPath.join.mockImplementation((...args) => args.join('/'));
     mockUrl.fileURLToPath.mockReturnValue('/mock/path/handlers/version.ts');
     mockUrl.dirname.mockReturnValue('/mock/path/handlers');
-    
+
     // 设置默认的Git信息模拟
     mockChildProcess.execSync.mockImplementation((command: string) => {
       if (command.includes('rev-parse')) {
@@ -87,29 +87,48 @@ describe('Version Handler', () => {
       }
       return 'unknown';
     });
-    
+
     // 设置默认的文件系统模拟
-    mockFs.promises.readFile.mockResolvedValue(JSON.stringify({
-      frontend: { version: '1.0.0', commitHash: 'def456', buildTime: '2025-08-17T08:00:00Z', branch: 'main', commitDate: '2025-08-17T08:00:00Z' },
-      backend: { version: '1.0.0', commitHash: 'def456', buildTime: '2025-08-17T08:00:00Z', branch: 'main', commitDate: '2025-08-17T08:00:00Z' },
-      system: { deployTime: '2025-08-17T08:00:00Z', environment: 'production', uptime: '0s', lastCheck: '2025-08-17T08:00:00Z' },
-      generatedAt: '2025-08-17T08:00:00Z'
-    }));
-    
+    mockFs.promises.readFile.mockResolvedValue(
+      JSON.stringify({
+        frontend: {
+          version: '1.0.0',
+          commitHash: 'def456',
+          buildTime: '2025-08-17T08:00:00Z',
+          branch: 'main',
+          commitDate: '2025-08-17T08:00:00Z',
+        },
+        backend: {
+          version: '1.0.0',
+          commitHash: 'def456',
+          buildTime: '2025-08-17T08:00:00Z',
+          branch: 'main',
+          commitDate: '2025-08-17T08:00:00Z',
+        },
+        system: {
+          deployTime: '2025-08-17T08:00:00Z',
+          environment: 'production',
+          uptime: '0s',
+          lastCheck: '2025-08-17T08:00:00Z',
+        },
+        generatedAt: '2025-08-17T08:00:00Z',
+      })
+    );
+
     // 设置默认环境变量
     process.env.NODE_ENV = 'development';
-    
+
     // 模拟 process.uptime
     Object.defineProperty(process, 'uptime', {
       value: vi.fn().mockReturnValue(3600), // 1小时
-      writable: true
+      writable: true,
     });
   });
 
   afterEach(() => {
     // 恢复环境变量
     process.env = originalEnv;
-    
+
     // 恢复console方法
     consoleSpy.log.mockRestore();
     consoleSpy.warn.mockRestore();
@@ -120,7 +139,7 @@ describe('Version Handler', () => {
     it('应该接受GET请求', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -132,7 +151,7 @@ describe('Version Handler', () => {
     it('应该接受POST请求', async () => {
       mockReq = {
         method: 'POST',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -150,7 +169,7 @@ describe('Version Handler', () => {
     it('应该在开发环境中实时生成版本信息', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -160,32 +179,34 @@ describe('Version Handler', () => {
           frontend: expect.objectContaining({
             version: 'dev',
             commitHash: 'abc123',
-            branch: 'main'
+            branch: 'main',
           }),
           backend: expect.objectContaining({
             version: 'dev',
             commitHash: 'abc123',
-            branch: 'main'
+            branch: 'main',
           }),
           system: expect.objectContaining({
-            environment: 'development'
-          })
+            environment: 'development',
+          }),
         })
       );
 
-      expect(consoleSpy.log).toHaveBeenCalledWith(expect.stringContaining('Generated real-time version info for development'));
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('Generated real-time version info for development')
+      );
     });
 
     it('应该包含正确的Git信息', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
       const response = mockJson.mock.calls[0][0];
-      
+
       expect(response.frontend.commitHash).toBe('abc123');
       expect(response.frontend.branch).toBe('main');
       expect(response.frontend.commitDate).toBe('2025-08-17T08:30:00+00:00');
@@ -197,13 +218,13 @@ describe('Version Handler', () => {
     it('应该包含正确的系统信息', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
       const response = mockJson.mock.calls[0][0];
-      
+
       expect(response.system.environment).toBe('development');
       expect(response.system.uptime).toBe('1h 0m 0s');
       expect(response.generatedAt).toBeDefined();
@@ -218,25 +239,27 @@ describe('Version Handler', () => {
     it('应该从文件读取版本信息', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
       expect(mockFs.promises.readFile).toHaveBeenCalled();
-      expect(consoleSpy.log).toHaveBeenCalledWith(expect.stringContaining('Loaded version info from file and updated dynamic data'));
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('Loaded version info from file and updated dynamic data')
+      );
     });
 
     it('应该更新动态信息', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
       const response = mockJson.mock.calls[0][0];
-      
+
       expect(response.system.uptime).toBe('1h 0m 0s');
       expect(response.system.lastCheck).toBeDefined();
       expect(response.system.environment).toBe('production');
@@ -247,13 +270,15 @@ describe('Version Handler', () => {
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
-      expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to load version file, generating'));
-      
+      expect(consoleSpy.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to load version file, generating')
+      );
+
       const response = mockJson.mock.calls[0][0];
       expect(response.frontend.version).toBe('1.0.0');
       expect(response.backend.version).toBe('1.0.0');
@@ -265,25 +290,32 @@ describe('Version Handler', () => {
     it('应该成功获取Git信息', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
-      expect(mockChildProcess.execSync).toHaveBeenCalledWith('git rev-parse --short HEAD', { encoding: 'utf8' });
-      expect(mockChildProcess.execSync).toHaveBeenCalledWith('git branch --show-current', { encoding: 'utf8' });
-      expect(mockChildProcess.execSync).toHaveBeenCalledWith('git log -1 --format=%cd --date=iso', { encoding: 'utf8' });
+      expect(mockChildProcess.execSync).toHaveBeenCalledWith('git rev-parse --short HEAD', {
+        encoding: 'utf8',
+      });
+      expect(mockChildProcess.execSync).toHaveBeenCalledWith('git branch --show-current', {
+        encoding: 'utf8',
+      });
+      expect(mockChildProcess.execSync).toHaveBeenCalledWith('git log -1 --format=%cd --date=iso', {
+        encoding: 'utf8',
+      });
     });
 
     it('应该在Git命令失败时使用默认值', async () => {
       // 在开发环境下，Git命令失败会返回默认值
       // 重置Git命令的mock，让它们抛出错误
-      mockChildProcess.execSync
-        .mockImplementation(() => { throw new Error('Git not found'); });
+      mockChildProcess.execSync.mockImplementation(() => {
+        throw new Error('Git not found');
+      });
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -303,12 +335,12 @@ describe('Version Handler', () => {
     it('应该正确计算小时格式的运行时间', async () => {
       Object.defineProperty(process, 'uptime', {
         value: vi.fn().mockReturnValue(7325), // 2小时2分5秒
-        writable: true
+        writable: true,
       });
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -320,12 +352,12 @@ describe('Version Handler', () => {
     it('应该正确计算分钟格式的运行时间', async () => {
       Object.defineProperty(process, 'uptime', {
         value: vi.fn().mockReturnValue(125), // 2分5秒
-        writable: true
+        writable: true,
       });
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -337,12 +369,12 @@ describe('Version Handler', () => {
     it('应该正确计算秒格式的运行时间', async () => {
       Object.defineProperty(process, 'uptime', {
         value: vi.fn().mockReturnValue(45), // 45秒
-        writable: true
+        writable: true,
       });
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -356,12 +388,12 @@ describe('Version Handler', () => {
         value: vi.fn().mockImplementation(() => {
           throw new Error('Uptime error');
         }),
-        writable: true
+        writable: true,
       });
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -375,15 +407,34 @@ describe('Version Handler', () => {
     it('应该在发生错误时返回500状态码', async () => {
       // 模拟一个真正会抛出错误的场景：让Date.toISOString抛出错误
       process.env.NODE_ENV = 'production';
-      
+
       // 模拟文件读取成功
-      mockFs.promises.readFile.mockResolvedValue(JSON.stringify({
-        frontend: { version: '1.0.0', commitHash: 'def456', buildTime: '2025-08-17T08:00:00Z', branch: 'main', commitDate: '2025-08-17T08:00:00Z' },
-        backend: { version: '1.0.0', commitHash: 'def456', buildTime: '2025-08-17T08:00:00Z', branch: 'main', commitDate: '2025-08-17T08:00:00Z' },
-        system: { deployTime: '2025-08-17T08:00:00Z', environment: 'production', uptime: '0s', lastCheck: '2025-08-17T08:00:00Z' },
-        generatedAt: '2025-08-17T08:00:00Z'
-      }));
-      
+      mockFs.promises.readFile.mockResolvedValue(
+        JSON.stringify({
+          frontend: {
+            version: '1.0.0',
+            commitHash: 'def456',
+            buildTime: '2025-08-17T08:00:00Z',
+            branch: 'main',
+            commitDate: '2025-08-17T08:00:00Z',
+          },
+          backend: {
+            version: '1.0.0',
+            commitHash: 'def456',
+            buildTime: '2025-08-17T08:00:00Z',
+            branch: 'main',
+            commitDate: '2025-08-17T08:00:00Z',
+          },
+          system: {
+            deployTime: '2025-08-17T08:00:00Z',
+            environment: 'production',
+            uptime: '0s',
+            lastCheck: '2025-08-17T08:00:00Z',
+          },
+          generatedAt: '2025-08-17T08:00:00Z',
+        })
+      );
+
       // 让Date.toISOString抛出错误
       const originalToISOString = Date.prototype.toISOString;
       Date.prototype.toISOString = vi.fn().mockImplementation(() => {
@@ -392,7 +443,7 @@ describe('Version Handler', () => {
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -403,21 +454,40 @@ describe('Version Handler', () => {
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Failed to get version info',
-        message: 'Date error'
+        message: 'Date error',
       });
     });
 
     it('应该记录错误信息', async () => {
       // 模拟Date.toISOString失败
       process.env.NODE_ENV = 'production';
-      
-      mockFs.promises.readFile.mockResolvedValue(JSON.stringify({
-        frontend: { version: '1.0.0', commitHash: 'def456', buildTime: '2025-08-17T08:00:00Z', branch: 'main', commitDate: '2025-08-17T08:00:00Z' },
-        backend: { version: '1.0.0', commitHash: 'def456', buildTime: '2025-08-17T08:00:00Z', branch: 'main', commitDate: '2025-08-17T08:00:00Z' },
-        system: { deployTime: '2025-08-17T08:00:00Z', environment: 'production', uptime: '0s', lastCheck: '2025-08-17T08:00:00Z' },
-        generatedAt: '2025-08-17T08:00:00Z'
-      }));
-      
+
+      mockFs.promises.readFile.mockResolvedValue(
+        JSON.stringify({
+          frontend: {
+            version: '1.0.0',
+            commitHash: 'def456',
+            buildTime: '2025-08-17T08:00:00Z',
+            branch: 'main',
+            commitDate: '2025-08-17T08:00:00Z',
+          },
+          backend: {
+            version: '1.0.0',
+            commitHash: 'def456',
+            buildTime: '2025-08-17T08:00:00Z',
+            branch: 'main',
+            commitDate: '2025-08-17T08:00:00Z',
+          },
+          system: {
+            deployTime: '2025-08-17T08:00:00Z',
+            environment: 'production',
+            uptime: '0s',
+            lastCheck: '2025-08-17T08:00:00Z',
+          },
+          generatedAt: '2025-08-17T08:00:00Z',
+        })
+      );
+
       const originalToISOString = Date.prototype.toISOString;
       Date.prototype.toISOString = vi.fn().mockImplementation(() => {
         throw new Error('Date error');
@@ -425,7 +495,7 @@ describe('Version Handler', () => {
 
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
@@ -441,33 +511,33 @@ describe('Version Handler', () => {
     it('应该返回正确的版本信息结构', async () => {
       mockReq = {
         method: 'GET',
-        url: '/api/version'
+        url: '/api/version',
       };
 
       await versionHandler(mockReq as Request, mockRes as Response);
 
       const response = mockJson.mock.calls[0][0];
-      
+
       // 验证结构完整性
       expect(response).toHaveProperty('frontend');
       expect(response).toHaveProperty('backend');
       expect(response).toHaveProperty('system');
       expect(response).toHaveProperty('generatedAt');
-      
+
       // 验证frontend结构
       expect(response.frontend).toHaveProperty('version');
       expect(response.frontend).toHaveProperty('commitHash');
       expect(response.frontend).toHaveProperty('buildTime');
       expect(response.frontend).toHaveProperty('branch');
       expect(response.frontend).toHaveProperty('commitDate');
-      
+
       // 验证backend结构
       expect(response.backend).toHaveProperty('version');
       expect(response.backend).toHaveProperty('commitHash');
       expect(response.backend).toHaveProperty('buildTime');
       expect(response.backend).toHaveProperty('branch');
       expect(response.backend).toHaveProperty('commitDate');
-      
+
       // 验证system结构
       expect(response.system).toHaveProperty('deployTime');
       expect(response.system).toHaveProperty('environment');

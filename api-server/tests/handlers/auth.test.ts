@@ -7,7 +7,7 @@ vi.mock('axios', () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
-  }
+  },
 }));
 
 // Mock jsonwebtoken
@@ -15,7 +15,7 @@ vi.mock('jsonwebtoken', () => ({
   default: {
     sign: vi.fn(),
     verify: vi.fn(),
-  }
+  },
 }));
 
 // Import mocked modules
@@ -33,15 +33,15 @@ describe('Auth Handler (Vitest)', () => {
   beforeEach(() => {
     mockStatus = vi.fn().mockReturnThis();
     mockJson = vi.fn().mockReturnThis();
-    
+
     mockReq = {
       method: 'POST',
-      body: {}
+      body: {},
     };
-    
+
     mockRes = {
       status: mockStatus,
-      json: mockJson
+      json: mockJson,
     };
 
     // Setup environment variables
@@ -75,9 +75,9 @@ describe('Auth Handler (Vitest)', () => {
           data: {
             access_token: 'directus-token',
             expires: 3600,
-            refresh_token: 'refresh-token'
-          }
-        }
+            refresh_token: 'refresh-token',
+          },
+        },
       };
 
       const mockDirectusUserResponse = {
@@ -87,9 +87,9 @@ describe('Auth Handler (Vitest)', () => {
             email: 'test@example.com',
             first_name: 'Test',
             last_name: 'User',
-            role: 'user-role-id' // 这是角色ID，不是角色对象
-          }
-        }
+            role: 'user-role-id', // 这是角色ID，不是角色对象
+          },
+        },
       };
 
       vi.mocked(axios.post).mockResolvedValueOnce(mockDirectusAuthResponse);
@@ -111,7 +111,7 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Missing required fields',
-        message: 'Email and password are required'
+        message: 'Email and password are required',
       });
     });
 
@@ -123,7 +123,7 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Missing required fields',
-        message: 'Email and password are required'
+        message: 'Email and password are required',
       });
     });
 
@@ -135,7 +135,7 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Missing required fields',
-        message: 'Email and password are required'
+        message: 'Email and password are required',
       });
     });
   });
@@ -151,11 +151,11 @@ describe('Auth Handler (Vitest)', () => {
           data: {
             access_token: 'directus-token',
             expires: 3600,
-            refresh_token: 'refresh-token'
-          }
-        }
+            refresh_token: 'refresh-token',
+          },
+        },
       };
-      
+
       const mockDirectusUserResponse = {
         data: {
           data: {
@@ -163,9 +163,9 @@ describe('Auth Handler (Vitest)', () => {
             email: 'test@example.com',
             first_name: 'Test',
             last_name: 'User',
-            role: 'user-role-id' // 这是角色ID，不是角色对象
-          }
-        }
+            role: 'user-role-id', // 这是角色ID，不是角色对象
+          },
+        },
       };
 
       vi.mocked(axios.post).mockResolvedValueOnce(mockDirectusAuthResponse);
@@ -174,13 +174,10 @@ describe('Auth Handler (Vitest)', () => {
 
       await authHandler(mockReq as Request, mockRes as Response);
 
-      expect(axios.post).toHaveBeenCalledWith(
-        'http://localhost:8055/auth/login',
-        {
-          email: 'test@example.com',
-          password: 'password123'
-        }
-      );
+      expect(axios.post).toHaveBeenCalledWith('http://localhost:8055/auth/login', {
+        email: 'test@example.com',
+        password: 'password123',
+      });
     });
 
     it('应该成功调用Directus用户信息API', async () => {
@@ -189,11 +186,11 @@ describe('Auth Handler (Vitest)', () => {
           data: {
             access_token: 'directus-token',
             expires: 3600,
-            refresh_token: 'refresh-token'
-          }
-        }
+            refresh_token: 'refresh-token',
+          },
+        },
       };
-      
+
       const mockDirectusUserResponse = {
         data: {
           data: {
@@ -201,9 +198,9 @@ describe('Auth Handler (Vitest)', () => {
             email: 'test@example.com',
             first_name: 'Test',
             last_name: 'User',
-            role: 'user-role-id' // 这是角色ID，不是角色对象
-          }
-        }
+            role: 'user-role-id', // 这是角色ID，不是角色对象
+          },
+        },
       };
 
       vi.mocked(axios.post).mockResolvedValueOnce(mockDirectusAuthResponse);
@@ -212,14 +209,11 @@ describe('Auth Handler (Vitest)', () => {
 
       await authHandler(mockReq as Request, mockRes as Response);
 
-      expect(axios.get).toHaveBeenCalledWith(
-        'http://localhost:8055/users/me',
-        {
-          headers: {
-            Authorization: 'Bearer directus-token'
-          }
-        }
-      );
+      expect(axios.get).toHaveBeenCalledWith('http://localhost:8055/users/me', {
+        headers: {
+          Authorization: 'Bearer directus-token',
+        },
+      });
     });
 
     it('应该生成自定义JWT令牌', async () => {
@@ -228,11 +222,11 @@ describe('Auth Handler (Vitest)', () => {
           data: {
             access_token: 'directus-token',
             expires: 3600,
-            refresh_token: 'refresh-token'
-          }
-        }
+            refresh_token: 'refresh-token',
+          },
+        },
       };
-      
+
       const mockDirectusUserResponse = {
         data: {
           data: {
@@ -240,9 +234,9 @@ describe('Auth Handler (Vitest)', () => {
             email: 'test@example.com',
             first_name: 'Test',
             last_name: 'User',
-            role: { name: 'user' }
-          }
-        }
+            role: { name: 'user' },
+          },
+        },
       };
 
       vi.mocked(axios.post).mockResolvedValueOnce(mockDirectusAuthResponse);
@@ -259,7 +253,7 @@ describe('Auth Handler (Vitest)', () => {
           last_name: 'User',
           role: 'user',
           roleId: { name: 'user' },
-          directus_token: 'directus-token'
+          directus_token: 'directus-token',
         }),
         'test-jwt-secret'
       );
@@ -271,11 +265,11 @@ describe('Auth Handler (Vitest)', () => {
           data: {
             access_token: 'directus-token',
             expires: 3600,
-            refresh_token: 'refresh-token'
-          }
-        }
+            refresh_token: 'refresh-token',
+          },
+        },
       };
-      
+
       const mockDirectusUserResponse = {
         data: {
           data: {
@@ -283,9 +277,9 @@ describe('Auth Handler (Vitest)', () => {
             email: 'test@example.com',
             first_name: 'Test',
             last_name: 'User',
-            role: { name: 'user' }
-          }
-        }
+            role: { name: 'user' },
+          },
+        },
       };
 
       vi.mocked(axios.post).mockResolvedValueOnce(mockDirectusAuthResponse);
@@ -302,12 +296,12 @@ describe('Auth Handler (Vitest)', () => {
           name: 'Test User',
           role: 'user',
           first_name: 'Test',
-          last_name: 'User'
+          last_name: 'User',
         },
         token: 'custom-jwt-token',
         refresh_token: 'refresh-token',
         expires_in: 3600,
-        message: 'Login successful'
+        message: 'Login successful',
       });
     });
   });
@@ -321,8 +315,8 @@ describe('Auth Handler (Vitest)', () => {
       const authError = {
         response: {
           status: 401,
-          data: { message: 'Invalid credentials' }
-        }
+          data: { message: 'Invalid credentials' },
+        },
       };
 
       vi.mocked(axios.post).mockRejectedValueOnce(authError);
@@ -332,14 +326,14 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockStatus).toHaveBeenCalledWith(401);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Authentication failed',
-        message: 'Invalid email or password'
+        message: 'Invalid email or password',
       });
     });
 
     it('应该处理网络连接错误', async () => {
       const networkError = {
         code: 'ECONNREFUSED',
-        message: 'Connection refused'
+        message: 'Connection refused',
       };
 
       vi.mocked(axios.post).mockRejectedValueOnce(networkError);
@@ -349,7 +343,7 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockStatus).toHaveBeenCalledWith(503);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Service unavailable',
-        message: 'Unable to connect to authentication service'
+        message: 'Unable to connect to authentication service',
       });
     });
 
@@ -361,7 +355,7 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({
         error: 'Internal server error',
-        message: 'An unexpected error occurred during authentication'
+        message: 'An unexpected error occurred during authentication',
       });
     });
   });
@@ -375,19 +369,19 @@ describe('Auth Handler (Vitest)', () => {
           data: {
             access_token: 'directus-token',
             expires: 3600,
-            refresh_token: 'refresh-token'
-          }
-        }
+            refresh_token: 'refresh-token',
+          },
+        },
       };
-      
+
       const mockDirectusUserResponse = {
         data: {
           data: {
             id: 'user-id',
             email: 'test@example.com',
-            role: { name: 'user' }
-          }
-        }
+            role: { name: 'user' },
+          },
+        },
       };
 
       vi.mocked(axios.post).mockResolvedValueOnce(mockDirectusAuthResponse);
@@ -399,8 +393,8 @@ describe('Auth Handler (Vitest)', () => {
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           user: expect.objectContaining({
-            name: 'test@example.com' // 应该回退到email作为名称
-          })
+            name: 'test@example.com', // 应该回退到email作为名称
+          }),
         })
       );
     });

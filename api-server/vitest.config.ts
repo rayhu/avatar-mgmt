@@ -4,10 +4,10 @@ export default defineConfig({
   test: {
     // 测试环境
     environment: 'node',
-    
+
     // 全局变量
     globals: true,
-    
+
     // 测试文件匹配模式 - 所有已迁移到Vitest的测试
     include: [
       'tests/handlers/auth.test.ts',
@@ -21,9 +21,9 @@ export default defineConfig({
       'tests/utils/ssml-validator.test.ts',
       'tests/utils/response-builder.test.ts',
       'tests/utils/voice-styles-manager.test.ts',
-      'tests/utils/openai-ssml-generator.test.ts'
+      'tests/utils/openai-ssml-generator.test.ts',
     ],
-    
+
     // 排除文件
     exclude: [
       'node_modules',
@@ -31,7 +31,7 @@ export default defineConfig({
       'coverage',
       // 所有测试都已迁移到Vitest！
     ],
-    
+
     // 覆盖率配置
     coverage: {
       enabled: true,
@@ -40,47 +40,39 @@ export default defineConfig({
       reportsDirectory: './coverage',
       thresholds: {
         global: {
-          branches: 80,      // 分支覆盖率至少80%
-          functions: 80,     // 函数覆盖率至少80%
-          lines: 80,         // 行覆盖率至少80%
-          statements: 80     // 语句覆盖率至少80%
-        }
+          branches: 80, // 分支覆盖率至少80%
+          functions: 80, // 函数覆盖率至少80%
+          lines: 80, // 行覆盖率至少80%
+          statements: 80, // 语句覆盖率至少80%
+        },
       },
-      include: [
-        'handlers/**/*.ts',
-        'utils/**/*.ts',
-        'middleware/**/*.ts'
-      ],
+      include: ['handlers/**/*.ts', 'utils/**/*.ts', 'middleware/**/*.ts'],
       exclude: [
         'tests/**',
         'node_modules/**',
         '**/*.d.ts',
         'coverage/**',
-        '**/*.config.ts',     // 排除配置文件
+        '**/*.config.ts', // 排除配置文件
         '**/*.config.js',
-        'env.*',              // 排除环境文件
-        'index.ts'            // 排除入口文件（如果需要）
-      ]
+        'env.*', // 排除环境文件
+        'index.ts', // 排除入口文件（如果需要）
+      ],
     },
-    
+
     // 测试超时
     testTimeout: 10000,
-    
-    // 并发配置
-    threads: true,
-    maxThreads: 4,
-    
+
     // 监视模式配置
     watch: false,
-    
+
     // 详细输出
-    reporter: ['verbose'],
-    
+    reporters: ['verbose'],
+
     // 模拟配置
     clearMocks: true,
     restoreMocks: true,
-    
+
     // 设置文件
-    setupFiles: ['./tests/setup.ts']
-  }
+    setupFiles: ['./tests/setup.ts'],
+  },
 });

@@ -1,6 +1,7 @@
 # API Server 文档
 
-该服务是数字人管理系统的 **Backend-for-Frontend (BFF)**，定位介于 Directus CMS 与前端 Vue 应用之间。
+该服务是数字人管理系统的 **Backend-for-Frontend (BFF)**，定位介于 Directus
+CMS 与前端 Vue 应用之间。
 
 ## 📍 **当前生产环境**
 
@@ -25,10 +26,11 @@
 ## 🔌 **API 端点**
 
 ### **核心端点**
+
 ```
 GET  /health                    # 健康检查
 GET  /api/avatars              # 获取模型列表
-PUT  /api/avatars/:id          # 更新模型状态和版本  
+PUT  /api/avatars/:id          # 更新模型状态和版本
 PATCH /api/avatars/:id         # 部分更新模型信息
 POST /api/openai-ssml          # OpenAI SSML 生成
 POST /api/azure-tts            # Azure TTS 语音合成
@@ -37,11 +39,11 @@ POST /api/generate-ssml        # 高级 SSML 生成
 
 ## 端口 & 路由
 
-| 环境          | 入口 URL                    | 说明                     |
-|---------------|-----------------------------|--------------------------|
-| 本地开发       | `http://localhost:3000`      | `yarn workspace api-server start` 或扩展 `docker-compose.dev.yml` |
-| 生产容器内部   | `http://api:3000`            | 由 `docker-compose.prod.yml` 定义的服务名 `api` |
-| 生产对外       | `https://<domain>/api/*`     | 通过 Nginx 反向代理      |
+| 环境         | 入口 URL                 | 说明                                                              |
+| ------------ | ------------------------ | ----------------------------------------------------------------- |
+| 本地开发     | `http://localhost:3000`  | `yarn workspace api-server start` 或扩展 `docker-compose.dev.yml` |
+| 生产容器内部 | `http://api:3000`        | 由 `docker-compose.prod.yml` 定义的服务名 `api`                   |
+| 生产对外     | `https://<domain>/api/*` | 通过 Nginx 反向代理                                               |
 
 ## 本地开发快速启动
 
@@ -73,9 +75,9 @@ api:
   env_file:
     - .env
   expose:
-    - "3000"
+    - '3000'
   networks:
     - internal
 ```
 
-通过内部网络连接 Postgres/Directus，外部流量由 Nginx 统一代理到 `/api/`。 
+通过内部网络连接 Postgres/Directus，外部流量由 Nginx 统一代理到 `/api/`。

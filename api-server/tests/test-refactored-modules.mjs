@@ -20,7 +20,8 @@ console.log('---\n');
 // 测试 SSML 验证器
 console.log('📋 测试 2: SSML 验证器');
 try {
-  const testSSML = '<speak><voice name="zh-CN-XiaoxiaoNeural"><prosody pitch="0st">测试内容</prosody></voice></speak>';
+  const testSSML =
+    '<speak><voice name="zh-CN-XiaoxiaoNeural"><prosody pitch="0st">测试内容</prosody></voice></speak>';
   const result = ssmlValidator.validate(testSSML);
   console.log(`✅ SSML 验证成功，警告数量: ${result.warnings.length}`);
   if (result.fixedSSML) {
@@ -38,9 +39,9 @@ try {
     isValid: true,
     errors: [],
     warnings: ['测试警告'],
-    fixedSSML: undefined
+    fixedSSML: undefined,
   };
-  
+
   const response = responseBuilder.buildSuccessResponse(
     '<speak>测试</speak>',
     mockValidationResult,
@@ -48,10 +49,12 @@ try {
     { total_tokens: 100 },
     'gpt-4o'
   );
-  
+
   console.log(`✅ 响应构建成功，包含 SSML: ${response.ssml}`);
   if (response.debugInfo) {
-    console.log(`   调试信息: 验证通过，处理步骤: ${response.debugInfo.processingSteps.markdownRemoved ? '已移除 markdown' : '未移除 markdown'}`);
+    console.log(
+      `   调试信息: 验证通过，处理步骤: ${response.debugInfo.processingSteps.markdownRemoved ? '已移除 markdown' : '未移除 markdown'}`
+    );
   }
 } catch (error) {
   console.error('❌ 响应构建器测试失败:', error.message);

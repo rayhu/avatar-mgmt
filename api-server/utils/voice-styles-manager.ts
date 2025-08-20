@@ -20,61 +20,135 @@ export class VoiceStylesManager {
     this.voiceStyles = {
       'zh-CN-XiaochenNeural': ['livecommercial'],
       'zh-CN-XiaohanNeural': [
-        'affectionate', 'angry', 'calm', 'cheerful', 'disgruntled',
-        'embarrassed', 'fearful', 'gentle', 'sad', 'serious',
+        'affectionate',
+        'angry',
+        'calm',
+        'cheerful',
+        'disgruntled',
+        'embarrassed',
+        'fearful',
+        'gentle',
+        'sad',
+        'serious',
       ],
       'zh-CN-XiaomengNeural': ['chat'],
       'zh-CN-XiaomoNeural': [
-        'affectionate', 'angry', 'calm', 'cheerful', 'depressed',
-        'disgruntled', 'embarrassed', 'envious', 'fearful', 'gentle',
-        'sad', 'serious',
+        'affectionate',
+        'angry',
+        'calm',
+        'cheerful',
+        'depressed',
+        'disgruntled',
+        'embarrassed',
+        'envious',
+        'fearful',
+        'gentle',
+        'sad',
+        'serious',
       ],
       'zh-CN-XiaoruiNeural': ['angry', 'calm', 'fearful', 'sad'],
       'zh-CN-XiaoshuangNeural': ['chat'],
       'zh-CN-XiaoxiaoMultilingualNeural': [
-        'affectionate', 'cheerful', 'empathetic', 'excited',
-        'poetry-reading', 'sorry', 'story',
+        'affectionate',
+        'cheerful',
+        'empathetic',
+        'excited',
+        'poetry-reading',
+        'sorry',
+        'story',
       ],
       'zh-CN-XiaoxiaoNeural': [
-        'affectionate', 'angry', 'assistant', 'calm', 'chat',
-        'chat-casual', 'cheerful', 'customerservice', 'disgruntled',
-        'excited', 'fearful', 'friendly', 'gentle', 'lyrical',
-        'newscast', 'poetry-reading', 'sad', 'serious', 'sorry',
+        'affectionate',
+        'angry',
+        'assistant',
+        'calm',
+        'chat',
+        'chat-casual',
+        'cheerful',
+        'customerservice',
+        'disgruntled',
+        'excited',
+        'fearful',
+        'friendly',
+        'gentle',
+        'lyrical',
+        'newscast',
+        'poetry-reading',
+        'sad',
+        'serious',
+        'sorry',
         'whispering',
       ],
       'zh-CN-XiaoyiNeural': [
-        'affectionate', 'angry', 'cheerful', 'disgruntled',
-        'embarrassed', 'fearful', 'gentle', 'sad', 'serious',
+        'affectionate',
+        'angry',
+        'cheerful',
+        'disgruntled',
+        'embarrassed',
+        'fearful',
+        'gentle',
+        'sad',
+        'serious',
       ],
-      'zh-CN-XiaozhenNeural': [
-        'angry', 'cheerful', 'disgruntled', 'fearful', 'sad', 'serious',
-      ],
+      'zh-CN-XiaozhenNeural': ['angry', 'cheerful', 'disgruntled', 'fearful', 'sad', 'serious'],
       'zh-CN-YunfengNeural': [
-        'angry', 'cheerful', 'depressed', 'disgruntled',
-        'fearful', 'sad', 'serious',
+        'angry',
+        'cheerful',
+        'depressed',
+        'disgruntled',
+        'fearful',
+        'sad',
+        'serious',
       ],
       'zh-CN-YunhaoNeural2': ['advertisement-upbeat'],
       'zh-CN-YunjianNeural': [
-        'angry', 'cheerful', 'depressed', 'disgruntled',
-        'documentary-narration', 'narration-relaxed', 'sad',
-        'serious', 'sports-commentary', 'sports-commentary-excited',
+        'angry',
+        'cheerful',
+        'depressed',
+        'disgruntled',
+        'documentary-narration',
+        'narration-relaxed',
+        'sad',
+        'serious',
+        'sports-commentary',
+        'sports-commentary-excited',
       ],
       'zh-CN-YunxiaNeural': ['angry', 'calm', 'cheerful', 'fearful', 'sad'],
       'zh-CN-YunxiNeural': [
-        'angry', 'assistant', 'chat', 'cheerful', 'depressed',
-        'disgruntled', 'embarrassed', 'fearful', 'narration-relaxed',
-        'newscast', 'sad', 'serious',
+        'angry',
+        'assistant',
+        'chat',
+        'cheerful',
+        'depressed',
+        'disgruntled',
+        'embarrassed',
+        'fearful',
+        'narration-relaxed',
+        'newscast',
+        'sad',
+        'serious',
       ],
-      'zh-CN-YunyangNeural': [
-        'customerservice', 'narration-professional', 'newscast-casual',
-      ],
+      'zh-CN-YunyangNeural': ['customerservice', 'narration-professional', 'newscast-casual'],
       'zh-CN-YunyeNeural': [
-        'angry', 'calm', 'cheerful', 'disgruntled',
-        'embarrassed', 'fearful', 'sad', 'serious',
+        'angry',
+        'calm',
+        'cheerful',
+        'disgruntled',
+        'embarrassed',
+        'fearful',
+        'sad',
+        'serious',
       ],
       'zh-CN-YunzeNeural': [
-        'angry', 'calm', 'cheerful', 'depressed', 'disgruntled',
-        'documentary-narration', 'fearful', 'sad', 'serious',
+        'angry',
+        'calm',
+        'cheerful',
+        'depressed',
+        'disgruntled',
+        'documentary-narration',
+        'fearful',
+        'sad',
+        'serious',
       ],
     };
   }
@@ -90,9 +164,9 @@ export class VoiceStylesManager {
         path.join(process.cwd(), '../frontend', 'public', 'azure-voices-zh.json'),
         path.join(process.cwd(), 'public', 'azure-voices-zh.json'),
         path.join(process.cwd(), 'azure-voices-zh.json'),
-        '/app/public/azure-voices-zh.json'
+        '/app/public/azure-voices-zh.json',
       ];
-      
+
       let jsonPath: string | null = null;
       for (const p of possiblePaths) {
         if (fs.existsSync(p)) {
@@ -100,21 +174,24 @@ export class VoiceStylesManager {
           break;
         }
       }
-      
+
       if (jsonPath) {
         const raw = fs.readFileSync(jsonPath, 'utf-8');
         const list: { name: string; styles?: string[] }[] = JSON.parse(raw);
-        list.forEach((v) => {
+        list.forEach(v => {
           this.voiceStyles[v.name] = v.styles ?? [];
         });
         // Logger.info('Loaded voice styles from azure-voices-zh.json');
       } else {
         throw new Error('azure-voices-zh.json not found in any expected location');
       }
-      
+
       this.isLoaded = true;
     } catch (err) {
-      console.warn('[VoiceStylesManager] Failed to load azure-voices-zh.json, fallback to static map.', err);
+      console.warn(
+        '[VoiceStylesManager] Failed to load azure-voices-zh.json, fallback to static map.',
+        err
+      );
     }
   }
 
@@ -122,9 +199,9 @@ export class VoiceStylesManager {
    * 获取指定语音支持的样式列表
    */
   getStylesForVoice(voice: string): string[] {
-    return this.voiceStyles[voice] ?? [
-      'cheerful', 'sad', 'angry', 'excited', 'hopeful', 'assistant',
-    ];
+    return (
+      this.voiceStyles[voice] ?? ['cheerful', 'sad', 'angry', 'excited', 'hopeful', 'assistant']
+    );
   }
 
   /**
