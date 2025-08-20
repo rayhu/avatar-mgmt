@@ -78,25 +78,25 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:main
             ${{ github.event_name == 'release' && format('{0}/{1}/frontend:{2}', env.REGISTRY, env.IMAGE_NAME_FRONTEND, github.event.release.tag_name) || '' }}
 
-            - name: Build and push API image
-            uses: docker/build-push-action@v6
-            with:
-              context: api-server
-              file: Dockerfile
-              push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
-              tags: |
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:main
-                ${{ github.event_name == 'release' && format('{0}/{1}/api:{2}', env.REGISTRY, env.IMAGE_NAME_API, github.event.release.tag_name) || '' }}
-              build-args: |
-                BUILD_VERSION=${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
-                BUILD_COMMIT=${{ github.sha }}
-                BUILD_TIME=${{ github.run_started_at }}
-                BUILD_REPOSITORY=${{ github.repository }}
-                BUILD_BRANCH=${{ github.ref_name }}
-                BUILD_RUN_ID=${{ github.run_id }}
-                RELEASE_TAG=${{ github.event_name == 'release' && github.event.release.tag_name || 'none' }}
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: api-server
+          file: Dockerfile
+          push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:main
+            ${{ github.event_name == 'release' && format('{0}/{1}/api:{2}', env.REGISTRY, env.IMAGE_NAME_API, github.event.release.tag_name) || '' }}
+          build-args: |
+            BUILD_VERSION=${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
+            BUILD_COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.run_started_at }}
+            BUILD_REPOSITORY=${{ github.repository }}
+            BUILD_BRANCH=${{ github.ref_name }}
+            BUILD_RUN_ID=${{ github.run_id }}
+            RELEASE_TAG=${{ github.event_name == 'release' && github.event.release.tag_name || 'none' }}
 
       - name: Generate build summary
         if: github.event_name == 'push' || github.event_name == 'release'
