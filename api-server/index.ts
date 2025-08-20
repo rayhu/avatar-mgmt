@@ -118,7 +118,6 @@ function displayEnvironmentConfig() {
   Logger.info('=====================================');
 }
 
-
 // 本地服务器
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 

@@ -121,7 +121,7 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ## [历史版本]
 
-### [2024.7.10] - 基础功能实现
+### [2025.7.10] - 基础功能实现
 
 - 🎯 基础3D模型展示功能
 - 🎯 Azure TTS 语音合成集成
