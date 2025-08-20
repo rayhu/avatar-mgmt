@@ -20,7 +20,24 @@ if [ ! -d "$DEPLOY_DIR" ]; then
     exit 1
 fi
 
+SOURCE_DIR="/opt/avatar-mgmt"
+
+if cp "$SOURCE_DIR/.github/scripts/copy_files_to_deploy.sh" .; then
+    echo "✅ copy_files_to_deploy脚本文件复制完成"
+else
+    echo "❌ copy_files_to_deploy脚本文件复制失败"
+    exit 1
+fi
+
 cd "$DEPLOY_DIR"
+chmod +x copy_files_to_deploy.sh
+
+if ./copy_files_to_deploy.sh; then
+    echo "✅ 配置文件复制完成"
+else
+    echo "❌ 配置文件复制失败"
+    exit 1
+fi
 
 # 检查配置文件
 if [ ! -f ".env.stage.api" ]; then

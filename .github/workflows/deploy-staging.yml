@@ -29,15 +29,59 @@ jobs:
             echo "Commit: ${{ github.event.workflow_run.head_sha }}"
             echo "Deploy time: $(date)"
 
-            # 下载部署脚本
-            curl -o .github/scripts/init-server.sh https://raw.githubusercontent.com/rayhu/avatar-mgmt/main/.github/scripts/init-server.sh
-            curl -o .github/scripts/deploy-ghcr-simple.sh https://raw.githubusercontent.com/rayhu/avatar-mgmt/main/.github/scripts/deploy-ghcr-simple.sh
+            # 确保源代码目录存在
+            sudo mkdir -p /opt/avatar-mgmt
+            sudo chown $USER:$USER /opt/avatar-mgmt
+            sudo chmod 755 /opt/avatar-mgmt
 
-            # 初始化服务器
-            chmod +x .github/scripts/init-server.sh
-            .github/scripts/init-server.sh
+            cd /opt/avatar-mgmt
+
+            # 检查并初始化 Git 仓库
+            IS_FIRST_DEPLOY=false
+            if [ ! -d ".git" ]; then
+              echo " Git repository not found, cloning..."
+              ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+              git clone git@github.com:${{ github.repository }}.git .
+              if [ $? -ne 0 ]; then
+                echo "❌ Failed to clone repository"
+                exit 1
+              fi
+              echo "✅ Repository cloned successfully"
+              IS_FIRST_DEPLOY=true
+
+              # 初始化服务器
+              cd /opt/deploy-avatar
+              cp /opt/avatar-mgmt/.github/scripts/init-server.sh .
+              chmod +x init-server.sh
+
+              echo "🔧 开始初始化服务器..."
+              if ./init-server.sh; then
+                echo "✅ 服务器初始化成功"
+              else
+                echo "❌ 服务器初始化失败"
+                exit 1
+              fi
+
+              else
+              echo "📥 Git repository found, updating..."
+
+              # 拉取最新代码
+              echo "📥 Pulling latest code..."
+              git fetch origin
+              git reset --hard origin/main
+              git clean -fd frontend/ api-server/ scripts/ || true
+              echo "✅ Repository updated successfully"
+            fi
 
             # 部署应用
+            cd /opt/deploy-avatar
+            if ./copy_files_to_deploy.sh; then
+              echo "✅ 配置文件复制完成"
+            else
+              echo "❌ 配置文件复制失败"
+              exit 1
+            fi
+
             chmod +x .github/scripts/deploy-ghcr-simple.sh
             export GITHUB_REPOSITORY="${{ github.event.workflow_run.repository.full_name }}"
             export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
