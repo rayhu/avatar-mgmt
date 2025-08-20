@@ -12,7 +12,6 @@ RUN yarn cache clean && yarn install --frozen-lockfile
 
 # Copy source code (excluding node_modules and package files)
 COPY api-server/ .
-COPY ./public/azure-voices-zh.json ./public/azure-voices-zh.json
 
 # Build arguments for version information
 ARG BUILD_VERSION
