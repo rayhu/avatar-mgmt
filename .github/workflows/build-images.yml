@@ -70,7 +70,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: frontend
-          file: Dockerfile
+          file: frontend/Dockerfile
           push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}
@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: api-server
-          file: Dockerfile
+          file: api-server/Dockerfile
           push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}
