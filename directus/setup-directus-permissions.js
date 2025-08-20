@@ -81,8 +81,7 @@ function loadEnvironmentVariables() {
   const ADMIN_PASSWORD =
     env.DIRECTUS_ADMIN_PASSWORD || process.env.DIRECTUS_ADMIN_PASSWORD || 'your_admin_password';
 
-  // API的访问路径是Docker网络，这里是本地网络，所以是localhost
-  const DIRECTUS_URL = 'http://localhost:8055';
+  const DIRECTUS_URL = 'http://directus.daidai-preview.amis.hk:8055';
 
   console.log('🔧 配置信息:');
   console.log(`   Directus URL: ${DIRECTUS_URL}`);
@@ -326,10 +325,10 @@ function showManualUploadInstructions() {
 
     // 1. 设置权限
     const token = await login();
-    const roleId = await getPublicRoleId(token);
-    await setFilesReadPermission(token, roleId);
-    await setAccessPolicy(token, roleId);
-    console.log('✅ 权限和策略设置完成\n');
+    // const roleId = await getPublicRoleId(token);
+    // await setFilesReadPermission(token, roleId);
+    // await setAccessPolicy(token, roleId);
+    // console.log('✅ 权限和策略设置完成\n');
 
     // 2. 应用 schema 快照
     await applySchemaSnapshot();

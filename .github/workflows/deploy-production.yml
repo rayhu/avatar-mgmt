@@ -81,14 +81,14 @@ jobs:
             sudo chown -R $USER:$USER /opt/avatar-mgmt2
 
             # 检查配置文件
-            if [ ! -f ".env.prod.api" ]; then
+            if [ ! -f ".env.api" ]; then
               echo "❌ Production config file not found!"
-              echo "Please create .env.prod.api on the server"
+              echo "Please create .env.api on the server"
               exit 1
             fi
-            if [ ! -f ".env.prod.directus" ]; then
+            if [ ! -f ".env.directus" ]; then
               echo "❌ Production config file not found!"
-              echo "Please create .env.prod.directus on the server"
+              echo "Please create .env.directus on the server"
               exit 1
             fi
 

@@ -1,5 +1,5 @@
-# 生产环境使用，引用 JC21 网络
-name: avatar-mgmt-prod
+# 测试环境使用，引用 JC21 网络
+name: avatar-mgmt-stage
 
 services:
   # PostgreSQL Database
@@ -7,7 +7,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env.prod.directus
+      - .env.directus
     environment:
       POSTGRES_DB: directus
     volumes:
@@ -28,7 +28,7 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env.prod.directus
+      - .env.directus
     volumes:
       - ./directus/uploads:/directus/uploads
       - ./directus/extensions:/directus/extensions
@@ -47,13 +47,13 @@ services:
   # API Server
   api:
     build:
-      context: ./
-      dockerfile: api-server/Dockerfile
+      context: ./api-server
+      dockerfile: Dockerfile
     restart: always
     depends_on:
       - directus
     env_file:
-      - .env.prod.api
+      - .env.api
     ports:
       - "3000:3000"
     networks:
@@ -65,12 +65,11 @@ services:
       retries: 3
 
   frontend:
-    image: nginx:alpine
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./frontend/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "4173:80"  # 容器内 nginx 运行在 80 端口
+      - "4173:80"
     networks:
       - jc21-network
 

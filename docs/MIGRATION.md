@@ -57,8 +57,8 @@ git pull origin main
 
 ```bash
 # 更新环境变量文件
-cp .env.example .env.prod.directus
-cp .env.example .env.prod.api
+cp .env.example .env.directus
+cp .env.example .env.api
 
 # 编辑环境变量，更新域名配置
 # DIRECTUS_PUBLIC_URL=https://directus.daidai.amis.hk

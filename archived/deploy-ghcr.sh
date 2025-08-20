@@ -58,15 +58,15 @@ fi
 sudo chown -R $USER:$USER /opt/avatar-mgmt
 
 # 检查配置文件
-if [ ! -f ".env.stage.api" ]; then
+if [ ! -f ".env.api" ]; then
     echo "❌ Staging config file not found!"
-    echo "Please create .env.stage.api on the server"
+    echo "Please create .env.api on the server"
     exit 1
 fi
 
-if [ ! -f ".env.stage.directus" ]; then
+if [ ! -f ".env.directus" ]; then
     echo "❌ Staging config file not found!"
-    echo "Please create .env.stage.directus on the server"
+    echo "Please create .env.directus on the server"
     exit 1
 fi
 

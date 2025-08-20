@@ -30,13 +30,13 @@ if [ ! -f "$COMPOSE_FILE" ]; then
 fi
 
 # 检查配置文件
-if [ ! -f ".env.stage.api" ]; then
-    echo "⚠️  警告: 找不到 .env.stage.api 文件"
+if [ ! -f ".env.api" ]; then
+    echo "⚠️  警告: 找不到 .env.api 文件"
     echo "请确保配置文件存在"
 fi
 
-if [ ! -f ".env.stage.directus" ]; then
-    echo "⚠️  警告: 找不到 .env.stage.directus 文件"
+if [ ! -f ".env.directus" ]; then
+    echo "⚠️  警告: 找不到 .env.directus 文件"
     echo "请确保配置文件存在"
 fi
 

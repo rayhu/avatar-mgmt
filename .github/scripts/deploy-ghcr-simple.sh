@@ -28,20 +28,20 @@ echo ""
 
 
 # 检查配置文件
-if [ ! -f ".env.stage.api" ]; then
-    echo "❌ 配置文件不存在: .env.stage.api"
+if [ ! -f ".env.api" ]; then
+    echo "❌ 配置文件不存在: .env.api"
     echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
     exit 1
 fi
 
-if [ ! -f ".env.stage.directus" ]; then
-    echo "❌ 配置文件不存在: .env.stage.directus"
+if [ ! -f ".env.directus" ]; then
+    echo "❌ 配置文件不存在: .env.directus"
     echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
     exit 1
 fi
 
-if [ ! -f ".env.stage.frontend" ]; then
-    echo "❌ 配置文件不存在: .env.stage.frontend"
+if [ ! -f ".env.frontend" ]; then
+    echo "❌ 配置文件不存在: .env.frontend"
     echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
     exit 1
 fi

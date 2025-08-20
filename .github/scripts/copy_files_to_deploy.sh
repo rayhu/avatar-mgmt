@@ -35,7 +35,7 @@ fi
 echo "🔧 复制环境变量文件模板..."
 
 echo "复制 API 环境变量文件..."
-if cp "$SOURCE_DIR/env.stage.api.example" .env.stage.api.example; then
+if cp "$SOURCE_DIR/env.api.example" .env.api.example; then
     echo "✅ API 环境变量文件复制成功"
 else
     echo "❌ API 环境变量文件复制失败"
@@ -43,7 +43,7 @@ else
 fi
 
 echo "复制 Directus 环境变量文件..."
-if cp "$SOURCE_DIR/env.stage.directus.example" .env.stage.directus.example; then
+if cp "$SOURCE_DIR/env.directus.example" .env.directus.example; then
     echo "✅ Directus 环境变量文件复制成功"
 else
     echo "❌ Directus 环境变量文件复制失败"
@@ -51,7 +51,7 @@ else
 fi
 
 echo "复制 Frontend 环境变量文件..."
-if cp "$SOURCE_DIR/env.stage.frontend.example" .env.stage.frontend.example; then
+if cp "$SOURCE_DIR/env.frontend.example" .env.frontend.example; then
     echo "✅ Frontend 环境变量文件复制成功"
 else
     echo "❌ Frontend 环境变量文件复制失败"

@@ -181,7 +181,7 @@ AZURE_SPEECH_KEY=your_azure_key
 AZURE_SPEECH_REGION=eastasia
 ```
 
-**Production (.env.prod.api):**
+**Production (.env.api):**
 
 ```env
 NODE_ENV=production
@@ -193,7 +193,7 @@ AZURE_SPEECH_KEY=production_azure_key
 AZURE_SPEECH_REGION=eastasia
 ```
 
-**Staging (.env.stage.api):**
+**Staging (.env.api):**
 
 ```env
 NODE_ENV=staging
@@ -222,7 +222,7 @@ ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=admin1234
 ```
 
-**Production (.env.prod.directus) and Staging (.env.stage.directus):**
+**Production (.env.directus) and Staging (.env.directus):**
 
 ```env
 DB_CLIENT=postgres

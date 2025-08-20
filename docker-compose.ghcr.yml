@@ -8,7 +8,7 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}/api:${IMAGE_TAG:-latest}
     restart: always
     env_file:
-      - .env.stage.api
+      - .env.api
     ports:
       - "3000:3000"
     networks:
@@ -24,7 +24,7 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}/frontend:${IMAGE_TAG:-latest}
     restart: always
     env_file:
-      - .env.stage.frontend
+      - .env.frontend
     environment:
       # 动态环境变量
       - VITE_APP_VERSION=${IMAGE_TAG:-latest}

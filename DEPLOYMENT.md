@@ -202,7 +202,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env.prod.directus
+      - .env.directus
     environment:
       POSTGRES_DB: directus
     volumes:
@@ -218,7 +218,7 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env.prod.directus
+      - .env.directus
     volumes:
       - ./directus/uploads:/directus/uploads
       - ./directus/extensions:/directus/extensions
@@ -237,7 +237,7 @@ services:
     depends_on:
       - directus
     env_file:
-      - .env.prod.api
+      - .env.api
     ports:
       - '3000:3000' # 可选的直接访问端口
     healthcheck:
