@@ -19,9 +19,12 @@ jobs:
       - name: Get release information
         id: release
         run: |
-          # 从最新 release 获取信息
-          LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.event.workflow_run.repository.full_name }}/releases/latest")
+          # 从所有 releases 获取信息，按时间排序
+          ALL_RELEASES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.event.workflow_run.repository.full_name }}/releases")
+
+          # 获取最新的 release（包括 pre-release）
+          LATEST_RELEASE=$(echo "$ALL_RELEASES" | jq -r '.[0]')
 
           IS_PRERELEASE=$(echo "$LATEST_RELEASE" | jq -r '.prerelease')
           RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
