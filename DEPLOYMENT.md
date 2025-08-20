@@ -302,7 +302,7 @@ docker compose logs directus
 docker compose logs db
 
 # 3. 检查配置文件
-cat .env.stage.api
+cat .env.api
 cat .env.stage.directus
 
 # 4. 手动启动容器进行调试
@@ -409,7 +409,7 @@ df -h
 
 ```
 Staging 环境：
-├── /opt/deploy-avatar/.env.stage.api
+├── /opt/deploy-avatar/.env.api
 ├── /opt/deploy-avatar/.env.stage.directus
 └── /opt/deploy-avatar/docker-compose.stage.yml
 
@@ -421,7 +421,7 @@ Production 环境：
 
 ### 2. 配置文件模板
 
-**.env.stage.api**
+**.env.api**
 
 ```env
 NODE_ENV=staging
@@ -506,7 +506,7 @@ tar -xzf directus-files-20241220.tar.gz
 
 ```bash
 # 1. 编辑配置文件
-nano .env.stage.api
+nano .env.api
 
 # 2. 重启相关服务
 docker compose restart api

@@ -131,11 +131,9 @@ jobs:
             if [ "${{ needs.validate-inputs.outputs.environment }}" = "production" ]; then
               DEPLOY_DIR="/opt/deploy-avatar-prod"
               SOURCE_DIR="/opt/avatar-mgmt-prod"
-              ENV_SUFFIX="prod"
             else
               DEPLOY_DIR="/opt/deploy-avatar"
               SOURCE_DIR="/opt/avatar-mgmt"
-              ENV_SUFFIX="stage"
             fi
 
             echo "Deploy directory: $DEPLOY_DIR"
@@ -172,19 +170,24 @@ jobs:
 
             # 复制部署脚本
             echo "📂 Copying deployment scripts..."
-            cp "$SOURCE_DIR/.github/scripts/deploy-ghcr.sh" .
+            cp "$SOURCE_DIR/.github/scripts/deploy-ghcr-simple.sh" .
             cp "$SOURCE_DIR/.github/scripts/health-check.sh" .
-            chmod +x deploy-ghcr.sh health-check.sh
+            chmod +x deploy-ghcr-simple.sh health-check.sh
 
             # 检查配置文件
-            if [ ! -f ".env.$ENV_SUFFIX.api" ]; then
-              echo "❌ Config file not found: .env.$ENV_SUFFIX.api"
+            if [ ! -f ".env.api" ]; then
+              echo "❌ Config file not found: .env.api"
               exit 1
             fi
-            if [ ! -f ".env.$ENV_SUFFIX.directus" ]; then
-              echo "❌ Config file not found: .env.$ENV_SUFFIX.directus"
+            if [ ! -f ".env.directus" ]; then
+              echo "❌ Config file not found: .env.directus"
               exit 1
             fi
+            if [ ! -f ".env.frontend" ]; then
+              echo "❌ Config file not found: .env.frontend"
+              exit 1
+            fi
+
 
             # 设置环境变量
             export GITHUB_REPOSITORY="${{ github.repository }}"
@@ -202,11 +205,11 @@ jobs:
 
             # 执行部署
             echo "🚀 Starting deployment with image tag: ${{ needs.validate-inputs.outputs.image_tag }}"
-            ./deploy-ghcr.sh
+            ./deploy-ghcr-simple.sh
 
             # 健康检查
             echo "🔍 Starting health check..."
-            export DOCKER_COMPOSE_FILE="docker-compose.$ENV_SUFFIX.yml"
+            export DOCKER_COMPOSE_FILE="docker-compose.ghcr.yml"
             ./health-check.sh
 
             echo "✅ Manual deployment completed successfully!"
