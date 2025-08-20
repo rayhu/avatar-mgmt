@@ -1,0 +1,226 @@
+# .github/workflows/manual-deploy.yml
+name: Manual Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to deploy (e.g., v1.0.0, latest, staging)'
+        required: true
+        default: 'latest'
+        type: string
+      force_deploy:
+        description: 'Force deployment even if version validation fails'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate-inputs:
+    runs-on: ubuntu-latest
+    outputs:
+      is_valid: ${{ steps.validation.outputs.is_valid }}
+      image_tag: ${{ steps.validation.outputs.image_tag }}
+      environment: ${{ steps.validation.outputs.environment }}
+    steps:
+      - name: Validate deployment inputs
+        id: validation
+        run: |
+          echo "🔍 Validating deployment inputs..."
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "Force Deploy: ${{ github.event.inputs.force_deploy }}"
+
+          # 验证环境
+          if [[ "${{ github.event.inputs.environment }}" != "staging" && "${{ github.event.inputs.environment }}" != "production" ]]; then
+            echo "❌ Invalid environment: ${{ github.event.inputs.environment }}"
+            echo "is_valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # 设置镜像标签
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ "$VERSION" == "latest" || "$VERSION" == "staging" ]]; then
+            IMAGE_TAG="$VERSION"
+          elif [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            IMAGE_TAG="$VERSION"
+          else
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected formats: latest, staging, v1.0.0, v1.0.0-beta.1"
+            if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+              echo "⚠️ Force deploy enabled, proceeding with version: $VERSION"
+              IMAGE_TAG="$VERSION"
+            else
+              echo "is_valid=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          fi
+
+          echo "is_valid=true" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+
+          echo "✅ Validation passed"
+          echo "  Environment: ${{ github.event.inputs.environment }}"
+          echo "  Image Tag: $IMAGE_TAG"
+
+      - name: Check image availability
+        if: github.event.inputs.force_deploy == 'false'
+        run: |
+          echo "🔍 Checking if images exist in GHCR..."
+
+          # 检查 API 镜像
+          API_IMAGE="ghcr.io/${{ github.repository }}/api:${{ steps.validation.outputs.image_tag }}"
+          FRONTEND_IMAGE="ghcr.io/${{ github.repository }}/frontend:${{ steps.validation.outputs.image_tag }}"
+
+          echo "Checking API image: $API_IMAGE"
+          if docker manifest inspect "$API_IMAGE" > /dev/null 2>&1; then
+            echo "✅ API image found"
+          else
+            echo "❌ API image not found: $API_IMAGE"
+            exit 1
+          fi
+
+          echo "Checking Frontend image: $FRONTEND_IMAGE"
+          if docker manifest inspect "$FRONTEND_IMAGE" > /dev/null 2>&1; then
+            echo "✅ Frontend image found"
+          else
+            echo "❌ Frontend image not found: $FRONTEND_IMAGE"
+            exit 1
+          fi
+
+          echo "✅ All images are available"
+
+  deploy:
+    needs: validate-inputs
+    if: needs.validate-inputs.outputs.is_valid == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.validate-inputs.outputs.environment }}
+    steps:
+      - name: Deploy to ${{ needs.validate-inputs.outputs.environment }}
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_HOST || vars.STAGING_HOST }}
+          username: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_USERNAME || vars.STAGING_USERNAME }}
+          key: ${{ needs.validate-inputs.outputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || secrets.STAGING_SSH_KEY }}
+          script: |
+            echo "🚀 Starting manual deployment..."
+            echo "Target Environment: ${{ needs.validate-inputs.outputs.environment }}"
+            echo "Target Host: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_HOST || vars.STAGING_HOST }}"
+            echo "Image Tag: ${{ needs.validate-inputs.outputs.image_tag }}"
+            echo "Repository: ${{ github.repository }}"
+            echo "Triggered by: ${{ github.actor }}"
+            echo "Deploy time: $(date)"
+
+            # 设置部署目录
+            if [ "${{ needs.validate-inputs.outputs.environment }}" = "production" ]; then
+              DEPLOY_DIR="/opt/deploy-avatar-prod"
+              SOURCE_DIR="/opt/avatar-mgmt-prod"
+              ENV_SUFFIX="prod"
+            else
+              DEPLOY_DIR="/opt/deploy-avatar"
+              SOURCE_DIR="/opt/avatar-mgmt"
+              ENV_SUFFIX="stage"
+            fi
+
+            echo "Deploy directory: $DEPLOY_DIR"
+            echo "Source directory: $SOURCE_DIR"
+
+            # 确保目录存在
+            sudo mkdir -p "$DEPLOY_DIR"
+            sudo mkdir -p "$SOURCE_DIR"
+            sudo chown -R $USER:$USER "$DEPLOY_DIR" "$SOURCE_DIR"
+
+            # 更新源代码
+            cd "$SOURCE_DIR"
+            if [ ! -d ".git" ]; then
+              echo "📥 Cloning repository..."
+              ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+              git clone git@github.com:${{ github.repository }}.git .
+            else
+              echo "📥 Updating repository..."
+              git fetch --all --tags
+            fi
+
+            # 如果指定了具体版本标签，切换到该标签
+            if [[ "${{ needs.validate-inputs.outputs.image_tag }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+              echo "🔄 Checking out tag: ${{ needs.validate-inputs.outputs.image_tag }}"
+              git checkout tags/${{ needs.validate-inputs.outputs.image_tag }}
+            else
+              echo "🔄 Using main branch for alias: ${{ needs.validate-inputs.outputs.image_tag }}"
+              git checkout main
+              git pull origin main
+            fi
+
+            # 准备部署环境
+            cd "$DEPLOY_DIR"
+
+            # 复制部署脚本
+            echo "📂 Copying deployment scripts..."
+            cp "$SOURCE_DIR/.github/scripts/deploy-ghcr.sh" .
+            cp "$SOURCE_DIR/.github/scripts/health-check.sh" .
+            chmod +x deploy-ghcr.sh health-check.sh
+
+            # 检查配置文件
+            if [ ! -f ".env.$ENV_SUFFIX.api" ]; then
+              echo "❌ Config file not found: .env.$ENV_SUFFIX.api"
+              exit 1
+            fi
+            if [ ! -f ".env.$ENV_SUFFIX.directus" ]; then
+              echo "❌ Config file not found: .env.$ENV_SUFFIX.directus"
+              exit 1
+            fi
+
+            # 设置环境变量
+            export GITHUB_REPOSITORY="${{ github.repository }}"
+            export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            export GITHUB_ACTOR="${{ github.actor }}"
+            export GITHUB_REF_NAME="${{ needs.validate-inputs.outputs.image_tag }}"
+            export GITHUB_SHA="${{ github.sha }}"
+            export IMAGE_TAG="${{ needs.validate-inputs.outputs.image_tag }}"
+
+            if [ "${{ needs.validate-inputs.outputs.environment }}" = "production" ]; then
+              export PRODUCTION_HOST="${{ vars.PRODUCTION_HOST }}"
+            else
+              export STAGING_HOST="${{ vars.STAGING_HOST }}"
+            fi
+
+            # 执行部署
+            echo "🚀 Starting deployment with image tag: ${{ needs.validate-inputs.outputs.image_tag }}"
+            ./deploy-ghcr.sh
+
+            # 健康检查
+            echo "🔍 Starting health check..."
+            export DOCKER_COMPOSE_FILE="docker-compose.$ENV_SUFFIX.yml"
+            ./health-check.sh
+
+            echo "✅ Manual deployment completed successfully!"
+            echo "🎉 Deployed ${{ needs.validate-inputs.outputs.image_tag }} to ${{ needs.validate-inputs.outputs.environment }}!"
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Manual deployment successful!"
+          echo "Environment: ${{ needs.validate-inputs.outputs.environment }}"
+          echo "Version: ${{ needs.validate-inputs.outputs.image_tag }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Deploy time: $(date)"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Manual deployment failed!"
+          echo "Environment: ${{ needs.validate-inputs.outputs.environment }}"
+          echo "Version: ${{ needs.validate-inputs.outputs.image_tag }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Deploy time: $(date)"
+          echo "Please check the deployment logs and fix the issue."

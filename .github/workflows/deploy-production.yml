@@ -1,21 +1,51 @@
 # .github/workflows/deploy-production.yml
 name: Deploy to Production
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ['Build and Push Docker Images']
+    types:
+      - completed
+    branches: [main] # 监听main分支的 release
 
 jobs:
   deploy-production:
+    # 只在构建工作流成功完成且为正式 release（非 pre-release）时执行
+    if: github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'release' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+
     runs-on: ubuntu-latest
     steps:
-      - name: Get Release Info
+      - name: Get release information
         id: release
         run: |
-          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          echo "release_name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
-          echo "release_body=${{ github.event.release.body }}" >> $GITHUB_OUTPUT
+          # 从 workflow_run 事件获取 release 信息
+          # 获取最新的 release 数据以确定是否为 pre-release
+          LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.event.workflow_run.repository.full_name }}/releases/latest")
+
+          IS_PRERELEASE=$(echo "$LATEST_RELEASE" | jq -r '.prerelease')
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          RELEASE_NAME=$(echo "$LATEST_RELEASE" | jq -r '.name')
+
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "tag_name=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
+
+          echo "🔍 Release Information:"
+          echo "  Tag: $RELEASE_TAG"
+          echo "  Name: $RELEASE_NAME"
+          echo "  Is Pre-release: $IS_PRERELEASE"
+
+      - name: Skip pre-release deployment
+        if: steps.release.outputs.is_prerelease == 'true'
+        run: |
+          echo "⏭️ Skipping production deployment for pre-release: ${{ steps.release.outputs.tag_name }}"
+          echo "Pre-releases are automatically deployed to staging environment."
+          exit 0
 
       - name: Deploy to Production
+        if: steps.release.outputs.is_prerelease == 'false'
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ vars.PRODUCTION_HOST }}
@@ -101,38 +131,39 @@ jobs:
             export GITHUB_REPOSITORY="${{ github.event.workflow_run.repository.full_name }}"
             export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             export GITHUB_ACTOR="${{ github.actor }}"
-            export GITHUB_REF_NAME="${{ github.event.workflow_run.head_branch }}"
+            export GITHUB_REF_NAME="${{ steps.release.outputs.tag_name }}"
             export GITHUB_SHA="${{ github.event.workflow_run.head_sha }}"
-            export STAGING_HOST="${{ vars.STAGING_HOST }}"
-            export IMAGE_TAG="latest"
+            export PRODUCTION_HOST="${{ vars.PRODUCTION_HOST }}"
+            export IMAGE_TAG="${{ steps.release.outputs.tag_name }}"
 
-            ./deploy-ghcr-simple.sh
+            # 使用生产环境部署脚本
+            ./deploy-ghcr.sh
 
             echo "🔍 Starting health check..."
 
             # 设置环境变量并执行健康检查脚本
-            export DOCKER_COMPOSE_FILE="docker-compose.ghcr.yml"
+            export DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
             ./health-check.sh
 
             echo "✅ Production deployment completed!"
 
       - name: Notify deployment success
-        if: success()
+        if: success() && steps.release.outputs.is_prerelease == 'false'
         run: |
           echo "✅ Production deployment successful!"
-          echo "Repository: ${{ github.repository }}"
+          echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
+          echo "Release: ${{ steps.release.outputs.release_name }}"
           echo "Tag: ${{ steps.release.outputs.tag_name }}"
-          echo "Commit: ${{ github.sha }}"
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
           echo "Deploy time: $(date)"
-          echo "Release notes: ${{ steps.release.outputs.release_body }}"
 
       - name: Notify deployment failure
         if: failure()
         run: |
           echo "❌ Production deployment failed!"
-          echo "Repository: ${{ github.repository }}"
+          echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
           echo "Release: ${{ steps.release.outputs.release_name }}"
           echo "Tag: ${{ steps.release.outputs.tag_name }}"
-          echo "Commit: ${{ github.sha }}"
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
           echo "Deploy time: $(date)"
           echo "Please check the deployment logs and fix the issue."

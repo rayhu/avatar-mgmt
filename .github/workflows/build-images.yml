@@ -1,10 +1,8 @@
 # .github/workflows/build-images.yml
 name: Build and Push Docker Images
 on:
-  push:
-    branches: [main]
   release:
-    types: [published]
+    types: [published, prereleased]
 
 env:
   REGISTRY: ghcr.io
@@ -38,12 +36,12 @@ jobs:
       - name: Generate version information
         run: |
           chmod +x scripts/generate-version.sh
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "🚀 Release event detected, using production environment"
-            ./scripts/generate-version.sh production
-          else
-            echo "🔧 Non-release event, using staging environment"
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "🧪 Pre-release detected, using staging environment"
             ./scripts/generate-version.sh stage
+          else
+            echo "🚀 Release detected, using production environment"
+            ./scripts/generate-version.sh production
           fi
 
           # 验证版本文件是否生成
@@ -71,89 +69,85 @@ jobs:
         with:
           context: frontend
           file: frontend/Dockerfile
-          push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
+          push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:main
-            ${{ github.event_name == 'release' && format('{0}/{1}/frontend:{2}', env.REGISTRY, env.IMAGE_NAME_FRONTEND, github.event.release.tag_name) || '' }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.release.tag_name }}
+            ${{ github.event.release.prerelease == false && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME_FRONTEND) || '' }}
+            ${{ github.event.release.prerelease == true && format('{0}/{1}:staging', env.REGISTRY, env.IMAGE_NAME_FRONTEND) || '' }}
 
       - name: Build and push API image
         uses: docker/build-push-action@v6
         with:
           context: api-server
           file: api-server/Dockerfile
-          push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
+          push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:main
-            ${{ github.event_name == 'release' && format('{0}/{1}/api:{2}', env.REGISTRY, env.IMAGE_NAME_API, github.event.release.tag_name) || '' }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.release.tag_name }}
+            ${{ github.event.release.prerelease == false && format('{0}/{1}:latest', env.REGISTRY, env.IMAGE_NAME_API) || '' }}
+            ${{ github.event.release.prerelease == true && format('{0}/{1}:staging', env.REGISTRY, env.IMAGE_NAME_API) || '' }}
           build-args: |
-            BUILD_VERSION=${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
+            BUILD_VERSION=${{ github.event.release.tag_name }}
             BUILD_COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.run_started_at }}
             BUILD_REPOSITORY=${{ github.repository }}
             BUILD_BRANCH=${{ github.ref_name }}
             BUILD_RUN_ID=${{ github.run_id }}
-            RELEASE_TAG=${{ github.event_name == 'release' && github.event.release.tag_name || 'none' }}
+            RELEASE_TAG=${{ github.event.release.tag_name }}
 
       - name: Generate build summary
-        if: github.event_name == 'push' || github.event_name == 'release'
         run: |
-          echo "## 🚀 Docker Images Built and Pushed to GHCR" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "## 🧪 Pre-release Images Built and Pushed to GHCR" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Pre-release Version**: \`${{ github.event.release.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Target Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 🚀 Release Images Built and Pushed to GHCR" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Release Version**: \`${{ github.event.release.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Target Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### API Image" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:main" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:staging" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest" >> $GITHUB_STEP_SUMMARY
           fi
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Frontend Image" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:main" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:staging" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest" >> $GITHUB_STEP_SUMMARY
           fi
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Build Info" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Tag**: \`${{ github.event.release.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Name**: \`${{ github.event.release.name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Is Pre-release**: \`${{ github.event.release.prerelease }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Time**: \`${{ github.run_started_at }}\`" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "- **Release Tag**: \`${{ github.event.release.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "- **Release Name**: \`${{ github.event.release.name }}\`" >> $GITHUB_STEP_SUMMARY
-          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Usage" >> $GITHUB_STEP_SUMMARY
-          echo "```bash" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "# Pull release version" >> $GITHUB_STEP_SUMMARY
-            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
-            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Pull specific version" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+            echo "# Pull staging alias" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:staging" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:staging" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "# Pull latest alias" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "# Pull specific commit" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# Pull latest" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY
-
-      - name: Build summary for PR
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "## 🔨 Docker Images Built (PR - Not Pushed)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "This is a PR build. Images are built but not pushed to GHCR." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Images will be pushed when PR is merged to main or when a release is created." >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

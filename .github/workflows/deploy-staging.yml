@@ -9,12 +9,42 @@ on:
 
 jobs:
   deploy-staging:
-    # 只在构建工作流成功完成后执行
-    if: github.event.workflow_run.conclusion == 'success'
+    # 只在构建工作流成功完成且为 pre-release 时执行
+    if: github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'release' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
 
     runs-on: ubuntu-latest
     steps:
+      - name: Get release information
+        id: release
+        run: |
+          # 从最新 release 获取信息
+          LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.event.workflow_run.repository.full_name }}/releases/latest")
+
+          IS_PRERELEASE=$(echo "$LATEST_RELEASE" | jq -r '.prerelease')
+          RELEASE_TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')
+          RELEASE_NAME=$(echo "$LATEST_RELEASE" | jq -r '.name')
+
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "tag_name=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
+
+          echo "🔍 Release Information:"
+          echo "  Tag: $RELEASE_TAG"
+          echo "  Name: $RELEASE_NAME"
+          echo "  Is Pre-release: $IS_PRERELEASE"
+
+      - name: Skip non-prerelease deployment
+        if: steps.release.outputs.is_prerelease == 'false'
+        run: |
+          echo "⏭️ Skipping staging deployment for non-prerelease: ${{ steps.release.outputs.tag_name }}"
+          echo "Regular releases are automatically deployed to production environment."
+          exit 0
+
       - name: Deploy to Staging
+        if: steps.release.outputs.is_prerelease == 'true'
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ vars.STAGING_HOST }}
@@ -96,10 +126,10 @@ jobs:
             export GITHUB_REPOSITORY="${{ github.event.workflow_run.repository.full_name }}"
             export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             export GITHUB_ACTOR="${{ github.actor }}"
-            export GITHUB_REF_NAME="${{ github.event.workflow_run.head_branch }}"
+            export GITHUB_REF_NAME="${{ steps.release.outputs.tag_name }}"
             export GITHUB_SHA="${{ github.event.workflow_run.head_sha }}"
             export STAGING_HOST="${{ vars.STAGING_HOST }}"
-            export IMAGE_TAG="latest"
+            export IMAGE_TAG="staging"
 
             ./deploy-ghcr-simple.sh
 
@@ -112,11 +142,12 @@ jobs:
             echo "✅ Staging deployment completed!"
 
       - name: Notify deployment success
-        if: success()
+        if: success() && steps.release.outputs.is_prerelease == 'true'
         run: |
           echo "✅ Staging deployment successful!"
           echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
-          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Pre-release: ${{ steps.release.outputs.release_name }}"
+          echo "Tag: ${{ steps.release.outputs.tag_name }}"
           echo "Commit: ${{ github.event.workflow_run.head_sha }}"
           echo "Deploy time: $(date)"
 
@@ -125,6 +156,7 @@ jobs:
         run: |
           echo "❌ Staging deployment failed!"
           echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
-          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Pre-release: ${{ steps.release.outputs.release_name }}"
+          echo "Tag: ${{ steps.release.outputs.tag_name }}"
           echo "Commit: ${{ github.event.workflow_run.head_sha }}"
           echo "Deploy time: $(date)"
