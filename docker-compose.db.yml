@@ -1,0 +1,52 @@
+# docker-compose.db.yml
+# 数据库和 Directus CMS 服务
+name: avatar-mgmt-db
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env.stage.directus
+    environment:
+      POSTGRES_DB: directus
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - jc21-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Directus CMS
+  directus:
+    image: directus/directus:11.8
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.stage.directus
+    volumes:
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+      - ./directus/schemas:/directus/schemas
+    ports:
+      - "8055:8055"
+    networks:
+      - jc21-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8055/"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 120s
+
+# 引用 JC21 的网络
+networks:
+  jc21-network:
+    external: true
+    name: avatar-mgmt-jc21-network
