@@ -148,7 +148,7 @@ ssh user@your-server.com
 
 # 切换到部署目录
 cd /opt/deploy-avatar  # Staging
-cd /opt/deploy-avatar-prod  # Production
+cd /opt/deploy-avatar  # Production
 
 # 设置环境变量
 export GITHUB_REPOSITORY="rayhu/avatar-mgmt"
@@ -189,7 +189,7 @@ Force deploy: false
 ssh user@production-server.com
 
 # 切换到部署目录
-cd /opt/deploy-avatar-prod
+cd /opt/deploy-avatar
 
 # 查看可用的镜像版本
 docker images | grep ghcr.io/rayhu/avatar-mgmt
@@ -211,7 +211,7 @@ docker compose -f docker-compose.prod.yml ps
 
 ```bash
 # 如果需要回滚数据库（极少情况）
-cd /opt/deploy-avatar-prod
+cd /opt/deploy-avatar
 
 # 停止所有服务
 docker compose -f docker-compose.prod.yml down
@@ -414,9 +414,9 @@ Staging 环境：
 └── /opt/deploy-avatar/docker-compose.stage.yml
 
 Production 环境：
-├── /opt/deploy-avatar-prod/.env.prod.api
-├── /opt/deploy-avatar-prod/.env.prod.directus
-└── /opt/deploy-avatar-prod/docker-compose.prod.yml
+├── /opt/deploy-avatar/.env.prod.api
+├── /opt/deploy-avatar/.env.prod.directus
+└── /opt/deploy-avatar/docker-compose.prod.yml
 ```
 
 ### 2. 配置文件模板

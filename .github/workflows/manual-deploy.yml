@@ -129,8 +129,8 @@ jobs:
 
             # 设置部署目录
             if [ "${{ needs.validate-inputs.outputs.environment }}" = "production" ]; then
-              DEPLOY_DIR="/opt/deploy-avatar-prod"
-              SOURCE_DIR="/opt/avatar-mgmt-prod"
+              DEPLOY_DIR="/opt/deploy-avatar"
+              SOURCE_DIR="/opt/avatar-mgmt"
             else
               DEPLOY_DIR="/opt/deploy-avatar"
               SOURCE_DIR="/opt/avatar-mgmt"
