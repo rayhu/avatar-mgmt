@@ -1,14 +1,16 @@
 # .github/workflows/deploy-staging.yml
 name: Deploy to Staging
 on:
-  push:
+  workflow_run:
+    workflows: ['Build and Push Docker Images']
+    types:
+      - completed
     branches: [main]
 
 jobs:
   deploy-staging:
-    # 只在推送到 main 或 PR 合并到 main 时执行
-    if: github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    # 只在构建工作流成功完成后执行
+    if: github.event.workflow_run.conclusion == 'success'
 
     runs-on: ubuntu-latest
     steps:
@@ -22,9 +24,9 @@ jobs:
             echo "🚀 Starting Staging deployment..."
             echo "Target: ${{ vars.STAGING_HOST }}"
             echo "User: ${{ vars.STAGING_USERNAME }}"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Commit: ${{ github.sha }}"
+            echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
+            echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+            echo "Commit: ${{ github.event.workflow_run.head_sha }}"
             echo "Deploy time: $(date)"
 
             # 下载部署脚本
@@ -37,6 +39,13 @@ jobs:
 
             # 部署应用
             chmod +x .github/scripts/deploy-ghcr-simple.sh
+            export GITHUB_REPOSITORY="${{ github.event.workflow_run.repository.full_name }}"
+            export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            export GITHUB_ACTOR="${{ github.actor }}"
+            export GITHUB_REF_NAME="${{ github.event.workflow_run.head_branch }}"
+            export GITHUB_SHA="${{ github.event.workflow_run.head_sha }}"
+            export STAGING_HOST="${{ vars.STAGING_HOST }}"
+            export IMAGE_TAG="latest"
             .github/scripts/deploy-ghcr-simple.sh
 
             echo "🔍 Starting health check..."
@@ -50,16 +59,16 @@ jobs:
         if: success()
         run: |
           echo "✅ Staging deployment successful!"
-          echo "Repository: ${{ github.repository }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
+          echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
           echo "Deploy time: $(date)"
 
       - name: Notify deployment failure
         if: failure()
         run: |
           echo "❌ Staging deployment failed!"
-          echo "Repository: ${{ github.repository }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
+          echo "Repository: ${{ github.event.workflow_run.repository.full_name }}"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
           echo "Deploy time: $(date)"
