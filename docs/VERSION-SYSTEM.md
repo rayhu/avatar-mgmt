@@ -164,37 +164,37 @@ GET /api/version
 ```json
 {
   "frontend": {
-    "version": "2024.01.15-abc123",
+    "version": "2025.08.15-abc123",
     "commitHash": "abc123",
-    "buildTime": "2024-01-15T10:30:00Z",
+    "buildTime": "2025-08-15T10:30:00Z",
     "branch": "main",
-    "commitDate": "2024-01-15T10:30:00Z",
+    "commitDate": "2025-08-15T10:30:00Z",
     "gitTag": "v1.0.0"
   },
   "backend": {
-    "version": "2024.01.15-abc123",
+    "version": "2025.08.15-abc123",
     "commitHash": "abc123",
-    "buildTime": "2024.01.15T10:30:00Z",
+    "buildTime": "2025.08.15T10:30:00Z",
     "branch": "main",
-    "commitDate": "2024-01-15T10:30:00Z",
+    "commitDate": "2025-08-15T10:30:00Z",
     "gitTag": "v1.0.0"
   },
   "system": {
-    "deployTime": "2024-01-15T10:30:00Z",
+    "deployTime": "2025-08-15T10:30:00Z",
     "environment": "production",
     "uptime": "3600s",
     "deploymentId": "deploy_1705312200",
-    "lastCheck": "2024-01-15T11:30:00Z"
+    "lastCheck": "2025-08-15T11:30:00Z"
   },
   "api": {
     "endpoint": "/api/version",
-    "timestamp": "2024-01-15T11:30:00Z",
+    "timestamp": "2025-08-15T11:30:00Z",
     "uptime": "3600s"
   },
-  "generatedAt": "2024-01-15T10:30:00Z",
+  "generatedAt": "2025-08-15T10:30:00Z",
   "deploymentInfo": {
     "deploymentId": "deploy_1705312200",
-    "deploymentTime": "2024-01-15T10:30:00Z",
+    "deploymentTime": "2025-08-15T10:30:00Z",
     "deploymentUser": "deploy",
     "deploymentHost": "server-01"
   }
@@ -292,7 +292,7 @@ curl -v http://localhost:3000/api/version
 ### 1. 版本号命名
 
 - 使用语义化版本号：`v1.0.0`
-- 开发版本：`2024.01.15-abc123`
+- 开发版本：`2025.08.15-abc123`
 - 预发布版本：`v1.0.0-beta.1`
 
 ### 2. 部署流程
@@ -339,6 +339,6 @@ curl http://your-domain.com/api/version
 
 ---
 
-**最后更新**: 2024-01-15  
+**最后更新**: 2025-08-15  
 **维护者**: 开发团队  
 **版本**: 1.0.0

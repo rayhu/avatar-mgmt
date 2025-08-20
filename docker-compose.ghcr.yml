@@ -22,6 +22,12 @@ services:
   # Frontend - 从 GHCR 拉取
   frontend:
     image: ghcr.io/${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}/frontend:${IMAGE_TAG:-latest}
+    restart: always
+    env_file:
+      - .env.stage.frontend
+    environment:
+      # 动态环境变量
+      - VITE_APP_VERSION=${IMAGE_TAG:-latest}
     ports:
       - "4173:80"
     networks:

@@ -15,8 +15,8 @@
 ### 示例
 
 ```
-[2024-01-15T10:30:45.123Z] INFO 🖼️ Avatars 请求开始 | {"method":"GET","url":"/api/avatars","bodySize":0}
-[2024-01-15T10:30:45.456Z] INFO ✅ Avatars 查询成功 | {"avatarCount":5,"baseUrl":"http://localhost:5173"}
+[2025-08-15T10:30:45.123Z] INFO 🖼️ Avatars 请求开始 | {"method":"GET","url":"/api/avatars","bodySize":0}
+[2025-08-15T10:30:45.456Z] INFO ✅ Avatars 查询成功 | {"avatarCount":5,"baseUrl":"http://localhost:5173"}
 ```
 
 ## Handlers 日志详情
