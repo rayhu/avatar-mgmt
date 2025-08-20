@@ -13,6 +13,16 @@ if [ -z "$GITHUB_REPOSITORY" ]; then
     exit 1
 fi
 
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "❌ GITHUB_TOKEN environment variable is required"
+    exit 1
+fi
+
+if [ -z "$GITHUB_ACTOR" ]; then
+    echo "❌ GITHUB_ACTOR environment variable is required"
+    exit 1
+fi
+
 # 设置镜像标签，默认为 latest
 IMAGE_TAG=${IMAGE_TAG:-latest}
 
@@ -35,7 +45,7 @@ cd /opt/avatar-mgmt
 if [ ! -d ".git" ]; then
     echo "📥 Git repository not found, cloning for config files..."
     ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-    git clone git@github.com:${{ github.repository }}.git .
+    git clone git@github.com:${GITHUB_REPOSITORY}.git .
     echo "✅ Repository cloned successfully"
 else
     echo "📥 Git repository found, updating config files..."
@@ -67,7 +77,7 @@ export IMAGE_TAG="$IMAGE_TAG"
 
 # 登录到 GHCR（如果需要）
 echo "🔐 Logging into GHCR..."
-echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
 
 # 拉取最新镜像
 echo "📥 Pulling latest images from GHCR..."

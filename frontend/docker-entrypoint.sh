@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Starting frontend container..."
+echo " 生成前端配置文件..."
 
 # 设置默认值
 API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:3000}

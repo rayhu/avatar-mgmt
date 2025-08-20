@@ -13,6 +13,16 @@ if [ -z "$GITHUB_REPOSITORY" ]; then
     exit 1
 fi
 
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "❌ GITHUB_TOKEN environment variable is required"
+    exit 1
+fi
+
+if [ -z "$GITHUB_ACTOR" ]; then
+    echo "❌ GITHUB_ACTOR environment variable is required"
+    exit 1
+fi
+
 # 设置镜像标签，默认为 latest
 IMAGE_TAG=${IMAGE_TAG:-latest}
 
@@ -55,7 +65,7 @@ export IMAGE_TAG="$IMAGE_TAG"
 
 # 登录到 GHCR（如果需要）
 echo "🔐 Logging into GHCR..."
-echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+echo "$GITHUB_TOKEN" | sudo docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
 # 步骤1: 启动数据库和 Directus 服务
 echo "🗄️  Starting database and Directus services..."

@@ -15,12 +15,19 @@ const COMMON_API_ENDPOINTS = {
   },
 } as const;
 
-// 从环境变量获取 baseUrl，如果没有则使用默认值
+// 从运行时配置获取 baseUrl
 function getBaseUrls() {
-  const env = import.meta.env.MODE || 'development';
+  // 优先使用运行时配置
+  if (typeof window !== 'undefined' && window.APP_CONFIG) {
+    console.log(' 使用运行时配置:', window.APP_CONFIG);
+    return {
+      api: window.APP_CONFIG.API_BASE_URL,
+    };
+  }
 
-  // 从环境变量读取，格式：VITE_API_BASE_URL
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  // 降级到环境变量（开发环境）
+  const env = import.meta.env.MODE || 'development';
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
 
   // 默认值配置
   const defaults = {
@@ -36,8 +43,9 @@ function getBaseUrls() {
   };
 
   const defaultConfig = defaults[env as keyof typeof defaults] || defaults.development;
-
   const finalApiBaseUrl = apiBaseUrl || defaultConfig.api;
+
+  console.log(' 使用环境变量配置:', { env, apiBaseUrl: finalApiBaseUrl });
 
   return {
     api: finalApiBaseUrl,
@@ -80,16 +88,18 @@ export function getApiConfig() {
     DEV: import.meta.env.DEV,
     PROD: import.meta.env.PROD,
     BASE_URL: import.meta.env.BASE_URL,
-    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    VITE_API_URL: import.meta.env.VITE_API_URL,
     selectedEnv: env,
+    runtimeConfig: typeof window !== 'undefined' ? window.APP_CONFIG : 'undefined',
   });
 
   const config = API_CONFIG[env as keyof typeof API_CONFIG] || API_CONFIG.development;
 
   // 显示最终配置
-  console.log('🌍 最终 API 配置:', {
+  console.log(' 最终 API 配置:', {
     env: env,
     apiBaseUrl: config.api.baseUrl,
+    runtimeConfig: typeof window !== 'undefined' ? window.APP_CONFIG : 'undefined',
   });
 
   return config;
@@ -116,7 +126,7 @@ export function getApiUrl(endpointKey: string): string {
   }
 
   const url = `${config.api.baseUrl}${endpoint}`;
-  console.log('🔗 API URL:', url);
+  console.log(' API URL:', url);
   return url;
 }
 
@@ -130,6 +140,6 @@ export function buildAssetUrl(fileId: string): string {
   }
 
   const url = `${config.api.baseUrl}${config.api.endpoints.assets}/${fileId}`;
-  console.log('🔗 资源文件 URL:', url);
+  console.log(' 资源文件 URL:', url);
   return url;
 }

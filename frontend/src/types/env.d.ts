@@ -12,3 +12,24 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+
+// 扩展 Window 接口
+declare global {
+  interface Window {
+    APP_CONFIG: {
+      API_BASE_URL: string;
+      DIRECTUS_BASE_URL: string;
+      APP_ENV: string;
+      APP_TITLE: string;
+      APP_DESCRIPTION?: string;
+      FEATURE_ANIMATION?: boolean;
+      FEATURE_UPLOAD?: boolean;
+      FEATURE_SHARING?: boolean;
+      DEBUG?: boolean;
+      BUILD_TIME?: string;
+    };
+  }
+}
+
+export { };
