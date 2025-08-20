@@ -62,8 +62,8 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: api-server/Dockerfile
+          context: api-server
+          file: Dockerfile
           push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.sha }}
@@ -82,8 +82,8 @@ jobs:
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: frontend/Dockerfile
+          context: frontend
+          file: Dockerfile
           push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}

@@ -5,13 +5,13 @@ WORKDIR /app
 # RUN apk add --no-cache python3 make g++
 
 # Copy package files first for better layer caching
-COPY api-server/package.json api-server/yarn.lock ./
+COPY package.json yarn.lock ./
 
 # Clear yarn cache and install dependencies
 RUN yarn cache clean && yarn install --frozen-lockfile
 
 # Copy source code (excluding node_modules and package files)
-COPY api-server/ .
+COPY . .
 
 # Build arguments for version information
 ARG BUILD_VERSION
