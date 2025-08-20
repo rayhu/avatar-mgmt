@@ -7,8 +7,6 @@ services:
   api:
     image: ghcr.io/${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}/api:${IMAGE_TAG:-latest}
     restart: always
-    depends_on:
-      - directus
     env_file:
       - .env.stage.api
     ports:
