@@ -2,11 +2,9 @@
 name: Build and Push Docker Images
 on:
   push:
-    branches: [main, develop]
-  pull_request:
     branches: [main]
   release:
-    types: [published, edited, deleted]
+    types: [published]
 
 env:
   REGISTRY: ghcr.io

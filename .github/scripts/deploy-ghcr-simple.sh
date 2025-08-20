@@ -6,38 +6,26 @@ set -e
 GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}
 IMAGE_TAG=${IMAGE_TAG:-latest}
 DEPLOY_DIR="/opt/deploy-avatar"
+GITHUB_USERNAME=${GITHUB_ACTOR:-rayhu}
 
 echo "🚀 开始简化部署..."
 echo "仓库: $GITHUB_REPOSITORY"
 echo "镜像标签: $IMAGE_TAG"
 echo "部署目录: $DEPLOY_DIR"
 echo "时间: $(date)"
+echo ""
+echo "🔧 环境变量配置:"
+echo "  - GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+echo "  - IMAGE_TAG: $IMAGE_TAG"
+echo "  - GITHUB_TOKEN: ${GITHUB_TOKEN:+已设置}"
+echo "  - GITHUB_USERNAME: ${GITHUB_USERNAME:-未设置}"
+echo "  - GITHUB_ACTOR: ${GITHUB_ACTOR:-未设置}"
+echo "  - GITHUB_REF_NAME: ${GITHUB_REF_NAME:-未设置}"
+echo "  - GITHUB_SHA: ${GITHUB_SHA:-未设置}"
+echo "  - STAGING_HOST: ${STAGING_HOST:-未设置}"
+echo "  - DEPLOY_DIR: $DEPLOY_DIR"
+echo ""
 
-# 检查部署目录
-if [ ! -d "$DEPLOY_DIR" ]; then
-    echo "❌ 部署目录不存在: $DEPLOY_DIR"
-    echo "请先运行初始化脚本创建必要的目录和配置文件"
-    exit 1
-fi
-
-SOURCE_DIR="/opt/avatar-mgmt"
-
-if cp "$SOURCE_DIR/.github/scripts/copy_files_to_deploy.sh" .; then
-    echo "✅ copy_files_to_deploy脚本文件复制完成"
-else
-    echo "❌ copy_files_to_deploy脚本文件复制失败"
-    exit 1
-fi
-
-cd "$DEPLOY_DIR"
-chmod +x copy_files_to_deploy.sh
-
-if ./copy_files_to_deploy.sh; then
-    echo "✅ 配置文件复制完成"
-else
-    echo "❌ 配置文件复制失败"
-    exit 1
-fi
 
 # 检查配置文件
 if [ ! -f ".env.stage.api" ]; then
@@ -48,6 +36,12 @@ fi
 
 if [ ! -f ".env.stage.directus" ]; then
     echo "❌ 配置文件不存在: .env.stage.directus"
+    echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
+    exit 1
+fi
+
+if [ ! -f ".env.stage.frontend" ]; then
+    echo "❌ 配置文件不存在: .env.stage.frontend"
     echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
     exit 1
 fi

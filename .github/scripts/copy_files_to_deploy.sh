@@ -17,6 +17,13 @@ fi
 
 echo "✅ 配置文件复制完成"
 
+if cp "$SOURCE_DIR/docker-compose.ghcr.yml" .; then
+    echo "✅ docker-compose.ghcr.yml 复制成功"
+else
+    echo "❌ docker-compose.ghcr.yml 复制失败"
+    exit 1
+fi
+
 if sudo docker compose -f docker-compose.ghcr.yml config > /dev/null 2>&1; then
     echo "✅ docker-compose.ghcr.yml 格式正确"
 else
@@ -52,3 +59,12 @@ else
 fi
 
 echo "✅ 环境变量文件模板复制完成"
+
+echo "复制healthcheck脚本..."
+if cp "$SOURCE_DIR/.github/scripts/health-check.sh" .; then
+    chmod +x health-check.sh
+    echo "✅ health-check脚本复制成功"
+else
+    echo "❌ health-check脚本复制失败"
+    exit 1
+fi

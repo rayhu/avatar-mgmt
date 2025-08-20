@@ -75,6 +75,17 @@ jobs:
 
             # 部署应用
             cd /opt/deploy-avatar
+
+            echo "复制脚本文件..."
+
+            if cp "/opt/avatar-mgmt/.github/scripts/copy_files_to_deploy.sh" .; then
+                chmod +x copy_files_to_deploy.sh
+                echo "✅ copy_files_to_deploy脚本文件复制完成"
+            else
+                echo "❌ copy_files_to_deploy脚本文件复制失败"
+                exit 1
+            fi
+
             if ./copy_files_to_deploy.sh; then
               echo "✅ 配置文件复制完成"
             else
@@ -82,7 +93,6 @@ jobs:
               exit 1
             fi
 
-            chmod +x .github/scripts/deploy-ghcr-simple.sh
             export GITHUB_REPOSITORY="${{ github.event.workflow_run.repository.full_name }}"
             export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             export GITHUB_ACTOR="${{ github.actor }}"
@@ -90,14 +100,14 @@ jobs:
             export GITHUB_SHA="${{ github.event.workflow_run.head_sha }}"
             export STAGING_HOST="${{ vars.STAGING_HOST }}"
             export IMAGE_TAG="latest"
-            .github/scripts/deploy-ghcr-simple.sh
+
+            ./deploy-ghcr-simple.sh
 
             echo "🔍 Starting health check..."
 
             # 设置环境变量并执行健康检查脚本
-            export DOCKER_COMPOSE_FILE="docker-compose.stage.yml"
-            chmod +x .github/scripts/health-check.sh
-            .github/scripts/health-check.sh
+            export DOCKER_COMPOSE_FILE="docker-compose.ghcr.yml"
+            ./health-check.sh
 
       - name: Notify deployment success
         if: success()

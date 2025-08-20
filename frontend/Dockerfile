@@ -11,7 +11,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy startup script and config template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY config.template.js /usr/share/nginx/html/config.template.js
 
 # Make startup script executable
 RUN chmod +x /docker-entrypoint.sh
