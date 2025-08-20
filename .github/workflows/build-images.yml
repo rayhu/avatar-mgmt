@@ -59,8 +59,15 @@ jobs:
           yarn install --frozen-lockfile
           yarn build --mode production
 
+      - name: Prepare API build context
+        run: |
+          echo "🔧 准备 API 构建上下文..."
+          # 复制前端文件到 api-server 目录
+          cp -r frontend/public api-server/
+          echo "✅ 已复制 frontend/public 到 api-server/"
+
       - name: Build and push API image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: api-server
           file: Dockerfile
