@@ -118,22 +118,18 @@ function displayEnvironmentConfig() {
   Logger.info('=====================================');
 }
 
-// Vercel 函数入口点
-export default app;
 
-// 本地开发服务器
-if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
-  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+// 本地服务器
+const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
-  app.listen(port, () => {
-    Logger.info(`Avatar API Server listening on port ${port}`);
-    displayEnvironmentConfig();
+app.listen(port, () => {
+  Logger.info(`Avatar API Server listening on port ${port}`);
+  displayEnvironmentConfig();
 
-    // 验证关键配置
-    if (!process.env.DIRECTUS_URL || !process.env.DIRECTUS_TOKEN) {
-      Logger.warn('⚠️  警告: Directus 配置不完整，某些功能可能无法正常工作!');
-    } else {
-      Logger.info('✅ 所有关键配置已就绪!');
-    }
-  });
-}
+  // 验证关键配置
+  if (!process.env.DIRECTUS_URL || !process.env.DIRECTUS_TOKEN) {
+    Logger.warn('⚠️  警告: Directus 配置不完整，某些功能可能无法正常工作!');
+  } else {
+    Logger.info('✅ 所有关键配置已就绪!');
+  }
+});

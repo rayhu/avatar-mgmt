@@ -206,3 +206,5 @@ frontend/public/audio-samples/
 /data/**/*
 !/data/.gitkeep
 api-server/version/version.json
+frontend/test-results
+frontend/playwright-report
