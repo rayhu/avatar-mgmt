@@ -14,6 +14,28 @@ RUN yarn cache clean && yarn install --frozen-lockfile
 COPY api-server/ .
 COPY ../frontend/public/azure-voices-zh.json ./public/azure-voices-zh.json
 
+# Build arguments for version information
+ARG BUILD_VERSION
+ARG BUILD_COMMIT
+ARG BUILD_TIME
+ARG BUILD_REPOSITORY
+ARG BUILD_BRANCH
+ARG BUILD_RUN_ID
+ARG RELEASE_TAG
+
+# Generate version file from build args
+RUN echo "{\
+  \"version\": \"${BUILD_VERSION:-unknown}\",\
+  \"commit\": \"${BUILD_COMMIT:-unknown}\",\
+  \"buildTime\": \"${BUILD_TIME:-unknown}\",\
+  \"buildDate\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\",\
+  \"imageTag\": \"${BUILD_VERSION:-unknown}\",\
+  \"repository\": \"${BUILD_REPOSITORY:-unknown}\",\
+  \"branch\": \"${BUILD_BRANCH:-unknown}\",\
+  \"runId\": \"${BUILD_RUN_ID:-unknown}\",\
+  \"releaseTag\": \"${RELEASE_TAG:-none}\"\
+}" > /app/version.json
+
 # Set environment variables
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=2048"

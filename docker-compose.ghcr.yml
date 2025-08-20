@@ -1,0 +1,78 @@
+# docker-compose.ghcr.yml
+# 使用从 GHCR 拉取的预构建镜像
+name: avatar-mgmt-ghcr
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env.stage.directus
+    environment:
+      POSTGRES_DB: directus
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - jc21-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Directus CMS
+  directus:
+    image: directus/directus:11.8
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.stage.directus
+    volumes:
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+      - ./directus/schemas:/directus/schemas
+    ports:
+      - "8055:8055"
+    networks:
+      - jc21-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8055/"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 120s
+
+  # API Server - 从 GHCR 拉取
+  api:
+    image: ghcr.io/${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}/api:${IMAGE_TAG:-latest}
+    restart: always
+    depends_on:
+      - directus
+    env_file:
+      - .env.stage.api
+    ports:
+      - "3000:3000"
+    networks:
+      - jc21-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend - 从 GHCR 拉取
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}/frontend:${IMAGE_TAG:-latest}
+    ports:
+      - "4173:80"
+    networks:
+      - jc21-network
+
+# 引用 JC21 的网络
+networks:
+  jc21-network:
+    external: true
+    name: avatar-mgmt-jc21-network
