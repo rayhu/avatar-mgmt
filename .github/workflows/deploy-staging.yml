@@ -109,6 +109,8 @@ jobs:
             export DOCKER_COMPOSE_FILE="docker-compose.ghcr.yml"
             ./health-check.sh
 
+            echo "✅ Staging deployment completed!"
+
       - name: Notify deployment success
         if: success()
         run: |

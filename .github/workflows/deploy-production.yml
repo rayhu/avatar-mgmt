@@ -32,11 +32,11 @@ jobs:
             echo "Deploy time: $(date)"
 
             # 确保目录存在
-            sudo mkdir -p /opt/avatar-mgmt2
-            sudo chown $USER:$USER /opt/avatar-mgmt2
-            sudo chmod 755 /opt/avatar-mgmt2
+            sudo mkdir -p /opt/avatar-mgmt
+            sudo chown $USER:$USER /opt/avatar-mgmt
+            sudo chmod 755 /opt/avatar-mgmt
 
-            cd /opt/avatar-mgmt2
+            cd /opt/avatar-mgmt
 
             # 检查并初始化 Git 仓库
             if [ ! -d ".git" ]; then
@@ -78,70 +78,43 @@ jobs:
               git clean -fd frontend/ api-server/ scripts/ || true
             fi
 
-            sudo chown -R $USER:$USER /opt/avatar-mgmt2
+            # 部署应用
+            cd /opt/deploy-avatar
 
-            # 检查配置文件
-            if [ ! -f ".env.api" ]; then
-              echo "❌ Production config file not found!"
-              echo "Please create .env.api on the server"
+            echo "复制脚本文件..."
+
+            if cp "/opt/avatar-mgmt/.github/scripts/copy_files_to_deploy.sh" .; then
+                chmod +x copy_files_to_deploy.sh
+                echo "✅ copy_files_to_deploy脚本文件复制完成"
+            else
+                echo "❌ copy_files_to_deploy脚本文件复制失败"
+                exit 1
+            fi
+
+            if ./copy_files_to_deploy.sh; then
+              echo "✅ 配置文件复制完成"
+            else
+              echo "❌ 配置文件复制失败"
               exit 1
             fi
-            if [ ! -f ".env.directus" ]; then
-              echo "❌ Production config file not found!"
-              echo "Please create .env.directus on the server"
-              exit 1
-            fi
 
-            # 确保 Volta 已安装并加载
-            if ! command -v volta &> /dev/null; then
-              echo " Installing Volta..."
-              curl https://get.volta.sh | bash
-              export VOLTA_HOME="$HOME/.volta"
-              export PATH="$VOLTA_HOME/bin:$PATH"
-            fi
+            export GITHUB_REPOSITORY="${{ github.event.workflow_run.repository.full_name }}"
+            export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            export GITHUB_ACTOR="${{ github.actor }}"
+            export GITHUB_REF_NAME="${{ github.event.workflow_run.head_branch }}"
+            export GITHUB_SHA="${{ github.event.workflow_run.head_sha }}"
+            export STAGING_HOST="${{ vars.STAGING_HOST }}"
+            export IMAGE_TAG="latest"
 
-            # 加载 Volta 环境
-            export VOLTA_HOME="$HOME/.volta"
-            export PATH="$VOLTA_HOME/bin:$PATH"
+            ./deploy-ghcr-simple.sh
 
-            # 安装项目指定的 Node.js 和 Yarn 版本
-            echo " Installing Node.js and Yarn via Volta..."
-            volta install node@22.16.0
-            volta install yarn@1.22.22
-
-            # 验证版本
-            echo " Verifying versions..."
-            node --version
-            yarn --version
-
-            # 设置环境变量并执行部署脚本
-            echo "🔧 Setting up environment variables..."
-            export PRODUCTION_HOST="${{ vars.PRODUCTION_HOST }}"
-            export RELEASE_TAG="${{ steps.release.outputs.tag_name }}"
-            export GITHUB_REPOSITORY="${{ github.repository }}"
-            export GITHUB_SHA="${{ github.sha }}"
-
-            # 执行部署脚本
-            echo "🚀 Executing deployment script..."
-            chmod +x .github/scripts/deploy-production.sh
-            .github/scripts/deploy-production.sh
-
-            echo "✅ Production deployment completed!"
-
-      - name: Production health check
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ vars.PRODUCTION_HOST }}
-          username: ${{ vars.PRODUCTION_USERNAME }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
-            cd /opt/avatar-mgmt2
-            echo "🔍 Starting production health check..."
+            echo "🔍 Starting health check..."
 
             # 设置环境变量并执行健康检查脚本
-            export DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
-            chmod +x .github/scripts/health-check.sh
-            .github/scripts/health-check.sh
+            export DOCKER_COMPOSE_FILE="docker-compose.ghcr.yml"
+            ./health-check.sh
+
+            echo "✅ Production deployment completed!"
 
       - name: Notify deployment success
         if: success()
