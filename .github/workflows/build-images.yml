@@ -48,33 +48,16 @@ jobs:
             ./scripts/generate-version.sh stage
           fi
 
+          # 验证版本文件是否生成
+          echo "📁 Checking generated version file..."
+          ls -la api-server/version/
+          cat api-server/version/version.json
+
       - name: Build frontend
         run: |
           cd frontend
           yarn install --frozen-lockfile
           yarn build --mode production
-
-      - name: Create Frontend Dockerfile
-        run: |
-          cat > frontend/Dockerfile << 'EOF'
-          FROM nginx:alpine
-
-          # Copy built frontend files
-          COPY dist/ /usr/share/nginx/html/
-
-          # Copy version file
-          COPY ../api-server/version/version.json /usr/share/nginx/html/version.json
-
-          # Copy nginx configuration
-          COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-          # Expose port
-          EXPOSE 80
-
-          # Health check
-          HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-            CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
-          EOF
 
       - name: Build and push API image
         uses: docker/build-push-action@v5
@@ -99,7 +82,7 @@ jobs:
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
         with:
-          context: frontend
+          context: .
           file: frontend/Dockerfile
           push: ${{ github.event_name == 'push' || github.event_name == 'release' }}
           tags: |
