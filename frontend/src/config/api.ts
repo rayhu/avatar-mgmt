@@ -26,6 +26,7 @@ function getBaseUrls() {
   }
 
   // 降级到环境变量（开发环境）
+  console.log(' 未使用运行时配置，降级到环境变量配置:', { env: import.meta.env.MODE });
   const env = import.meta.env.MODE || 'development';
   const apiBaseUrl = import.meta.env.VITE_API_URL;
 
