@@ -56,21 +56,21 @@ fi
 
 # 拉取新镜像
 echo "📥 拉取新镜像..."
-docker pull "ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG"
-docker pull "ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG"
+sudo docker pull "ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG"
+sudo docker pull "ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG"
 
 # 停止应用服务
 echo "🛑 停止应用服务..."
-docker compose -f docker-compose.ghcr.yml down
+sudo docker compose -f docker-compose.ghcr.yml down
 
 # 启动应用服务
 echo "🚀 启动应用服务..."
-docker compose -f docker-compose.ghcr.yml up -d
+sudo docker compose -f docker-compose.ghcr.yml up -d
 
 # 检查服务状态
 echo "🔍 检查服务状态..."
 sleep 10
-docker compose -f docker-compose.ghcr.yml ps
+sudo docker compose -f docker-compose.ghcr.yml ps
 
 echo "✅ 部署完成！"
 echo ""
@@ -84,7 +84,7 @@ echo "  - Frontend: http://localhost:4173"
 echo "  - Directus: http://localhost:8055"
 echo ""
 echo "管理命令:"
-echo "  - 查看应用状态: docker compose -f docker-compose.ghcr.yml ps"
-echo "  - 查看数据库状态: docker compose -f docker-compose.db.yml ps"
-echo "  - 重启应用: docker compose -f docker-compose.ghcr.yml restart"
-echo "  - 查看日志: docker compose -f docker-compose.ghcr.yml logs -f"
+echo "  - 查看应用状态: sudo docker compose -f docker-compose.ghcr.yml ps"
+echo "  - 查看数据库状态: sudo docker compose -f docker-compose.db.yml ps"
+echo "  - 重启应用: sudo docker compose -f docker-compose.ghcr.yml restart"
+echo "  - 查看日志: sudo docker compose -f docker-compose.ghcr.yml logs -f"
