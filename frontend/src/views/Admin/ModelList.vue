@@ -10,7 +10,9 @@
         </div>
       </div>
       <div class="model-actions">
-        <button class="action-btn">{{ t('modelManagement.uploadModel') }}</button>
+        <button class="action-btn" @click="openUploadModal">
+          {{ t('modelManagement.uploadModel') }}
+        </button>
       </div>
       <div class="model-list">
         <div v-for="model in avatars" :key="model.id" class="model-item">
@@ -50,6 +52,13 @@
       @close="closeEditModal"
       @updated="handleAvatarUpdated"
     />
+
+    <!-- 上传模型对话框 -->
+    <UploadAvatarModal
+      :is-visible="isUploadModalVisible"
+      @close="closeUploadModal"
+      @upload-success="handleUploadSuccess"
+    />
   </div>
 </template>
 
@@ -58,6 +67,10 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Avatar } from '../../types/avatar';
 import { getAvatars } from '../../api/avatars';
+import UploadAvatarModal from '../../components/UploadAvatarModal.vue';
+import EditAvatarModal from '../../components/EditAvatarModal.vue';
+import ModelCard from '../../components/ModelCard.vue';
+import ModelListSkeleton from '../../components/ModelListSkeleton.vue';
 
 const { t } = useI18n();
 
@@ -65,6 +78,7 @@ const avatars = ref<Avatar[]>([]);
 const loading = ref(true);
 const isEditModalVisible = ref(false);
 const editingAvatar = ref<Avatar | null>(null);
+const isUploadModalVisible = ref(false);
 
 function formatDate(date?: string) {
   if (!date) return '-';
@@ -107,6 +121,16 @@ function closeEditModal() {
   editingAvatar.value = null;
 }
 
+// 打开上传对话框
+function openUploadModal() {
+  isUploadModalVisible.value = true;
+}
+
+// 关闭上传对话框
+function closeUploadModal() {
+  isUploadModalVisible.value = false;
+}
+
 // 处理模型更新
 function handleAvatarUpdated(updatedAvatar: Avatar) {
   // 更新列表中的模型数据
@@ -114,6 +138,14 @@ function handleAvatarUpdated(updatedAvatar: Avatar) {
   if (index !== -1) {
     avatars.value[index] = updatedAvatar;
   }
+}
+
+// 处理上传成功
+function handleUploadSuccess(newAvatar: Avatar) {
+  // 将新模型添加到列表开头
+  avatars.value.unshift(newAvatar);
+  // 刷新列表
+  fetchAllModels();
 }
 
 onMounted(async () => {

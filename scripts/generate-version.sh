@@ -9,7 +9,7 @@ cd "$PROJECT_ROOT"
 # 自动检测环境并设置版本号
 if [ "$1" = "stage" ] || [ "$1" = "staging" ]; then
   ENVIRONMENT="staging"
-  VERSION="dev-$(git rev-parse --short HEAD)"
+  VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
 elif [ "$1" = "prod" ] || [ "$1" = "production" ]; then
   ENVIRONMENT="production"
   VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")

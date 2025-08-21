@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import express from 'express';
+import fileUpload from 'express-fileupload';
 import { Logger } from './utils/logger';
 
 import openaiHandler from './handlers/openai-ssml';
@@ -8,6 +9,7 @@ import azureTTSHandler from './handlers/azure-tts';
 import avatarsHandler from './handlers/avatars';
 import generateSSMLHandler from './handlers/generate-ssml';
 import avatarManagementHandler from './handlers/avatar-management';
+import uploadAvatarHandler from './handlers/upload-avatar';
 import versionHandler from './handlers/version';
 import authHandler from './handlers/auth';
 import logoutHandler from './handlers/logout';
@@ -62,6 +64,20 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '2mb' }));
 
+// 配置文件上传中间件
+app.use(
+  fileUpload({
+    limits: {
+      fileSize: 50 * 1024 * 1024, // 50MB 最大文件大小
+    },
+    abortOnLimit: true,
+    responseOnLimit: 'File size limit has been reached',
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    debug: process.env.NODE_ENV === 'development',
+  })
+);
+
 app.post('/api/openai-ssml', openaiHandler);
 app.post('/api/azure-tts', azureTTSHandler);
 app.post('/api/generate-ssml', generateSSMLHandler);
@@ -72,6 +88,7 @@ app.post('/api/auth/login', authHandler);
 app.post('/api/auth/logout', authenticateToken, logoutHandler);
 
 // Protected Avatar 管理路由 (需要管理员权限)
+app.post('/api/avatars', authenticateToken, requireAdmin, uploadAvatarHandler);
 app.put('/api/avatars/:id', authenticateToken, requireAdmin, avatarManagementHandler);
 app.patch('/api/avatars/:id', authenticateToken, requireAdmin, avatarManagementHandler);
 

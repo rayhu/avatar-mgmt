@@ -15,6 +15,7 @@ export default {
     about: '系统信息',
     yes: '是',
     no: '否',
+    submit: '提交',
   },
   navigation: {
     menu: '菜单',
@@ -231,6 +232,39 @@ export default {
       version: '版本',
       createTime: '创建时间',
       updateTime: '更新时间',
+      tags: '标签',
+      glbFile: 'GLB模型文件',
+      preview: '预览图片',
+      purpose: '用途',
+      style: '风格',
+    },
+    uploading: '上传中',
+    uploadPlaceholder: {
+      glb: '点击或拖拽GLB/GLTF文件到此区域',
+      preview: '点击或拖拽预览图片到此区域',
+    },
+    uploadHint: {
+      glb: '支持 .glb 和 .gltf 格式，最大50MB',
+      preview: '支持 JPG、PNG 等图片格式，最大10MB',
+    },
+    placeholders: {
+      name: '请输入模型名称',
+      description: '请输入模型描述',
+      tags: '输入标签后按回车键添加',
+      selectPurpose: '请选择用途',
+      selectStyle: '请选择风格',
+    },
+    purpose: {
+      service: '客服',
+      brand: '品牌',
+      host: '主持人',
+      assistant: 'AI助手',
+    },
+    style: {
+      cartoon: '卡通',
+      realistic: '写实',
+      futuristic: '未来感',
+      chinese: '国风',
     },
   },
   test: {
