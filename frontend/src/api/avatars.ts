@@ -3,12 +3,16 @@ import { logger } from '@/utils/logger';
 import { buildAssetUrl } from '@/config/api';
 import apiClient from './axios';
 
-export async function getAvatars(): Promise<Avatar[]> {
+export async function getAvatars(includeDeleted?: boolean): Promise<Avatar[]> {
   const startTime = Date.now();
+
+  // 检查Window对象上的标志，如果设置了就显示已删除的项目
+  const shouldIncludeDeleted = includeDeleted ?? (window as any).__SHOW_DELETED_AVATARS__ ?? false;
 
   logger.apiCall('Avatars', '/api/avatars', {
     component: 'AvatarsAPI',
     method: 'getAvatars',
+    includeDeleted: shouldIncludeDeleted,
   });
 
   try {
@@ -24,15 +28,23 @@ export async function getAvatars(): Promise<Avatar[]> {
     const rawAvatars = response.data;
 
     // 为每个avatar构建正确的previewUrl
-    const avatars: Avatar[] = rawAvatars.map((avatar: any) => ({
+    let avatars: Avatar[] = rawAvatars.map((avatar: any) => ({
       ...avatar,
       previewUrl: avatar.preview ? buildAssetUrl(avatar.preview) : undefined,
     }));
+
+    // 如果不包含已删除的项目，则过滤掉状态为'deleted'的项目
+    if (!shouldIncludeDeleted) {
+      avatars = avatars.filter(avatar => avatar.status !== 'deleted');
+    }
 
     logger.info('获取 avatars 成功', {
       component: 'AvatarsAPI',
       method: 'getAvatars',
       avatarCount: avatars.length,
+      totalCount: rawAvatars.length,
+      includeDeleted: shouldIncludeDeleted,
+      deletedFiltered: !shouldIncludeDeleted ? rawAvatars.length - avatars.length : 0,
       duration,
     });
 

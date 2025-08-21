@@ -224,6 +224,7 @@ export default {
       processing: '处理中',
       error: '错误',
       offline: '已下线',
+      deleted: '已删除',
     },
     modelInfo: {
       name: '模型名称',

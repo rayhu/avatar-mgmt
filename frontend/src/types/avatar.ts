@@ -5,7 +5,7 @@ export interface Avatar {
   url: string;
   preview?: string;
   previewUrl?: string;
-  status: 'draft' | 'pending' | 'processing' | 'ready' | 'error';
+  status: 'draft' | 'pending' | 'processing' | 'ready' | 'error' | 'deleted';
   tags: string[];
   version?: string; // 模型版本号
   createdAt: string;

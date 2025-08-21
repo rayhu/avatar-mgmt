@@ -52,6 +52,7 @@
                 </option>
                 <option value="ready">{{ t('modelManagement.modelStatus.ready') }}</option>
                 <option value="error">{{ t('modelManagement.modelStatus.error') }}</option>
+                <option value="deleted">{{ t('modelManagement.modelStatus.deleted') }}</option>
               </select>
             </div>
           </div>
@@ -59,6 +60,15 @@
           <div class="form-actions">
             <button type="button" class="btn-cancel" @click="$emit('close')">
               {{ t('common.cancel') }}
+            </button>
+            <button 
+              v-if="props.avatar && props.avatar.status !== 'deleted'" 
+              type="button" 
+              class="btn-delete" 
+              @click="handleMarkAsDeleted"
+              :disabled="isLoading"
+            >
+              {{ t('modelManagement.deleteModel') }}
             </button>
             <button type="submit" class="btn-save" :disabled="isLoading">
               <span v-if="isLoading" class="loading-spinner"></span>
@@ -97,7 +107,7 @@ const formData = ref<{
   name: string;
   description: string;
   version: string;
-  status: 'draft' | 'pending' | 'processing' | 'ready' | 'error';
+  status: 'draft' | 'pending' | 'processing' | 'ready' | 'error' | 'deleted';
 }>({
   name: '',
   description: '',
@@ -125,22 +135,25 @@ watch(
 async function handleSubmit() {
   if (!props.avatar) return;
 
+  // 捕获 avatar ID 以防止在异步操作期间 props.avatar 变为 null
+  const avatarId = props.avatar.id;
+
   try {
     isLoading.value = true;
 
     logger.userAction('编辑模型信息', {
       component: 'EditAvatarModal',
       method: 'handleSubmit',
-      avatarId: props.avatar.id,
+      avatarId,
       changes: formData.value,
     });
 
-    const updatedAvatar = await updateAvatarStatus(props.avatar.id, formData.value);
+    const updatedAvatar = await updateAvatarStatus(avatarId, formData.value);
 
     logger.info('模型信息编辑成功', {
       component: 'EditAvatarModal',
       method: 'handleSubmit',
-      avatarId: props.avatar.id,
+      avatarId,
       updatedAvatar,
     });
 
@@ -152,7 +165,56 @@ async function handleSubmit() {
     logger.error('模型信息编辑失败', {
       component: 'EditAvatarModal',
       method: 'handleSubmit',
-      avatarId: props.avatar?.id,
+      avatarId,
+      error: (error as Error).message,
+    });
+
+    alert(t('common.error') + ': ' + (error as Error).message);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// 处理标记为已删除
+async function handleMarkAsDeleted() {
+  if (!props.avatar) return;
+
+  if (!confirm(t('common.confirmDelete', { name: props.avatar.name }))) {
+    return;
+  }
+
+  // 捕获 avatar ID 以防止在异步操作期间 props.avatar 变为 null
+  const avatarId = props.avatar.id;
+
+  try {
+    isLoading.value = true;
+
+
+    logger.userAction('标记模型为已删除', {
+      component: 'EditAvatarModal',
+      method: 'handleMarkAsDeleted',
+      avatarId,
+    });
+    logger.info('设置 window.__SHOW_DELETED_AVATARS__ = true 显示已删除模型');
+
+    const updatedAvatar = await updateAvatarStatus(avatarId, { status: 'deleted' });
+
+    logger.info('模型标记为已删除成功', {
+      component: 'EditAvatarModal',
+      method: 'handleMarkAsDeleted',
+      avatarId,
+      updatedAvatar,
+    });
+    
+    emit('updated', updatedAvatar);
+    emit('close');
+  } catch (error) {
+    console.error('标记模型为已删除失败:', error);
+
+    logger.error('标记模型为已删除失败', {
+      component: 'EditAvatarModal',
+      method: 'handleMarkAsDeleted',
+      avatarId,
       error: (error as Error).message,
     });
 
@@ -284,7 +346,8 @@ function handleOverlayClick() {
 }
 
 .btn-cancel,
-.btn-save {
+.btn-save,
+.btn-delete {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -308,6 +371,20 @@ function handleOverlayClick() {
 
   &:hover {
     background: #e8e8e8;
+  }
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #c82333;
+  }
+
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
   }
 }
 

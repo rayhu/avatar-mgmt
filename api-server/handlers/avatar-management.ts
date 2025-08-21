@@ -56,7 +56,7 @@ async function updateAvatarStatus(
   const { status, version, name, description } = req.body;
 
   // 验证状态值
-  const validStatuses = ['draft', 'pending', 'processing', 'ready', 'error'];
+  const validStatuses = ['draft', 'pending', 'processing', 'ready', 'error', 'deleted'];
   if (status && !validStatuses.includes(status)) {
     return res.status(400).json({
       error: '无效的状态值',

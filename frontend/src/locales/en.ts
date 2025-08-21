@@ -185,6 +185,7 @@ export default {
       processing: 'Processing',
       error: 'Error',
       offline: 'Offline',
+      deleted: 'Deleted',
     },
     modelInfo: {
       name: 'Model Name',

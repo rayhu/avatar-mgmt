@@ -33,6 +33,9 @@ export async function updateAvatarStatus(
     });
 
     const result = response.data;
+    
+    // 从API响应中提取实际的avatar数据
+    const avatar = result.data || result;
 
     logger.info('更新模型状态成功', {
       component: 'AvatarManagementAPI',
@@ -40,9 +43,10 @@ export async function updateAvatarStatus(
       avatarId: id,
       updates,
       duration,
+      returnedData: avatar,
     });
 
-    return result;
+    return avatar;
   } catch (e) {
     const duration = Date.now() - startTime;
     const error = e as Error;
@@ -82,6 +86,9 @@ export async function patchAvatarInfo(id: string, updates: Partial<Avatar>): Pro
     });
 
     const result = response.data;
+    
+    // 从API响应中提取实际的avatar数据
+    const avatar = result.data || result;
 
     logger.info('部分更新模型信息成功', {
       component: 'AvatarManagementAPI',
@@ -89,9 +96,10 @@ export async function patchAvatarInfo(id: string, updates: Partial<Avatar>): Pro
       avatarId: id,
       updates,
       duration,
+      returnedData: avatar,
     });
 
-    return result;
+    return avatar;
   } catch (e) {
     const duration = Date.now() - startTime;
     const error = e as Error;

@@ -133,10 +133,15 @@ function closeUploadModal() {
 
 // 处理模型更新
 function handleAvatarUpdated(updatedAvatar: Avatar) {
-  // 更新列表中的模型数据
   const index = avatars.value.findIndex(a => a.id === updatedAvatar.id);
   if (index !== -1) {
-    avatars.value[index] = updatedAvatar;
+    // 如果模型被标记为删除，从列表中移除
+    if (updatedAvatar.status === 'deleted') {
+      avatars.value.splice(index, 1);
+    } else {
+      // 否则更新列表中的模型数据
+      avatars.value[index] = updatedAvatar;
+    }
   }
 }
 
