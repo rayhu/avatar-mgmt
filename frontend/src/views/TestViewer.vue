@@ -5,19 +5,40 @@
     <!-- 模型选择器 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
-      <div v-if="!selectedModel" class="model-list">
-        <div
-          v-for="model in readyModels"
-          :key="model.id"
-          class="model-card"
-          @click="selectModel(model)"
-        >
-          <div class="model-preview">
-            <ModelCard :preview-url="model.previewUrl" />
-          </div>
-          <div class="model-info">
-            <h4>{{ model.name }}</h4>
-            <p>{{ model.description }}</p>
+      <div v-if="!selectedModel">
+        <!-- 错误状态 -->
+        <div v-if="error" class="error-state">
+          <div class="error-icon">⚠️</div>
+          <h4>{{ t('common.error') }}</h4>
+          <p>{{ error }}</p>
+          <button class="control-btn" @click="fetchReadyModels">
+            {{ t('common.retry') }}
+          </button>
+        </div>
+        <!-- 空状态 -->
+        <div v-else-if="readyModels.length === 0" class="empty-state">
+          <div class="empty-icon">🤖</div>
+          <h4>{{ t('modelManagement.noModelsAvailable') }}</h4>
+          <p>{{ t('modelManagement.noModelsDescription') }}</p>
+          <button class="control-btn" @click="fetchReadyModels">
+            {{ t('common.refresh') }}
+          </button>
+        </div>
+        <!-- 模型列表 -->
+        <div v-else class="model-list">
+          <div
+            v-for="model in readyModels"
+            :key="model.id"
+            class="model-card"
+            @click="selectModelWithReset(model)"
+          >
+            <div class="model-preview">
+              <ModelCard :preview-url="model.previewUrl" />
+            </div>
+            <div class="model-info">
+              <h4>{{ model.name }}</h4>
+              <p>{{ model.description }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -28,7 +49,7 @@
         <div class="model-info">
           <h4>{{ selectedModel.name }}</h4>
           <p>{{ selectedModel.description }}</p>
-          <button class="control-btn" @click="selectedModel = null">
+          <button class="control-btn" @click="changeModel">
             {{ t('modelManagement.changeModel') }}
           </button>
         </div>
@@ -80,29 +101,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
-import { getAvatars } from '../api/avatars';
-import type { Avatar } from '../types/avatar';
 import ModelCard from '../components/ModelCard.vue';
 import {
   getActionAnimations,
   getEmotionAnimations,
   getAnimationByCallName,
-} from '@/config/animations';
-import { logger } from '@/utils/logger';
+} from '../config/animations';
+import { logger } from '../utils/logger';
+import { useModelSelection } from '../composables/useModelSelection';
+import type { Avatar } from '../types/avatar';
 
 const { t } = useI18n();
 const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
-const readyModels = ref<Avatar[]>([]);
-const selectedModel = ref<Avatar | null>(null);
+
+// 使用模型选择组合式函数
+const modelSelection = useModelSelection();
+const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyModels } = modelSelection;
+
 const currentAnimation = ref<string>('');
 const currentEmotion = ref<string>('');
 
 // 使用配置文件中的动画，而不是硬编码
-const animations = getActionAnimations().map(anim => anim.callName);
-const emotions = getEmotionAnimations().map(anim => anim.callName);
+const animations = getActionAnimations().map((anim: any) => anim.callName);
+const emotions = getEmotionAnimations().map((anim: any) => anim.callName);
 
 // 获取动画显示名称
 function getAnimationDisplayName(callName: string): string {
@@ -142,36 +166,8 @@ function getEmotionDisplayName(callName: string): string {
   return callName; // 回退到调用名称
 }
 
-// 获取就绪状态的模型列表
-async function fetchReadyAvatars(): Promise<void> {
-  try {
-    logger.info('获取就绪状态的模型列表', {
-      component: 'TestViewer',
-      method: 'fetchReadyAvatars',
-    });
-
-    const avatars = await getAvatars();
-    console.log('Fetched avatars:', avatars);
-    readyModels.value = avatars.filter(model => model.status === 'ready');
-    console.log('Ready models:', readyModels.value);
-
-    logger.info('模型列表获取成功', {
-      component: 'TestViewer',
-      method: 'fetchReadyAvatars',
-      count: readyModels.value.length,
-    });
-  } catch (error) {
-    logger.error('获取模型列表失败', {
-      component: 'TestViewer',
-      method: 'fetchReadyAvatars',
-      error: error instanceof Error ? error.message : String(error),
-    });
-    console.error('Failed to fetch models:', error);
-  }
-}
-
-// 选择模型
-function selectModel(model: Avatar): void {
+// 选择模型的包装函数，添加TestViewer特定的逻辑
+function selectModelWithReset(model: Avatar): void {
   logger.info('选择模型', {
     component: 'TestViewer',
     method: 'selectModel',
@@ -179,7 +175,7 @@ function selectModel(model: Avatar): void {
     modelName: model.name,
   });
 
-  selectedModel.value = model;
+  selectModel(model); // 调用useModelSelection提供的selectModel
   currentAnimation.value = '';
   currentEmotion.value = '';
 }
@@ -239,14 +235,7 @@ function updateEmotion(emotion: string): void {
   }
 }
 
-onMounted(() => {
-  logger.info('TestViewer 组件挂载', {
-    component: 'TestViewer',
-    method: 'onMounted',
-  });
-
-  fetchReadyAvatars();
-});
+// onMounted logic is now handled by useModelSelection composable
 </script>
 
 @use "@/assets/styles/variables.scss" as *;

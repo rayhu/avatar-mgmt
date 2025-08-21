@@ -15,6 +15,9 @@ export default {
     confirmDelete: 'Are you sure you want to delete {name}?',
     yes: 'Yes',
     no: 'No',
+    submit: 'Submit',
+    refresh: 'Refresh',
+    retry: 'Retry',
   },
   navigation: {
     menu: 'Menu',
@@ -195,6 +198,8 @@ export default {
       createTime: 'Created At',
       updateTime: 'Updated At',
     },
+    noModelsAvailable: 'No Models Available',
+    noModelsDescription: 'There are currently no ready models available for use. Please contact the administrator to add models or try again later.',
   },
   test: {
     title: 'Action and Emotion Test',

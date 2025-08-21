@@ -5,18 +5,39 @@
     <!-- 模型选择 -->
     <div class="model-selector">
       <h3>{{ t('modelManagement.modelSelection') }}</h3>
-      <div v-if="!selectedModel" class="model-list">
-        <div
-          v-for="model in readyModels"
-          :key="model.id"
-          class="model-card"
-          @click="selectModel(model)"
-        >
-          <div class="model-preview">
-            <ModelCard :preview-url="model.previewUrl" />
-          </div>
-          <div class="model-info">
-            <h4>{{ model.name }}</h4>
+      <div v-if="!selectedModel">
+        <!-- 错误状态 -->
+        <div v-if="error" class="error-state">
+          <div class="error-icon">⚠️</div>
+          <h4>{{ t('common.error') }}</h4>
+          <p>{{ error }}</p>
+          <button class="control-btn" @click="fetchReadyModels">
+            {{ t('common.retry') }}
+          </button>
+        </div>
+        <!-- 空状态 -->
+        <div v-else-if="readyModels.length === 0" class="empty-state">
+          <div class="empty-icon">🤖</div>
+          <h4>{{ t('modelManagement.noModelsAvailable') }}</h4>
+          <p>{{ t('modelManagement.noModelsDescription') }}</p>
+          <button class="control-btn" @click="fetchReadyModels">
+            {{ t('common.refresh') }}
+          </button>
+        </div>
+        <!-- 模型列表 -->
+        <div v-else class="model-list">
+          <div
+            v-for="model in readyModels"
+            :key="model.id"
+            class="model-card"
+            @click="selectModel(model)"
+          >
+            <div class="model-preview">
+              <ModelCard :preview-url="model.previewUrl" />
+            </div>
+            <div class="model-info">
+              <h4>{{ model.name }}</h4>
+            </div>
           </div>
         </div>
       </div>
@@ -494,7 +515,7 @@ const text = ref('你好，我是数字人，这是一个小小的演示，大�
 
 // 使用组合式函数
 const modelSelection = useModelSelection();
-const { readyModels, selectedModel, currentEmotion, currentAction, fetchReadyModels } =
+const { readyModels, selectedModel, currentEmotion, currentAction, error, fetchReadyModels } =
   modelSelection;
 
 // 先创建processing状态的ref，稍后会被useAnimation覆盖

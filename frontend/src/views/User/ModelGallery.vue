@@ -9,7 +9,7 @@
           <span>{{ t('modelManagement.galleryTip') }}</span>
         </div>
       </div>
-      <div class="model-grid">
+      <div v-if="readyModels.length > 0" class="model-grid">
         <div v-for="model in readyModels" :key="model.id" class="model-card">
           <div class="model-preview">
             <ModelCard :preview-url="model.previewUrl" />
@@ -33,6 +33,30 @@
           </div>
         </div>
       </div>
+      
+      <!-- 错误状态 -->
+      <div v-else-if="error" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <h3>{{ t('common.error') }}</h3>
+        <p>{{ error }}</p>
+        <div class="error-actions">
+          <button class="action-btn primary" @click="fetchReadyModels">
+            {{ t('common.retry') }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- 空状态提示 -->
+      <div v-else class="empty-state">
+        <div class="empty-icon">🤖</div>
+        <h3>{{ t('modelManagement.noModelsAvailable') }}</h3>
+        <p>{{ t('modelManagement.noModelsDescription') }}</p>
+        <div class="empty-actions">
+          <button class="action-btn outline" @click="fetchReadyModels">
+            {{ t('common.refresh') }}
+          </button>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -52,6 +76,7 @@ const auth = useAuthStore();
 
 const readyModels = ref<Avatar[]>([]);
 const loading = ref(true);
+const error = ref<string>('');
 
 function formatDate(date?: string) {
   if (!date) return '-';
@@ -87,16 +112,19 @@ function viewModel(model: Avatar) {
 // 获取就绪状态的模型列表
 async function fetchReadyModels() {
   try {
+    error.value = '';
     const models = await getAvatars();
     if (Array.isArray(models)) {
       readyModels.value = models.filter(model => model.status === 'ready');
     } else {
       console.error('Invalid models data:', models);
       readyModels.value = [];
+      error.value = 'Invalid data format received from server';
     }
-  } catch (error) {
-    console.error('Failed to fetch models:', error);
+  } catch (err) {
+    console.error('Failed to fetch models:', err);
     readyModels.value = [];
+    error.value = err instanceof Error ? err.message : 'Failed to load models';
   }
 }
 
@@ -316,6 +344,78 @@ onMounted(async () => {
 
   &:active {
     transform: scale(0.98);
+  }
+}
+
+// 空状态和错误状态样式
+.empty-state,
+.error-state {
+  text-align: center;
+  padding: 60px 40px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+    margin-top: 16px;
+  }
+
+  .empty-icon,
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+
+    @media (max-width: 768px) {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+  }
+
+  h3,
+  h4 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
+  }
+
+  p {
+    margin: 0 0 24px 0;
+    color: #6c757d;
+    line-height: 1.5;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+
+    @media (max-width: 768px) {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+  }
+
+  .empty-actions,
+  .error-actions {
+    margin-top: 20px;
+
+    .action-btn {
+      min-width: 120px;
+    }
+  }
+}
+
+.error-state {
+  .error-icon {
+    color: #dc3545;
+  }
+
+  h3,
+  h4 {
+    color: #dc3545;
   }
 }
 </style>

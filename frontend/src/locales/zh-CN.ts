@@ -16,6 +16,8 @@ export default {
     yes: '是',
     no: '否',
     submit: '提交',
+    refresh: '刷新',
+    retry: '重试',
   },
   navigation: {
     menu: '菜单',
@@ -240,6 +242,8 @@ export default {
       style: '风格',
     },
     uploading: '上传中',
+    noModelsAvailable: '暂无可用模型',
+    noModelsDescription: '当前没有就绪状态的模型可供使用，请联系管理员添加模型或稍后再试。',
     uploadPlaceholder: {
       glb: '点击或拖拽GLB/GLTF文件到此区域',
       preview: '点击或拖拽预览图片到此区域',
