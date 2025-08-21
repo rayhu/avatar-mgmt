@@ -157,7 +157,7 @@ jobs:
         with:
           host: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_HOST || vars.STAGING_HOST }}
           username: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_USERNAME || vars.STAGING_USERNAME }}
-          key: ${{ needs.validate-inputs.outputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || vars.STAGING_SSH_KEY }}
+          key: ${{ needs.validate-inputs.outputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || secrets.STAGING_SSH_KEY }}
           script: |
             echo "🚀 Starting manual deployment..."
             echo "=========================================="
