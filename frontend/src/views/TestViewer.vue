@@ -101,17 +101,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModelViewer from '../components/ModelViewer.vue';
 import ModelCard from '../components/ModelCard.vue';
-import {
-  getActionAnimations,
-  getEmotionAnimations,
-  getAnimationByCallName,
-} from '../config/animations';
 import { logger } from '../utils/logger';
 import { useModelSelection } from '../composables/useModelSelection';
+import { useModelAnimations } from '../composables/useModelAnimations';
 import type { Avatar } from '../types/avatar';
 
 const { t } = useI18n();
@@ -122,12 +118,33 @@ const modelSelection = useModelSelection();
 const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyModels } =
   modelSelection;
 
+// 使用动态动画配置
+const modelAnimations = useModelAnimations(selectedModel);
+const {
+  availableActions,
+  availableEmotions,
+  updateAnimationsForCurrentModel,
+  getAnimationByCallName,
+} = modelAnimations;
+
 const currentAnimation = ref<string>('');
 const currentEmotion = ref<string>('');
 
-// 使用配置文件中的动画，而不是硬编码
-const animations = getActionAnimations().map((anim: any) => anim.callName);
-const emotions = getEmotionAnimations().map((anim: any) => anim.callName);
+// 动态获取可用的动画和表情
+const animations = computed(() => availableActions.value.map(anim => anim.callName));
+const emotions = computed(() => availableEmotions.value.map(anim => anim.callName));
+
+// 监听模型选择变化，更新动画配置
+watch(
+  selectedModel,
+  newModel => {
+    if (newModel) {
+      console.log('🔄 TestViewer: 模型选择变化，更新动画配置', newModel.name);
+      updateAnimationsForCurrentModel();
+    }
+  },
+  { immediate: true }
+);
 
 // 获取动画显示名称
 function getAnimationDisplayName(callName: string): string {
@@ -141,9 +158,9 @@ function getAnimationDisplayName(callName: string): string {
 // 获取动画工具提示（包含 duration 信息）
 function getAnimationTooltip(callName: string): string {
   const animation = getAnimationByCallName(callName);
-  if (animation && animation.type === 'action' && 'parameters' in animation) {
-    const duration = animation.parameters?.duration;
-    const loop = animation.parameters?.loop;
+  if (animation && animation.parameters) {
+    const duration = animation.parameters.duration;
+    const loop = animation.parameters.loop;
     const description = animation.description || '';
 
     let tooltip = description;
@@ -193,10 +210,10 @@ function playAnimation(animation: string): void {
     const animationConfig = getAnimationByCallName(animation);
     if (animationConfig) {
       console.log('Playing animation:', animationConfig.actualName);
-      // 如果是动作动画，传递 duration 和 loop 参数
-      if (animationConfig.type === 'action' && 'parameters' in animationConfig) {
-        const duration = animationConfig.parameters?.duration;
-        const loop = animationConfig.parameters?.loop ?? true;
+      // 如果有参数配置，传递 duration 和 loop 参数
+      if (animationConfig.parameters) {
+        const duration = animationConfig.parameters.duration;
+        const loop = animationConfig.parameters.loop ?? true;
         modelViewer.value.playAnimation(animationConfig.actualName, duration, loop);
       } else {
         // 其他类型动画使用默认参数

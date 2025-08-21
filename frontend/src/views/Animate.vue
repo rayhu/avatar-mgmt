@@ -492,7 +492,7 @@ import { availableVoices, fetchVoices, type VoiceOption } from '@/api/azureTTS';
 import { synthesizeSpeech as synthesizeSpeechBackend } from '@/api/BackendAzureTTS';
 import { generateSSMLBackend } from '@/api/openaiBackend';
 
-import { getActionAnimations, getEmotionAnimations } from '@/config/animations';
+// 移除旧的静态配置导入
 
 // 导入组合式函数
 import { useRecording } from '@/composables/useRecording';
@@ -500,6 +500,7 @@ import { useTimeline } from '@/composables/useTimeline';
 import { useBackground } from '@/composables/useBackground';
 import { useAnimation } from '@/composables/useAnimation';
 import { useModelSelection } from '@/composables/useModelSelection';
+import { useModelAnimations } from '@/composables/useModelAnimations';
 
 interface Keyframe {
   id: string;
@@ -517,6 +518,15 @@ const text = ref('你好，我是数字人，这是一个小小的演示，大�
 const modelSelection = useModelSelection();
 const { readyModels, selectedModel, currentEmotion, currentAction, error, fetchReadyModels } =
   modelSelection;
+
+// 使用动态动画配置
+const modelAnimations = useModelAnimations(selectedModel);
+const {
+  availableActions,
+  availableEmotions,
+  updateAnimationsForCurrentModel,
+  getAnimationByCallName,
+} = modelAnimations;
 
 // 先创建processing状态的ref，稍后会被useAnimation覆盖
 const isProcessing = ref(false);
@@ -547,18 +557,22 @@ const distanceStep = 0.1;
 const offsetStep = 0.5;
 const scaleStep = 0.1;
 
-// 从配置文件获取动作和表情数据
-const actionAnimations = getActionAnimations();
-const emotionAnimations = getEmotionAnimations();
-
 // 提取动作名称数组（用于下拉框）
-const actions = computed(() =>
-  actionAnimations.filter(anim => anim.enabled).map(anim => anim.actualName)
-);
+const actions = computed(() => availableActions.value.map(anim => anim.actualName));
 
 // 提取表情名称数组（用于下拉框）
-const emotions = computed(() =>
-  emotionAnimations.filter(anim => anim.enabled).map(anim => anim.actualName)
+const emotions = computed(() => availableEmotions.value.map(anim => anim.actualName));
+
+// 监听模型选择变化，更新动画配置
+watch(
+  selectedModel,
+  newModel => {
+    if (newModel) {
+      console.log('🔄 Animate: 模型选择变化，更新动画配置', newModel.name);
+      updateAnimationsForCurrentModel();
+    }
+  },
+  { immediate: true }
 );
 
 const charCount = computed({
@@ -806,10 +820,10 @@ function debugCurrentState() {
 }
 // isProcessing 和 audioUrl 已移至 useAnimation 组合式函数中
 
-// 时间轴相关
+// 时间轴相关 - 使用动态动画配置
 const timeline = useTimeline(
-  actionAnimations,
-  emotionAnimations,
+  availableActions.value,
+  availableEmotions.value,
   modelViewer,
   currentAction,
   currentEmotion
@@ -832,8 +846,8 @@ const {
   onDrag,
   stopDrag,
   onTrackClick,
-  getActionDisplayName,
-  getEmotionDisplayName,
+  getActionDisplayName: timelineGetActionDisplayName,
+  getEmotionDisplayName: timelineGetEmotionDisplayName,
 } = timeline;
 
 // 视频录制相关
@@ -923,6 +937,21 @@ onUnmounted(() => {
 });
 
 // 时间轴相关函数已移至 useTimeline 组合式函数中
+
+// 替换使用动态配置的显示名称函数
+function getActionDisplayName(actionName: string): string {
+  const animation =
+    getAnimationByCallName(actionName) ||
+    availableActions.value.find(anim => anim.actualName === actionName);
+  return animation ? animation.displayName : `animate.actions.${actionName}`;
+}
+
+function getEmotionDisplayName(emotionName: string): string {
+  const animation =
+    getAnimationByCallName(emotionName) ||
+    availableEmotions.value.find(anim => anim.actualName === emotionName);
+  return animation ? animation.displayName : `animate.emotions.${emotionName}`;
+}
 
 // 关键帧相关函数已移至 useTimeline 组合式函数中
 

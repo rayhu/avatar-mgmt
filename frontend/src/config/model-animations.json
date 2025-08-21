@@ -1,0 +1,380 @@
+{
+  "models": {
+    "袋袋基础版": {
+      "id": 1,
+      "name": "袋袋基础版",
+      "defaultConfig": true,
+      "animations": {
+        "actions": [
+          {
+            "actualName": "Idle",
+            "callName": "idle",
+            "displayName": "animate.actions.idle",
+            "description": "待机动画，角色保持静止状态",
+            "category": "basic",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Walking",
+            "callName": "walking",
+            "displayName": "animate.actions.walking",
+            "description": "行走动画，角色向前移动",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Running",
+            "callName": "running",
+            "displayName": "animate.actions.running",
+            "description": "奔跑动画，角色快速移动",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 1.0,
+              "speed": 1.2
+            }
+          },
+          {
+            "actualName": "Wave",
+            "callName": "wave",
+            "displayName": "animate.actions.wave",
+            "description": "挥手动画，角色挥手打招呼",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Dance",
+            "callName": "dance",
+            "displayName": "animate.actions.dance",
+            "description": "舞蹈动画，角色跳舞",
+            "category": "entertainment",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 3.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Yes",
+            "callName": "yes",
+            "displayName": "animate.actions.yes",
+            "description": "点头动画，角色点头表示肯定",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "No",
+            "callName": "no",
+            "displayName": "animate.actions.no",
+            "description": "摇头动画，角色摇头表示否定",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          }
+        ],
+        "emotions": [
+          {
+            "actualName": "Angry",
+            "callName": "angry",
+            "displayName": "animate.emotions.angry",
+            "description": "生气表情，角色表现出愤怒",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["angry"]
+          },
+          {
+            "actualName": "Surprised",
+            "callName": "surprised",
+            "displayName": "animate.emotions.surprised",
+            "description": "惊讶表情，角色表现出惊讶",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["surprised"]
+          },
+          {
+            "actualName": "Sad",
+            "callName": "sad",
+            "displayName": "animate.emotions.sad",
+            "description": "悲伤表情，角色表现出悲伤",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["sad"]
+          }
+        ]
+      }
+    },
+    "袋袋高级版": {
+      "id": 2,
+      "name": "袋袋高级版",
+      "animations": {
+        "actions": [
+          {
+            "actualName": "Idle",
+            "callName": "idle",
+            "displayName": "animate.actions.idle",
+            "description": "待机动画，角色保持静止状态",
+            "category": "basic",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Walking",
+            "callName": "walking",
+            "displayName": "animate.actions.walking",
+            "description": "行走动画，角色向前移动",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Running",
+            "callName": "running",
+            "displayName": "animate.actions.running",
+            "description": "奔跑动画，角色快速移动",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 1.0,
+              "speed": 1.2
+            }
+          },
+          {
+            "actualName": "Jump",
+            "callName": "jump",
+            "displayName": "animate.actions.jump",
+            "description": "跳跃动画，角色向上跳跃",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Wave",
+            "callName": "wave",
+            "displayName": "animate.actions.wave",
+            "description": "挥手动画，角色挥手打招呼",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Dance",
+            "callName": "dance",
+            "displayName": "animate.actions.dance",
+            "description": "舞蹈动画，角色跳舞",
+            "category": "entertainment",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 3.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "ThumbsUp",
+            "callName": "thumbsUp",
+            "displayName": "animate.actions.thumbsUp",
+            "description": "点赞动画，角色竖起大拇指",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Punch",
+            "callName": "punch",
+            "displayName": "animate.actions.punch",
+            "description": "出拳动画，角色出拳攻击",
+            "category": "combat",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Yes",
+            "callName": "yes",
+            "displayName": "animate.actions.yes",
+            "description": "点头动画，角色点头表示肯定",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "No",
+            "callName": "no",
+            "displayName": "animate.actions.no",
+            "description": "摇头动画，角色摇头表示否定",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "WalkJump",
+            "callName": "walkJump",
+            "displayName": "animate.actions.walkJump",
+            "description": "行走跳跃动画，角色边走边跳",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          }
+        ],
+        "emotions": [
+          {
+            "actualName": "Angry",
+            "callName": "angry",
+            "displayName": "animate.emotions.angry",
+            "description": "生气表情，角色表现出愤怒",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["angry"]
+          },
+          {
+            "actualName": "Surprised",
+            "callName": "surprised",
+            "displayName": "animate.emotions.surprised",
+            "description": "惊讶表情，角色表现出惊讶",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["surprised"]
+          },
+          {
+            "actualName": "Sad",
+            "callName": "sad",
+            "displayName": "animate.emotions.sad",
+            "description": "悲伤表情，角色表现出悲伤",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["sad"]
+          },
+          {
+            "actualName": "Happy",
+            "callName": "happy",
+            "displayName": "animate.emotions.happy",
+            "description": "开心表情，角色表现出快乐",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["happy"]
+          }
+        ]
+      }
+    },
+    "default": {
+      "name": "默认配置",
+      "description": "当没有找到特定模型配置时使用的默认配置",
+      "animations": {
+        "actions": [
+          {
+            "actualName": "Idle",
+            "callName": "idle",
+            "displayName": "animate.actions.idle",
+            "description": "待机动画，角色保持静止状态",
+            "category": "basic",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Walking",
+            "callName": "walking",
+            "displayName": "animate.actions.walking",
+            "description": "行走动画，角色向前移动",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": true,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "Wave",
+            "callName": "wave",
+            "displayName": "animate.actions.wave",
+            "description": "挥手动画，角色挥手打招呼",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          }
+        ],
+        "emotions": [
+          {
+            "actualName": "Angry",
+            "callName": "angry",
+            "displayName": "animate.emotions.angry",
+            "description": "生气表情，角色表现出愤怒",
+            "intensity": 1.0,
+            "enabled": true,
+            "morphTargets": ["angry"]
+          }
+        ]
+      }
+    }
+  }
+}
