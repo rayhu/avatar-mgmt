@@ -14,7 +14,8 @@
           {{ t('modelManagement.uploadModel') }}
         </button>
       </div>
-      <div class="model-list">
+
+      <div v-if="avatars.length > 0" class="model-list">
         <div v-for="model in avatars" :key="model.id" class="model-item">
           <div class="model-preview">
             <ModelCard :preview-url="model.previewUrl" />
@@ -41,6 +42,33 @@
               {{ t('modelManagement.editModel') }}
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- 错误状态 -->
+      <div v-else-if="error" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <h3>{{ t('common.error') }}</h3>
+        <p>{{ error }}</p>
+        <div class="error-actions">
+          <button class="action-btn primary" @click="fetchAllModels">
+            {{ t('common.retry') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 空状态提示 -->
+      <div v-else class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>{{ t('common.noData') }}</h3>
+        <p>{{ t('modelManagement.noModelsDescription') }}</p>
+        <div class="empty-actions">
+          <button class="action-btn outline" @click="fetchAllModels">
+            {{ t('common.refresh') }}
+          </button>
+          <button class="action-btn primary" @click="openUploadModal">
+            {{ t('modelManagement.uploadModel') }}
+          </button>
         </div>
       </div>
     </template>
@@ -76,6 +104,7 @@ const { t } = useI18n();
 
 const avatars = ref<Avatar[]>([]);
 const loading = ref(true);
+const error = ref<string>('');
 const isEditModalVisible = ref(false);
 const editingAvatar = ref<Avatar | null>(null);
 const isUploadModalVisible = ref(false);
@@ -88,16 +117,20 @@ function formatDate(date?: string) {
 // 获取所有模型列表
 async function fetchAllModels() {
   try {
-    const models = await getAvatars();
+    error.value = '';
+    const models = await getAvatars(); // 包含已删除的模型
+
     if (Array.isArray(models)) {
       avatars.value = models;
     } else {
       console.error('Invalid models data:', models);
       avatars.value = [];
+      error.value = 'Invalid data format received from server';
     }
-  } catch (error) {
-    console.error('Failed to fetch models:', error);
+  } catch (err) {
+    console.error('Failed to fetch models:', err);
     avatars.value = [];
+    error.value = err instanceof Error ? err.message : 'Failed to load models';
   }
 }
 
@@ -390,6 +423,113 @@ onMounted(async () => {
     .action-btn {
       padding: 10px 16px;
       font-size: 15px;
+    }
+  }
+}
+
+// 空状态和错误状态样式
+.empty-state,
+.error-state {
+  text-align: center;
+  padding: 60px 40px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+    margin-top: 16px;
+  }
+
+  .empty-icon,
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+
+    @media (max-width: 768px) {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+  }
+
+  h3,
+  h4 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
+  }
+
+  p {
+    margin: 0 0 24px 0;
+    color: #6c757d;
+    line-height: 1.5;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+
+    @media (max-width: 768px) {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+  }
+
+  .empty-actions,
+  .error-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+
+      .action-btn {
+        min-width: 200px;
+      }
+    }
+
+    .action-btn {
+      min-width: 120px;
+    }
+  }
+}
+
+.error-state {
+  .error-icon {
+    color: #dc3545;
+  }
+
+  h3,
+  h4 {
+    color: #dc3545;
+  }
+}
+
+// 为 action-btn 添加更多样式变体
+.action-btn {
+  &.primary {
+    background: $primary-color;
+    color: white;
+
+    &:hover {
+      background: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+
+  &.outline {
+    background: transparent;
+    color: $primary-color;
+    border: 1px solid $primary-color;
+
+    &:hover {
+      background: $primary-color;
+      color: white;
     }
   }
 }

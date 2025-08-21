@@ -58,6 +58,7 @@ export function useModelSelection(): ModelSelectionState {
   // 根据路由参数自动选择模型
   function autoSelectModelFromRoute() {
     const modelId = route.query.modelId as string;
+
     if (modelId && readyModels.value.length > 0) {
       // 支持字符串和数字ID的匹配，统一转换为字符串进行比较
       const targetModel = readyModels.value.find(model => {
@@ -74,7 +75,16 @@ export function useModelSelection(): ModelSelectionState {
           '可用ID:',
           readyModels.value.map(m => m.id)
         );
+        // 如果指定的模型ID不存在，选择第一个可用模型
+        if (readyModels.value.length > 0 && !selectedModel.value) {
+          console.log('🎯 自动选择第一个可用模型:', readyModels.value[0].name);
+          selectModel(readyModels.value[0]);
+        }
       }
+    } else if (readyModels.value.length > 0 && !selectedModel.value) {
+      // 如果没有路由参数，且当前没有选中模型，自动选择第一个可用模型
+      console.log('🎯 自动选择第一个可用模型:', readyModels.value[0].name);
+      selectModel(readyModels.value[0]);
     }
   }
 

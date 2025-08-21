@@ -27,9 +27,10 @@ export async function getAvatars(includeDeleted?: boolean): Promise<Avatar[]> {
 
     const rawAvatars = response.data;
 
-    // 为每个avatar构建正确的previewUrl
+    // 为每个avatar构建正确的previewUrl和url
     let avatars: Avatar[] = rawAvatars.map((avatar: any) => ({
       ...avatar,
+      url: avatar.glb_file ? buildAssetUrl(avatar.glb_file) : '',
       previewUrl: avatar.preview ? buildAssetUrl(avatar.preview) : undefined,
     }));
 
@@ -59,13 +60,14 @@ export async function getAvatars(includeDeleted?: boolean): Promise<Avatar[]> {
       duration,
     });
 
-    logger.warn('/api/avatars unavailable, returning empty array', {
+    logger.warn('/api/avatars unavailable, throwing error', {
       component: 'AvatarsAPI',
       method: 'getAvatars',
       error: error.message,
     });
 
-    return [];
+    // 抛出错误而不是返回空数组，让调用者决定如何处理
+    throw error;
   }
 }
 
@@ -95,9 +97,10 @@ export async function uploadAvatar(formData: FormData): Promise<Avatar> {
     const result = response.data;
     const avatar = result.data;
 
-    // 构建正确的previewUrl
+    // 构建正确的previewUrl和url
     const processedAvatar: Avatar = {
       ...avatar,
+      url: avatar.glb_file ? buildAssetUrl(avatar.glb_file) : '',
       previewUrl: avatar.preview ? buildAssetUrl(avatar.preview) : undefined,
     };
 

@@ -57,7 +57,7 @@
     <!-- <div class="viewer-container">
       <ModelViewer
         ref="modelViewer"
-        :model-url="selectedModel?.url || '/models/default.glb'"
+        :model-url="selectedModel?.url"
         :auto-rotate="true"
         :show-controls="true"
       />

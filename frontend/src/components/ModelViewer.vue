@@ -76,8 +76,10 @@ function initScene() {
   directionalLight.position.set(1, 1, 1);
   scene.add(directionalLight);
 
-  // 加载默认模型
-  loadModel('/models/default.glb');
+  // 如果有传入的 modelUrl，则加载；否则不加载任何模型
+  if (props.modelUrl) {
+    loadModel(props.modelUrl);
+  }
 
   // 开始动画循环
   function animate() {

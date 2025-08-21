@@ -20,5 +20,8 @@ fi
 echo "📝 Running lint-staged for staged files..."
 npx --no-install lint-staged
 
+yarn format
+yarn i18n:check
+
 echo "✅ Pre-commit checks passed!"
 echo "💡 Note: Full type-check and i18n validation will run in CI"

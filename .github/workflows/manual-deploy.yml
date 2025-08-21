@@ -1,5 +1,5 @@
 # .github/workflows/manual-deploy.yml
-name: Manual Deployment
+name: Manual Deployment - ${{ github.event.inputs.version }} → ${{ github.event.inputs.environment }}
 on:
   workflow_dispatch:
     inputs:
@@ -29,6 +29,8 @@ jobs:
       is_valid: ${{ steps.validation.outputs.is_valid }}
       image_tag: ${{ steps.validation.outputs.image_tag }}
       environment: ${{ steps.validation.outputs.environment }}
+      version_display: ${{ steps.validation.outputs.version_display }}
+      version_type: ${{ steps.validation.outputs.version_type }}
     steps:
       - name: Validate deployment inputs
         id: validation
@@ -45,18 +47,28 @@ jobs:
             exit 1
           fi
 
-          # 设置镜像标签
+          # 设置镜像标签和版本显示
           VERSION="${{ github.event.inputs.version }}"
-          if [[ "$VERSION" == "latest" || "$VERSION" == "staging" ]]; then
+          if [[ "$VERSION" == "latest" ]]; then
             IMAGE_TAG="$VERSION"
+            VERSION_DISPLAY="latest (main branch)"
+            VERSION_TYPE="latest"
+          elif [[ "$VERSION" == "staging" ]]; then
+            IMAGE_TAG="$VERSION"
+            VERSION_DISPLAY="staging (main branch)"
+            VERSION_TYPE="staging"
           elif [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
             IMAGE_TAG="$VERSION"
+            VERSION_DISPLAY="$VERSION"
+            VERSION_TYPE="release"
           else
             echo "❌ Invalid version format: $VERSION"
             echo "Expected formats: latest, staging, v1.0.0, v1.0.0-beta.1"
             if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
               echo "⚠️ Force deploy enabled, proceeding with version: $VERSION"
               IMAGE_TAG="$VERSION"
+              VERSION_DISPLAY="$VERSION (forced)"
+              VERSION_TYPE="custom"
             else
               echo "is_valid=false" >> $GITHUB_OUTPUT
               exit 1
@@ -66,10 +78,38 @@ jobs:
           echo "is_valid=true" >> $GITHUB_OUTPUT
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
           echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          echo "version_display=$VERSION_DISPLAY" >> $GITHUB_OUTPUT
+          echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
 
           echo "✅ Validation passed"
           echo "  Environment: ${{ github.event.inputs.environment }}"
           echo "  Image Tag: $IMAGE_TAG"
+          echo "  Version Display: $VERSION_DISPLAY"
+          echo "  Version Type: $VERSION_TYPE"
+
+      - name: Display version information
+        run: |
+          echo "🏷️ Version Information:"
+          echo "  Input Version: ${{ github.event.inputs.version }}"
+          echo "  Display Version: ${{ steps.validation.outputs.version_display }}"
+          echo "  Version Type: ${{ steps.validation.outputs.version_type }}"
+          echo "  Image Tag: ${{ steps.validation.outputs.image_tag }}"
+          echo "  Environment: ${{ steps.validation.outputs.environment }}"
+          echo "  Repository: ${{ github.repository }}"
+          echo "  Triggered by: ${{ github.actor }}"
+          echo "  Commit: ${{ github.sha }}"
+          echo "  Branch: ${{ github.ref_name }}"
+
+          echo ""
+          echo "🌍 Environment Information:"
+          echo "  Target Environment: ${{ steps.validation.outputs.environment }}"
+          if [[ "${{ steps.validation.outputs.environment }}" == "production" ]]; then
+            echo "  🚨 PRODUCTION DEPLOYMENT - HIGH RISK"
+            echo "  ⚠️  This will deploy to production environment!"
+          else
+            echo "  🧪 STAGING DEPLOYMENT - TEST ENVIRONMENT"
+            echo "  ✅ Safe for testing and validation"
+          fi
 
       - name: Log in to Container Registry
         if: github.event.inputs.force_deploy == 'false'
@@ -117,15 +157,40 @@ jobs:
         with:
           host: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_HOST || vars.STAGING_HOST }}
           username: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_USERNAME || vars.STAGING_USERNAME }}
-          key: ${{ needs.validate-inputs.outputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || secrets.STAGING_SSH_KEY }}
+          key: ${{ needs.validate-inputs.outputs.environment == 'production' && secrets.PRODUCTION_SSH_KEY || vars.STAGING_SSH_KEY }}
           script: |
             echo "🚀 Starting manual deployment..."
+            echo "=========================================="
+            echo "🏷️ VERSION: ${{ needs.validate-inputs.outputs.version_display }}"
+            echo "🏷️ VERSION TYPE: ${{ needs.validate-inputs.outputs.version_type }}"
+            echo "=========================================="
+
+            # 环境标识显示
+            if [[ "${{ needs.validate-inputs.outputs.environment }}" == "production" ]]; then
+              echo "🚨🚨🚨 PRODUCTION DEPLOYMENT 🚨🚨🚨"
+              echo "🚨🚨🚨 PRODUCTION DEPLOYMENT 🚨🚨🚨"
+              echo "🚨🚨🚨 PRODUCTION DEPLOYMENT 🚨🚨🚨"
+              echo "=========================================="
+              echo "⚠️  HIGH RISK: This will affect live users!"
+              echo "⚠️  HIGH RISK: This will affect live users!"
+              echo "=========================================="
+            else
+              echo "🧪🧪🧪 STAGING DEPLOYMENT 🧪🧪🧪"
+              echo "🧪🧪🧪 STAGING DEPLOYMENT 🧪🧪🧪"
+              echo "🧪🧪🧪 STAGING DEPLOYMENT 🧪🧪🧪"
+              echo "=========================================="
+              echo "✅  SAFE: This is a test environment"
+              echo "✅  SAFE: This is a test environment"
+              echo "=========================================="
+            fi
+
             echo "Target Environment: ${{ needs.validate-inputs.outputs.environment }}"
             echo "Target Host: ${{ needs.validate-inputs.outputs.environment == 'production' && vars.PRODUCTION_HOST || vars.STAGING_HOST }}"
             echo "Image Tag: ${{ needs.validate-inputs.outputs.image_tag }}"
             echo "Repository: ${{ github.repository }}"
             echo "Triggered by: ${{ github.actor }}"
             echo "Deploy time: $(date)"
+            echo "=========================================="
 
             # 设置部署目录
             if [ "${{ needs.validate-inputs.outputs.environment }}" = "production" ]; then
@@ -221,6 +286,21 @@ jobs:
         if: success()
         run: |
           echo "✅ Manual deployment successful!"
+          echo "=========================================="
+          echo "🏷️ VERSION: ${{ needs.validate-inputs.outputs.version_display }}"
+          echo "🏷️ VERSION TYPE: ${{ needs.validate-inputs.outputs.version_type }}"
+          echo "=========================================="
+
+          # 环境标识显示
+          if [[ "${{ needs.validate-inputs.outputs.environment }}" == "production" ]]; then
+            echo "🚨🚨🚨 PRODUCTION DEPLOYMENT SUCCESS 🚨🚨🚨"
+            echo "⚠️  LIVE USERS ARE NOW USING THE NEW VERSION!"
+          else
+            echo "🧪🧪🧪 STAGING DEPLOYMENT SUCCESS 🧪🧪🧪"
+            echo "✅  TEST ENVIRONMENT IS READY FOR TESTING!"
+          fi
+          echo "=========================================="
+
           echo "Environment: ${{ needs.validate-inputs.outputs.environment }}"
           echo "Version: ${{ needs.validate-inputs.outputs.image_tag }}"
           echo "Repository: ${{ github.repository }}"
@@ -231,6 +311,23 @@ jobs:
         if: failure()
         run: |
           echo "❌ Manual deployment failed!"
+          echo "=========================================="
+          echo "🏷️ VERSION: ${{ needs.validate-inputs.outputs.version_display }}"
+          echo "🏷️ VERSION TYPE: ${{ needs.validate-inputs.outputs.version_type }}"
+          echo "=========================================="
+
+          # 环境标识显示
+          if [[ "${{ needs.validate-inputs.outputs.environment }}" == "production" ]]; then
+            echo "🚨🚨🚨 PRODUCTION DEPLOYMENT FAILED 🚨🚨🚨"
+            echo "⚠️  PRODUCTION ENVIRONMENT IS NOT AFFECTED!"
+            echo "⚠️  URGENT: Please fix and redeploy immediately!"
+          else
+            echo "🧪🧪🧪 STAGING DEPLOYMENT FAILED 🧪🧪🧪"
+            echo "✅  STAGING ENVIRONMENT IS NOT AFFECTED!"
+            echo "🔧  Please fix and redeploy to staging first."
+          fi
+          echo "=========================================="
+
           echo "Environment: ${{ needs.validate-inputs.outputs.environment }}"
           echo "Version: ${{ needs.validate-inputs.outputs.image_tag }}"
           echo "Repository: ${{ github.repository }}"
