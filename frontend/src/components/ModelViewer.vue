@@ -1,12 +1,48 @@
 <template>
-  <div ref="container" class="model-viewer"></div>
+  <div ref="container" class="model-viewer">
+    <!-- 加载状态覆盖层 -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+        </div>
+        <div class="loading-text">
+          <h3>{{ t('modelViewer.loading.title') }}</h3>
+          <p>{{ t('modelViewer.loading.subtitle') }}</p>
+          <div class="loading-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" :style="{ width: loadingProgress + '%' }"></div>
+            </div>
+            <span class="progress-text">{{ Math.round(loadingProgress) }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错误状态覆盖层 -->
+    <div v-if="loadError" class="error-overlay">
+      <div class="error-content">
+        <div class="error-icon">⚠️</div>
+        <h3>{{ t('modelViewer.error.title') }}</h3>
+        <p>{{ loadError }}</p>
+        <button class="retry-btn" @click="retryLoad">
+          {{ t('common.retry') }}
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   modelUrl?: string;
@@ -28,6 +64,12 @@ let availableAnimations: THREE.AnimationClip[] = [];
 let animationLoop: number | null = null;
 let currentAnimationAction: THREE.AnimationAction | null = null;
 let lastVisemeIndex: number | null = null;
+
+// 加载状态管理
+const isLoading = ref(false);
+const loadingProgress = ref(0);
+const loadError = ref<string | null>(null);
+const currentModelUrl = ref<string | null>(null);
 
 // 背景图片相关
 let backgroundTexture: THREE.Texture | null = null;
@@ -103,9 +145,39 @@ async function loadModel(url: string) {
     return;
   }
 
+  // 重置状态
+  isLoading.value = true;
+  loadingProgress.value = 0;
+  loadError.value = null;
+  currentModelUrl.value = url;
+
   console.log('📦 Loading model from:', url);
-  const loader = new GLTFLoader();
+
   try {
+    const loader = new GLTFLoader();
+
+    // 创建加载管理器来跟踪进度
+    const loadingManager = new THREE.LoadingManager();
+
+    loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      const progress = (itemsLoaded / itemsTotal) * 100;
+      loadingProgress.value = progress;
+      console.log(`📊 Loading progress: ${progress.toFixed(1)}%`);
+    };
+
+    loadingManager.onLoad = () => {
+      console.log('✅ All resources loaded');
+      loadingProgress.value = 100;
+    };
+
+    loadingManager.onError = url => {
+      console.error('❌ Error loading resource:', url);
+      loadError.value = `Failed to load resource: ${url}`;
+    };
+
+    // 将加载管理器分配给 GLTFLoader
+    loader.manager = loadingManager;
+
     const gltf = await loader.loadAsync(url);
     console.log('✅ Model loaded successfully:', gltf);
 
@@ -190,9 +262,25 @@ async function loadModel(url: string) {
         position: camera.position.toArray(),
         target: controls.target.toArray(),
       });
+
+      // 加载完成，隐藏加载界面
+      setTimeout(() => {
+        isLoading.value = false;
+        loadingProgress.value = 0;
+      }, 500); // 延迟 500ms 让用户看到 100% 进度
     }
   } catch (error) {
     console.error('❌ Error loading model:', error);
+    loadError.value = error instanceof Error ? error.message : 'Unknown error occurred';
+    isLoading.value = false;
+  }
+}
+
+// 重试加载
+function retryLoad() {
+  if (currentModelUrl.value) {
+    loadError.value = null;
+    loadModel(currentModelUrl.value);
   }
 }
 
@@ -664,5 +752,166 @@ export default {
   background: #f0f0f0;
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
+}
+
+/* 加载覆盖层 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  text-align: center;
+  max-width: 300px;
+}
+
+.loading-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+}
+
+.spinner-ring:nth-child(2) {
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+  border-top-color: #28a745;
+  animation-delay: 0.5s;
+}
+
+.spinner-ring:nth-child(3) {
+  width: 40%;
+  height: 40%;
+  top: 30%;
+  left: 30%;
+  border-top-color: #ffc107;
+  animation-delay: 1s;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.loading-text p {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-progress {
+  margin-top: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #28a745);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 错误覆盖层 */
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.error-content {
+  text-align: center;
+  max-width: 300px;
+  padding: 20px;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.error-content h3 {
+  margin: 0 0 10px 0;
+  color: #dc3545;
+  font-size: 18px;
+}
+
+.error-content p {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.retry-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-btn:hover {
+  background: #0056b3;
+}
+
+.retry-btn:active {
+  transform: translateY(1px);
 }
 </style>

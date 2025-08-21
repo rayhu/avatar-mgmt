@@ -11,8 +11,11 @@ services:
       - .env.directus
     environment:
       POSTGRES_DB: directus
+      # 确保使用正确的用户 ID
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./db_data:/var/lib/postgresql/data
+    user: "999:999"  # 明确指定用户 ID
     networks:
       - jc21-network
     healthcheck:

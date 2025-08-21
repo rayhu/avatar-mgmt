@@ -105,7 +105,7 @@ export IMAGE_TAG
 
 # 登录 GHCR (如果需要)
 echo "🔐 检查 GHCR 登录状态..."
-if ! docker info | grep -q "Username"; then
+if ! sudo docker info | grep -q "Username"; then
     echo "⚠️  未登录 GHCR，尝试登录..."
     if [ -n "$GITHUB_TOKEN" ]; then
         echo "$GITHUB_TOKEN" | sudo docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
