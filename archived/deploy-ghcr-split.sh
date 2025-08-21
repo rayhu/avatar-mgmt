@@ -42,6 +42,10 @@ sudo mkdir -p /opt/deploy-avatar/directus/extensions
 sudo mkdir -p /opt/deploy-avatar/directus/schemas
 
 sudo chown -R $USER:$USER /opt/deploy-avatar
+## 确保db_data目录权限正确
+echo "🔧 确保db_data目录权限正确..."
+sudo chown -R 999:999 /opt/deploy-avatar/db_data/
+sudo chmod -R 700 /opt/deploy-avatar/db_data/
 
 cd /opt/deploy-avatar
 

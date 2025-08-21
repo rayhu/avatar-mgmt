@@ -21,6 +21,11 @@ sudo mkdir -p "$DEPLOY_DIR/directus/schemas"
 sudo chown -R $USER:$USER "$DEPLOY_DIR"
 sudo chmod -R 755 "$DEPLOY_DIR"
 
+## 确保db_data目录权限正确
+echo "🔧 确保db_data目录权限正确..."
+sudo chown -R 999:999 $DEPLOY_DIR/db_data/
+sudo chmod -R 700 $DEPLOY_DIR/db_data/
+
 # 复制 docker-compose 文件并检查
 echo "复制 docker-compose.db.yml..."
 if cp "$SOURCE_DIR/docker-compose.db.yml" .; then

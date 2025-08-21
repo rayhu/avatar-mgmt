@@ -38,6 +38,10 @@ echo "Deploy time: $(date)"
 sudo mkdir -p /opt/avatar-mgmt
 sudo chown $USER:$USER /opt/avatar-mgmt
 sudo chmod 755 /opt/avatar-mgmt
+## 确保db_data目录权限正确
+echo "🔧 确保db_data目录权限正确..."
+sudo chown -R 999:999 /opt/deploy-avatar/db_data/
+sudo chmod -R 700 /opt/deploy-avatar/db_data/
 
 cd /opt/avatar-mgmt
 
@@ -56,6 +60,10 @@ else
 fi
 
 sudo chown -R $USER:$USER /opt/avatar-mgmt
+## 确保db_data目录权限正确
+echo "🔧 确保db_data目录权限正确..."
+sudo chown -R 999:999 /opt/deploy-avatar/db_data/
+sudo chmod -R 700 /opt/deploy-avatar/db_data/
 
 # 检查配置文件
 if [ ! -f ".env.api" ]; then

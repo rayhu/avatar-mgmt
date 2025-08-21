@@ -205,9 +205,15 @@ jobs:
             echo "Source directory: $SOURCE_DIR"
 
             # 确保目录存在
+            echo "确保部署目录存在..."
             sudo mkdir -p "$DEPLOY_DIR"
             sudo mkdir -p "$SOURCE_DIR"
             sudo chown -R $USER:$USER "$DEPLOY_DIR" "$SOURCE_DIR"
+
+            ## 确保db_data目录权限正确
+            echo "🔧 确保db_data目录权限正确..."
+            sudo chown -R 999:999 $DEPLOY_DIR/db_data/
+            sudo chmod -R 700 $DEPLOY_DIR/db_data/
 
             # 更新源代码
             cd "$SOURCE_DIR"
