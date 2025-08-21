@@ -96,17 +96,13 @@
           </button>
         </div>
       </div>
-      
+
       <!-- 测试加载界面 -->
       <div class="control-section">
         <h3>测试加载界面</h3>
         <div class="button-group">
-          <button @click="testLoading" class="test-btn">
-            🧪 测试加载界面
-          </button>
-          <button @click="testError" class="test-btn error">
-            ⚠️ 测试错误界面
-          </button>
+          <button @click="testLoading" class="test-btn">🧪 测试加载界面</button>
+          <button @click="testError" class="test-btn error">⚠️ 测试错误界面</button>
         </div>
       </div>
     </div>
@@ -142,7 +138,7 @@ function testLoading() {
     // 模拟加载状态
     modelViewer.value.isLoading = true;
     modelViewer.value.loadingProgress = 0;
-    
+
     // 模拟进度更新
     const interval = setInterval(() => {
       if (modelViewer.value && modelViewer.value.loadingProgress < 100) {
