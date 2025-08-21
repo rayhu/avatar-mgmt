@@ -72,20 +72,31 @@ sudo docker pull "ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG"
 
 # 停止应用服务
 echo "🛑 停止应用服务..."
-sudo docker compose -f docker-compose.ghcr.yml down
+sudo GITHUB_REPOSITORY="$GITHUB_REPOSITORY" IMAGE_TAG="$IMAGE_TAG" docker compose -f docker-compose.ghcr.yml down
+
+# 清理旧容器和镜像缓存（如果有）
+echo "🧹 清理旧容器..."
+sudo docker container prune -f
 
 # 启动应用服务
 echo "🚀 启动应用服务..."
-sudo docker compose -f docker-compose.ghcr.yml up -d
+echo "使用环境变量:"
+echo "  - GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
+echo "  - IMAGE_TAG=$IMAGE_TAG"
+sudo GITHUB_REPOSITORY="$GITHUB_REPOSITORY" IMAGE_TAG="$IMAGE_TAG" docker compose -f docker-compose.ghcr.yml up -d --force-recreate
 
 # 检查服务状态
 echo "🔍 检查服务状态..."
 sleep 10
-sudo docker compose -f docker-compose.ghcr.yml ps
+sudo GITHUB_REPOSITORY="$GITHUB_REPOSITORY" IMAGE_TAG="$IMAGE_TAG" docker compose -f docker-compose.ghcr.yml ps
 
 echo "✅ 部署完成！"
 echo ""
-echo "使用的镜像:"
+echo "📸 验证当前运行的镜像:"
+sudo docker inspect avatar-mgmt-app-api-1 --format='{{.Config.Image}}' 2>/dev/null || echo "API容器未找到"
+sudo docker inspect avatar-mgmt-app-frontend-1 --format='{{.Config.Image}}' 2>/dev/null || echo "Frontend容器未找到"
+echo ""
+echo "预期的镜像:"
 echo "  - API: ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG"
 echo "  - Frontend: ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG"
 echo ""

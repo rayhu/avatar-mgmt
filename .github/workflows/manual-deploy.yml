@@ -210,6 +210,8 @@ jobs:
             # 健康检查
             echo "🔍 Starting health check..."
             export DOCKER_COMPOSE_FILE="docker-compose.ghcr.yml"
+            export GITHUB_REPOSITORY="${{ github.repository }}"
+            export IMAGE_TAG="${{ needs.validate-inputs.outputs.image_tag }}"
             ./health-check.sh
 
             echo "✅ Manual deployment completed successfully!"

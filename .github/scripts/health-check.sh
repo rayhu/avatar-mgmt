@@ -10,7 +10,7 @@ sleep 10
 
 # 检查 Docker 服务状态
 echo "📊 Docker services status:"
-sudo docker compose -f $DOCKER_COMPOSE_FILE ps
+sudo GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}" IMAGE_TAG="${IMAGE_TAG:-latest}" docker compose -f $DOCKER_COMPOSE_FILE ps
 
 # 检查服务健康状态
 echo "🏥 Checking service health..."

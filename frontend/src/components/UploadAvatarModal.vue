@@ -146,6 +146,11 @@
           </div>
         </div>
 
+        <!-- Error message -->
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
         <div class="modal-actions">
           <button type="button" @click="closeModal" class="btn-cancel">
             {{ t('common.cancel') }}
@@ -197,6 +202,7 @@ const isDragOver = ref(false);
 const isPreviewDragOver = ref(false);
 const tagsInput = ref('');
 const previewImageUrl = ref('');
+const errorMessage = ref('');
 
 // File input refs
 const glbFileInput = ref<HTMLInputElement>();
@@ -236,6 +242,7 @@ function resetForm() {
   previewImageUrl.value = '';
   isDragOver.value = false;
   isPreviewDragOver.value = false;
+  errorMessage.value = '';
 }
 
 // Tag management
@@ -377,12 +384,17 @@ async function handleSubmit() {
 
     // Make API call using the avatars API
     const result = await uploadAvatar(formDataToSend);
+
+    // Reset uploading state before closing modal
+    isUploading.value = false;
+
+    // Emit success and close modal
     emit('upload-success', result);
-    closeModal();
+    resetForm();
+    emit('close');
   } catch (error) {
     console.error('Upload failed:', error);
-    // TODO: Show error message to user
-  } finally {
+    errorMessage.value = error instanceof Error ? error.message : '上传失败，请重试';
     isUploading.value = false;
   }
 }
@@ -631,6 +643,16 @@ watch(
       }
     }
   }
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid #f5c6cb;
+  font-size: 14px;
 }
 
 .modal-actions {
