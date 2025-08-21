@@ -239,6 +239,48 @@ jobs:
             cp "$SOURCE_DIR/.github/scripts/health-check.sh" .
             chmod +x deploy-ghcr-simple.sh health-check.sh
 
+            # 复制 docker-compose 文件
+            echo "📂 Copying docker-compose files..."
+            if [ -f "$SOURCE_DIR/docker-compose.ghcr.yml" ]; then
+              cp "$SOURCE_DIR/docker-compose.ghcr.yml" .
+              echo "✅ Copied docker-compose.ghcr.yml"
+              
+              # 立即替换文件中的变量占位符为实际值
+              echo "🔧 Replacing variable placeholders with actual values..."
+              sed -i "s|\${GITHUB_REPOSITORY:-rayhu/avatar-mgmt}|${{ github.repository }}|g" docker-compose.ghcr.yml
+              sed -i "s|\${IMAGE_TAG:-latest}|${{ needs.validate-inputs.outputs.image_tag }}|g" docker-compose.ghcr.yml
+              echo "✅ Replaced variables:"
+              echo "   - \${GITHUB_REPOSITORY:-rayhu/avatar-mgmt} → ${{ github.repository }}"
+              echo "   - \${IMAGE_TAG:-latest} → ${{ needs.validate-inputs.outputs.image_tag }}"
+              
+              # 验证替换结果
+              echo "📋 验证替换后的 docker-compose.ghcr.yml 内容:"
+              echo "=== 镜像引用部分 ==="
+              grep "ghcr.io/" docker-compose.ghcr.yml || echo "⚠️  未找到镜像引用"
+              echo "=================="
+            else
+              echo "❌ Source docker-compose.ghcr.yml not found in $SOURCE_DIR"
+              echo "📋 Available files in source directory:"
+              ls -la "$SOURCE_DIR" | grep docker-compose || echo "No docker-compose files found"
+              exit 1
+            fi
+
+            # 复制数据库相关的 docker-compose 文件（如果存在）
+            if [ -f "$SOURCE_DIR/docker-compose.db.yml" ]; then
+              cp "$SOURCE_DIR/docker-compose.db.yml" .
+              echo "✅ Copied docker-compose.db.yml"
+            else
+              echo "⚠️  docker-compose.db.yml not found, database services may not be available"
+            fi
+
+            # 复制其他相关的 docker-compose 文件（如果存在）
+            for compose_file in docker-compose.jc21.yml; do
+              if [ -f "$SOURCE_DIR/$compose_file" ]; then
+                cp "$SOURCE_DIR/$compose_file" .
+                echo "✅ Copied $compose_file"
+              fi
+            done
+
             # 检查配置文件
             if [ ! -f ".env.api" ]; then
               echo "❌ Config file not found: .env.api"
@@ -253,6 +295,24 @@ jobs:
               exit 1
             fi
 
+            # 修改 docker-compose.ghcr.yml 文件中的镜像标签
+            echo "🔧 Updating docker-compose.ghcr.yml with specific image tags..."
+            if [ -f "docker-compose.ghcr.yml" ]; then
+              # 备份原文件
+              cp docker-compose.ghcr.yml docker-compose.ghcr.yml.backup
+              echo "📋 Backup created: docker-compose.ghcr.yml.backup"
+              
+              # 使用 sed 替换镜像标签，确保使用指定的版本
+              sed -i "s|ghcr.io/.*/api:.*|ghcr.io/${{ github.repository }}/api:${{ needs.validate-inputs.outputs.image_tag }}|g" docker-compose.ghcr.yml
+              sed -i "s|ghcr.io/.*/frontend:.*|ghcr.io/${{ github.repository }}/frontend:${{ needs.validate-inputs.outputs.image_tag }}|g" docker-compose.ghcr.yml
+              
+              echo "✅ Updated docker-compose.ghcr.yml with image tag: ${{ needs.validate-inputs.outputs.image_tag }}"
+              echo "📋 Current image references:"
+              grep "ghcr.io/${{ github.repository }}" docker-compose.ghcr.yml || echo "⚠️  No image references found in docker-compose file"
+            else
+              echo "❌ docker-compose.ghcr.yml not found, cannot update image tags"
+              exit 1
+            fi
 
             # 设置环境变量
             export GITHUB_REPOSITORY="${{ github.repository }}"

@@ -26,6 +26,59 @@ echo "  - STAGING_HOST: ${STAGING_HOST:-未设置}"
 echo "  - DEPLOY_DIR: $DEPLOY_DIR"
 echo ""
 
+# 验证 docker-compose.ghcr.yml 文件中的镜像标签
+echo "🔍 验证 docker-compose.ghcr.yml 中的镜像标签..."
+if [ -f "docker-compose.ghcr.yml" ]; then
+  echo "📋 当前 docker-compose.ghcr.yml 中的镜像引用:"
+  grep "ghcr.io/$GITHUB_REPOSITORY" docker-compose.ghcr.yml || echo "⚠️  未找到镜像引用"
+  
+  # 检查是否包含正确的镜像标签（文件应该已经被工作流预处理过）
+  if grep -q "ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG" docker-compose.ghcr.yml && \
+     grep -q "ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG" docker-compose.ghcr.yml; then
+    echo "✅ docker-compose.ghcr.yml 中的镜像标签与目标版本匹配"
+  else
+    echo "⚠️  docker-compose.ghcr.yml 中的镜像标签与目标版本不匹配"
+    echo "🔧 正在更新 docker-compose.ghcr.yml 文件..."
+    
+    # 备份原文件
+    cp docker-compose.ghcr.yml docker-compose.ghcr.yml.backup.$(date +%Y%m%d_%H%M%S)
+    echo "📋 备份已创建"
+    
+    # 更新镜像标签（处理可能的变量占位符）
+    sed -i "s|ghcr.io/$GITHUB_REPOSITORY/api:[^[:space:]]*|ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG|g" docker-compose.ghcr.yml
+    sed -i "s|ghcr.io/$GITHUB_REPOSITORY/frontend:[^[:space:]]*|ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG|g" docker-compose.ghcr.yml
+    
+    echo "✅ 已更新 docker-compose.ghcr.yml 文件"
+    echo "📋 更新后的镜像引用:"
+    grep "ghcr.io/$GITHUB_REPOSITORY" docker-compose.ghcr.yml
+  fi
+else
+  echo "❌ docker-compose.ghcr.yml 文件不存在"
+  exit 1
+fi
+
+# 检查其他必要的 docker-compose 文件
+echo "🔍 检查 docker-compose 文件完整性..."
+REQUIRED_FILES=("docker-compose.ghcr.yml")
+OPTIONAL_FILES=("docker-compose.db.yml" "docker-compose.jc21.yml")
+
+for file in "${REQUIRED_FILES[@]}"; do
+  if [ ! -f "$file" ]; then
+    echo "❌ 必需文件不存在: $file"
+    exit 1
+  else
+    echo "✅ 必需文件存在: $file"
+  fi
+done
+
+for file in "${OPTIONAL_FILES[@]}"; do
+  if [ -f "$file" ]; then
+    echo "✅ 可选文件存在: $file"
+  else
+    echo "⚠️  可选文件不存在: $file"
+  fi
+done
+
 
 # 检查配置文件
 if [ ! -f ".env.api" ]; then
@@ -100,6 +153,35 @@ echo "预期的镜像:"
 echo "  - API: ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG"
 echo "  - Frontend: ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG"
 echo ""
+
+# 验证实际运行的镜像是否与预期一致
+echo "🔍 验证镜像版本一致性..."
+API_ACTUAL=$(sudo docker inspect avatar-mgmt-app-api-1 --format='{{.Config.Image}}' 2>/dev/null || echo "not_found")
+FRONTEND_ACTUAL=$(sudo docker inspect avatar-mgmt-app-frontend-1 --format='{{.Config.Image}}' 2>/dev/null || echo "not_found")
+
+API_EXPECTED="ghcr.io/$GITHUB_REPOSITORY/api:$IMAGE_TAG"
+FRONTEND_EXPECTED="ghcr.io/$GITHUB_REPOSITORY/frontend:$IMAGE_TAG"
+
+echo "版本一致性检查:"
+echo "  API:"
+echo "    预期: $API_EXPECTED"
+echo "    实际: $API_ACTUAL"
+if [ "$API_ACTUAL" = "$API_EXPECTED" ]; then
+  echo "    ✅ 版本匹配"
+else
+  echo "    ❌ 版本不匹配"
+fi
+
+echo "  Frontend:"
+echo "    预期: $FRONTEND_EXPECTED"
+echo "    实际: $FRONTEND_ACTUAL"
+if [ "$FRONTEND_ACTUAL" = "$FRONTEND_EXPECTED" ]; then
+  echo "    ✅ 版本匹配"
+else
+  echo "    ❌ 版本不匹配"
+fi
+
+echo ""
 echo "服务地址:"
 echo "  - API: http://localhost:3000"
 echo "  - Frontend: http://localhost:4173"
@@ -110,3 +192,9 @@ echo "  - 查看应用状态: sudo docker compose -f docker-compose.ghcr.yml ps"
 echo "  - 查看数据库状态: sudo docker compose -f docker-compose.db.yml ps"
 echo "  - 重启应用: sudo docker compose -f docker-compose.ghcr.yml restart"
 echo "  - 查看日志: sudo docker compose -f docker-compose.ghcr.yml logs -f"
+echo ""
+echo "📋 部署摘要:"
+echo "  - 目标版本: $IMAGE_TAG"
+echo "  - 部署时间: $(date)"
+echo "  - 部署状态: 完成"
+echo "  - 版本一致性: $([ "$API_ACTUAL" = "$API_EXPECTED" ] && [ "$FRONTEND_ACTUAL" = "$FRONTEND_EXPECTED" ] && echo "✅ 一致" || echo "❌ 不一致")"
