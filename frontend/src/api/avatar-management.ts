@@ -33,7 +33,7 @@ export async function updateAvatarStatus(
     });
 
     const result = response.data;
-    
+
     // 从API响应中提取实际的avatar数据
     const avatar = result.data || result;
 
@@ -86,7 +86,7 @@ export async function patchAvatarInfo(id: string, updates: Partial<Avatar>): Pro
     });
 
     const result = response.data;
-    
+
     // 从API响应中提取实际的avatar数据
     const avatar = result.data || result;
 

@@ -61,10 +61,10 @@
             <button type="button" class="btn-cancel" @click="$emit('close')">
               {{ t('common.cancel') }}
             </button>
-            <button 
-              v-if="props.avatar && props.avatar.status !== 'deleted'" 
-              type="button" 
-              class="btn-delete" 
+            <button
+              v-if="props.avatar && props.avatar.status !== 'deleted'"
+              type="button"
+              class="btn-delete"
               @click="handleMarkAsDeleted"
               :disabled="isLoading"
             >
@@ -189,7 +189,6 @@ async function handleMarkAsDeleted() {
   try {
     isLoading.value = true;
 
-
     logger.userAction('标记模型为已删除', {
       component: 'EditAvatarModal',
       method: 'handleMarkAsDeleted',
@@ -205,7 +204,7 @@ async function handleMarkAsDeleted() {
       avatarId,
       updatedAvatar,
     });
-    
+
     emit('updated', updatedAvatar);
     emit('close');
   } catch (error) {

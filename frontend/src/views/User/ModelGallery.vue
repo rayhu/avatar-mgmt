@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 错误状态 -->
       <div v-else-if="error" class="error-state">
         <div class="error-icon">⚠️</div>
@@ -45,7 +45,7 @@
           </button>
         </div>
       </div>
-      
+
       <!-- 空状态提示 -->
       <div v-else class="empty-state">
         <div class="empty-icon">🤖</div>

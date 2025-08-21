@@ -171,12 +171,12 @@ describe('Avatar Management Handler', () => {
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({
         error: '无效的状态值',
-        validStatuses: ['draft', 'pending', 'processing', 'ready', 'error'],
+        validStatuses: ['draft', 'pending', 'processing', 'ready', 'error', 'deleted'],
       });
     });
 
     it('应该接受有效的状态值', async () => {
-      const validStatuses = ['draft', 'pending', 'processing', 'ready', 'error'];
+      const validStatuses = ['draft', 'pending', 'processing', 'ready', 'error', 'deleted'];
 
       for (const status of validStatuses) {
         mockReq = {

@@ -68,22 +68,34 @@ export function useModelSelection(): ModelSelectionState {
         console.log('🎯 从路由参数自动选择模型:', targetModel.name, '(ID:', targetModel.id, ')');
         selectModel(targetModel);
       } else {
-        console.warn('⚠️ 路由参数中的模型ID未找到:', modelId, '可用ID:', readyModels.value.map(m => m.id));
+        console.warn(
+          '⚠️ 路由参数中的模型ID未找到:',
+          modelId,
+          '可用ID:',
+          readyModels.value.map(m => m.id)
+        );
       }
     }
   }
 
   // 监听readyModels变化，当模型加载完成后自动选择
-  watch(readyModels, () => {
-    autoSelectModelFromRoute();
-  }, { immediate: false });
+  watch(
+    readyModels,
+    () => {
+      autoSelectModelFromRoute();
+    },
+    { immediate: false }
+  );
 
   // 监听路由参数变化
-  watch(() => route.query.modelId, (newModelId) => {
-    if (newModelId && readyModels.value.length > 0) {
-      autoSelectModelFromRoute();
+  watch(
+    () => route.query.modelId,
+    newModelId => {
+      if (newModelId && readyModels.value.length > 0) {
+        autoSelectModelFromRoute();
+      }
     }
-  });
+  );
 
   // 组件挂载时获取模型列表
   onMounted(async () => {

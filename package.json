@@ -21,7 +21,7 @@
     "type-check:frontend": "cd frontend && yarn type-check",
     "type-check:api-server": "cd api-server && yarn type-check",
     "test": "yarn test:frontend && yarn test:api-server",
-    "test:frontend": "cd frontend && yarn test",
+    "test:frontend": "cd frontend && yarn test:run",
     "test:api-server": "cd api-server && yarn test",
     "test:coverage": "yarn test:coverage:frontend && yarn test:coverage:api-server",
     "test:coverage:frontend": "cd frontend && yarn test:coverage",

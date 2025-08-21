@@ -119,7 +119,8 @@ const modelViewer = ref<InstanceType<typeof ModelViewer> | null>(null);
 
 // 使用模型选择组合式函数
 const modelSelection = useModelSelection();
-const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyModels } = modelSelection;
+const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyModels } =
+  modelSelection;
 
 const currentAnimation = ref<string>('');
 const currentEmotion = ref<string>('');
