@@ -331,6 +331,15 @@ export default {
       envTest: 'Environment Test',
     },
   },
+  modelViewer: {
+    loading: {
+      title: 'Loading 3D Model',
+      subtitle: 'Please wait while we load the model. This may take a few moments for large files.',
+    },
+    error: {
+      title: 'Failed to Load Model',
+    },
+  },
   viseme: {
     silence: 'Silence',
     aa: 'Vowel aa',

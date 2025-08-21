@@ -138,6 +138,15 @@ export default {
     description: '描述',
     enabled: '启用',
   },
+  modelViewer: {
+    loading: {
+      title: '正在加载 3D 模型',
+      subtitle: '请稍候，我们正在加载模型。大文件可能需要一些时间。',
+    },
+    error: {
+      title: '模型加载失败',
+    },
+  },
   viseme: {
     silence: '静音',
     aa: '元音 aa',

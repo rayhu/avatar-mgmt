@@ -96,6 +96,19 @@
           </button>
         </div>
       </div>
+      
+      <!-- 测试加载界面 -->
+      <div class="control-section">
+        <h3>测试加载界面</h3>
+        <div class="button-group">
+          <button @click="testLoading" class="test-btn">
+            🧪 测试加载界面
+          </button>
+          <button @click="testError" class="test-btn error">
+            ⚠️ 测试错误界面
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -120,19 +133,39 @@ const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyM
 
 // 使用动态动画配置
 const modelAnimations = useModelAnimations(selectedModel);
-const {
-  availableActions,
-  availableEmotions,
-  updateAnimationsForCurrentModel,
-  getAnimationByCallName,
-} = modelAnimations;
+const { animations, emotions, currentAnimation, currentEmotion, playAnimation, updateEmotion } =
+  modelAnimations;
 
-const currentAnimation = ref<string>('');
-const currentEmotion = ref<string>('');
+// 测试加载界面
+function testLoading() {
+  if (modelViewer.value) {
+    // 模拟加载状态
+    modelViewer.value.isLoading = true;
+    modelViewer.value.loadingProgress = 0;
+    
+    // 模拟进度更新
+    const interval = setInterval(() => {
+      if (modelViewer.value && modelViewer.value.loadingProgress < 100) {
+        modelViewer.value.loadingProgress += Math.random() * 20;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          if (modelViewer.value) {
+            modelViewer.value.isLoading = false;
+            modelViewer.value.loadingProgress = 0;
+          }
+        }, 1000);
+      }
+    }, 200);
+  }
+}
 
-// 动态获取可用的动画和表情
-const animations = computed(() => availableActions.value.map(anim => anim.callName));
-const emotions = computed(() => availableEmotions.value.map(anim => anim.callName));
+// 测试错误界面
+function testError() {
+  if (modelViewer.value) {
+    modelViewer.value.loadError = '这是一个测试错误，用于演示错误界面的显示效果。';
+  }
+}
 
 // 监听模型选择变化，更新动画配置
 watch(
@@ -408,5 +441,29 @@ function updateEmotion(emotion: string): void {
       border-color: #42b883;
     }
   }
+}
+
+.test-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 0 5px;
+}
+
+.test-btn:hover {
+  background: #5a6268;
+}
+
+.test-btn.error {
+  background: #dc3545;
+}
+
+.test-btn.error:hover {
+  background: #c82333;
 }
 </style>
