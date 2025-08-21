@@ -129,11 +129,11 @@ const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyM
 
 // 使用动态动画配置
 const modelAnimations = useModelAnimations(selectedModel);
-const { 
-  availableActions, 
-  availableEmotions, 
+const {
+  availableActions,
+  availableEmotions,
   updateAnimationsForCurrentModel,
-  getAnimationByCallName
+  getAnimationByCallName,
 } = modelAnimations;
 
 // 本地状态管理
