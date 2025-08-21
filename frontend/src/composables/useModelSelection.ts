@@ -59,10 +59,11 @@ export function useModelSelection(): ModelSelectionState {
   function autoSelectModelFromRoute() {
     const modelId = route.query.modelId as string;
     if (modelId && readyModels.value.length > 0) {
-      // 支持字符串和数字ID的匹配
-      const targetModel = readyModels.value.find(model =>
-        model.id === modelId || model.id.toString() === modelId || model.id === parseInt(modelId)
-      );
+      // 支持字符串和数字ID的匹配，统一转换为字符串进行比较
+      const targetModel = readyModels.value.find(model => {
+        const modelIdStr = model.id.toString();
+        return modelIdStr === modelId;
+      });
       if (targetModel) {
         console.log('🎯 从路由参数自动选择模型:', targetModel.name, '(ID:', targetModel.id, ')');
         selectModel(targetModel);
