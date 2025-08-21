@@ -1,5 +1,5 @@
 # .github/workflows/manual-deploy.yml
-name: Manual Deployment - ${{ github.event.inputs.version }} → ${{ github.event.inputs.environment }}
+name: Manual Deployment
 on:
   workflow_dispatch:
     inputs:
