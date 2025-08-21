@@ -129,8 +129,20 @@ const { readyModels, selectedModel, selectModel, changeModel, error, fetchReadyM
 
 // 使用动态动画配置
 const modelAnimations = useModelAnimations(selectedModel);
-const { animations, emotions, currentAnimation, currentEmotion, playAnimation, updateEmotion } =
-  modelAnimations;
+const { 
+  availableActions, 
+  availableEmotions, 
+  updateAnimationsForCurrentModel,
+  getAnimationByCallName
+} = modelAnimations;
+
+// 本地状态管理
+const currentAnimation = ref<string>('');
+const currentEmotion = ref<string>('');
+
+// 计算属性：可用的动画和表情
+const animations = computed(() => availableActions.value.map(anim => anim.callName));
+const emotions = computed(() => availableEmotions.value.map(anim => anim.callName));
 
 // 测试加载界面
 function testLoading() {

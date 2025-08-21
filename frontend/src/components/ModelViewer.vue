@@ -721,15 +721,25 @@ onUnmounted(() => {
 
 // 导出组件
 defineExpose({
+  // 动画控制
   playAnimation,
   updateEmotion,
   updateViseme,
+  
+  // 背景控制
   setBackgroundImage,
   clearBackgroundImage,
   adjustBackgroundDistance,
   adjustBackgroundOffset,
   adjustBackgroundScale,
   resetBackgroundSettings,
+  
+  // 加载状态（用于外部访问）
+  isLoading,
+  loadingProgress,
+  loadError,
+  
+  // 视频流
   getVideoStream: () => {
     if (!renderer || !renderer.domElement) {
       return null;
