@@ -16,14 +16,14 @@
           </button>
         </div>
         <!-- 空状态 -->
-        <div v-else-if="readyModels.length === 0" class="empty-state">
+        <!-- <div v-else-if="readyModels.length === 0" class="empty-state">
           <div class="empty-icon">🤖</div>
           <h4>{{ t('modelManagement.noModelsAvailable') }}</h4>
           <p>{{ t('modelManagement.noModelsDescription') }}</p>
           <button class="control-btn" @click="fetchReadyModels">
             {{ t('common.refresh') }}
           </button>
-        </div>
+        </div> -->
         <!-- 模型列表 -->
         <div v-else class="model-list">
           <div

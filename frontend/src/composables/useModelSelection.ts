@@ -60,7 +60,7 @@ export function useModelSelection(): ModelSelectionState {
     const modelId = route.query.modelId as string;
     if (modelId && readyModels.value.length > 0) {
       // 支持字符串和数字ID的匹配
-      const targetModel = readyModels.value.find(model => 
+      const targetModel = readyModels.value.find(model =>
         model.id === modelId || model.id.toString() === modelId || model.id === parseInt(modelId)
       );
       if (targetModel) {
@@ -88,7 +88,6 @@ export function useModelSelection(): ModelSelectionState {
   onMounted(async () => {
     try {
       // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 1500));
       await fetchReadyModels();
       // fetchReadyModels完成后，watch会自动触发autoSelectModelFromRoute
     } catch (error) {

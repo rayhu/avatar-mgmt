@@ -131,7 +131,6 @@ async function fetchReadyModels() {
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1500));
     await fetchReadyModels();
   } finally {
     loading.value = false;

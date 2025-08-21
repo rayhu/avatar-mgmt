@@ -156,7 +156,6 @@ function handleUploadSuccess(newAvatar: Avatar) {
 onMounted(async () => {
   try {
     // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
     await fetchAllModels();
   } finally {
     loading.value = false;
