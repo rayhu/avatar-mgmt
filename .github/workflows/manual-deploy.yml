@@ -260,31 +260,12 @@ jobs:
               exit 1
             fi
 
-            # 复制数据库相关的 docker-compose 文件（如果存在）
-            if [ -f "$SOURCE_DIR/docker-compose.db.yml" ]; then
-              cp "$SOURCE_DIR/docker-compose.db.yml" .
-              echo "✅ Copied docker-compose.db.yml"
-            else
-              echo "⚠️  docker-compose.db.yml not found, database services may not be available"
-            fi
-
-            # 复制其他相关的 docker-compose 文件（如果存在）
-            for compose_file in docker-compose.jc21.yml; do
-              if [ -f "$SOURCE_DIR/$compose_file" ]; then
-                cp "$SOURCE_DIR/$compose_file" .
-                echo "✅ Copied $compose_file"
-              fi
-            done
-
             # 检查配置文件
             if [ ! -f ".env.api" ]; then
               echo "❌ Config file not found: .env.api"
               exit 1
             fi
-            if [ ! -f ".env.directus" ]; then
-              echo "❌ Config file not found: .env.directus"
-              exit 1
-            fi
+
             if [ ! -f ".env.frontend" ]; then
               echo "❌ Config file not found: .env.frontend"
               exit 1
