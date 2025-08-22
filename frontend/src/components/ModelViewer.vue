@@ -220,7 +220,7 @@ async function loadModel(url: string) {
       loader.load(
         url,
         resolve,
-        (progress) => {
+        (progress: any) => {
           // 这个回调可能不会被调用，因为 GLTFLoader 内部处理
           console.log('📊 Loader progress:', progress);
         },
