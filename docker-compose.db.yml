@@ -5,28 +5,25 @@ name: avatar-mgmt-db
 services:
   # PostgreSQL Database
   db:
-    image: postgres:15
+    image: postgres:15.7            # 固定小版本，避免隐形升级
     restart: always
     env_file:
       - .env.directus
     environment:
       POSTGRES_DB: directus
-      # 确保使用正确的用户 ID
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./db_data:/var/lib/postgresql/data
-    user: "999:999"  # 明确指定用户 ID
+      - db_data:/var/lib/postgresql/data   # ← 命名卷（核心变化）
     networks:
       - jc21-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U directus"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 10
 
-  # Directus CMS
   directus:
-    image: directus/directus:11.8
+    image: directus/directus:11.8.0  # 固定小版本
     restart: always
     depends_on:
       db:
@@ -48,8 +45,10 @@ services:
       retries: 5
       start_period: 120s
 
-# 引用 JC21 的网络
 networks:
   jc21-network:
     external: true
     name: avatar-mgmt-jc21-network
+
+volumes:
+  db_data: {}   # ← 新增命名卷声明

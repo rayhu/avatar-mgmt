@@ -525,10 +525,10 @@ docker compose -f docker-compose.prod.yml ps
 
 ```bash
 # 应用数据库架构更新
-docker compose -f docker-compose.prod.yml exec directus npx directus schema apply --yes schemas/snapshot.yml
+sudo docker compose -f docker-compose.db.yml exec directus npx directus schema apply --yes schemas/snapshot.yml
 
 # 检查迁移状态
-docker compose -f docker-compose.prod.yml exec directus npx directus schema snapshot schemas/current-check.yml
+sudo docker compose -f docker-compose.db.yml exec directus npx directus schema snapshot schemas/current-check.yml
 ```
 
 ## 📋 **部署检查清单**

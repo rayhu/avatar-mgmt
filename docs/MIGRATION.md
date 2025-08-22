@@ -111,7 +111,7 @@ directus.daidai.amis.hk → forward to: directus:8055
 
 ```bash
 # 应用最新的数据库架构（版本管理系统）
-docker-compose -f docker-compose.prod.yml exec directus npx directus schema apply --yes schemas/snapshot.yml
+sudo docker-compose -f docker-compose.db.yml exec directus npx directus schema apply --yes schemas/snapshot.yml
 ```
 
 ### **8. 更新前端配置**
@@ -215,7 +215,7 @@ docker-compose exec db psql -U directus directus < backup-db-YYYYMMDD.sql
 
 # 4. 恢复 Directus 架构
 docker-compose up -d directus
-docker-compose exec directus npx directus schema apply --yes schemas/backup-before-migration-YYYYMMDD.yml
+sudo docker compose exec directus npx directus schema apply --yes schemas/backup-before-migration-YYYYMMDD.yml
 
 # 5. 启动旧服务
 docker-compose up -d
