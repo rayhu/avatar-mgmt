@@ -390,7 +390,6 @@ async function createUsers(token) {
         password: 'user123',
         first_name: 'Test',
         last_name: 'User',
-        role: adminRoleId, // 暂时也使用管理员角色，可以后续调整
         status: 'active',
         description: '测试用户',
       },
@@ -665,7 +664,8 @@ async function autoUploadFilesAndCreateAvatars() {
     await applySchemaSnapshot();
 
     // 3. 重新设置权限（因为 schema 应用可能会重置权限）
-    console.log('🔄 重新检查和设置权限...');
+    console.log('🔄 等待10秒后重新检查和设置权限...');
+    await new Promise(resolve => setTimeout(resolve, 10000));
     const newToken = await login(); // 重新获取 token
     const newRoleId = await getPublicRoleId(newToken);
     await setFilesReadPermission(newToken, newRoleId);
