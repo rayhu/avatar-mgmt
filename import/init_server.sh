@@ -53,3 +53,6 @@ sudo docker compose -f docker-compose.db.yml exec directus sh -lc 'id && whoami'
 sudo docker compose -f docker-compose.db.yml exec directus sh -lc 'touch /directus/uploads/.perm_ok && ls -al /directus/uploads | head'
 
 sudo docker compose -f docker-compose.db.yml exec directus sh -lc 'npx directus schema snapshot /directus/schemas/snapshot.yml && ls -al /directus/schemas | head'
+
+
+echo 执行 node import/directus_setup.js

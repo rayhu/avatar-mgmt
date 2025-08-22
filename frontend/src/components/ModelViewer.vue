@@ -153,32 +153,81 @@ async function loadModel(url: string) {
 
   console.log('📦 Loading model from:', url);
 
+  // 启动模拟进度条作为备用方案
+  let progressInterval: number | null = null;
+  const startProgressSimulation = () => {
+    progressInterval = setInterval(() => {
+      if (loadingProgress.value < 90) {
+        loadingProgress.value += Math.random() * 5 + 1; // 1-6% 的随机增长
+      }
+    }, 200);
+  };
+
+  const stopProgressSimulation = () => {
+    if (progressInterval) {
+      clearInterval(progressInterval);
+      progressInterval = null;
+    }
+    loadingProgress.value = 100;
+  };
+
+  // 启动模拟进度
+  startProgressSimulation();
+
   try {
     const loader = new GLTFLoader();
 
     // 创建加载管理器来跟踪进度
     const loadingManager = new THREE.LoadingManager();
 
+    loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+      console.log(`🚀 Started loading: ${url}`);
+      console.log(`📦 Total items to load: ${itemsTotal}`);
+      // 如果检测到有多个资源要加载，停止模拟进度
+      if (itemsTotal > 1) {
+        stopProgressSimulation();
+      }
+    };
+
     loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
       const progress = (itemsLoaded / itemsTotal) * 100;
       loadingProgress.value = progress;
-      console.log(`📊 Loading progress: ${progress.toFixed(1)}%`);
+      console.log(`📊 Loading progress: ${progress.toFixed(1)}% (${itemsLoaded}/${itemsTotal})`);
+      console.log(`🔗 Current URL: ${url}`);
+      // 如果检测到真实进度，停止模拟进度
+      if (itemsTotal > 1) {
+        stopProgressSimulation();
+      }
     };
 
     loadingManager.onLoad = () => {
       console.log('✅ All resources loaded');
+      stopProgressSimulation(); // 确保停止模拟进度
       loadingProgress.value = 100;
     };
 
     loadingManager.onError = url => {
       console.error('❌ Error loading resource:', url);
+      stopProgressSimulation(); // 确保停止模拟进度
       loadError.value = `Failed to load resource: ${url}`;
     };
 
     // 将加载管理器分配给 GLTFLoader
     loader.manager = loadingManager;
 
-    const gltf = await loader.loadAsync(url);
+    // 使用 Promise 包装 load 方法来获取真实进度
+    const gltf = await new Promise<THREE.GLTF>((resolve, reject) => {
+      loader.load(
+        url,
+        resolve,
+        (progress) => {
+          // 这个回调可能不会被调用，因为 GLTFLoader 内部处理
+          console.log('📊 Loader progress:', progress);
+        },
+        reject
+      );
+    });
+
     console.log('✅ Model loaded successfully:', gltf);
 
     // 清除旧模型和动画
@@ -271,6 +320,11 @@ async function loadModel(url: string) {
     }
   } catch (error) {
     console.error('❌ Error loading model:', error);
+    // 确保停止模拟进度
+    if (progressInterval) {
+      clearInterval(progressInterval);
+      progressInterval = null;
+    }
     loadError.value = error instanceof Error ? error.message : 'Unknown error occurred';
     isLoading.value = false;
   }
