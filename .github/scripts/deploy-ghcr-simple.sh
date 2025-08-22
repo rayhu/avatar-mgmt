@@ -60,7 +60,6 @@ fi
 # 检查其他必要的 docker-compose 文件
 echo "🔍 检查 docker-compose 文件完整性..."
 REQUIRED_FILES=("docker-compose.ghcr.yml")
-OPTIONAL_FILES=("docker-compose.db.yml" "docker-compose.jc21.yml")
 
 for file in "${REQUIRED_FILES[@]}"; do
   if [ ! -f "$file" ]; then
@@ -71,24 +70,9 @@ for file in "${REQUIRED_FILES[@]}"; do
   fi
 done
 
-for file in "${OPTIONAL_FILES[@]}"; do
-  if [ -f "$file" ]; then
-    echo "✅ 可选文件存在: $file"
-  else
-    echo "⚠️  可选文件不存在: $file"
-  fi
-done
-
-
 # 检查配置文件
 if [ ! -f ".env.api" ]; then
     echo "❌ 配置文件不存在: .env.api"
-    echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
-    exit 1
-fi
-
-if [ ! -f ".env.directus" ]; then
-    echo "❌ 配置文件不存在: .env.directus"
     echo "请确保配置文件已放置在 $DEPLOY_DIR 目录中"
     exit 1
 fi
@@ -185,11 +169,9 @@ echo ""
 echo "服务地址:"
 echo "  - API: http://localhost:3000"
 echo "  - Frontend: http://localhost:4173"
-echo "  - Directus: http://localhost:8055"
 echo ""
 echo "管理命令:"
 echo "  - 查看应用状态: sudo docker compose -f docker-compose.ghcr.yml ps"
-echo "  - 查看数据库状态: sudo docker compose -f docker-compose.db.yml ps"
 echo "  - 重启应用: sudo docker compose -f docker-compose.ghcr.yml restart"
 echo "  - 查看日志: sudo docker compose -f docker-compose.ghcr.yml logs -f"
 echo ""
