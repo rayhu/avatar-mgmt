@@ -154,7 +154,7 @@ async function loadModel(url: string) {
   console.log('📦 Loading model from:', url);
 
   // 启动模拟进度条作为备用方案
-  let progressInterval: number | null = null;
+  let progressInterval: ReturnType<typeof setInterval> | null = null;
   const startProgressSimulation = () => {
     progressInterval = setInterval(() => {
       if (loadingProgress.value < 90) {
@@ -216,7 +216,7 @@ async function loadModel(url: string) {
     loader.manager = loadingManager;
 
     // 使用 Promise 包装 load 方法来获取真实进度
-    const gltf = await new Promise<THREE.GLTF>((resolve, reject) => {
+    const gltf = await new Promise<any>((resolve, reject) => {
       loader.load(
         url,
         resolve,
