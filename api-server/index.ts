@@ -15,6 +15,7 @@ import authHandler from './handlers/auth';
 import logoutHandler from './handlers/logout';
 import { authenticateToken, requireAdmin } from './middleware/auth';
 import { assetsHandler } from './handlers/assets';
+import { cloudStorageHandler } from './handlers/cloud-storage';
 
 const app = express();
 
@@ -97,6 +98,26 @@ app.get('/api/version', versionHandler);
 
 // Assets 代理路由 (用于代理Directus文件)
 app.get('/api/assets/:fileId', assetsHandler);
+
+// 云存储路由
+app.get(
+  '/api/cloud-storage/signed-url/:fileId',
+  cloudStorageHandler.generateSignedUrl.bind(cloudStorageHandler)
+);
+app.post(
+  '/api/cloud-storage/upload',
+  authenticateToken,
+  cloudStorageHandler.uploadFile.bind(cloudStorageHandler)
+);
+app.delete(
+  '/api/cloud-storage/:fileId',
+  authenticateToken,
+  cloudStorageHandler.deleteFile.bind(cloudStorageHandler)
+);
+app.get(
+  '/api/cloud-storage/:fileId/info',
+  cloudStorageHandler.getFileInfo.bind(cloudStorageHandler)
+);
 
 app.get('/health', (_req, res) => res.send('ok'));
 

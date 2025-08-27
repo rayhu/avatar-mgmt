@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AnimationSelector: typeof import('./components/AnimationSelector.vue')['default']
+    CloudStorageFileViewer: typeof import('./components/CloudStorageFileViewer.vue')['default']
     CommentList: typeof import('./components/CommentList.vue')['default']
     EditAvatarModal: typeof import('./components/EditAvatarModal.vue')['default']
     LanguageSwitcher: typeof import('./components/LanguageSwitcher.vue')['default']
