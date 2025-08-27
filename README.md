@@ -57,13 +57,8 @@ yarn dev
 
 #### 前端 (Frontend)
 
-- 用户名：admin
+- 用户名：admin@example.com
 - 密码：admin123
-
-#### Directus
-
-- 邮箱：admin@example.com
-- 密码：admin1234
 
 ## 🛠 技术栈 (Tech Stack)
 
