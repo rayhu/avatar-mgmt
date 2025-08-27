@@ -57,8 +57,14 @@ yarn dev
 
 #### 前端 (Frontend)
 
+管理员
 - 用户名：admin@example.com
 - 密码：admin123
+
+普通用户
+- 用户名：iser@example.com
+- 密码：user123
+
 
 ## 🛠 技术栈 (Tech Stack)
 
