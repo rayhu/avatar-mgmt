@@ -40,12 +40,6 @@
               <span class="value">{{ formatTime(versionInfo.frontend?.buildTime) }}</span>
             </div>
             <div class="version-item">
-              <span class="label">{{ t('about.versionInfo.branch') }}</span>
-              <span class="value branch">{{
-                versionInfo.frontend?.branch || t('about.versionInfo.unknown')
-              }}</span>
-            </div>
-            <div class="version-item">
               <span class="label">{{ t('about.versionInfo.commitDate') }}</span>
               <span class="value">{{ formatTime(versionInfo.frontend?.commitDate) }}</span>
             </div>
@@ -74,12 +68,6 @@
             <div class="version-item">
               <span class="label">{{ t('about.versionInfo.buildTime') }}</span>
               <span class="value">{{ formatTime(versionInfo.backend?.buildTime) }}</span>
-            </div>
-            <div class="version-item">
-              <span class="label">{{ t('about.versionInfo.branch') }}</span>
-              <span class="value branch">{{
-                versionInfo.backend?.branch || t('about.versionInfo.unknown')
-              }}</span>
             </div>
           </div>
         </div>
@@ -144,10 +132,6 @@
           <li>
             <strong>{{ t('about.versionInfo.buildTime') }}</strong>
             {{ t('about.versionInfo.buildTimeDesc') }}
-          </li>
-          <li>
-            <strong>{{ t('about.versionInfo.branch') }}</strong>
-            {{ t('about.versionInfo.branchDesc') }}
           </li>
           <li>
             <strong>{{ t('about.versionInfo.environment') }}</strong>
