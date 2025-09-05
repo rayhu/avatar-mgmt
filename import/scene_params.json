@@ -1,0 +1,101 @@
+{
+  "unityVersion": "2021.3.21f1c1",
+  "colorSpace": "Linear",
+  "activeRenderPipeline": "Built-in",
+  "camera": {
+    "fov": 60.0,
+    "nearClip": 0.30000001192092898,
+    "farClip": 1000.0,
+    "position": {
+      "x": 0.0,
+      "y": 1.8240000009536744,
+      "z": 1.2400000095367432
+    },
+    "rotationEuler": {
+      "x": 11.52373218536377,
+      "y": 180.0,
+      "z": 0.0
+    },
+    "hdr": true,
+    "msaa": 2
+  },
+  "lights": [
+    {
+      "name": "Directional Light",
+      "type": "Directional",
+      "color": "#EEEEEE",
+      "intensity": 1.0,
+      "range": -1.0,
+      "spotAngle": -1.0,
+      "castShadows": true,
+      "shadowResolution": "VeryHigh",
+      "shadowBias": 0.05000000074505806,
+      "shadowNormalBias": 0.4000000059604645,
+      "position": {
+        "x": 0.0,
+        "y": 3.0,
+        "z": 0.0
+      },
+      "rotationEuler": {
+        "x": 50.0,
+        "y": 200.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Fill",
+      "type": "Spot",
+      "color": "#D5E6FF",
+      "intensity": 0.9599999785423279,
+      "range": 10.0,
+      "spotAngle": 90.0,
+      "castShadows": false,
+      "shadowResolution": "Low",
+      "shadowBias": 0.004000000189989805,
+      "shadowNormalBias": 0.0,
+      "position": {
+        "x": 0.0430000014603138,
+        "y": 2.181999921798706,
+        "z": 1.531000018119812
+      },
+      "rotationEuler": {
+        "x": 24.44444465637207,
+        "y": 176.74273681640626,
+        "z": 7.926245212554932
+      }
+    }
+  ],
+  "environment": {
+    "skyboxMaterial": "Default-Skybox",
+    "skyboxPath": "Resources/unity_builtin_extra",
+    "skyboxMainTexName": "",
+    "skyboxMainTexPath": "",
+    "ambientMode": "Skybox",
+    "ambientIntensity": 1.0,
+    "ambientLight": "#363A42",
+    "reflectionIntensity": 1.0,
+    "reflectionDefaultResolution": 128
+  },
+  "reflectionProbes": [
+    {
+      "name": "Reflection Probe",
+      "mode": "Realtime",
+      "intensity": 0.25,
+      "boxSize": {
+        "x": 10.0,
+        "y": 4.118122100830078,
+        "z": 10.0
+      },
+      "importance": 1
+    }
+  ],
+  "quality": {
+    "qualityLevelName": "Ultra",
+    "anisotropicFiltering": "ForceEnable",
+    "antiAliasing": 2,
+    "softParticles": true,
+    "realtimeReflectionProbes": true,
+    "shadowResolution": "VeryHigh",
+    "shadows": "All"
+  }
+}

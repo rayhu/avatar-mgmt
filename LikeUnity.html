@@ -1,0 +1,2017 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LikeUnity - Intelligent 3D Rendering Optimizer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .header h1 {
+        color: white;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1em;
+      }
+
+      .main-container {
+        flex: 1;
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+      }
+
+      .left-panel {
+        width: 300px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow-y: auto;
+        max-height: calc(100vh - 140px);
+      }
+
+      .center-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .right-panel {
+        width: 350px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow-y: auto;
+        max-height: calc(100vh - 140px);
+      }
+
+      .section {
+        margin-bottom: 30px;
+      }
+
+      .section h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 5px;
+      }
+
+      .viewport {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        height: 400px;
+        position: relative;
+      }
+
+      #render-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .comparison-section {
+        display: flex;
+        gap: 20px;
+        height: 300px;
+      }
+
+      .comparison-item {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .comparison-item h4 {
+        color: #333;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .comparison-preview {
+        flex: 1;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        background: #f9f9f9;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .comparison-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      .dimension-indicator {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        border: 1px solid rgba(33, 150, 243, 0.3);
+        text-align: center;
+        font-size: 0.9em;
+      }
+
+      .dimension-status {
+        font-weight: 500;
+        color: #1976d2;
+      }
+
+      .dimension-status.active {
+        color: #2e7d32;
+        font-weight: 600;
+      }
+
+      .dimension-status.inactive {
+        color: #757575;
+      }
+
+      .file-input {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 15px;
+      }
+
+      .file-input input[type='file'] {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .file-input-label {
+        display: inline-block;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .file-input-label:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .button.secondary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .button.success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      .button.update {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #333;
+      }
+
+      .parameter-group {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 8px;
+      }
+
+      .parameter-item {
+        margin-bottom: 12px;
+      }
+
+      .parameter-item label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .parameter-item input[type='range'] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      .parameter-item input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+      }
+
+      .parameter-item input[type='range']::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        border: none;
+      }
+
+      .parameter-value {
+        display: inline-block;
+        margin-left: 10px;
+        padding: 2px 8px;
+        background: #667eea;
+        color: white;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      .similarity-matrix {
+        display: grid;
+        gap: 2px;
+        margin-top: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .similarity-cell {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8em;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+      }
+
+      .optimization-status {
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .status-value {
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .loading-overlay.active {
+        display: flex;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .log-panel {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 0.9em;
+        border: 1px solid #e0e0e0;
+      }
+
+      .log-entry {
+        margin-bottom: 5px;
+        padding: 3px 0;
+      }
+
+      .log-info {
+        color: #0066cc;
+      }
+
+      .log-success {
+        color: #00cc66;
+      }
+
+      .log-warning {
+        color: #ff6600;
+      }
+
+      .log-error {
+        color: #cc0000;
+      }
+
+      @media (max-width: 1200px) {
+        .main-container {
+          flex-direction: column;
+        }
+
+        .left-panel,
+        .right-panel {
+          width: 100%;
+          max-height: none;
+        }
+
+        .comparison-section {
+          flex-direction: column;
+          height: auto;
+        }
+
+        .comparison-item {
+          height: 200px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">
+      <h1>🧠 LikeUnity</h1>
+      <p>Intelligent 3D Rendering Parameter Optimizer with Patch-Based Similarity Analysis</p>
+    </div>
+
+    <div class="main-container">
+      <!-- 左侧控制面板 -->
+      <div class="left-panel">
+        <div class="section">
+          <h3>📁 File Input</h3>
+          <div class="file-input">
+            <input type="file" id="glb-input" accept=".glb,.gltf" />
+            <label for="glb-input" class="file-input-label">📦 Load GLB Model</label>
+          </div>
+
+          <div class="file-input">
+            <input type="file" id="target-input" accept="image/*" />
+            <label for="target-input" class="file-input-label">🎯 Load Target Image</label>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>⚙️ Rendering Parameters</h3>
+
+          <div class="parameter-group">
+            <h4>💡 Main Light</h4>
+            <div class="parameter-item">
+              <label>Intensity</label>
+              <input
+                type="range"
+                id="main-light-intensity"
+                min="0"
+                max="20"
+                step="0.1"
+                value="10"
+              />
+              <span class="parameter-value">10.0</span>
+            </div>
+            <div class="parameter-item">
+              <label>Position X</label>
+              <input type="range" id="main-light-x" min="-20" max="20" step="0.5" value="-5" />
+              <span class="parameter-value">-5.0</span>
+            </div>
+            <div class="parameter-item">
+              <label>Position Y</label>
+              <input type="range" id="main-light-y" min="0" max="30" step="0.5" value="15" />
+              <span class="parameter-value">15.0</span>
+            </div>
+            <div class="parameter-item">
+              <label>Position Z</label>
+              <input type="range" id="main-light-z" min="-20" max="20" step="0.5" value="5" />
+              <span class="parameter-value">5.0</span>
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <h4>🔦 Fill Light</h4>
+            <div class="parameter-item">
+              <label>Intensity</label>
+              <input
+                type="range"
+                id="fill-light-intensity"
+                min="0"
+                max="2"
+                step="0.01"
+                value="0.12"
+              />
+              <span class="parameter-value">0.12</span>
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <h4>🌍 Environment</h4>
+            <div class="parameter-item">
+              <label>Exposure</label>
+              <input
+                type="range"
+                id="tone-mapping-exposure"
+                min="0.05"
+                max="1"
+                step="0.01"
+                value="0.3"
+              />
+              <span class="parameter-value">0.30</span>
+            </div>
+            <div class="parameter-item">
+              <label>Env Intensity</label>
+              <input type="range" id="env-intensity" min="0" max="0.2" step="0.001" value="0.02" />
+              <span class="parameter-value">0.02</span>
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <h4>📷 Camera</h4>
+            <div class="parameter-item">
+              <label>Position X</label>
+              <input type="range" id="camera-x" min="-5" max="5" step="0.1" value="0" />
+              <span class="parameter-value">0.0</span>
+            </div>
+            <div class="parameter-item">
+              <label>Position Y</label>
+              <input type="range" id="camera-y" min="0" max="4" step="0.1" value="0.5" />
+              <span class="parameter-value">0.50</span>
+            </div>
+            <div class="parameter-item">
+              <label>Position Z</label>
+              <input type="range" id="camera-z" min="1.5" max="5" step="0.1" value="3.0" />
+              <span class="parameter-value">3.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>🎛️ Optimization Settings</h3>
+          <div class="parameter-item">
+            <label>Grid Size</label>
+            <select id="grid-size">
+              <option value="8">8x8 Grid</option>
+              <option value="16" selected>16x16 Grid</option>
+              <option value="32">32x32 Grid</option>
+            </select>
+          </div>
+          <div class="parameter-item">
+            <label>Similarity Threshold</label>
+            <input
+              type="range"
+              id="similarity-threshold"
+              min="0.3"
+              max="0.95"
+              step="0.05"
+              value="0.7"
+            />
+            <span class="parameter-value">0.95</span>
+          </div>
+          <div class="parameter-item">
+            <label>Learning Rate</label>
+            <input type="range" id="learning-rate" min="0.01" max="0.5" step="0.01" value="0.1" />
+            <span class="parameter-value">0.10</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <button class="button success" id="start-optimization">🚀 Start Optimization</button>
+          <button class="button secondary" id="stop-optimization" disabled>⏹️ Stop</button>
+          <button class="button" id="reset-params">🔄 Reset Parameters</button>
+          <button class="button update" id="update-render">📷 Update Render</button>
+          <button class="button" id="match-background">🎨 Match Background</button>
+          <button class="button" id="reset-dimensions">📐 Reset Dimensions</button>
+          <button class="button" id="export-image">📸 Export Image</button>
+        </div>
+      </div>
+
+      <!-- 中央视窗区域 -->
+      <div class="center-panel">
+        <div class="viewport">
+          <canvas id="render-canvas"></canvas>
+          <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+          </div>
+        </div>
+
+        <div class="comparison-section">
+          <div class="comparison-item">
+            <h4>🎯 Target Image</h4>
+            <div class="comparison-preview" id="target-preview">
+              Drop target image here or use button above
+            </div>
+          </div>
+          <div class="comparison-item">
+            <h4>📸 Current Render</h4>
+            <div id="dimension-indicator" class="dimension-indicator" style="display: none">
+              <span class="dimension-status">📐 Using container dimensions</span>
+            </div>
+            <div class="comparison-preview" id="render-preview">Load GLB model to see render</div>
+          </div>
+          <div class="comparison-item">
+            <h4>📊 Similarity Matrix</h4>
+            <div class="comparison-preview">
+              <div id="similarity-matrix" class="similarity-matrix">
+                <!-- Matrix cells will be generated here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧状态面板 -->
+      <div class="right-panel">
+        <div class="section">
+          <h3>📈 Optimization Status</h3>
+          <div class="optimization-status">
+            <div class="status-item">
+              <span>Overall Similarity:</span>
+              <span class="status-value" id="overall-similarity">0.00%</span>
+            </div>
+            <div class="status-item">
+              <span>Iteration:</span>
+              <span class="status-value" id="iteration-count">0</span>
+            </div>
+            <div class="status-item">
+              <span>Best Score:</span>
+              <span class="status-value" id="best-score">0.00%</span>
+            </div>
+            <div class="status-item">
+              <span>Status:</span>
+              <span class="status-value" id="optimization-status">Ready</span>
+            </div>
+            <div class="status-item">
+              <span>Current Parameter:</span>
+              <span class="status-value" id="current-parameter">-</span>
+            </div>
+            <div class="status-item">
+              <span>Search Direction:</span>
+              <span class="status-value" id="search-direction">-</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>🔍 Patch Analysis</h3>
+          <div id="patch-analysis">
+            <p>Load images to start patch analysis...</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>📝 Optimization Log</h3>
+          <div class="log-panel" id="log-panel">
+            <div class="log-entry log-info">System initialized. Ready to load GLB model.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Three.js and dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
+
+    <script>
+      // 全局变量
+      let scene, camera, renderer, controls;
+      let model = null;
+      let clock = new THREE.Clock();
+
+      // 灯光对象
+      let mainLight, fillLight, rimLight, ambientLight;
+
+      // 优化系统
+      let targetImage = null;
+      let isOptimizing = false;
+      let optimizationParameters = {};
+      let currentIteration = 0;
+      let bestScore = 0;
+
+      // 贪心算法相关变量
+      let parameterStates = {}; // 每个参数的状态信息
+      let globalBestParams = {}; // 全局最佳参数值
+      let stagnationCount = 0; // 停滞计数器
+      let currentParameterIndex = 0; // 当前优化的参数索引
+
+      // 初始化系统
+      document.addEventListener('DOMContentLoaded', function () {
+        initThreeJS();
+        initEventListeners();
+        initParameterSystem();
+        logMessage('System initialized successfully.', 'success');
+      });
+
+      // 日志系统
+      function logMessage(message, type = 'info') {
+        const logPanel = document.getElementById('log-panel');
+        const timestamp = new Date().toLocaleTimeString();
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        entry.textContent = `[${timestamp}] ${message}`;
+        logPanel.appendChild(entry);
+        logPanel.scrollTop = logPanel.scrollHeight;
+      }
+
+      // 初始化 Three.js
+      function initThreeJS() {
+        const canvas = document.getElementById('render-canvas');
+        const container = canvas.parentElement;
+
+        // 创建场景
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+
+        // 创建渲染器
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: true,
+          preserveDrawingBuffer: true,
+        });
+
+        // 应用 ModelViewer 的渲染设置
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.3;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.autoUpdate = true;
+        renderer.shadowMap.needsUpdate = true;
+
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // 创建相机 - 调整为正面视角，类似目标图片
+        camera = new THREE.PerspectiveCamera(
+          60.0,
+          container.clientWidth / container.clientHeight,
+          0.01,
+          1000.0
+        );
+        // 设置为正面视角：稍微偏上的角度看向模型
+        camera.position.set(0.0, 0.5, 3.0);
+
+        // 创建轨道控制器
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // 初始化灯光
+        initLighting();
+
+        // 初始化环境
+        initEnvironment();
+
+        // 开始渲染循环
+        animate();
+
+        // 响应窗口大小变化
+        window.addEventListener('resize', onWindowResize);
+
+        logMessage('Three.js initialized with Unity-like settings.', 'success');
+      }
+
+      // 初始化灯光系统（基于 ModelViewer.vue）
+      function initLighting() {
+        // 清理旧灯光
+        scene.children.filter(obj => obj.isLight).forEach(light => scene.remove(light));
+
+        // 环境光
+        ambientLight = new THREE.AmbientLight(0x404040, 0.23);
+        scene.add(ambientLight);
+
+        // 主方向光
+        mainLight = new THREE.DirectionalLight(0xffffff, 10);
+        mainLight.position.set(-5.0, 15.0, 5.0);
+        mainLight.castShadow = true;
+
+        mainLight.shadow.mapSize.set(4096, 4096);
+        mainLight.shadow.camera.near = 0.1;
+        mainLight.shadow.camera.far = 50;
+        mainLight.shadow.camera.left = -10;
+        mainLight.shadow.camera.right = 10;
+        mainLight.shadow.camera.top = 10;
+        mainLight.shadow.camera.bottom = -10;
+        mainLight.shadow.bias = -0.00008;
+        mainLight.shadow.normalBias = 0.02;
+        mainLight.shadow.camera.updateProjectionMatrix();
+
+        mainLight.target.position.set(0, 3, 0);
+        scene.add(mainLight.target);
+        scene.add(mainLight);
+
+        // 补光
+        fillLight = new THREE.SpotLight(0xffffff, 0.12, 2.0);
+        fillLight.angle = Math.PI / 2;
+        fillLight.castShadow = false;
+        fillLight.position.set(0, 1.0, 4.0);
+        fillLight.target.position.set(0, 0, 0);
+        scene.add(fillLight.target);
+        scene.add(fillLight);
+
+        // 边缘光
+        rimLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        rimLight.position.set(0, 0, -5);
+        scene.add(rimLight);
+
+        logMessage('Lighting system initialized.', 'info');
+      }
+
+      // 初始化环境（基于 ModelViewer.vue）
+      function initEnvironment() {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        const skyScene = new THREE.Scene();
+        const skySize = 450000;
+        const sky = new THREE.Sky();
+        sky.scale.setScalar(skySize);
+        skyScene.add(sky);
+
+        const uniforms = sky.material.uniforms;
+        uniforms['turbidity'].value = 10.0;
+        uniforms['rayleigh'].value = 0.5;
+        uniforms['mieCoefficient'].value = 0.003;
+        uniforms['mieDirectionalG'].value = 0.8;
+
+        const sun = new THREE.Vector3();
+        const phi = THREE.MathUtils.degToRad(90 - 35);
+        const theta = THREE.MathUtils.degToRad(200);
+        sun.setFromSphericalCoords(1, phi, theta);
+        uniforms['sunPosition'].value.copy(sun);
+
+        const envRT = pmrem.fromScene(skyScene, 0.1);
+        scene.environment = envRT.texture;
+
+        logMessage('Environment system initialized.', 'info');
+      }
+
+      // 渲染循环
+      function animate() {
+        const delta = clock.getDelta();
+
+        if (controls) {
+          controls.update();
+        }
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+
+      // 窗口大小变化处理
+      function onWindowResize() {
+        const canvas = document.getElementById('render-canvas');
+        const container = canvas.parentElement;
+
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      }
+
+      // 初始化事件监听器
+      function initEventListeners() {
+        // 文件输入
+        document.getElementById('glb-input').addEventListener('change', handleGLBInput);
+        document.getElementById('target-input').addEventListener('change', handleTargetInput);
+
+        // 按钮事件
+        document.getElementById('start-optimization').addEventListener('click', startOptimization);
+        document.getElementById('stop-optimization').addEventListener('click', stopOptimization);
+        document.getElementById('reset-params').addEventListener('click', resetParameters);
+        document.getElementById('update-render').addEventListener('click', updateCurrentRender);
+        document.getElementById('match-background').addEventListener('click', matchBackgroundColor);
+        document
+          .getElementById('reset-dimensions')
+          .addEventListener('click', resetRendererToContainerDimensions);
+        document.getElementById('export-image').addEventListener('click', exportImage);
+
+        logMessage('Event listeners initialized.', 'info');
+      }
+
+      // 初始化参数系统
+      function initParameterSystem() {
+        const parameterInputs = document.querySelectorAll('input[type="range"]');
+
+        parameterInputs.forEach(input => {
+          const valueSpan = input.nextElementSibling;
+
+          input.addEventListener('input', function () {
+            valueSpan.textContent = parseFloat(this.value).toFixed(2);
+            updateRenderingParameters();
+          });
+        });
+
+        // 初始化相似度矩阵
+        initSimilarityMatrix();
+
+        logMessage('Parameter system initialized.', 'info');
+      }
+
+      // 初始化相似度矩阵显示
+      function initSimilarityMatrix() {
+        const gridSize = parseInt(document.getElementById('grid-size').value);
+        const matrix = document.getElementById('similarity-matrix');
+
+        matrix.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        matrix.innerHTML = '';
+
+        for (let i = 0; i < gridSize * gridSize; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'similarity-cell';
+          cell.style.backgroundColor = '#cccccc';
+          cell.textContent = '0%';
+          matrix.appendChild(cell);
+        }
+      }
+
+      // 处理 GLB 文件输入
+      async function handleGLBInput(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        logMessage(`Loading GLB file: ${file.name}`, 'info');
+        showLoadingOverlay(true);
+
+        try {
+          const loader = new THREE.GLTFLoader();
+          const arrayBuffer = await file.arrayBuffer();
+          const blob = new Blob([arrayBuffer]);
+          const url = URL.createObjectURL(blob);
+
+          loader.load(
+            url,
+            function (gltf) {
+              // 清理旧模型
+              if (model) {
+                scene.remove(model);
+              }
+
+              model = gltf.scene;
+
+              // 应用材质设置
+              model.traverse(obj => {
+                if (obj.isMesh && obj.material && 'envMapIntensity' in obj.material) {
+                  obj.material.envMapIntensity = 0.02;
+                  obj.material.needsUpdate = true;
+                }
+                if (obj.isMesh) {
+                  obj.castShadow = true;
+                  obj.receiveShadow = true;
+                }
+              });
+
+              scene.add(model);
+
+              // 调整相机位置和模型缩放
+              const box = new THREE.Box3().setFromObject(model);
+              const center = box.getCenter(new THREE.Vector3());
+              const size = box.getSize(new THREE.Vector3());
+
+              // 计算合适的缩放比例，让模型看起来像目标图片那样大小适中
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const targetSize = 2.0; // 目标尺寸
+              const scale = targetSize / maxDim;
+              model.scale.setScalar(scale);
+
+              // 重新计算包围盒
+              const scaledBox = new THREE.Box3().setFromObject(model);
+              const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+              const scaledSize = scaledBox.getSize(new THREE.Vector3());
+
+              // 将模型移动到合适位置 - 稍微下移让视角更像目标图片
+              model.position.y = -scaledSize.y * 0.3;
+
+              // 相机看向模型中心，稍微偏上
+              const lookAtY = scaledCenter.y + scaledSize.y * 0.1;
+              camera.lookAt(0, lookAtY, 0);
+
+              // 设置控制器目标
+              controls.target.set(0, lookAtY, 0);
+              controls.update();
+
+              logMessage(`Model scaled by ${scale.toFixed(2)}x, positioned for front view`, 'info');
+
+              URL.revokeObjectURL(url);
+              showLoadingOverlay(false);
+
+              logMessage(`GLB model loaded successfully: ${file.name}`, 'success');
+
+              // 如果有目标图片，调整渲染器尺寸以匹配目标图片
+              if (targetImage) {
+                adjustRendererToTargetDimensions();
+              }
+
+              // 更新预览
+              setTimeout(() => {
+                updateRenderPreview();
+
+                // 如果有目标图片，同时更新相似度分析
+                if (targetImage) {
+                  updateSimilarityAnalysis();
+                }
+              }, 100);
+            },
+            undefined,
+            function (error) {
+              console.error('Error loading GLB:', error);
+              logMessage(`Error loading GLB: ${error.message}`, 'error');
+              showLoadingOverlay(false);
+            }
+          );
+        } catch (error) {
+          console.error('Error processing GLB file:', error);
+          logMessage(`Error processing GLB file: ${error.message}`, 'error');
+          showLoadingOverlay(false);
+        }
+      }
+
+      // 处理目标图片输入
+      function handleTargetInput(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        logMessage(`Loading target image: ${file.name}`, 'info');
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            targetImage = img;
+            updateTargetImagePreview();
+
+            logMessage(`Target image loaded: ${img.width}x${img.height}`, 'success');
+
+            // 调整渲染器尺寸以匹配目标图片
+            if (model) {
+              adjustRendererToTargetDimensions();
+              // 等待渲染器调整完成后更新分析
+              setTimeout(() => {
+                renderer.render(scene, camera);
+                updateRenderPreview();
+                updateSimilarityAnalysis();
+              }, 100);
+            } else {
+              // 即使没有模型也显示尺寸信息
+              updateDimensionMatchingIndicator(img.width, img.height);
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // 更新目标图片预览（显示原图或缩放后的图片）
+      function updateTargetImagePreview() {
+        const preview = document.getElementById('target-preview');
+        preview.innerHTML = '';
+
+        if (!targetImage) return;
+
+        // 如果有渲染模型，显示缩放后的目标图片
+        if (model) {
+          const canvas = renderer.domElement;
+          const renderDataURL = canvas.toDataURL('image/png');
+
+          const renderImg = new Image();
+          renderImg.onload = function () {
+            try {
+              const { canvas1 } = normalizeModelSize(targetImage, renderImg, 256);
+              const scaledImg = new Image();
+              scaledImg.onload = function () {
+                preview.appendChild(scaledImg);
+
+                // 添加提示文本
+                const hint = document.createElement('div');
+                hint.style.cssText =
+                  'position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; font-size: 10px; border-radius: 3px;';
+                hint.textContent = 'Scaled to match GLB';
+                preview.style.position = 'relative';
+                preview.appendChild(hint);
+              };
+              scaledImg.src = canvas1.toDataURL('image/png');
+            } catch (error) {
+              // 如果缩放失败，显示原图
+              preview.appendChild(targetImage.cloneNode());
+            }
+          };
+          renderImg.src = renderDataURL;
+        } else {
+          // 如果没有渲染模型，显示原图
+          preview.appendChild(targetImage.cloneNode());
+        }
+      }
+
+      // 更新渲染参数
+      function updateRenderingParameters() {
+        if (!mainLight || !fillLight || !rimLight) return;
+
+        // 更新主光源
+        mainLight.intensity = parseFloat(document.getElementById('main-light-intensity').value);
+        mainLight.position.set(
+          parseFloat(document.getElementById('main-light-x').value),
+          parseFloat(document.getElementById('main-light-y').value),
+          parseFloat(document.getElementById('main-light-z').value)
+        );
+
+        // 更新补光
+        fillLight.intensity = parseFloat(document.getElementById('fill-light-intensity').value);
+
+        // 更新环境
+        renderer.toneMappingExposure = parseFloat(
+          document.getElementById('tone-mapping-exposure').value
+        );
+
+        // 更新环境强度
+        const envIntensity = parseFloat(document.getElementById('env-intensity').value);
+        if (model) {
+          model.traverse(obj => {
+            if (obj.isMesh && obj.material && 'envMapIntensity' in obj.material) {
+              obj.material.envMapIntensity = envIntensity;
+              obj.material.needsUpdate = true;
+            }
+          });
+        }
+
+        // 更新相机
+        camera.position.set(
+          parseFloat(document.getElementById('camera-x').value),
+          parseFloat(document.getElementById('camera-y').value),
+          parseFloat(document.getElementById('camera-z').value)
+        );
+
+        // 保持相机朝向模型中心
+        if (model) {
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          const lookAtY = center.y + size.y * 0.1;
+          camera.lookAt(0, lookAtY, 0);
+          controls.target.set(0, lookAtY, 0);
+        }
+
+        // 更新预览
+        if (model && targetImage) {
+          setTimeout(() => {
+            updateRenderPreview();
+            updateSimilarityAnalysis();
+          }, 50);
+        }
+      }
+
+      // 更新渲染预览
+      function updateRenderPreview() {
+        const canvas = renderer.domElement;
+        const dataURL = canvas.toDataURL('image/png');
+
+        const preview = document.getElementById('render-preview');
+        preview.innerHTML = '';
+
+        const img = new Image();
+        img.src = dataURL;
+        preview.appendChild(img);
+      }
+
+      // 手动更新当前渲染（新增功能）
+      function updateCurrentRender() {
+        if (!model) {
+          logMessage('No model loaded to render.', 'warning');
+          return;
+        }
+
+        logMessage('Updating current render with manual adjustments...', 'info');
+
+        // 如果有目标图片，调整渲染尺寸以匹配目标图片
+        if (targetImage) {
+          adjustRendererToTargetDimensions();
+        }
+
+        // 强制渲染一帧
+        renderer.render(scene, camera);
+
+        // 等待渲染完成后更新预览
+        setTimeout(() => {
+          updateRenderPreview();
+
+          // 如果有目标图片，同时更新目标图片预览和相似度分析
+          if (targetImage) {
+            updateTargetImagePreview(); // 更新目标图片预览，显示缩放后的版本
+            updateSimilarityAnalysis();
+            logMessage(
+              'Render updated, dimensions matched to target, similarity analysis refreshed.',
+              'success'
+            );
+          } else {
+            logMessage('Render updated successfully.', 'success');
+          }
+        }, 100);
+      }
+
+      // 调整渲染器尺寸以匹配目标图片尺寸（新增功能）
+      function adjustRendererToTargetDimensions() {
+        if (!targetImage || !renderer) return;
+
+        const targetWidth = targetImage.naturalWidth || targetImage.width;
+        const targetHeight = targetImage.naturalHeight || targetImage.height;
+
+        logMessage(
+          `Adjusting renderer dimensions to match target: ${targetWidth}x${targetHeight}`,
+          'info'
+        );
+
+        // 更新渲染器尺寸
+        renderer.setSize(targetWidth, targetHeight);
+
+        // 更新相机长宽比
+        camera.aspect = targetWidth / targetHeight;
+        camera.updateProjectionMatrix();
+
+        // 更新尺寸匹配状态显示
+        updateDimensionMatchingIndicator(targetWidth, targetHeight);
+      }
+
+      // 更新尺寸匹配指示器（新增功能）
+      function updateDimensionMatchingIndicator(width, height) {
+        const indicator = document.getElementById('dimension-indicator');
+        if (indicator) {
+          indicator.innerHTML = `
+                    <span class="dimension-status active">
+                        📏 Rendering dimensions matched to target: ${width}x${height}px
+                    </span>
+                `;
+          indicator.style.display = 'block';
+        }
+      }
+
+      // 重置渲染器尺寸到默认容器尺寸（新增功能）
+      function resetRendererToContainerDimensions() {
+        if (!renderer) return;
+
+        const canvas = document.getElementById('render-canvas');
+        const container = canvas.parentElement;
+
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+
+        const indicator = document.getElementById('dimension-indicator');
+        if (indicator) {
+          indicator.innerHTML = `
+                    <span class="dimension-status inactive">
+                        📐 Using container dimensions: ${container.clientWidth}x${container.clientHeight}px
+                    </span>
+                `;
+        }
+
+        logMessage('Renderer dimensions reset to container size.', 'info');
+      }
+
+      // 更新相似度分析
+      function updateSimilarityAnalysis() {
+        if (!model || !targetImage) return;
+
+        const canvas = renderer.domElement;
+        const dataURL = canvas.toDataURL('image/png');
+
+        const img = new Image();
+        img.onload = function () {
+          const similarity = calculateSimilarity(targetImage, img);
+          document.getElementById('overall-similarity').textContent =
+            (similarity * 100).toFixed(2) + '%';
+
+          // 计算分片相似度
+          calculatePatchSimilarity(targetImage, img);
+        };
+        img.src = dataURL;
+      }
+
+      // 检测图像中模型的边界框
+      function detectModelBounds(imageData, width, height, threshold = 30) {
+        const data = imageData.data;
+        let minX = width,
+          minY = height,
+          maxX = 0,
+          maxY = 0;
+
+        // 检测非白色/透明像素来找到模型边界
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const index = (y * width + x) * 4;
+            const r = data[index];
+            const g = data[index + 1];
+            const b = data[index + 2];
+            const a = data[index + 3];
+
+            // 如果不是白色背景或透明像素
+            const isBackground =
+              (r > 255 - threshold && g > 255 - threshold && b > 255 - threshold) || a < threshold;
+
+            if (!isBackground) {
+              minX = Math.min(minX, x);
+              minY = Math.min(minY, y);
+              maxX = Math.max(maxX, x);
+              maxY = Math.max(maxY, y);
+            }
+          }
+        }
+
+        // 添加边距
+        const padding = 10;
+        return {
+          x: Math.max(0, minX - padding),
+          y: Math.max(0, minY - padding),
+          width: Math.min(width, maxX - minX + padding * 2),
+          height: Math.min(height, maxY - minY + padding * 2),
+        };
+      }
+
+      // 智能缩放：以GLB渲染图为基准，调整目标图片中模型的尺寸
+      function normalizeModelSize(targetImg, renderImg, targetSize = 256) {
+        const canvas1 = document.createElement('canvas'); // 目标图片
+        const canvas2 = document.createElement('canvas'); // 渲染图片
+        const ctx1 = canvas1.getContext('2d');
+        const ctx2 = canvas2.getContext('2d');
+
+        // 先将图片绘制到临时画布进行分析
+        const tempSize = 512;
+        canvas1.width = canvas2.width = tempSize;
+        canvas1.height = canvas2.height = tempSize;
+
+        // 绘制原图进行分析
+        ctx1.fillStyle = 'white';
+        ctx1.fillRect(0, 0, tempSize, tempSize);
+        ctx1.drawImage(targetImg, 0, 0, tempSize, tempSize);
+
+        ctx2.fillStyle = 'white';
+        ctx2.fillRect(0, 0, tempSize, tempSize);
+        ctx2.drawImage(renderImg, 0, 0, tempSize, tempSize);
+
+        // 检测模型边界
+        const imageData1 = ctx1.getImageData(0, 0, tempSize, tempSize);
+        const imageData2 = ctx2.getImageData(0, 0, tempSize, tempSize);
+
+        const targetBounds = detectModelBounds(imageData1, tempSize, tempSize);
+        const renderBounds = detectModelBounds(imageData2, tempSize, tempSize);
+
+        logMessage(`Target model bounds: ${targetBounds.width}x${targetBounds.height}`, 'info');
+        logMessage(`Render model bounds: ${renderBounds.width}x${renderBounds.height}`, 'info');
+
+        // 创建最终的标准化画布
+        canvas1.width = canvas2.width = targetSize;
+        canvas1.height = canvas2.height = targetSize;
+
+        // 以渲染图的模型尺寸为基准，计算目标图片的缩放比例
+        const renderScale = Math.min(
+          (targetSize * 0.8) / renderBounds.width,
+          (targetSize * 0.8) / renderBounds.height
+        );
+
+        // 计算目标图片需要的缩放比例，使其模型尺寸与渲染图匹配
+        const targetModelSize = Math.max(targetBounds.width, targetBounds.height);
+        const renderModelSize = Math.max(renderBounds.width, renderBounds.height);
+        const modelSizeRatio = renderModelSize / targetModelSize;
+        const targetScale = renderScale * modelSizeRatio;
+
+        // 计算居中位置
+        const scaledTargetWidth = targetBounds.width * targetScale;
+        const scaledTargetHeight = targetBounds.height * targetScale;
+        const scaledRenderWidth = renderBounds.width * renderScale;
+        const scaledRenderHeight = renderBounds.height * renderScale;
+
+        const offsetX1 = (targetSize - scaledTargetWidth) / 2 - targetBounds.x * targetScale;
+        const offsetY1 = (targetSize - scaledTargetHeight) / 2 - targetBounds.y * targetScale;
+        const offsetX2 = (targetSize - scaledRenderWidth) / 2 - renderBounds.x * renderScale;
+        const offsetY2 = (targetSize - scaledRenderHeight) / 2 - renderBounds.y * renderScale;
+
+        // 绘制白色背景
+        ctx1.fillStyle = 'white';
+        ctx1.fillRect(0, 0, targetSize, targetSize);
+        ctx2.fillStyle = 'white';
+        ctx2.fillRect(0, 0, targetSize, targetSize);
+
+        // 绘制缩放和居中后的图像
+        ctx1.save();
+        ctx1.translate(offsetX1, offsetY1);
+        ctx1.scale(targetScale, targetScale);
+        ctx1.drawImage(targetImg, 0, 0, tempSize, tempSize);
+        ctx1.restore();
+
+        ctx2.save();
+        ctx2.translate(offsetX2, offsetY2);
+        ctx2.scale(renderScale, renderScale);
+        ctx2.drawImage(renderImg, 0, 0, tempSize, tempSize);
+        ctx2.restore();
+
+        logMessage(
+          `Target scale: ${targetScale.toFixed(3)}, Render scale: ${renderScale.toFixed(3)}`,
+          'success'
+        );
+        logMessage(`Model size ratio: ${modelSizeRatio.toFixed(3)} (render/target)`, 'info');
+
+        return {
+          canvas1,
+          canvas2,
+          targetScale,
+          renderScale,
+          modelSizeRatio,
+        };
+      }
+
+      // 计算整体相似度（改进版本，以GLB渲染为基准调整目标图片）
+      function calculateSimilarity(targetImg, renderImg) {
+        try {
+          // 注意参数顺序：目标图片，渲染图片
+          const { canvas1, canvas2 } = normalizeModelSize(targetImg, renderImg, 256);
+          const ctx1 = canvas1.getContext('2d');
+          const ctx2 = canvas2.getContext('2d');
+
+          const size = 256;
+          const data1 = ctx1.getImageData(0, 0, size, size).data; // 缩放后的目标图片
+          const data2 = ctx2.getImageData(0, 0, size, size).data; // 缩放后的渲染图片
+
+          let sum = 0;
+          for (let i = 0; i < data1.length; i += 4) {
+            const r1 = data1[i],
+              g1 = data1[i + 1],
+              b1 = data1[i + 2];
+            const r2 = data2[i],
+              g2 = data2[i + 1],
+              b2 = data2[i + 2];
+
+            const diff = Math.sqrt(
+              (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2)
+            );
+            sum += diff;
+          }
+
+          const maxDiff = Math.sqrt(3 * 255 * 255);
+          const avgDiff = sum / (size * size);
+          return Math.max(0, 1 - avgDiff / maxDiff);
+        } catch (error) {
+          console.error('Error in similarity calculation:', error);
+          logMessage(`Similarity calculation error: ${error.message}`, 'error');
+          return 0;
+        }
+      }
+
+      // 计算分片相似度（改进版本，以GLB渲染为基准调整目标图片）
+      function calculatePatchSimilarity(targetImg, renderImg) {
+        const gridSize = parseInt(document.getElementById('grid-size').value);
+        const matrix = document.getElementById('similarity-matrix');
+
+        try {
+          // 使用智能缩放后的画布进行分片比较，注意参数顺序
+          const { canvas1, canvas2, modelSizeRatio } = normalizeModelSize(
+            targetImg,
+            renderImg,
+            256
+          );
+          const ctx1 = canvas1.getContext('2d'); // 缩放后的目标图片
+          const ctx2 = canvas2.getContext('2d'); // 缩放后的渲染图片
+
+          const size = 256;
+          const patchSize = size / gridSize;
+          const similarities = [];
+
+          for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+              const x = col * patchSize;
+              const y = row * patchSize;
+
+              const data1 = ctx1.getImageData(x, y, patchSize, patchSize).data;
+              const data2 = ctx2.getImageData(x, y, patchSize, patchSize).data;
+
+              let sum = 0;
+              for (let i = 0; i < data1.length; i += 4) {
+                const r1 = data1[i],
+                  g1 = data1[i + 1],
+                  b1 = data1[i + 2];
+                const r2 = data2[i],
+                  g2 = data2[i + 1],
+                  b2 = data2[i + 2];
+
+                const diff = Math.sqrt(
+                  (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2)
+                );
+                sum += diff;
+              }
+
+              const maxDiff = Math.sqrt(3 * 255 * 255);
+              const avgDiff = sum / (patchSize * patchSize);
+              const similarity = Math.max(0, 1 - avgDiff / maxDiff);
+              similarities.push(similarity);
+
+              // 更新矩阵显示
+              const cellIndex = row * gridSize + col;
+              const cell = matrix.children[cellIndex];
+              if (cell) {
+                const percent = Math.round(similarity * 100);
+                cell.textContent = percent + '%';
+
+                // 颜色映射：红色(低) -> 黄色(中) -> 绿色(高)
+                if (similarity < 0.6) {
+                  cell.style.backgroundColor = `rgb(${255}, ${Math.round((similarity * 255) / 0.6)}, 0)`;
+                } else {
+                  cell.style.backgroundColor = `rgb(${Math.round(((1 - similarity) * 255) / 0.4)}, 255, 0)`;
+                }
+              }
+            }
+          }
+
+          // 更新分析信息
+          const lowSimilarityPatches = similarities.filter(
+            s => s < parseFloat(document.getElementById('similarity-threshold').value)
+          ).length;
+          const analysis = document.getElementById('patch-analysis');
+          analysis.innerHTML = `
+                    <p><strong>Total Patches:</strong> ${similarities.length}</p>
+                    <p><strong>Low Similarity Patches:</strong> ${lowSimilarityPatches}</p>
+                    <p><strong>Average Similarity:</strong> ${((similarities.reduce((a, b) => a + b, 0) / similarities.length) * 100).toFixed(2)}%</p>
+                    <p><strong>Model Size Ratio:</strong> ${modelSizeRatio.toFixed(3)}</p>
+                    <p><strong>Size Normalized:</strong> ✅ Target scaled to match render</p>
+                `;
+        } catch (error) {
+          console.error('Error in patch similarity calculation:', error);
+          logMessage(`Patch similarity calculation error: ${error.message}`, 'error');
+        }
+      }
+
+      // 开始优化
+      function startOptimization() {
+        if (!model || !targetImage) {
+          logMessage('Please load both GLB model and target image first.', 'warning');
+          return;
+        }
+
+        isOptimizing = true;
+        currentIteration = 0;
+        bestScore = parseFloat(document.getElementById('overall-similarity').textContent) / 100; // 使用当前得分作为初始最佳得分
+
+        document.getElementById('start-optimization').disabled = true;
+        document.getElementById('stop-optimization').disabled = false;
+        document.getElementById('optimization-status').textContent = 'Optimizing...';
+
+        // 初始化贪心算法
+        initializeGreedyOptimization();
+
+        logMessage('🚀 Starting greedy optimization with directional memory...', 'info');
+        logMessage(`📊 Initial similarity score: ${(bestScore * 100).toFixed(2)}%`, 'info');
+
+        // 开始优化循环
+        optimizeParameters();
+      }
+
+      // 停止优化
+      function stopOptimization() {
+        isOptimizing = false;
+        document.getElementById('start-optimization').disabled = false;
+        document.getElementById('stop-optimization').disabled = true;
+        document.getElementById('optimization-status').textContent = 'Stopped';
+
+        logMessage('Optimization stopped by user.', 'warning');
+      }
+
+      // 初始化贪心算法参数状态
+      function initializeGreedyOptimization() {
+        const parameters = [
+          'main-light-intensity',
+          'main-light-x',
+          'main-light-y',
+          'main-light-z',
+          'fill-light-intensity',
+          'tone-mapping-exposure',
+          'env-intensity',
+          'camera-x',
+          'camera-y',
+          'camera-z',
+        ];
+
+        parameterStates = {};
+        globalBestParams = {};
+
+        parameters.forEach(paramId => {
+          const paramInput = document.getElementById(paramId);
+          const min = parseFloat(paramInput.min);
+          const max = parseFloat(paramInput.max);
+          const step = parseFloat(paramInput.step) || 0.1;
+
+          parameterStates[paramId] = {
+            currentValue: parseFloat(paramInput.value),
+            bestValue: parseFloat(paramInput.value),
+            lastDirection: 0, // -1: 负方向, 0: 未知, 1: 正方向
+            stepSize: step * 2, // 初始步长
+            consecutiveImprovement: 0, // 连续改善次数
+            consecutiveFailure: 0, // 连续失败次数
+            min: min,
+            max: max,
+            baseStep: step,
+          };
+
+          globalBestParams[paramId] = parseFloat(paramInput.value);
+        });
+
+        stagnationCount = 0;
+        currentParameterIndex = 0;
+
+        logMessage('Greedy optimization initialized with directional memory.', 'info');
+      }
+
+      // 贪心算法优化（智能方向搜索）
+      async function optimizeParameters() {
+        if (!isOptimizing) return;
+
+        currentIteration++;
+        document.getElementById('iteration-count').textContent = currentIteration;
+
+        // 获取当前相似度
+        const currentScore =
+          parseFloat(document.getElementById('overall-similarity').textContent) / 100;
+
+        // 更新全局最佳得分
+        let foundBetter = false;
+        if (currentScore > bestScore) {
+          bestScore = currentScore;
+          foundBetter = true;
+          stagnationCount = 0;
+
+          // 保存当前最佳参数
+          Object.keys(parameterStates).forEach(paramId => {
+            globalBestParams[paramId] = parameterStates[paramId].currentValue;
+          });
+
+          document.getElementById('best-score').textContent = (bestScore * 100).toFixed(2) + '%';
+          logMessage(`🎯 New best score: ${(bestScore * 100).toFixed(2)}%`, 'success');
+        } else {
+          stagnationCount++;
+        }
+
+        // 更新进度条
+        const progress = Math.min(currentScore * 100, 100);
+        document.getElementById('progress-fill').style.width = progress + '%';
+
+        // 检查收敛条件
+        if (currentScore > 0.95 || currentIteration > 200 || stagnationCount > 20) {
+          if (currentScore > 0.95) {
+            logMessage('🎉 Optimization completed: Target similarity achieved!', 'success');
+          } else if (stagnationCount > 20) {
+            logMessage('📊 Optimization completed: Converged to local optimum.', 'info');
+          } else {
+            logMessage('⏱️ Optimization completed: Maximum iterations reached.', 'info');
+          }
+          stopOptimization();
+          return;
+        }
+
+        // 执行贪心搜索步骤
+        await greedySearchStep(currentScore, foundBetter);
+
+        // 等待渲染完成后继续
+        setTimeout(() => {
+          updateSimilarityAnalysis();
+          setTimeout(optimizeParameters, 300); // 减少间隔提高效率
+        }, 50);
+      }
+
+      // 贪心搜索步骤
+      async function greedySearchStep(currentScore, foundBetter) {
+        const parameters = Object.keys(parameterStates);
+        const learningRate = parseFloat(document.getElementById('learning-rate').value);
+
+        // 选择当前要优化的参数（轮询或智能选择）
+        let paramId = parameters[currentParameterIndex % parameters.length];
+        let paramState = parameterStates[paramId];
+
+        // 如果当前参数连续失败太多次，切换到下一个参数
+        if (paramState.consecutiveFailure > 5) {
+          currentParameterIndex = (currentParameterIndex + 1) % parameters.length;
+          paramId = parameters[currentParameterIndex];
+          paramState = parameterStates[paramId];
+          logMessage(`🔄 Switching to parameter: ${paramId}`, 'info');
+        }
+
+        // 更新UI显示当前优化参数
+        document.getElementById('current-parameter').textContent = paramId;
+
+        const paramInput = document.getElementById(paramId);
+        const currentValue = paramState.currentValue;
+
+        // 计算调整步长（自适应）
+        let stepSize = paramState.stepSize * learningRate;
+
+        // 根据历史表现调整步长
+        if (paramState.consecutiveImprovement > 3) {
+          stepSize *= 1.5; // 连续改善时增加步长
+        } else if (paramState.consecutiveFailure > 2) {
+          stepSize *= 0.5; // 连续失败时减少步长
+        }
+
+        // 确保步长不会太小或太大
+        stepSize = Math.max(
+          paramState.baseStep * 0.1,
+          Math.min(stepSize, (paramState.max - paramState.min) * 0.1)
+        );
+
+        let bestDirection = 0;
+        let bestNewValue = currentValue;
+
+        // 如果有历史方向信息，优先尝试该方向
+        if (paramState.lastDirection !== 0) {
+          const testValue = currentValue + stepSize * paramState.lastDirection;
+          const clampedValue = Math.max(paramState.min, Math.min(paramState.max, testValue));
+
+          if (clampedValue !== currentValue) {
+            // 测试历史有效方向
+            await testParameterValue(paramId, clampedValue);
+            const testScore = await getCurrentSimilarity();
+
+            if (testScore > currentScore) {
+              bestDirection = paramState.lastDirection;
+              bestNewValue = clampedValue;
+              document.getElementById('search-direction').textContent =
+                paramState.lastDirection > 0 ? '⬆️ Positive' : '⬇️ Negative';
+              logMessage(
+                `🎯 ${paramId}: Continuing in successful direction (${paramState.lastDirection > 0 ? '+' : '-'}${stepSize.toFixed(3)})`,
+                'info'
+              );
+            }
+          }
+        }
+
+        // 如果历史方向无效或没有历史方向，尝试两个方向
+        if (bestDirection === 0) {
+          const directions = [1, -1];
+          let bestScore = currentScore;
+
+          for (const direction of directions) {
+            const testValue = currentValue + stepSize * direction;
+            const clampedValue = Math.max(paramState.min, Math.min(paramState.max, testValue));
+
+            if (clampedValue !== currentValue) {
+              await testParameterValue(paramId, clampedValue);
+              const testScore = await getCurrentSimilarity();
+
+              if (testScore > bestScore) {
+                bestScore = testScore;
+                bestDirection = direction;
+                bestNewValue = clampedValue;
+              }
+            }
+          }
+
+          // 恢复原值进行最终调整
+          await testParameterValue(paramId, currentValue);
+        }
+
+        // 应用最佳调整
+        if (bestDirection !== 0) {
+          paramInput.value = bestNewValue;
+          paramInput.nextElementSibling.textContent = bestNewValue.toFixed(2);
+
+          paramState.currentValue = bestNewValue;
+          paramState.lastDirection = bestDirection;
+          paramState.consecutiveImprovement++;
+          paramState.consecutiveFailure = 0;
+
+          // 更新搜索方向显示
+          document.getElementById('search-direction').textContent =
+            bestDirection > 0 ? '⬆️ Positive' : '⬇️ Negative';
+
+          // 适度增加步长
+          paramState.stepSize = Math.min(paramState.stepSize * 1.1, paramState.baseStep * 10);
+
+          updateRenderingParameters();
+          logMessage(
+            `✅ ${paramId}: ${currentValue.toFixed(3)} → ${bestNewValue.toFixed(3)} (direction: ${bestDirection > 0 ? '+' : '-'})`,
+            'success'
+          );
+        } else {
+          // 没有找到改善方向
+          paramState.consecutiveImprovement = 0;
+          paramState.consecutiveFailure++;
+
+          // 更新搜索方向显示
+          document.getElementById('search-direction').textContent = '🔍 Exploring';
+
+          // 减少步长或重置方向
+          if (paramState.consecutiveFailure > 3) {
+            paramState.lastDirection = 0; // 重置方向记忆
+            paramState.stepSize = paramState.baseStep; // 重置步长
+            document.getElementById('search-direction').textContent = '🔄 Reset';
+            logMessage(`🔄 ${paramId}: Resetting search direction and step size`, 'info');
+          }
+
+          // 切换到下一个参数
+          currentParameterIndex = (currentParameterIndex + 1) % parameters.length;
+        }
+      }
+
+      // 测试参数值并等待渲染
+      async function testParameterValue(paramId, value) {
+        const paramInput = document.getElementById(paramId);
+        const oldValue = paramInput.value;
+
+        paramInput.value = value;
+        paramInput.nextElementSibling.textContent = value.toFixed(2);
+        updateRenderingParameters();
+
+        // 等待渲染完成
+        await new Promise(resolve => setTimeout(resolve, 80));
+
+        return value;
+      }
+
+      // 获取当前相似度（异步）
+      async function getCurrentSimilarity() {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            if (model && targetImage) {
+              const canvas = renderer.domElement;
+              const dataURL = canvas.toDataURL('image/png');
+
+              const img = new Image();
+              img.onload = function () {
+                const similarity = calculateSimilarity(targetImage, img);
+                resolve(similarity);
+              };
+              img.src = dataURL;
+            } else {
+              resolve(0);
+            }
+          }, 30);
+        });
+      }
+
+      // 重置参数
+      function resetParameters() {
+        const defaultValues = {
+          'main-light-intensity': 10,
+          'main-light-x': -5,
+          'main-light-y': 15,
+          'main-light-z': 5,
+          'fill-light-intensity': 0.12,
+          'tone-mapping-exposure': 0.3,
+          'env-intensity': 0.02,
+          'camera-x': 0,
+          'camera-y': 0.5,
+          'camera-z': 3.0,
+        };
+
+        Object.keys(defaultValues).forEach(id => {
+          const input = document.getElementById(id);
+          input.value = defaultValues[id];
+          input.nextElementSibling.textContent = defaultValues[id].toFixed(2);
+        });
+
+        updateRenderingParameters();
+        logMessage('Parameters reset to default values.', 'info');
+      }
+
+      // 匹配目标图片的背景颜色
+      function matchBackgroundColor() {
+        if (!targetImage) {
+          logMessage('Please load target image first.', 'warning');
+          return;
+        }
+
+        logMessage('Analyzing target image background color...', 'info');
+
+        try {
+          // 创建临时画布分析背景颜色
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCanvas.width = targetImage.width;
+          tempCanvas.height = targetImage.height;
+
+          tempCtx.drawImage(targetImage, 0, 0);
+
+          // 分析边缘像素获取背景颜色
+          const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+          const data = imageData.data;
+
+          // 采样边缘像素
+          const samplePoints = [];
+          const width = tempCanvas.width;
+          const height = tempCanvas.height;
+
+          // 采样四条边的像素
+          for (let i = 0; i < width; i += 10) {
+            // 上边
+            samplePoints.push({
+              r: data[i * 4],
+              g: data[i * 4 + 1],
+              b: data[i * 4 + 2],
+            });
+            // 下边
+            const bottomIndex = ((height - 1) * width + i) * 4;
+            samplePoints.push({
+              r: data[bottomIndex],
+              g: data[bottomIndex + 1],
+              b: data[bottomIndex + 2],
+            });
+          }
+
+          for (let j = 0; j < height; j += 10) {
+            // 左边
+            const leftIndex = j * width * 4;
+            samplePoints.push({
+              r: data[leftIndex],
+              g: data[leftIndex + 1],
+              b: data[leftIndex + 2],
+            });
+            // 右边
+            const rightIndex = (j * width + width - 1) * 4;
+            samplePoints.push({
+              r: data[rightIndex],
+              g: data[rightIndex + 1],
+              b: data[rightIndex + 2],
+            });
+          }
+
+          // 计算平均颜色
+          let totalR = 0,
+            totalG = 0,
+            totalB = 0;
+          samplePoints.forEach(point => {
+            totalR += point.r;
+            totalG += point.g;
+            totalB += point.b;
+          });
+
+          const avgR = Math.round(totalR / samplePoints.length);
+          const avgG = Math.round(totalG / samplePoints.length);
+          const avgB = Math.round(totalB / samplePoints.length);
+
+          // 设置3D场景背景颜色
+          const backgroundColor = new THREE.Color(avgR / 255, avgG / 255, avgB / 255);
+          scene.background = backgroundColor;
+
+          // 强制渲染更新
+          renderer.render(scene, camera);
+
+          logMessage(`Background matched: RGB(${avgR}, ${avgG}, ${avgB})`, 'success');
+
+          // 如果正在优化，更新预览
+          if (model) {
+            setTimeout(() => {
+              updateRenderPreview();
+              if (targetImage) {
+                updateSimilarityAnalysis();
+              }
+            }, 100);
+          }
+        } catch (error) {
+          console.error('Error matching background color:', error);
+          logMessage(`Background matching failed: ${error.message}`, 'error');
+        }
+      }
+
+      // 导出图片
+      function exportImage() {
+        if (!model) {
+          logMessage('No model loaded to export.', 'warning');
+          return;
+        }
+
+        const canvas = renderer.domElement;
+        const link = document.createElement('a');
+        link.download = 'render-export.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        logMessage('Render exported successfully.', 'success');
+      }
+
+      // 显示/隐藏加载覆盖层
+      function showLoadingOverlay(show) {
+        const overlay = document.getElementById('loading-overlay');
+        if (show) {
+          overlay.classList.add('active');
+        } else {
+          overlay.classList.remove('active');
+        }
+      }
+
+      // 网格大小变化处理
+      document.getElementById('grid-size').addEventListener('change', function () {
+        initSimilarityMatrix();
+        if (model && targetImage) {
+          updateSimilarityAnalysis();
+        }
+      });
+
+      logMessage('LikeUnity system ready!', 'success');
+    </script>
+  </body>
+</html>

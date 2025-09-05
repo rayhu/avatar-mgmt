@@ -33,5 +33,5 @@ module.exports = {
     '@typescript-eslint/no-this-alias': 'warn',
     '@typescript-eslint/no-array-constructor': 'warn',
   },
-  ignorePatterns: ['dist/**/*', 'node_modules/**/*'],
+  ignorePatterns: ['dist/**/*', 'node_modules/**/*', 'public/**/*'],
 };

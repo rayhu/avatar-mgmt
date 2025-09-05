@@ -41,6 +41,8 @@ import { useI18n } from 'vue-i18n';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+// import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
+import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 const { t } = useI18n();
 
@@ -79,44 +81,33 @@ let backgroundDistance = -3; // 背景距离，数值越小越近
 let backgroundOffset = { x: 0, y: 0 }; // 背景位置偏移
 let backgroundScale = 1.0; // 背景缩放
 
-// 初始化场景
 function initScene() {
   if (!container.value) return;
 
   // 创建场景
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf0f0f0);
-
+  // scene.background = new THREE.Color(0xf0f0f0);
+  scene.background = new THREE.Color(0xffffff); // 白色
   // 创建背景平面
-  createBackgroundPlane();
+  // createBackgroundPlane();
 
-  // 创建相机
-  camera = new THREE.PerspectiveCamera(
-    75,
-    container.value.clientWidth / container.value.clientHeight,
-    0.1,
-    1000
-  );
-  camera.position.z = 5;
+  // 初始化渲染器
+  initRenderer();
 
-  // 创建渲染器
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(container.value.clientWidth, container.value.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  container.value.appendChild(renderer.domElement);
+  // 初始化相机（使用Unity配置）
+  initCamera();
 
-  // 添加轨道控制
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
+  // 初始化轨道控制
+  initControls();
 
-  // 添加环境光和平行光
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  scene.add(ambientLight);
+  // 初始化灯光系统（使用Unity配置）
+  initLighting();
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(1, 1, 1);
-  scene.add(directionalLight);
+  // 初始化环境贴图
+  initEnvironment();
+
+  // 初始化材质和阴影设置
+  initMaterialsAndShadows();
 
   // 如果有传入的 modelUrl，则加载；否则不加载任何模型
   if (props.modelUrl) {
@@ -136,6 +127,163 @@ function initScene() {
     animationLoop = requestAnimationFrame(animate);
   }
   animate();
+}
+
+// 初始化渲染器
+function initRenderer() {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+
+  // ✅ 统一渲染基线，贴近 Unity Built-in + Linear
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.3; // 降低曝光度，让场景更暗
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // 优化阴影渲染质量
+  renderer.shadowMap.autoUpdate = true; // 自动更新阴影贴图
+  renderer.shadowMap.needsUpdate = true; // 标记需要更新阴影
+
+  renderer.setSize(container.value!.clientWidth, container.value!.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.value!.appendChild(renderer.domElement);
+}
+
+// 初始化相机（使用Unity配置）
+function initCamera() {
+  const d2r = Math.PI / 180;
+
+  camera = new THREE.PerspectiveCamera(
+    60.0, // 使用Unity配置的FOV
+    container.value!.clientWidth / container.value!.clientHeight,
+    0.01, // 使用Unity配置的near
+    1000.0 // 使用Unity配置的far
+  );
+
+  // 使用Unity配置的位置和旋转
+  camera.position.set(0.0, 1.824000001, 1.24000001);
+  camera.rotation.set(11.523732185 * d2r, 180.0 * d2r, 0.0 * d2r);
+  camera.updateProjectionMatrix();
+}
+
+// 初始化轨道控制
+function initControls() {
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+}
+
+// 初始化灯光系统
+function initLighting() {
+  const d2r = Math.PI / 180;
+
+  // 清理旧灯光
+  scene.children.filter((o: any) => o.isLight).forEach(l => scene.remove(l));
+
+  // 环境光：保持很弱
+  const ambient = new THREE.AmbientLight(0x404040, 0.23);
+  scene.add(ambient);
+
+  // 主方向光：降低强度，避免过曝；其余设置不变
+  const dir = new THREE.DirectionalLight(0xffffff, 10);
+  dir.position.set(-1.5, 9.0, 6.0); // 前上方，更靠前，照亮模型前部
+  dir.castShadow = true;
+
+  // 增强阴影质量和强度
+  dir.shadow.mapSize.set(4096, 4096); // 提高阴影贴图分辨率，让阴影更清晰
+  dir.shadow.camera.near = 0.1; // 阴影相机近平面
+  dir.shadow.camera.far = 50; // 阴影相机远平面
+
+  // 调整阴影相机视锥体，确保覆盖整个场景
+  dir.shadow.camera.left = -10;
+  dir.shadow.camera.right = 10;
+  dir.shadow.camera.top = 10;
+  dir.shadow.camera.bottom = -10;
+
+  // 轻微调整 bias，减少“浮影”与锯齿
+  dir.shadow.bias = -0.00008; // ← CHANGED: -0.0001 → -0.00008（更稳）
+  dir.shadow.normalBias = 0.02; // ← CHANGED: 0.01 → 0.02（减少阴影自遮）
+
+  // 启用阴影相机自动更新
+  dir.shadow.camera.updateProjectionMatrix();
+  // 主光源目标指向模型中心，确保前部被照亮
+  dir.target.position.set(0, 3, 0);
+  scene.add(dir.target);
+  scene.add(dir);
+
+  // 补光：显著降低强度，只抬一丢丢暗部；其余参数不动
+  const fill = new THREE.SpotLight(0xffffff, 0.35, 2.0); // ← CHANGED: 0.4 → 0.12
+  fill.angle = 90.0 * d2r;
+  fill.castShadow = false;
+  fill.position.set(0, 1.0, 4.0); // 前下方，更靠前，作为填充光
+
+  // 补光目标指向模型中心
+  fill.target.position.set(0, 0, 0);
+  scene.add(fill.target);
+  scene.add(fill);
+
+  // 边缘光：保留，略弱一点以免发白
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.25); // ← CHANGED: 0.3 → 0.25
+  rimLight.position.set(0, 0, -5);
+  scene.add(rimLight);
+}
+// 初始化环境贴图
+function initEnvironment() {
+  const oldExposure = renderer.toneMappingExposure;
+  renderer.toneMappingExposure = 0.1; // ← 0.40~0.55 之间微调
+
+  // 用程序化天空近似 Unity Default-Skybox → 只用于 environment，不改背景
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const skyScene = new THREE.Scene();
+  const skySize = 450000; // 很大即可
+  const sky = new Sky();
+  sky.scale.setScalar(skySize);
+  skyScene.add(sky);
+  const u = (sky.material as any).uniforms;
+  // 这些参数接近 Unity 默认天空：蓝天偏中性，地面微灰
+  u['turbidity'].value = 10.0;
+  u['rayleigh'].value = 0.5;
+  u['mieCoefficient'].value = 0.003;
+  u['mieDirectionalG'].value = 0.8;
+  // 太阳方向大致按 Directional(50°,200°) 来
+  const sun = new THREE.Vector3();
+  const phi = THREE.MathUtils.degToRad(90 - 35); // 仰角
+  const theta = THREE.MathUtils.degToRad(200); // 方位
+  sun.setFromSphericalCoords(1, phi, theta);
+  u['sunPosition'].value.copy(sun);
+
+  const envRT = pmrem.fromScene(skyScene, 0.1);
+  renderer.toneMappingExposure = oldExposure;
+
+  scene.environment = envRT.texture;
+
+  // 半球光：进一步变弱，避免把背部“抹亮”
+  const hemi = new THREE.HemisphereLight(0xe8f2ff, 0xe5e5e5, 0.01); // ← CHANGED: 0.05 → 0.01
+  //scene.add(hemi);
+}
+
+// 初始化材质和阴影设置
+function initMaterialsAndShadows() {
+  scene.traverse((o: any) => {
+    if (o.isMesh && o.material) {
+      const m = o.material;
+
+      // 颜色/发光贴图使用 sRGB
+      if (m.map) m.map.colorSpace = THREE.SRGBColorSpace;
+      if (m.emissiveMap) m.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+
+      // AO uv2 兜底（保持不变）
+      const g = o.geometry;
+      if (m.aoMap && g && !g.attributes.uv2 && g.attributes.uv) {
+        g.setAttribute('uv2', g.attributes.uv);
+      }
+
+      if (m.normalMap && m.normalScale) m.normalScale.set(1, 1);
+
+      o.castShadow = true;
+      o.receiveShadow = true;
+    }
+  });
 }
 
 // 加载模型
@@ -230,6 +378,19 @@ async function loadModel(url: string) {
 
     console.log('✅ Model loaded successfully:', gltf);
 
+    console.log('✅ Model Animations:', gltf.animations);
+
+    gltf.animations.forEach((clip: THREE.AnimationClip) => {
+      console.log('🎬 动画片段:', clip.name, clip.duration, clip.tracks.length);
+    });
+    console.log('✅ Model Environment:', gltf.scene.environment);
+
+    gltf.scene.traverse((obj: any) => {
+      if (obj.isMesh && obj.morphTargetDictionary) {
+        console.log('🎭 Mesh:', obj.name);
+        console.log('可用表情:', Object.keys(obj.morphTargetDictionary));
+      }
+    });
     // 清除旧模型和动画
     if (model) {
       scene.remove(model);
@@ -241,6 +402,14 @@ async function loadModel(url: string) {
 
     model = gltf.scene;
     if (model) {
+      // 统一压低环境反射强度（关键）：避免背部过亮、发白
+      model.traverse((o: any) => {
+        if (o.isMesh && o.material && 'envMapIntensity' in o.material) {
+          console.log('Reduced Environment Intensity:', o.name);
+          o.material.envMapIntensity = 0.02; // ← CHANGED: 0.1 → 0.03
+          o.material.needsUpdate = true;
+        }
+      });
       scene.add(model);
       console.log('✅ Model added to scene');
 
@@ -793,12 +962,14 @@ defineExpose({
   loadingProgress,
   loadError,
 
-  // 视频流
-  getVideoStream: () => {
+  // 视频流，默认30，可以在15-60之间调节
+  getVideoStream: (frameRate: number = 30) => {
     if (!renderer || !renderer.domElement) {
       return null;
     }
-    return renderer.domElement.captureStream(30); // 30fps
+    // 限制帧率范围在合理区间内
+    const clampedFrameRate = Math.max(15, Math.min(60, frameRate));
+    return renderer.domElement.captureStream(clampedFrameRate);
   },
 });
 </script>
