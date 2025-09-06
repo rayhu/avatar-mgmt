@@ -1,9 +1,8 @@
 {
   "models": {
-    "袋袋基础版": {
-      "id": 1,
-      "name": "袋袋基础版",
-      "defaultConfig": true,
+    "robot_expressive": {
+      "name": "小机器人",
+      "description": "小机器人",
       "animations": {
         "actions": [
           {
@@ -129,68 +128,16 @@
         ]
       }
     },
-    "袋袋高级版": {
-      "id": 2,
-      "name": "袋袋高级版",
+    "daidai_std": {
+      "name": "袋袋标准动作集",
+      "description": "袋袋标准动作集",
       "animations": {
         "actions": [
           {
-            "actualName": "Idle",
-            "callName": "idle",
-            "displayName": "animate.actions.idle",
-            "description": "待机动画，角色保持静止状态",
-            "category": "basic",
-            "enabled": true,
-            "parameters": {
-              "loop": true,
-              "duration": 2.0,
-              "speed": 1.0
-            }
-          },
-          {
-            "actualName": "Walking",
-            "callName": "walking",
-            "displayName": "animate.actions.walking",
-            "description": "行走动画，角色向前移动",
-            "category": "movement",
-            "enabled": true,
-            "parameters": {
-              "loop": true,
-              "duration": 1.5,
-              "speed": 1.0
-            }
-          },
-          {
-            "actualName": "Running",
-            "callName": "running",
-            "displayName": "animate.actions.running",
-            "description": "奔跑动画，角色快速移动",
-            "category": "movement",
-            "enabled": true,
-            "parameters": {
-              "loop": true,
-              "duration": 1.0,
-              "speed": 1.2
-            }
-          },
-          {
-            "actualName": "Jump",
-            "callName": "jump",
-            "displayName": "animate.actions.jump",
-            "description": "跳跃动画，角色向上跳跃",
-            "category": "movement",
-            "enabled": true,
-            "parameters": {
-              "loop": false,
-              "duration": 1.5,
-              "speed": 1.0
-            }
-          },
-          {
-            "actualName": "Wave",
-            "callName": "wave",
-            "displayName": "animate.actions.wave",
-            "description": "挥手动画，角色挥手打招呼",
+            "actualName": "idle01_BaoQianNuLi",
+            "callName": "ApologyGesture",
+            "displayName": "animate.actions.apology",
+            "description": "道歉姿势，鞠躬表达歉意",
             "category": "gesture",
             "enabled": true,
             "parameters": {
@@ -200,11 +147,89 @@
             }
           },
           {
-            "actualName": "Dance",
-            "callName": "dance",
-            "displayName": "animate.actions.dance",
-            "description": "舞蹈动画，角色跳舞",
-            "category": "entertainment",
+            "actualName": "idle02_Love",
+            "callName": "BlinkLoveExpression",
+            "displayName": "animate.actions.love",
+            "description": "眨眼睛，双手比心",
+            "category": "movement",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "idle03_DaXiao",
+            "callName": "BigSmile",
+            "displayName": "animate.actions.laugh",
+            "description": "开怀大笑动作",
+            "category": "expression",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.0,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "idle04_TiaoPi",
+            "callName": "PlayfulGesture",
+            "displayName": "animate.actions.playful",
+            "description": "调皮动作，轻松搞怪",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.8,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "idle05_Sorry",
+            "callName": "SorryExpression",
+            "displayName": "animate.actions.sorry",
+            "description": "不好意思的表情和手势",
+            "category": "expression",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "idle06_Happy",
+            "callName": "HappyExpression",
+            "displayName": "animate.actions.happy",
+            "description": "开心微笑动作",
+            "category": "expression",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.5,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "idle07_Smile",
+            "callName": "SmileExpression",
+            "displayName": "animate.actions.smile",
+            "description": "自然的微笑",
+            "category": "expression",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 1.2,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "J00",
+            "callName": "NeutralPose",
+            "displayName": "animate.actions.neutral",
+            "description": "默认站姿",
+            "category": "pose",
             "enabled": true,
             "parameters": {
               "loop": true,
@@ -213,10 +238,23 @@
             }
           },
           {
-            "actualName": "ThumbsUp",
-            "callName": "thumbsUp",
-            "displayName": "animate.actions.thumbsUp",
-            "description": "点赞动画，角色竖起大拇指",
+            "actualName": "J01_Daoqian",
+            "callName": "DaoqianGesture",
+            "displayName": "animate.actions.daoqian",
+            "description": "解释解说道歉动作",
+            "category": "gesture",
+            "enabled": true,
+            "parameters": {
+              "loop": false,
+              "duration": 2.2,
+              "speed": 1.0
+            }
+          },
+          {
+            "actualName": "J02_Duibi",
+            "callName": "ComparisonGesture",
+            "displayName": "animate.actions.compare",
+            "description": "对比分析手势",
             "category": "gesture",
             "enabled": true,
             "parameters": {
@@ -226,11 +264,11 @@
             }
           },
           {
-            "actualName": "Punch",
-            "callName": "punch",
-            "displayName": "animate.actions.punch",
-            "description": "出拳动画，角色出拳攻击",
-            "category": "combat",
+            "actualName": "J03_Juli",
+            "callName": "DistanceExplanation",
+            "displayName": "animate.actions.explainDistance",
+            "description": "举例说明动作",
+            "category": "gesture",
             "enabled": true,
             "parameters": {
               "loop": false,
@@ -239,41 +277,41 @@
             }
           },
           {
-            "actualName": "Yes",
-            "callName": "yes",
-            "displayName": "animate.actions.yes",
-            "description": "点头动画，角色点头表示肯定",
+            "actualName": "J04_Qiangdiao",
+            "callName": "EmphasisGesture",
+            "displayName": "animate.actions.emphasize",
+            "description": "强调重点动作",
             "category": "gesture",
             "enabled": true,
             "parameters": {
               "loop": false,
-              "duration": 1.5,
+              "duration": 2.0,
               "speed": 1.0
             }
           },
           {
-            "actualName": "No",
-            "callName": "no",
-            "displayName": "animate.actions.no",
-            "description": "摇头动画，角色摇头表示否定",
+            "actualName": "J05_Zhixiang",
+            "callName": "PointingGesture",
+            "displayName": "animate.actions.point",
+            "description": "指向动作",
             "category": "gesture",
             "enabled": true,
             "parameters": {
               "loop": false,
-              "duration": 1.5,
+              "duration": 1.8,
               "speed": 1.0
             }
           },
           {
-            "actualName": "WalkJump",
-            "callName": "walkJump",
-            "displayName": "animate.actions.walkJump",
-            "description": "行走跳跃动画，角色边走边跳",
-            "category": "movement",
+            "actualName": "ZZ_mode",
+            "callName": "ProfessionalMode",
+            "displayName": "animate.actions.professional",
+            "description": "专注模式动作",
+            "category": "pose",
             "enabled": true,
             "parameters": {
               "loop": true,
-              "duration": 2.0,
+              "duration": 4.0,
               "speed": 1.0
             }
           }
@@ -287,40 +325,13 @@
             "intensity": 1.0,
             "enabled": true,
             "morphTargets": ["angry"]
-          },
-          {
-            "actualName": "Surprised",
-            "callName": "surprised",
-            "displayName": "animate.emotions.surprised",
-            "description": "惊讶表情，角色表现出惊讶",
-            "intensity": 1.0,
-            "enabled": true,
-            "morphTargets": ["surprised"]
-          },
-          {
-            "actualName": "Sad",
-            "callName": "sad",
-            "displayName": "animate.emotions.sad",
-            "description": "悲伤表情，角色表现出悲伤",
-            "intensity": 1.0,
-            "enabled": true,
-            "morphTargets": ["sad"]
-          },
-          {
-            "actualName": "Happy",
-            "callName": "happy",
-            "displayName": "animate.emotions.happy",
-            "description": "开心表情，角色表现出快乐",
-            "intensity": 1.0,
-            "enabled": true,
-            "morphTargets": ["happy"]
           }
         ]
       }
     },
     "default": {
-      "name": "默认配置",
-      "description": "当没有找到特定模型配置时使用的默认配置",
+      "name": "默认数字人",
+      "description": "默认数字人",
       "animations": {
         "actions": [
           {
@@ -348,30 +359,17 @@
               "duration": 1.5,
               "speed": 1.0
             }
-          },
-          {
-            "actualName": "Wave",
-            "callName": "wave",
-            "displayName": "animate.actions.wave",
-            "description": "挥手动画，角色挥手打招呼",
-            "category": "gesture",
-            "enabled": true,
-            "parameters": {
-              "loop": false,
-              "duration": 2.0,
-              "speed": 1.0
-            }
           }
         ],
         "emotions": [
           {
-            "actualName": "Angry",
-            "callName": "angry",
-            "displayName": "animate.emotions.angry",
-            "description": "生气表情，角色表现出愤怒",
+            "actualName": "Surprised",
+            "callName": "surprised",
+            "displayName": "animate.emotions.surprised",
+            "description": "惊讶表情，角色表现出惊讶",
             "intensity": 1.0,
             "enabled": true,
-            "morphTargets": ["angry"]
+            "morphTargets": ["surprised"]
           }
         ]
       }

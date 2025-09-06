@@ -58,8 +58,16 @@
 
     <!-- 模型查看器 -->
     <div class="viewer-container">
+      <UnityModelViewer
+        v-if="selectedModel?.render_engine === 'unity_webgl'"
+        ref="modelViewer"
+        :model-url="selectedModel?.url"
+        :auto-rotate="true"
+        :show-controls="true"
+      />
       <ModelViewer
         ref="modelViewer"
+        v-if="selectedModel?.render_engine === 'glb'"
         :model-url="selectedModel?.url"
         :auto-rotate="true"
         :show-controls="true"

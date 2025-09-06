@@ -5,6 +5,7 @@ import Components from 'unplugin-vue-components/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
+import mkcert from 'vite-plugin-mkcert';
 
 export default defineConfig(({ mode }) => {
   console.log('🔧 Vite 构建模式:', mode);
@@ -14,6 +15,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: 'all', // 修复类型错误
     },
     plugins: [
+      mkcert(), // 自动安装本地根证书并生成 localhost 证书
       vue(),
       AutoImport({
         imports: ['vue', 'vue-router', 'pinia'],
@@ -57,6 +59,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
+      https: true,
       host: '0.0.0.0',
       open: true,
       proxy: {
@@ -66,6 +69,15 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           rewrite: path => path.replace(/^\/api/, '/api'),
+        },
+        // 1) 反向代理 Unity 页面与静态资源
+        '/unity': {
+          target: 'https://cdn.fangmiaokeji.cn/daizi/v2.2', // 对方 Unity 根路径
+          changeOrigin: true, // 伪装 Host，便于通过对方的域名校验/防盗链
+          secure: true, // 若对方证书自签且想忽略验证 -> 设为 false
+          rewrite: p => p.replace(/^\/unity/, ''),
+          // 2) 如需转发 WebSocket（一般不需要）
+          ws: false,
         },
       },
     },

@@ -63,6 +63,7 @@
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
     "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-mkcert": "^1.17.8",
     "vite-plugin-pwa": "^1.0.0",
     "vitest": "^3.2.4",
     "vue-eslint-parser": "^10.1.3",

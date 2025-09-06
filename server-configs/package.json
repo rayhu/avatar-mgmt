@@ -1,0 +1,70 @@
+{
+  "name": "daidai-avatar-server",
+  "version": "1.0.0",
+  "description": "Digital Avatar Management Server with Unity WebGL Support",
+  "main": "express-unity-server.js",
+  "scripts": {
+    "start": "node express-unity-server.js",
+    "dev": "nodemon express-unity-server.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "echo 'No build step required for server'",
+    "docker:build": "docker build -t daidai-avatar-server .",
+    "docker:run": "docker run -p 3000:3000 daidai-avatar-server",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "logs": "pm2 logs"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^6.10.0",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "winston": "^3.11.0",
+    "express-winston": "^4.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.55.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "unity",
+    "webgl",
+    "vue",
+    "avatar",
+    "3d",
+    "express",
+    "nodejs"
+  ],
+  "author": "AMIS Avatar Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amis/daidai-avatar-mgmt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amis/daidai-avatar-mgmt/issues"
+  },
+  "homepage": "https://daidai.amis.hk"
+}

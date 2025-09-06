@@ -33,25 +33,25 @@ interface ModelAnimationConfig {
 export function useModelAnimations(selectedModel: Ref<Avatar | null>) {
   const currentAnimations = ref<ModelAnimationConfig | null>(null);
 
-  // 根据模型名称获取动画配置
-  function getAnimationsForModel(modelName: string): ModelAnimationConfig | null {
+  // 根据模型animation_model_key获取动画配置
+  function getAnimationsForModel(animation_model_key: string): ModelAnimationConfig | null {
     const config = modelAnimationsConfig.models as Record<string, ModelAnimationConfig>;
 
-    // 首先尝试通过模型名称匹配
-    if (config[modelName]) {
-      console.log(`🎭 找到模型 "${modelName}" 的专用动画配置`);
-      return config[modelName];
+    // 首先尝试通过模型animation_model_key名称匹配
+    if (config[animation_model_key]) {
+      console.log(`🎭 找到模型的专用动画配置 "${animation_model_key}" `);
+      return config[animation_model_key];
     }
 
     // 如果没有找到，使用默认配置
-    console.log(`⚠️ 未找到模型 "${modelName}" 的专用配置，使用默认配置`);
+    console.log(`⚠️ 未找到模型的专用配置 "${animation_model_key}" ，使用默认配置`);
     return config.default || null;
   }
 
   // 当选中模型改变时，更新动画配置
   function updateAnimationsForCurrentModel() {
     if (selectedModel.value) {
-      const animationConfig = getAnimationsForModel(selectedModel.value.name);
+      const animationConfig = getAnimationsForModel(selectedModel.value.animation_model_key);
       currentAnimations.value = animationConfig;
       console.log(`🔄 为模型 "${selectedModel.value.name}" 更新动画配置:`, {
         actionsCount: animationConfig?.animations.actions.length || 0,
