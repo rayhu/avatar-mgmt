@@ -300,7 +300,7 @@ export default {
     viewer: {
       title: '动作和表情测试页面',
       animationControl: '动作控制',
-      emotionControl: '表情控制',
+      emotionControl: '表情和唇形控制',
     },
   },
   settings: {
