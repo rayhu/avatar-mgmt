@@ -34,7 +34,7 @@ app.use(limiter);
 // Unity WebGL 文件的自定义压缩处理
 function unityCompressionHandler(req, res, next) {
   const url = req.url;
-  
+
   // Unity WebGL 构建文件已经压缩，设置正确的头部
   if (url.endsWith('.unityweb')) {
     res.setHeader('Content-Type', 'application/octet-stream');
@@ -53,7 +53,7 @@ function unityCompressionHandler(req, res, next) {
     res.setHeader('Content-Encoding', 'br');
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   }
-  
+
   next();
 }
 
@@ -64,7 +64,7 @@ function unitySecurityHeaders(req, res, next) {
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    
+
     // 允许在 iframe 中使用（仅限同源）
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   }
@@ -74,40 +74,45 @@ function unitySecurityHeaders(req, res, next) {
 // ============== 安全配置 ==============
 
 // Helmet 安全头（需要为 Unity WebGL 定制）
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'", // Unity WebGL 需要
-        "'unsafe-eval'",   // Unity WebGL 需要
-        "blob:"
-      ],
-      workerSrc: ["'self'", "blob:"],
-      connectSrc: [
-        "'self'",
-        "ws:",
-        "wss:",
-        "https://api.daidai.amis.hk",
-        NODE_ENV === 'development' ? 'http://localhost:*' : ''
-      ].filter(Boolean),
-      imgSrc: ["'self'", "data:", "blob:"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      fontSrc: ["'self'"],
-      mediaSrc: ["'self'", "blob:"],
-      frameSrc: ["'self'"],
-      childSrc: ["'self'", "blob:"],
-      manifestSrc: ["'self'"]
-    }
-  },
-  crossOriginEmbedderPolicy: false, // 我们手动处理
-  hsts: NODE_ENV === 'production' ? {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  } : false
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'", // Unity WebGL 需要
+          "'unsafe-eval'", // Unity WebGL 需要
+          'blob:',
+        ],
+        workerSrc: ["'self'", 'blob:'],
+        connectSrc: [
+          "'self'",
+          'ws:',
+          'wss:',
+          'https://api.daidai.amis.hk',
+          NODE_ENV === 'development' ? 'http://localhost:*' : '',
+        ].filter(Boolean),
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'"],
+        mediaSrc: ["'self'", 'blob:'],
+        frameSrc: ["'self'"],
+        childSrc: ["'self'", 'blob:'],
+        manifestSrc: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // 我们手动处理
+    hsts:
+      NODE_ENV === 'production'
+        ? {
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true,
+          }
+        : false,
+  })
+);
 
 // CORS 配置
 const corsOptions = {
@@ -119,7 +124,7 @@ const corsOptions = {
       NODE_ENV === 'development' ? 'http://localhost:5173' : null,
       NODE_ENV === 'development' ? 'http://localhost:3000' : null,
     ].filter(Boolean);
-    
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -128,7 +133,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 
 app.use(cors(corsOptions));
@@ -144,40 +149,47 @@ app.use(unityCompressionHandler);
 app.use(unitySecurityHeaders);
 
 // 动态压缩（排除已压缩的 Unity 文件）
-app.use(compression({
-  filter: (req, res) => {
-    // 跳过已经压缩的 Unity WebGL 文件
-    if (req.url.endsWith('.unityweb')) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-  level: 6,
-  threshold: 1024
-}));
+app.use(
+  compression({
+    filter: (req, res) => {
+      // 跳过已经压缩的 Unity WebGL 文件
+      if (req.url.endsWith('.unityweb')) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+    level: 6,
+    threshold: 1024,
+  })
+);
 
 // ============== 静态文件服务 ==============
 
 // Unity WebGL 构建文件服务
-app.use('/unity_sample', express.static(path.join(__dirname, '../frontend/public/unity_sample'), {
-  maxAge: NODE_ENV === 'production' ? '1y' : '1h',
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, filePath) => {
-    // 为 Unity WebGL HTML 文件设置较短缓存
-    if (path.extname(filePath) === '.html') {
-      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1小时
-    }
-  }
-}));
+app.use(
+  '/unity_sample',
+  express.static(path.join(__dirname, '../frontend/public/unity_sample'), {
+    maxAge: NODE_ENV === 'production' ? '1y' : '1h',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // 为 Unity WebGL HTML 文件设置较短缓存
+      if (path.extname(filePath) === '.html') {
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // 1小时
+      }
+    },
+  })
+);
 
 // Vue 应用静态文件服务
-app.use(express.static(path.join(__dirname, '../frontend/dist'), {
-  maxAge: NODE_ENV === 'production' ? '1y' : '1h',
-  etag: true,
-  lastModified: true,
-  index: false // 不自动服务 index.html，由路由处理
-}));
+app.use(
+  express.static(path.join(__dirname, '../frontend/dist'), {
+    maxAge: NODE_ENV === 'production' ? '1y' : '1h',
+    etag: true,
+    lastModified: true,
+    index: false, // 不自动服务 index.html，由路由处理
+  })
+);
 
 // ============== API 路由 ==============
 
@@ -187,7 +199,7 @@ app.get('/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     environment: NODE_ENV,
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -197,7 +209,7 @@ app.use('/api', require('./routes/avatar-api')); // 假设你有这个路由文�
 // Unity WebGL 特定的 API
 app.get('/api/unity/config/:avatarId', (req, res) => {
   const { avatarId } = req.params;
-  
+
   // 返回数字人配置
   res.json({
     avatarId,
@@ -205,8 +217,8 @@ app.get('/api/unity/config/:avatarId', (req, res) => {
     settings: {
       quality: 'high',
       enableAudio: true,
-      enablePostMessage: true
-    }
+      enablePostMessage: true,
+    },
   });
 });
 
@@ -215,14 +227,16 @@ app.get('/api/unity/config/:avatarId', (req, res) => {
 // 处理 Vue 路由 - 必须在所有其他路由之后
 app.get('*', (req, res, next) => {
   // 如果请求的是 Unity WebGL 相关路径，跳过 SPA 处理
-  if (req.url.startsWith('/unity_sample/') || 
-      req.url.startsWith('/api/') ||
-      req.url.startsWith('/health')) {
+  if (
+    req.url.startsWith('/unity_sample/') ||
+    req.url.startsWith('/api/') ||
+    req.url.startsWith('/health')
+  ) {
     return next();
   }
-  
+
   // 服务 Vue 应用的 index.html
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'), (err) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'), err => {
     if (err) {
       console.error('Error serving index.html:', err);
       res.status(500).send('Internal Server Error');
@@ -237,27 +251,27 @@ app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
     message: `Route ${req.method} ${req.url} not found`,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // 全局错误处理
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
-  
+
   // CORS 错误
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
       error: 'CORS Error',
-      message: 'Origin not allowed'
+      message: 'Origin not allowed',
     });
   }
-  
+
   // 其他错误
   const statusCode = err.statusCode || err.status || 500;
   res.status(statusCode).json({
     error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
-    ...(NODE_ENV === 'development' && { stack: err.stack })
+    ...(NODE_ENV === 'development' && { stack: err.stack }),
   });
 });
 
@@ -296,7 +310,7 @@ process.on('SIGINT', () => {
 });
 
 // 未捕获的异常处理
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', err => {
   console.error('❌ 未捕获的异常:', err);
   process.exit(1);
 });
