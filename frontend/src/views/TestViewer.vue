@@ -61,7 +61,7 @@
       <UnityModelViewer
         v-if="selectedModel?.render_engine === 'unity_webgl'"
         ref="modelViewer"
-        :model-url="selectedModel?.url"
+        :model-url="selectedModel?.unity_entry_url"
         :auto-rotate="true"
         :show-controls="true"
       />

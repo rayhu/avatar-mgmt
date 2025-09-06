@@ -241,7 +241,16 @@
       </div>
 
       <div class="preview-section">
+
+        <UnityModelViewer
+          v-if="selectedModel?.render_engine === 'unity_webgl'"
+          ref="modelViewer"
+          :model-url="selectedModel?.unity_entry_url"
+          :auto-rotate="true"
+          :show-controls="true"
+        />
         <ModelViewer
+          v-if="selectedModel?.render_engine === 'glb'"
           ref="modelViewer"
           :model-url="selectedModel?.url"
           :emotion="currentEmotion"

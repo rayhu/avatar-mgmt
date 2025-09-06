@@ -33,13 +33,22 @@
       </div>
     </div>
 
+    <!-- DOM 背景层（当 Unity 透明时可见） -->
+    <div
+      v-if="domBackgroundImage"
+      class="unity-bg"
+      :style="{ backgroundImage: `url(${domBackgroundImage})` }"
+    ></div>
+
     <!-- Unity WebGL iframe -->
-    <iframe
+      <!-- :src="modelUrl" -->
+      <!-- src="https://cdn.fangmiaokeji.cn/daizi/v2.2/index.html?cc=daidai_1" -->
+      <iframe
       v-show="!isLoading && !loadError"
       ref="unityFrame"
       class="unity-iframe"
       id="Frame"
-      src="https://cdn.fangmiaokeji.cn/daizi/v2.2/index.html?cc=daidai_1"
+      :src="modelUrl"
       title="AI-Chat-Toolkit"
       referrerpolicy="no-referrer"
       loading="eager"
@@ -74,6 +83,9 @@ const loadError = ref<string | null>(null);
 const isUnityReady = ref(false);
 const currentAvatarId = ref<string | null>(null);
 const currentUnityUrl = ref<string | null>(null);
+
+// DOM 背景（Track A：不改 Unity，使用容器下层背景）
+const domBackgroundImage = ref<string | null>(null);
 
 // 消息队列 - 在 Unity 未就绪时缓存消息
 const messageQueue = ref<Array<{ kind: string; msg: any }>>([]);
@@ -329,6 +341,15 @@ function getVideoStream(frameRate: number = 30): MediaStream | null {
   }
 }
 
+// 设置/清除 DOM 背景图（当 Unity 透明时生效）
+function setDomBackgroundImage(imageUrl: string) {
+  domBackgroundImage.value = imageUrl;
+}
+
+function clearDomBackgroundImage() {
+  domBackgroundImage.value = null;
+}
+
 function sendUnityReadyMessage(avatarId: string) {
   window.postMessage(
     {
@@ -457,6 +478,10 @@ defineExpose({
 
   // Unity 通信接口
   sendToUnity,
+
+  // DOM 背景控制（Track A）
+  setDomBackgroundImage,
+  clearDomBackgroundImage,
 });
 </script>
 
@@ -476,12 +501,23 @@ export default {
   position: relative;
 }
 
+.unity-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
 .unity-iframe {
   width: 100%;
   height: 100%;
   border: none;
   background: transparent;
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
 /* 加载覆盖层 - 复用原有样式 */
