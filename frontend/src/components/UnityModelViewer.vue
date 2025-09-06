@@ -41,9 +41,7 @@
     ></div>
 
     <!-- Unity WebGL iframe -->
-      <!-- :src="modelUrl" -->
-      <!-- src="https://cdn.fangmiaokeji.cn/daizi/v2.2/index.html?cc=daidai_1" -->
-      <iframe
+    <iframe
       v-show="!isLoading && !loadError"
       ref="unityFrame"
       class="unity-iframe"

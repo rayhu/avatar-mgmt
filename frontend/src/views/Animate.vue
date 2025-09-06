@@ -241,7 +241,6 @@
       </div>
 
       <div class="preview-section">
-
         <UnityModelViewer
           v-if="selectedModel?.render_engine === 'unity_webgl'"
           ref="modelViewer"
