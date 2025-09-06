@@ -106,13 +106,13 @@
       </div>
 
       <!-- 测试加载界面 -->
-      <div class="control-section">
+      <!-- <div class="control-section">
         <h3>测试加载界面</h3>
         <div class="button-group">
           <button @click="testLoading" class="test-btn">🧪 测试加载界面</button>
           <button @click="testError" class="test-btn error">⚠️ 测试错误界面</button>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -219,6 +219,7 @@ function getAnimationTooltip(callName: string): string {
     if (loop !== undefined) {
       tooltip += `\n🔄 ${loop ? '循环播放' : '播放一次后回到待机'}`;
     }
+    tooltip += `\n消息名称 ${animation.actualName}`;
     return tooltip;
   }
   return callName;

@@ -136,7 +136,7 @@
           {
             "actualName": "idle01_BaoQianNuLi",
             "callName": "ApologyGesture",
-            "displayName": "animate.actions.apology",
+            "displayName": "抱歉但努力",
             "description": "道歉姿势，鞠躬表达歉意",
             "category": "gesture",
             "enabled": true,
@@ -149,7 +149,7 @@
           {
             "actualName": "idle02_Love",
             "callName": "BlinkLoveExpression",
-            "displayName": "animate.actions.love",
+            "displayName": "表达爱意",
             "description": "眨眼睛，双手比心",
             "category": "movement",
             "enabled": true,
@@ -162,7 +162,7 @@
           {
             "actualName": "idle03_DaXiao",
             "callName": "BigSmile",
-            "displayName": "animate.actions.laugh",
+            "displayName": "大笑",
             "description": "开怀大笑动作",
             "category": "expression",
             "enabled": true,
@@ -175,7 +175,7 @@
           {
             "actualName": "idle04_TiaoPi",
             "callName": "PlayfulGesture",
-            "displayName": "animate.actions.playful",
+            "displayName": "调皮",
             "description": "调皮动作，轻松搞怪",
             "category": "gesture",
             "enabled": true,
@@ -188,7 +188,7 @@
           {
             "actualName": "idle05_Sorry",
             "callName": "SorryExpression",
-            "displayName": "animate.actions.sorry",
+            "displayName": "鞠躬致谢​​（再见）",
             "description": "不好意思的表情和手势",
             "category": "expression",
             "enabled": true,
@@ -201,7 +201,7 @@
           {
             "actualName": "idle06_Happy",
             "callName": "HappyExpression",
-            "displayName": "animate.actions.happy",
+            "displayName": "开心打招呼",
             "description": "开心微笑动作",
             "category": "expression",
             "enabled": true,
@@ -214,7 +214,7 @@
           {
             "actualName": "idle07_Smile",
             "callName": "SmileExpression",
-            "displayName": "animate.actions.smile",
+            "displayName": "微笑",
             "description": "自然的微笑",
             "category": "expression",
             "enabled": true,
@@ -227,7 +227,7 @@
           {
             "actualName": "J00",
             "callName": "NeutralPose",
-            "displayName": "animate.actions.neutral",
+            "displayName": "普通讲解模式",
             "description": "默认站姿",
             "category": "pose",
             "enabled": true,
@@ -240,7 +240,7 @@
           {
             "actualName": "J01_Daoqian",
             "callName": "DaoqianGesture",
-            "displayName": "animate.actions.daoqian",
+            "displayName": "（讲解模式）道歉安抚",
             "description": "解释解说道歉动作",
             "category": "gesture",
             "enabled": true,
@@ -253,7 +253,7 @@
           {
             "actualName": "J02_Duibi",
             "callName": "ComparisonGesture",
-            "displayName": "animate.actions.compare",
+            "displayName": "（讲解模式）对比分析",
             "description": "对比分析手势",
             "category": "gesture",
             "enabled": true,
@@ -266,7 +266,7 @@
           {
             "actualName": "J03_Juli",
             "callName": "DistanceExplanation",
-            "displayName": "animate.actions.explainDistance",
+            "displayName": "（讲解模式）举例说明",
             "description": "举例说明动作",
             "category": "gesture",
             "enabled": true,
@@ -279,7 +279,7 @@
           {
             "actualName": "J04_Qiangdiao",
             "callName": "EmphasisGesture",
-            "displayName": "animate.actions.emphasize",
+            "displayName": "（讲解模式）强调重点",
             "description": "强调重点动作",
             "category": "gesture",
             "enabled": true,
@@ -292,7 +292,7 @@
           {
             "actualName": "J05_Zhixiang",
             "callName": "PointingGesture",
-            "displayName": "animate.actions.point",
+            "displayName": "（讲解模式）指向重点",
             "description": "指向动作",
             "category": "gesture",
             "enabled": true,
@@ -305,7 +305,7 @@
           {
             "actualName": "ZZ_mode",
             "callName": "ProfessionalMode",
-            "displayName": "animate.actions.professional",
+            "displayName": "专注模式",
             "description": "专注模式动作",
             "category": "pose",
             "enabled": true,
@@ -316,17 +316,7 @@
             }
           }
         ],
-        "emotions": [
-          {
-            "actualName": "Angry",
-            "callName": "angry",
-            "displayName": "animate.emotions.angry",
-            "description": "生气表情，角色表现出愤怒",
-            "intensity": 1.0,
-            "enabled": true,
-            "morphTargets": ["angry"]
-          }
-        ]
+        "emotions": []
       }
     },
     "default": {
